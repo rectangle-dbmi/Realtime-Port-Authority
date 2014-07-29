@@ -2,7 +2,7 @@ Documentation
 =============
 
 
-BusTime Developer API Guide 2.4.pdf is the API guide to the Real-Time Tracking of Port Authority.
+[BusTime Developer API Guide 2.4.pdf](https://github.com/epicmeowsni/Realtime-Port-Authority/blob/master/Documentation/BusTime%20Developer%20API%20Guide%202.4.pdf) is the API guide to the Real-Time Tracking of Port Authority.
 
 Google's [General Transit Reference Specification](https://developers.google.com/transit/gtfs/reference) is also an important read.
 
