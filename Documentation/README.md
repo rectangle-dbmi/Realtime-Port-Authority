@@ -52,10 +52,14 @@ This will return an XML of the real-time data.... with some data changed
 This data changes every 10 seconds!
 
 Apparently printing your current location in Google maps is done through
-```map.setMyLocationEnabled(true);```
+```
+map.setMyLocationEnabled(true);
+```
 
 Apparently a hunky dunky way of [displaying points](http://stackoverflow.com/questions/14822567/display-many-points-with-google-maps-android-api-v2) on the screen is through
 ...Through android
+
+
 ```
 mMap.setOnCameraChangeListener(new OnCameraChangeListener() {
    @Override
