@@ -1,7 +1,12 @@
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -35,20 +40,46 @@ class Bus {
 	}
 }
 
-public class PortAuthorityRealtime {
+public class PortAuthorityRealtime extends TimerTask {
+
+	public static String[] argums;
 
 	public static void main(String[] args) throws Exception {
+		PortAuthorityRealtime.argums = args;
+		Timer timer = new Timer();
+		timer.schedule(new PortAuthorityRealtime(), 0, 10000);
+	}
+
+	@Override
+	public void run() {
 		SAXParserFactory spf = SAXParserFactory.newInstance();
-		SAXParser sp = spf.newSAXParser();
-		URL url = new URL(
-				"http://realtime.portauthority.org/bustime/api/v1/getvehicles?key="
-						+ args[0] + "&rt=" + args[1]);
+		SAXParser sp = null;
+		try {
+			sp = spf.newSAXParser();
+		} catch (ParserConfigurationException | SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		URL url = null;
+		try {
+			url = new URL(
+					"http://realtime.portauthority.org/bustime/api/v1/getvehicles?key="
+							+ argums[0] + "&rt=" + argums[1]);
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		SAXHandler handler = new SAXHandler();
 		try {
-			sp.parse(new InputSource(url.openStream()), handler);
+			try {
+				sp.parse(new InputSource(url.openStream()), handler);
+			} catch (SAXException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} catch (NullPointerException sax) {
 			System.out
-			.println("Bus route is not tracked or all buses on route are in garage.");
+					.println("Bus route is not tracked or all buses on route are in garage.");
 		}
 
 		for (Bus bus : handler.busList) {
@@ -82,7 +113,7 @@ class SAXHandler extends DefaultHandler {
 			busList.add(bus);
 			bus.vid = content;
 			break;
-			// For all other end tags the bus has to be updated.
+		// For all other end tags the bus has to be updated.
 		case "lat":
 			bus.lat = content;
 			break;
