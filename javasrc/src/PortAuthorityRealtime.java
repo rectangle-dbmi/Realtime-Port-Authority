@@ -30,7 +30,8 @@ class Bus {
 
 	@Override
 	public String toString() {
-		return vid + " (" + lat + "," + lon + ")";
+		return vid + "\t" + lat + "\t"
+				+ lon;
 	}
 }
 
