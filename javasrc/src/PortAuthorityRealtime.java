@@ -21,7 +21,7 @@ class Bus {
 	String lat;
 	String lon;
 	String msg;
-	String tmpstmp;
+	String tmstmp;
 	String hdg;
 	String pid;
 	String rt;
@@ -45,7 +45,7 @@ class Bus {
 
 	@Override
 	public String toString() {
-		return vid + "\t" + lat + "\t" + lon + "\t" + tmpstmp + "\t" + hdg
+		return vid + "\t" + lat + "\t" + lon + "\t" + tmstmp + "\t" + hdg
 				+ "\t" + pid + "\t" + rt + "\t" + des + "\t" + pdist + "\t"
 				+ spd + "\t" + tablockid + "\t" + tatripid;
 	}
@@ -74,7 +74,7 @@ public class PortAuthorityRealtime extends TimerTask {
 		URL url = null;
 		try {
 			url = new URL(
-					"http://realtime.portauthority.org/bustime/api/v1/getvehicles?key="
+					"http://realtime.portauthority.org/bustime/api/v2/getvehicles?key="
 							+ argums[0] + "&rt=" + argums[1]);
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
@@ -136,8 +136,8 @@ class SAXHandler extends DefaultHandler {
 		case "msg":
 			bus.msg = content;
 			break;
-		case "tmpstmp":
-			bus.tmpstmp = content;
+		case "tmstmp":
+			bus.tmstmp = content;
 			break;
 		case "hdg":
 			bus.hdg = content;
