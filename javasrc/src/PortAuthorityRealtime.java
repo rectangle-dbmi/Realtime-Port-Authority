@@ -85,6 +85,7 @@ public class PortAuthorityRealtime extends TimerTask {
 		for (Bus bus : handler.busList) {
 			System.out.println(bus.toString());
 		}
+		System.out.println();
 	}
 
 }
