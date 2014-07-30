@@ -15,6 +15,7 @@ class Bus {
 	String vid;
 	String lat;
 	String lon;
+	String msg;
 
 	public float getLat() {
 		return Float.parseFloat(lat);
@@ -30,8 +31,7 @@ class Bus {
 
 	@Override
 	public String toString() {
-		return vid + "\t" + lat + "\t"
-				+ lon;
+		return vid + "\t" + lat + "\t" + lon;
 	}
 }
 
@@ -44,11 +44,15 @@ public class PortAuthorityRealtime {
 				"http://realtime.portauthority.org/bustime/api/v1/getvehicles?key="
 						+ args[0] + "&rt=" + args[1]);
 		SAXHandler handler = new SAXHandler();
-		sp.parse(new InputSource(url.openStream()), handler);
+		try {
+			sp.parse(new InputSource(url.openStream()), handler);
+		} catch (NullPointerException sax) {
+			System.out
+			.println("Bus route is not tracked or all buses on route are in garage.");
+		}
 
 		for (Bus bus : handler.busList) {
-			System.out.println(bus.getVid() + "\t" + bus.getLat() + "\t"
-					+ bus.getLon());
+			System.out.println(bus.toString());
 		}
 	}
 
@@ -73,17 +77,20 @@ class SAXHandler extends DefaultHandler {
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
 		switch (qName) {
-		// Add the employee to list once end tag is found
+		// Add the bus to list once end tag is found
 		case "vid":
 			busList.add(bus);
 			bus.vid = content;
 			break;
-		// For all other end tags the employee has to be updated.
+			// For all other end tags the bus has to be updated.
 		case "lat":
 			bus.lat = content;
 			break;
 		case "lon":
 			bus.lon = content;
+			break;
+		case "msg":
+			bus.msg = content;
 			break;
 		}
 	}
@@ -94,7 +101,7 @@ class SAXHandler extends DefaultHandler {
 			Attributes attributes) throws SAXException {
 
 		switch (qName) {
-		// Create a new Employee object when the start tag is found
+		// Create a new Bus object when the start tag is found
 		case "vid":
 			bus = new Bus();
 			bus.vid = attributes.getValue("id");
