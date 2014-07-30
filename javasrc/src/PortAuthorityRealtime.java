@@ -21,6 +21,15 @@ class Bus {
 	String lat;
 	String lon;
 	String msg;
+	String tmpstmp;
+	String hdg;
+	String pid;
+	String rt;
+	String des;
+	String pdist;
+	String spd;
+	String tablockid;
+	String tatripid;
 
 	public float getLat() {
 		return Float.parseFloat(lat);
@@ -36,7 +45,9 @@ class Bus {
 
 	@Override
 	public String toString() {
-		return vid + "\t" + lat + "\t" + lon;
+		return vid + "\t" + lat + "\t" + lon + "\t" + tmpstmp + "\t" + hdg
+				+ "\t" + pid + "\t" + rt + "\t" + des + "\t" + pdist + "\t"
+				+ spd + "\t" + tablockid + "\t" + tatripid;
 	}
 }
 
@@ -79,7 +90,8 @@ public class PortAuthorityRealtime extends TimerTask {
 			}
 		} catch (NullPointerException sax) {
 			System.out
-					.println("Bus route is not tracked or all buses on route are in garage.");
+			.println("Bus route is not tracked or all buses on route are in garage.");
+			System.exit(0);
 		}
 
 		for (Bus bus : handler.busList) {
@@ -114,7 +126,7 @@ class SAXHandler extends DefaultHandler {
 			busList.add(bus);
 			bus.vid = content;
 			break;
-		// For all other end tags the bus has to be updated.
+			// For all other end tags the bus has to be updated.
 		case "lat":
 			bus.lat = content;
 			break;
@@ -123,6 +135,33 @@ class SAXHandler extends DefaultHandler {
 			break;
 		case "msg":
 			bus.msg = content;
+			break;
+		case "tmpstmp":
+			bus.tmpstmp = content;
+			break;
+		case "hdg":
+			bus.hdg = content;
+			break;
+		case "pid":
+			bus.pid = content;
+			break;
+		case "rt":
+			bus.rt = content;
+			break;
+		case "des":
+			bus.des = content;
+			break;
+		case "pdist":
+			bus.pdist = content;
+			break;
+		case "spd":
+			bus.spd = content;
+			break;
+		case "tablockid":
+			bus.tablockid = content;
+			break;
+		case "tatripid":
+			bus.tatripid = content;
 			break;
 		}
 	}
