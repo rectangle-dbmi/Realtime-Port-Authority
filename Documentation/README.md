@@ -78,4 +78,4 @@ This means atm, we can just get a map and input coordinates to print the locatio
 So then... TODOS as of 07.29.2014:
 - Know Android programming (java, xml, manifest files...)
 - Figure out Google Maps API
-- print locations of the buses that we poll.
+- ~~print locations of the buses that we poll.~~ done by Ritwik
