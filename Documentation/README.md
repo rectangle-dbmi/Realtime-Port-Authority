@@ -22,7 +22,7 @@ of the app.
 Ritwik figured out how the API works... It's a simple hyperlink provided in the API
 
 For example... to get all P3 buses running... (will not work without your API copy pasted into "your_key"):
-http://realtime.portauthority.org/bustime/api/v1/getvehicles?key=your_key&rt=P3
+http://realtime.portauthority.org/bustime/api/v2/getvehicles?key=your_key&rt=P3
 
 This will return an XML of the real-time data.... with some data changed
 
@@ -111,9 +111,9 @@ It seems hard but it really isn't... not really... But there are some quirks
 	- Google Repositories
 	- ... pretty much everything kinda a little
 	
-######Opening the Project here....
+#Opening the Project....
 - Click on Import Project (sometimes in the File dropdown menu)
 - go all the way up to *../Realtime-Port-Authority/Android*
 - click on the android there
 
-After this... should be good...
+After this... should be good... Make sure if you're editing the files in Android Studio, use the program to commit and whatnot. This is because it'll commit and .gitignore the correct files. If you don't do this, it'll mess up the whole project!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
