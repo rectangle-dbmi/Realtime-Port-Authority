@@ -4,7 +4,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import world.Bus;
@@ -14,16 +14,37 @@ import world.Bus;
  */
 class SAXHandler extends DefaultHandler {
 
-    List<Bus> busList = new ArrayList<Bus>();
+    List<Bus> busList = new LinkedList<Bus>();
     Bus bus = null;
     String content = null;
 
+    /**
+     *
+     */
+    public SAXHandler() {
+        super();
+    }
+
+    /**
+     *
+     * @param ch
+     * @param start
+     * @param length
+     * @throws SAXException
+     */
     @Override
     public void characters(char[] ch, int start, int length)
             throws SAXException {
         content = String.copyValueOf(ch, start, length).trim();
     }
 
+    /**
+     *
+     * @param uri
+     * @param localName
+     * @param qName
+     * @throws SAXException
+     */
     @Override
     public void endElement(String uri, String localName, String qName)
             throws SAXException {
@@ -72,6 +93,14 @@ class SAXHandler extends DefaultHandler {
 
     }
 
+    /**
+     *
+     * @param uri
+     * @param localName
+     * @param qName
+     * @param attributes
+     * @throws SAXException
+     */
     @Override
     // Triggered when the start of tag is found.
     public void startElement(String uri, String localName, String qName,
