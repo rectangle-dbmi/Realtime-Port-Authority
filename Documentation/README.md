@@ -96,10 +96,10 @@ It seems hard but it really isn't... not really... But there are some quirks
 		- note... oracle-java8-installer works too...
 		- but make sure oracle java7 is the main one...
 		- Take note that java 8 and android isn't happening in the near future... yet...
-2. Install 32-bit libraries
-	- `sudo dpkg --add-architecture i386`
-	- `sudo apt-get update`
-	- `sudo apt-get install libc6:i386 libncurses5:i386 libstdc++6:i386`
+2. Install 32-bit libraries (assuming 12.04 or 14.04 ubuntu)
+	- `sudo apt-get install libc6:i386`
+	- `sudo apt-get install libncurses5:i386`
+	- `sudo apt-get install libstdc++6:i386`
 3. Install Android Studio..
 	- `sudo add-apt-repository ppa:paolorotolo/android-studio`
 	- `sudo apt-get update`
@@ -111,9 +111,19 @@ It seems hard but it really isn't... not really... But there are some quirks
 	- Google Repositories
 	- ... pretty much everything kinda a little
 	
+Do not open the project until you do all of these steps....
+	
 #Opening the Project....
+- fork the rectang\[le\] repo into your account (go click on the Fork button at the top right of the github website of this project and then click on your name)
+	- git clone your forked repo
+	- type this after git cloning:
+		- `git remote add upstream https://github.com/rectangle-dbmi/Realtime-Port-Authority.git`
 - Click on Import Project (sometimes in the File dropdown menu)
 - go all the way up to *../Realtime-Port-Authority/Android*
 - click on the android there
+- **You need to change the Java JVM too...**
+	- right-click the project folder and click on **Open Module Settings** near the bottom of the dropdown box
+	- change the JDK to Java 7 Oracle (look for yours or look below..)
+		- mine was `/usr/lib/jvm/java-7-oracle` which will be the same if you install the real version.
 
 After this... should be good... Make sure if you're editing the files in Android Studio, use the program to commit and whatnot. This is because it'll commit and .gitignore the correct files. If you don't do this, it'll mess up the whole project!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
