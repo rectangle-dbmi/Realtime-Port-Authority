@@ -94,6 +94,8 @@ It seems hard but it really isn't... not really... But there are some quirks
 	- `sudo apt-get update`
 	- `sudo apt-get install oracle-java7-installer`
 		- note... oracle-java8-installer works too...
+		- but make sure oracle java7 is the main one...
+		- Take note that java 8 and android isn't happening in the near future... yet...
 2. Install 32-bit libraries
 	- `sudo dpkg --add-architecture i386`
 	- `sudo apt-get update`
@@ -108,3 +110,10 @@ It seems hard but it really isn't... not really... But there are some quirks
 	- Google Play Services
 	- Google Repositories
 	- ... pretty much everything kinda a little
+	
+######Opening the Project here....
+- Click on Import Project (sometimes in the File dropdown menu)
+- go all the way up to *../Realtime-Port-Authority/Android*
+- click on the android there
+
+After this... should be good...
