@@ -79,3 +79,32 @@ So then... TODOS as of 07.29.2014:
 - Know Android programming (java, xml, manifest files...)
 - Figure out Google Maps API
 - ~~print locations of the buses that we poll.~~ done by Ritwik
+
+#Installing Android Studio on Ubuntu (and Linux in general)
+
+It seems hard but it really isn't... not really... But there are some quirks
+
+######Prequisites:
+- [Oracle Java 7](http://www.webupd8.org/2012/09/install-oracle-java-8-in-ubuntu-via-ppa.html)
+- [32-Bit Libraries](http://askubuntu.com/questions/454253/how-to-run-android-sdk-in-ubuntu-64-bits)
+
+######Instructions:
+1. Install Oracle Java 7 (might as well install 8 also if you want)
+	- `sudo add-apt-repository ppa:webupd8team/java`
+	- `sudo apt-get update`
+	- `sudo apt-get install oracle-java7-installer`
+		- note... oracle-java8-installer works too...
+2. Install 32-bit libraries
+	- `sudo dpkg --add-architecture i386`
+	- `sudo apt-get update`
+	- `sudo apt-get install libc6:i386 libncurses5:i386 libstdc++6:i386`
+3. Install Android Studio..
+	- `sudo add-apt-repository ppa:paolorotolo/android-studio`
+	- `sudo apt-get update`
+	- `sudo apt-get install android-studio`
+4. Install the update that pops up (would be 0.8.2)
+5. Install the SDK Manager and install
+	- to 4.2.2
+	- Google Play Services
+	- Google Repositories
+	- ... pretty much everything kinda a little
