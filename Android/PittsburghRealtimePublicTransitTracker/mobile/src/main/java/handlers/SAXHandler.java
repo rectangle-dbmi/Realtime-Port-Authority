@@ -4,7 +4,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import world.Bus;
@@ -14,7 +14,7 @@ import world.Bus;
  */
 class SAXHandler extends DefaultHandler {
 
-    List<Bus> busList = new LinkedList<Bus>();
+    List<Bus> busList = new ArrayList<Bus>();
     Bus bus = null;
     String content = null;
 
