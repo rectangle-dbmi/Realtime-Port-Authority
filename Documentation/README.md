@@ -4,11 +4,25 @@ Documentation
 
 [BusTime Developer API Guide 2.4.pdf](https://github.com/epicmeowsni/Realtime-Port-Authority/blob/master/Documentation/BusTime%20Developer%20API%20Guide%202.4.pdf) is the API guide to the Real-Time Tracking of Port Authority.
 
+[Realtime Port Authority Bus Tracker Website](http://realtime.portauthority.org/)
+
 Google's [General Transit Reference Specification](https://developers.google.com/transit/gtfs/reference) is also an important read.
 
 The file given by Port Authority is [here](http://www.portauthority.org/GeneralTransitFeed/) but this is only for taking note of stops and whatnot.
 
 [Google Maps API](https://developers.google.com/maps/)
+
+######Current Realtime Port Authority Routes:
+- 41 (Bower Hill)
+- 48 (Arlington)
+- 56 (Lincoln Place)
+- 8  (Perrysville)
+- 86 (Liberty)
+- 88 (Penn)
+- P1 (East Busway - all stops)
+- P3 (East Busway - Oakland)
+
+Don't ask us why Port Authority likes this this way.............. it's stupid I know.
 
 ##For Developers
 
