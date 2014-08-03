@@ -5,11 +5,22 @@ import android.support.v4.app.FragmentActivity;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import handlers.PortAuthorityRealtime;
+import world.Bus;
 
 public class MapsActivity extends FragmentActivity {
 
+    /**
+     * The Google Maps object
+     */
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
+    /**
+     * @param savedInstanceState Bundle class variable for the android main
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -17,6 +28,9 @@ public class MapsActivity extends FragmentActivity {
         setUpMapIfNeeded();
     }
 
+    /**
+     * method for resuming
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -60,5 +74,23 @@ public class MapsActivity extends FragmentActivity {
     private void setUpMap() {
         mMap.setMyLocationEnabled(true);
 //        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        addBuses();
+    }
+
+    /**
+     * Adds the buses to the google maps
+     */
+    private void addBuses() {
+        PortAuthorityRealtime rt = new PortAuthorityRealtime();
+        /** Make sure that the map has been initialised **/
+        if (null != mMap) {
+            for (Bus bus : rt.returnBus()) {
+                mMap.addMarker(new MarkerOptions()
+                                .position(new LatLng(bus.getLat(), bus.getLon()))
+                                .title(bus.getVid() + " " + bus.getDes())
+                                .draggable(false)
+                );
+            }
+        }
     }
 }

@@ -28,6 +28,10 @@ public class Bus {
         return Integer.parseInt(vid);
     }
 
+    public String getDes() {
+        return des;
+    }
+
     public void setVid(String vid) {
         this.vid = vid;
     }
