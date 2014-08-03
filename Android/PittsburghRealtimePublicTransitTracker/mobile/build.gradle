@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 20
-    buildToolsVersion "20.0.0"
+    compileSdkVersion 19
+    buildToolsVersion '20.0.0'
 
     defaultConfig {
         applicationId "rectangledbmi.pittsburghrealtimepublictransittracker"
@@ -29,6 +29,5 @@ dependencies {
     compile 'com.android.support:gridlayout-v7:19.1.0'
     compile 'com.android.support:mediarouter-v7:19.1.0'
     compile 'com.android.support:support-v13:19.1.0'
-
-//    TODO: epicstar - was creating an error.... gotta fix this here (says duplicate compiles in gradle)
+    //    TODO: epicstar - was creating an error.... gotta fix this here (says duplicate compiles in gradle)
 }
