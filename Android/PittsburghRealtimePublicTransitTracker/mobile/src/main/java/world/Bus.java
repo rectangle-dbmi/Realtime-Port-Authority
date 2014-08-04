@@ -12,6 +12,7 @@ public class Bus {
     private String rt;
     private String des;
     private String pdist;
+    private String dly;
     private String spd;
     private String tablockid;
     private String tatripid;
@@ -70,6 +71,10 @@ public class Bus {
 
     public void setPdist(String pdist) {
         this.pdist = pdist;
+    }
+
+    public void setDly(String dly) {
+        this.dly = dly;
     }
 
     public void setSpd(String spd) {
