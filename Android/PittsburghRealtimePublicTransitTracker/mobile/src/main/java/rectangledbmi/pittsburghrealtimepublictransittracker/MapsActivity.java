@@ -8,7 +8,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import handlers.PortAuthorityRealtime;
+import rectangledbmi.pittsburghrealtimepublictransittracker.handlers.DOMBus;
 import world.Bus;
 
 public class MapsActivity extends FragmentActivity {
@@ -81,16 +81,19 @@ public class MapsActivity extends FragmentActivity {
      * Adds the buses to the google maps
      */
     private void addBuses() {
-        PortAuthorityRealtime rt = new PortAuthorityRealtime();
         /** Make sure that the map has been initialised **/
-        if (null != mMap) {
-            for (Bus bus : rt.returnBus()) {
-                mMap.addMarker(new MarkerOptions()
-                                .position(new LatLng(bus.getLat(), bus.getLon()))
-                                .title(bus.getVid() + " " + bus.getDes())
-                                .draggable(false)
-                );
-            }
+        for (Bus bus :
+                new DOMBus().setVehicles(
+                        "http://realtime.portauthority.org/bustime/api/v2/getvehicles?key=KiJEdJUDgRFxcG7cpt3ae6xxJ&rt=",
+                        "P1"
+                ))
+
+        {
+            mMap.addMarker(new MarkerOptions()
+                            .position(new LatLng(bus.getLat(), bus.getLon()))
+                            .title(bus.getVid() + " " + bus.getDes())
+                            .draggable(false)
+            );
         }
     }
 }
