@@ -1,6 +1,7 @@
 package rectangledbmi.pittsburghrealtimepublictransittracker;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -9,6 +10,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 
 import rectangledbmi.pittsburghrealtimepublictransittracker.handlers.*;
@@ -38,6 +41,7 @@ public class MapsActivity extends FragmentActivity {
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
+        new RequestTask(mMap).execute();
     }
 
     /**
@@ -76,6 +80,18 @@ public class MapsActivity extends FragmentActivity {
      */
     private void setUpMap() {
         mMap.setMyLocationEnabled(true);
-        new RequestTask(mMap).execute();
+        final Handler handler = new Handler();
+        Timer timer = new Timer();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    public void run() {
+                        new RequestTask(mMap).execute();
+                    }
+                });
+            }
+        };
+        timer.schedule(task, 0, 10000); //it executes this every 1000ms
     }
 }
