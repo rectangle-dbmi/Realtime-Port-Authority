@@ -73,7 +73,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
     protected void onProgressUpdate(Integer... progress) {
     }
 
-    protected void onPostExecute(List<Bus>... list) {
+    protected void onPostExecute(List<Bus> list) {
         for(Bus bus : bl) {
             mMap.addMarker(new MarkerOptions()
                             .position(new LatLng(bus.getLat(), bus.getLon()))
