@@ -23,7 +23,13 @@ https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend
 
     AIzaSyCNHvdN4kdWPpksUnpySt4PwItFlRj0Ias
 
+    This is Ritwik's debug key
+    AIzaSyAyY7xBK8H1H8BsFgeQk08xzAZyXmNcKTc
+
+    This is Ritwik's APK maker key
+    AIzaSyBYS6iAyk_N1s7bJsv066rrQTUQ-FbzxcU
+
     --></string>
 
-    <string name="google_maps_key" templateMergeStrategy="preserve">AIzaSyCmZ_rVPDZy66HHBzPY_pCQs5tIvR0xngc</string>
+    <string name="google_maps_key" templateMergeStrategy="preserve">AIzaSyBYS6iAyk_N1s7bJsv066rrQTUQ-FbzxcU</string>
 </resources>
