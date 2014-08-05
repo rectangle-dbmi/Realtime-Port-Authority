@@ -29,7 +29,6 @@ public class MapsActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
-        new RequestTask(mMap).execute();
     }
 
     /**
@@ -77,5 +76,6 @@ public class MapsActivity extends FragmentActivity {
      */
     private void setUpMap() {
         mMap.setMyLocationEnabled(true);
+        new RequestTask(mMap).execute();
     }
 }
