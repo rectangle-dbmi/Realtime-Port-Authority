@@ -8,7 +8,10 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import rectangledbmi.pittsburghrealtimepublictransittracker.handlers.DOMBus;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import rectangledbmi.pittsburghrealtimepublictransittracker.handlers.*;
 import world.Bus;
 
 public class MapsActivity extends FragmentActivity {
@@ -26,6 +29,7 @@ public class MapsActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
+        new RequestTask(mMap).execute();
     }
 
     /**
@@ -73,27 +77,5 @@ public class MapsActivity extends FragmentActivity {
      */
     private void setUpMap() {
         mMap.setMyLocationEnabled(true);
-//        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
-        addBuses();
-    }
-
-    /**
-     * Adds the buses to the google maps
-     */
-    private void addBuses() {
-        /** Make sure that the map has been initialised **/
-        for (Bus bus :
-                new DOMBus().setVehicles(
-                        "http://realtime.portauthority.org/bustime/api/v2/getvehicles?key=KiJEdJUDgRFxcG7cpt3ae6xxJ&rt=",
-                        "P1"
-                ))
-
-        {
-            mMap.addMarker(new MarkerOptions()
-                            .position(new LatLng(bus.getLat(), bus.getLon()))
-                            .title(bus.getVid() + " " + bus.getDes())
-                            .draggable(false)
-            );
-        }
     }
 }
