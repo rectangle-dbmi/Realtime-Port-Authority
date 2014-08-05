@@ -14,12 +14,16 @@ https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend
     string in this file.
 
     this is for the apk...:
-    AIzaSyBprqACT6dv6a5WFoQH04SxZ4Ktyk-lrzc
+    AIzaSyCmZ_rVPDZy66HHBzPY_pCQs5tIvR0xngc
 
     what android dev gives me from above:
-    AIzaSyAOwHItgbnUQBsLKaiBtRZPKCY0GwRpX4I
+
+    keytool -v -keystore ~/.android/debug.keystore
+    password: android
+
+    AIzaSyCNHvdN4kdWPpksUnpySt4PwItFlRj0Ias
 
     --></string>
 
-    <string name="google_maps_key" templateMergeStrategy="preserve">AIzaSyBprqACT6dv6a5WFoQH04SxZ4Ktyk-lrzc</string>
+    <string name="google_maps_key" templateMergeStrategy="preserve">AIzaSyCmZ_rVPDZy66HHBzPY_pCQs5tIvR0xngc</string>
 </resources>
