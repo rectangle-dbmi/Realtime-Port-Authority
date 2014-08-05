@@ -29,6 +29,8 @@ public class Bus {
         return Integer.parseInt(vid);
     }
 
+    public int getSpd() { return Integer.parseInt(spd); }
+
     public String getDes() {
         return des;
     }
