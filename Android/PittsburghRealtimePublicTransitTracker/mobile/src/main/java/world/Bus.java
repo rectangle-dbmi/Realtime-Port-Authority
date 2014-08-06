@@ -25,6 +25,12 @@ public class Bus {
         this.lat = lat;
     }
 
+    public String getRt() { return rt; }
+
+    public void setRt(String rt) {
+        this.rt = rt;
+    }
+
     public float getLon() {
         return Float.parseFloat(lon);
     }
@@ -71,10 +77,6 @@ public class Bus {
 
     public void setPid(String pid) {
         this.pid = pid;
-    }
-
-    public void setRt(String rt) {
-        this.rt = rt;
     }
 
     public void setPdist(String pdist) {
