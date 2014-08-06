@@ -21,30 +21,44 @@ public class Bus {
         return Float.parseFloat(lat);
     }
 
+    public void setLat(String lat) {
+        this.lat = lat;
+    }
+
     public float getLon() {
         return Float.parseFloat(lon);
+    }
+
+    public void setLon(String lon) {
+        this.lon = lon;
     }
 
     public int getVid() {
         return Integer.parseInt(vid);
     }
 
+    public void setVid(String vid) {
+        this.vid = vid;
+    }
+
     public int getSpd() { return Integer.parseInt(spd); }
+
+    public void setSpd(String spd) {
+        this.spd = spd;
+    }
+
+    public int getHdg() { return Integer.parseInt(hdg); }
+
+    public void setHdg(String hdg) {
+        this.hdg = hdg;
+    }
 
     public String getDes() {
         return des;
     }
 
-    public void setVid(String vid) {
-        this.vid = vid;
-    }
-
-    public void setLat(String lat) {
-        this.lat = lat;
-    }
-
-    public void setLon(String lon) {
-        this.lon = lon;
+    public void setDes(String des) {
+        this.des = des;
     }
 
     public void setMsg(String msg) {
@@ -55,10 +69,6 @@ public class Bus {
         this.tmstmp = tmStmp;
     }
 
-    public void setHdg(String hdg) {
-        this.hdg = hdg;
-    }
-
     public void setPid(String pid) {
         this.pid = pid;
     }
@@ -67,20 +77,12 @@ public class Bus {
         this.rt = rt;
     }
 
-    public void setDes(String des) {
-        this.des = des;
-    }
-
     public void setPdist(String pdist) {
         this.pdist = pdist;
     }
 
     public void setDly(String dly) {
         this.dly = dly;
-    }
-
-    public void setSpd(String spd) {
-        this.spd = spd;
     }
 
     public void setTablockid(String tablockid) {

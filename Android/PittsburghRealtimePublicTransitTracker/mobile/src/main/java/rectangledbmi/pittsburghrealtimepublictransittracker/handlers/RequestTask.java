@@ -3,6 +3,8 @@ package rectangledbmi.pittsburghrealtimepublictransittracker.handlers;
 import android.os.AsyncTask;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -80,6 +82,9 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                             .title(bus.getVid() + " " + bus.getDes())
                             .snippet("Speed: " + bus.getSpd())
                             .draggable(false)
+                            .rotation(bus.getHdg())
+                            .icon(BitmapDescriptorFactory.fromAsset("arrow"))
+                            .flat(true)
             );
         }
     }
