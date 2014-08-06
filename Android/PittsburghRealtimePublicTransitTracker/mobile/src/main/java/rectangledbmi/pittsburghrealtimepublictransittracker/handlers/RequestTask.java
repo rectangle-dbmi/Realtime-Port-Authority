@@ -79,7 +79,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
         for(Bus bus : bl) {
             mMap.addMarker(new MarkerOptions()
                             .position(new LatLng(bus.getLat(), bus.getLon()))
-                            .title(bus.getVid() + " " + bus.getDes())
+                            .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
                             .snippet("Speed: " + bus.getSpd())
                             .draggable(false)
                             .rotation(bus.getHdg())
