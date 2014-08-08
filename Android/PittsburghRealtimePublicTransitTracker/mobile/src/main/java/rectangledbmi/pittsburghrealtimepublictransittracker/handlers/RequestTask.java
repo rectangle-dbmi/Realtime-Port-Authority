@@ -3,7 +3,6 @@ package rectangledbmi.pittsburghrealtimepublictransittracker.handlers;
 import android.os.AsyncTask;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -55,7 +54,9 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
         SAXHandler handler = new SAXHandler();
         try {
             try {
-                sp.parse(new InputSource(url.openStream()), handler);
+                if (sp != null) {
+                    sp.parse(new InputSource(url != null ? url.openStream() : null), handler);
+                }
             } catch (SAXException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -77,15 +78,16 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
 
     protected void onPostExecute(List<Bus> list) {
         for(Bus bus : bl) {
-            mMap.addMarker(new MarkerOptions()
-                            .position(new LatLng(bus.getLat(), bus.getLon()))
-                            .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
-                            .snippet("Speed: " + bus.getSpd())
-                            .draggable(false)
-                            .rotation(bus.getHdg())
-                            .icon(BitmapDescriptorFactory.fromAsset("arrow"))
-                            .flat(true)
-            );
+            LatLng latlng = new LatLng(bus.getLat(), bus.getLon());
+            MarkerOptions marker = new MarkerOptions()
+                    .position(latlng)
+                    .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
+                    .snippet("Speed: " + bus.getSpd())
+                    .draggable(false)
+                    .rotation(bus.getHdg())
+                    .icon(BitmapDescriptorFactory.fromAsset("arrow"))
+                    .flat(true);
+            mMap.addMarker(marker);
         }
     }
 }
