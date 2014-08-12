@@ -1,25 +1,18 @@
 package rectangledbmi.pittsburghrealtimepublictransittracker;
 
-import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ExecutionException;
 
-import rectangledbmi.pittsburghrealtimepublictransittracker.handlers.*;
-import world.Bus;
+import rectangledbmi.pittsburghrealtimepublictransittracker.handlers.RequestTask;
 
 public class MapsActivity extends FragmentActivity {
 
@@ -45,7 +38,7 @@ public class MapsActivity extends FragmentActivity {
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
-        new RequestTask(mMap).execute();
+//        new RequestTask(mMap).execute();
     }
 
     /**
@@ -71,6 +64,7 @@ public class MapsActivity extends FragmentActivity {
                     .getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
+                centerMap();
                 setUpMap();
             }
         }
@@ -83,7 +77,6 @@ public class MapsActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.setMyLocationEnabled(true);
         final Handler handler = new Handler();
         Timer timer = new Timer();
         TimerTask task = new TimerTask() {
@@ -98,5 +91,14 @@ public class MapsActivity extends FragmentActivity {
             }
         };
         timer.schedule(task, 0, 10000); //it executes this every 1000ms
+    }
+
+    /**
+     * Polls self on the map and then centers the map on self
+     */
+    private void centerMap() {
+        LatLng pittsburgh = new LatLng(40.441, -79.981);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pittsburgh, (float)11.88));
+        mMap.setMyLocationEnabled(true);
     }
 }

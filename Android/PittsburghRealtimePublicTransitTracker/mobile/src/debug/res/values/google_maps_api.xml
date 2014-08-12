@@ -16,7 +16,7 @@ https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend
     this is for the apk...:
     AIzaSyCmZ_rVPDZy66HHBzPY_pCQs5tIvR0xngc
 
-    what android dev gives me from above:
+    what android dev gives Jeremy from below:
 
     keytool -list -v -keystore ~/.android/debug.keystore
     password: android
@@ -31,5 +31,5 @@ https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend
 
     --></string>
 
-    <string name="google_maps_key" templateMergeStrategy="preserve">AIzaSyBYS6iAyk_N1s7bJsv066rrQTUQ-FbzxcU</string>
+    <string name="google_maps_key" templateMergeStrategy="preserve">AIzaSyCmZ_rVPDZy66HHBzPY_pCQs5tIvR0xngc</string>
 </resources>
