@@ -17,6 +17,9 @@ import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import java.util.List;
+
 import rectangledbmi.pittsburghrealtimepublictransittracker.R;
 
 public class PickBuses extends Activity
@@ -32,6 +35,11 @@ public class PickBuses extends Activity
      */
     private CharSequence mTitle;
 
+    /**
+     * stores the list of buses
+     */
+    private List<String> buses;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +53,8 @@ public class PickBuses extends Activity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+
+
     }
 
     @Override
