@@ -29,21 +29,25 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
 
     public RequestTask(GoogleMap map, List<String> buses){
         mMap = map;
+        System.out.print("Is map null?");
+        System.out.println(mMap == null);
         selectedBuses = selectBuses(buses);
         bl = null;
     }
 
     private String selectBuses(List<String> buses) {
         StringBuffer string = new StringBuffer();
-        int oneLess = string.length()-1;
-        for(int i=0;i<string.length();++i) {
+        int oneLess = buses.size()-1;
+        for(int i=0;i<buses.size();++i) {
             string.append(buses.get(i));
-            if(i != oneLess)
+            if(i != oneLess) {
                 string.append(",");
+            }
         }
         return string.toString();
     }
 
+    @Override
     protected List<Bus> doInBackground(Void... void1) {
         SAXParserFactory spf = SAXParserFactory.newInstance();
         SAXParser sp = null;
@@ -59,7 +63,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
             URL url = null;
             try {
                 url = new URL(
-                        "http://realtime.portauthority.org/bustime/api/v2/getvehicles?key=KiJEdJUDgRFxcG7cpt3ae6xxJ&rt="
+                        "http://realtime.portauthority.org/bustime/api/v2/getvehicles?key=KiJEdJUDgRFxcG7cpt3ae6xxJ&rt=" + selectedBuses
                 );
             } catch (MalformedURLException e) {
                 // TODO Auto-generated catch block

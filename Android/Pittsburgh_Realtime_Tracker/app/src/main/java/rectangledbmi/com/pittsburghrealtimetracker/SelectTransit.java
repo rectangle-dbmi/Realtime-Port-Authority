@@ -101,7 +101,6 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
         onSectionAttached(position);
-        System.out.println(position);
 //        FragmentManager fragmentManager = getFragmentManager();
 //        fragmentManager.beginTransaction()
 //                .replace(R.id.maps_fragment, MapFragment.newInstance(position + 1))
@@ -113,7 +112,6 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
      * @param number which bus in the list is pressed
      */
     public void onSectionAttached(int number) {
-        System.out.println("Moving to section attached");
         switch (number) {
             case 0:
                 setList(getString(R.string.title_section1));
@@ -154,7 +152,6 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
         //TODO somehow the bus isn't being selected
         if(!buses.remove(selected))
             buses.add(selected);
-        System.out.println(buses.contains(selected));
         //TODO Need to be able to refresh the buses instantly however
         //the issue here is that the thread is not killable
 //        setUpMap();
