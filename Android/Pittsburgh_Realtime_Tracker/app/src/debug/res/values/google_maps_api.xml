@@ -13,6 +13,9 @@ https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend
     Once you have your key (it starts with "AIza"), replace the "google_maps_key"
     string in this file.
 
+    Jeremy work desktop key:
+    AIzaSyDcqMzjpN3MU1dj-BxjLKECTnAx6HpvYBY
+
     Jeremy the android studio app:
     AIzaSyDzmslpuC3Pdnb1SsvoZT6vLmmHkQzJOkg
 
@@ -27,5 +30,5 @@ https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend
 
     --></string>
 
-    <string name="google_maps_key" templateMergeStrategy="preserve">AIzaSyDzmslpuC3Pdnb1SsvoZT6vLmmHkQzJOkg</string>
+    <string name="google_maps_key" templateMergeStrategy="preserve">AIzaSyDcqMzjpN3MU1dj-BxjLKECTnAx6HpvYBY</string>
 </resources>
