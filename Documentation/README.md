@@ -35,8 +35,8 @@ of the app.
 
 Ritwik figured out how the API works... It's a simple hyperlink provided in the API
 
-For example... to get all P3 buses running... (will not work without your API copy pasted into "your_key"):
-http://realtime.portauthority.org/bustime/api/v2/getvehicles?key=your_key&rt=P3
+For example... to get all P1 and P3 buses running... (will not work without your API copy pasted into "your_key"):
+http://realtime.portauthority.org/bustime/api/v2/getvehicles?key=your_key&rt=P1,P3
 
 This will return an XML of the real-time data.... with some data changed
 
@@ -63,9 +63,12 @@ This will return an XML of the real-time data.... with some data changed
 	.
 	etc...
 ```
+
+
 This data changes every 10 seconds!
 
 Apparently printing your current location in Google maps is done through
+
 ```
 map.setMyLocationEnabled(true);
 ```
@@ -118,7 +121,7 @@ It seems hard but it really isn't... not really... But there are some quirks
 	- `sudo add-apt-repository ppa:paolorotolo/android-studio`
 	- `sudo apt-get update`
 	- `sudo apt-get install android-studio`
-4. Install the update that pops up (would be 0.8.2)
+4. Install the update that pops up (would be 0.8.6)
 5. Install the SDK Manager and install
 	- to 4.2.2
 	- Google Play Services
@@ -132,8 +135,8 @@ Do not open the project until you do all of these steps....
 	- git clone your forked repo
 	- type this after git cloning:
 		- `git remote add upstream https://github.com/rectangle-dbmi/Realtime-Port-Authority.git`
-- Click on Import Project (sometimes in the File dropdown menu)
-- go all the way up to *../Realtime-Port-Authority/Android*
+- Click on Open Project (sometimes in the File dropdown menu)
+- go all the way up to *../Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker*
 - click on the android there
 - **You need to change the Java JVM too...**
 	- right-click the project folder and click on **Open Module Settings** near the bottom of the dropdown box
