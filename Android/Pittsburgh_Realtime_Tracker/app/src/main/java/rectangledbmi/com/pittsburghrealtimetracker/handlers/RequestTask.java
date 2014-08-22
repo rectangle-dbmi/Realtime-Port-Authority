@@ -13,7 +13,6 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -26,12 +25,23 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
 
     GoogleMap mMap;
     List<Bus> bl;
-    List<String> selectedBuses;
+    String selectedBuses;
 
     public RequestTask(GoogleMap map, List<String> buses){
         mMap = map;
-        selectedBuses = buses;
-        bl = new ArrayList<Bus>(8);
+        selectedBuses = selectBuses(buses);
+        bl = null;
+    }
+
+    private String selectBuses(List<String> buses) {
+        StringBuffer string = new StringBuffer();
+        int oneLess = string.length()-1;
+        for(int i=0;i<string.length();++i) {
+            string.append(buses.get(i));
+            if(i != oneLess)
+                string.append(",");
+        }
+        return string.toString();
     }
 
     protected List<Bus> doInBackground(Void... void1) {
@@ -46,11 +56,10 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        for(String selectedBus : selectedBuses) {
             URL url = null;
             try {
                 url = new URL(
-                        "http://realtime.portauthority.org/bustime/api/v2/getvehicles?key=KiJEdJUDgRFxcG7cpt3ae6xxJ&rt=" + selectedBus
+                        "http://realtime.portauthority.org/bustime/api/v2/getvehicles?key=KiJEdJUDgRFxcG7cpt3ae6xxJ&rt="
                 );
             } catch (MalformedURLException e) {
                 // TODO Auto-generated catch block
@@ -70,21 +79,14 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                     e.printStackTrace();
                 }
             } catch (NullPointerException sax) {
-                System.out
-                        .println("Bus route is not tracked or all buses on route are in garage.");
-                System.exit(0);
+                System.err
+                        .println("Bus route is not tracked or all buses on route are in garage: " + selectedBuses);
+//                System.exit(0);
             }
-//            bl.add(handler.busList);
-            addBuses(handler.busList);
-        }
+            bl = handler.busList;
         return bl;
     }
-
-    private void addBuses(List<Bus> busList) {
-        for(Bus bus : busList)
-            bl.add(bus);
-    }
-
+    //TODO make a HashMap for the bus markers and use that to update the marker location...
     protected void onProgressUpdate(Integer... progress) {
     }
 

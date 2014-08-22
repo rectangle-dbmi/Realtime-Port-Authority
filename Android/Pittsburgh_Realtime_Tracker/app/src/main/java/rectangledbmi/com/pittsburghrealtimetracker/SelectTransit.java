@@ -61,6 +61,9 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
 
     }
 
+    /**
+     * initializes the bus list
+     */
     private void createBusList() {
         //This will be changed as things go
         buses = new ArrayList<String>(8);
@@ -89,50 +92,72 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
         super.onResume();
         setUpMapIfNeeded();
     }
+
+    /**
+     * Gets called from NavigationDrawerFragment's onclick? Supposed to...
+     * @param position the list selection selected starting from 1
+     */
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
         onSectionAttached(position);
+        System.out.println(position);
 //        FragmentManager fragmentManager = getFragmentManager();
 //        fragmentManager.beginTransaction()
 //                .replace(R.id.maps_fragment, MapFragment.newInstance(position + 1))
 //                .commit();
     }
 
+    /**
+     * Gets called when one of the buses is pressed
+     * @param number which bus in the list is pressed
+     */
     public void onSectionAttached(int number) {
+        System.out.println("Moving to section attached");
         switch (number) {
-            case 1:
+            case 0:
                 setList(getString(R.string.title_section1));
                 break;
-            case 2:
+            case 1:
                 setList(getString(R.string.title_section2));
                 break;
-            case 3:
+            case 2:
                 setList(getString(R.string.title_section3));
                 break;
-            case 4:
-                 setList(getString(R.string.title_section4));
+            case 3:
+                setList(getString(R.string.title_section4));
                 break;
-            case 5:
+            case 4:
                 setList(getString(R.string.title_section5));
                 break;
-            case 6:
+            case 5:
                 setList(getString(R.string.title_section6));
                 break;
-            case 7:
+            case 6:
                 setList(getString(R.string.title_section7));
                 break;
-            case 8:
+            case 7:
                 setList(getString(R.string.title_section8));
                 break;
         }
     }
 
+    /**
+     * If the selected bus is already in the list, remove it
+     * else add it
+     *
+     * we want to also be able to see the bus the instant it loads
+     * @param selected the bus string
+     */
     private void setList(String selected) {
         //TODO: perhaps look at constant time remove
+        //TODO somehow the bus isn't being selected
         if(!buses.remove(selected))
             buses.add(selected);
-        setUpMap();
+        System.out.println(buses.contains(selected));
+        //TODO Need to be able to refresh the buses instantly however
+        //the issue here is that the thread is not killable
+//        setUpMap();
     }
 
     public void restoreActionBar() {
@@ -142,7 +167,7 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
         actionBar.setTitle(mTitle);
     }
 
-
+    //dunno...
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (!mNavigationDrawerFragment.isDrawerOpen()) {
@@ -155,7 +180,7 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
         }
         return super.onCreateOptionsMenu(menu);
     }
-
+    //We probably don't need this? Maybe we do
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -222,6 +247,7 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
      */
     private void setUpMap() {
         final Handler handler = new Handler();
+        //TODO make killable thread since we want the bus to appear the instant it's pressed
         new Thread(new Runnable() {
             @Override
             public void run() {

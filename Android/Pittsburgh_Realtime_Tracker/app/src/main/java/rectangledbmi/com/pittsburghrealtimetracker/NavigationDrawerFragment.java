@@ -197,6 +197,10 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerLayout.setDrawerListener(mDrawerToggle);
     }
 
+    /**
+     * Called with onClick. Gives the list item to SelectTransit by number starting from 1
+     * @param position item clicked as an int
+     */
     private void selectItem(int position) {
         if (mDrawerListView != null) {
             if(mSelected[position]) {
