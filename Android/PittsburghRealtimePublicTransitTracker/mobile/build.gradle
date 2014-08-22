@@ -22,12 +22,14 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     wearApp project(':wear')
-    compile 'com.google.maps.android:android-maps-utils:0.3+'
+    //    TODO: epicstar - was creating an error.... gotta fix this here (says duplicate compiles in gradle)
+    compile 'com.google.maps.android:android-maps-utils:0.3.+'
     compile 'com.google.android.gms:play-services:5.0.77'
+    // You must install or update the Support Repository through the SDK manager to use this dependency.
     compile 'com.android.support:support-v4:19.1.0'
     compile 'com.android.support:appcompat-v7:19.1.0'
     compile 'com.android.support:gridlayout-v7:19.1.0'
     compile 'com.android.support:mediarouter-v7:19.1.0'
+    // You must install or update the Support Repository through the SDK manager to use this dependency.
     compile 'com.android.support:support-v13:19.1.0'
-    //    TODO: epicstar - was creating an error.... gotta fix this here (says duplicate compiles in gradle)
 }

@@ -3,5 +3,18 @@
 
     <string name="app_name">Pittsburgh Realtime Public Transit Tracker</string>
     <string name="title_activity_maps">Realtime Track</string>
+    <string name="title_activity_pick_buses">PickBuses</string>
+    <string name="title_section1">41</string>
+    <string name="title_section2">48</string>
+    <string name="title_section3">56</string>
+    <string name="title_section4">8</string>
+    <string name="title_section5">86</string>
+    <string name="title_section6">88</string>
+    <string name="title_section7">P1</string>
+    <string name="title_section8">P3</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_example">Example action</string>
+    <string name="action_settings">Settings</string>
 
 </resources>
