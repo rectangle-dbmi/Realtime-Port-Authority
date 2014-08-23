@@ -33,6 +33,11 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
         bl = null;
     }
 
+    /**
+     * Takes the list of buses and returns a comma delimited string of routes
+     * @param buses list of buses from the main activity thread
+     * @return comma delimited string of buses. ex: buses -> [P1, P3]; return "P1,P3"
+     */
     private String selectBuses(List<String> buses) {
         StringBuffer string = new StringBuffer();
         int oneLess = buses.size()-1;
@@ -81,6 +86,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                     e.printStackTrace();
                 }
             } catch (NullPointerException sax) {
+                System.err.println(sax.getMessage());
                 System.err
                         .println("Bus route is not tracked or all buses on route are in garage: " + selectedBuses);
 //                System.exit(0);
