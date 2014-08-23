@@ -95,9 +95,17 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
     }
 
     protected void onPostExecute(List<Bus> list) {
+/*        <string name="title_section1">41</string>
+        <string name="title_section2">48</string>
+        <string name="title_section3">56</string>
+        <string name="title_section4">8</string>
+        <string name="title_section5">86</string>
+        <string name="title_section6">88</string>
+        <string name="title_section7">P1</string>
+        <string name="title_section8">P3</string>*/
         for(Bus bus : bl) {
             LatLng latlng = new LatLng(bus.getLat(), bus.getLon());
-            MarkerOptions marker = new MarkerOptions()
+/*            MarkerOptions marker = new MarkerOptions()
                     .position(latlng)
                     .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
                     .snippet("Speed: " + bus.getSpd())
@@ -105,7 +113,95 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                     .rotation(bus.getHdg())
                     .icon(BitmapDescriptorFactory.fromAsset("arrow"))
                     .flat(true);
-            mMap.addMarker(marker);
+            mMap.addMarker(marker);*/
+            if(bus.getRt().equals("41")) {
+                MarkerOptions marker = new MarkerOptions()
+                .position(latlng)
+                        .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
+                        .snippet("Speed: " + bus.getSpd())
+                        .draggable(false)
+                        .rotation(bus.getHdg())
+                        .icon(BitmapDescriptorFactory.fromAsset("arrowBlack"))
+                        .flat(true);
+                mMap.addMarker(marker);
+            }
+            else if(bus.getRt().equals("48")) {
+                MarkerOptions marker = new MarkerOptions()
+                        .position(latlng)
+                        .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
+                        .snippet("Speed: " + bus.getSpd())
+                        .draggable(false)
+                        .rotation(bus.getHdg())
+                        .icon(BitmapDescriptorFactory.fromAsset("arrowBlue"))
+                        .flat(true);
+                mMap.addMarker(marker);
+            }
+            else if(bus.getRt().equals("56")) {
+                MarkerOptions marker = new MarkerOptions()
+                        .position(latlng)
+                        .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
+                        .snippet("Speed: " + bus.getSpd())
+                        .draggable(false)
+                        .rotation(bus.getHdg())
+                        .icon(BitmapDescriptorFactory.fromAsset("arrowGreen"))
+                        .flat(true);
+                mMap.addMarker(marker);
+            }
+            else if(bus.getRt().equals("8")) {
+                MarkerOptions marker = new MarkerOptions()
+                        .position(latlng)
+                        .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
+                        .snippet("Speed: " + bus.getSpd())
+                        .draggable(false)
+                        .rotation(bus.getHdg())
+                        .icon(BitmapDescriptorFactory.fromAsset("arrowOrange"))
+                        .flat(true);
+                mMap.addMarker(marker);
+            }
+            else if(bus.getRt().equals("86")) {
+                MarkerOptions marker = new MarkerOptions()
+                        .position(latlng)
+                        .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
+                        .snippet("Speed: " + bus.getSpd())
+                        .draggable(false)
+                        .rotation(bus.getHdg())
+                        .icon(BitmapDescriptorFactory.fromAsset("arrowPink"))
+                        .flat(true);
+                mMap.addMarker(marker);
+            }
+            else if(bus.getRt().equals("88")) {
+                MarkerOptions marker = new MarkerOptions()
+                        .position(latlng)
+                        .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
+                        .snippet("Speed: " + bus.getSpd())
+                        .draggable(false)
+                        .rotation(bus.getHdg())
+                        .icon(BitmapDescriptorFactory.fromAsset("arrowRed"))
+                        .flat(true);
+                mMap.addMarker(marker);
+            }
+            else if(bus.getRt().equals("P1")) {
+                MarkerOptions marker = new MarkerOptions()
+                        .position(latlng)
+                        .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
+                        .snippet("Speed: " + bus.getSpd())
+                        .draggable(false)
+                        .rotation(bus.getHdg())
+                        .icon(BitmapDescriptorFactory.fromAsset("arrowWhite"))
+                        .flat(true);
+                mMap.addMarker(marker);
+            }
+            else if(bus.getRt().equals("P3")) {
+                MarkerOptions marker = new MarkerOptions()
+                        .position(latlng)
+                        .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
+                        .snippet("Speed: " + bus.getSpd())
+                        .draggable(false)
+                        .rotation(bus.getHdg())
+                        .icon(BitmapDescriptorFactory.fromAsset("arrowYellow"))
+                        .flat(true);
+                mMap.addMarker(marker);
+            }
         }
     }
 }
