@@ -52,49 +52,61 @@ class SAXHandler extends DefaultHandler {
     @Override
     public void endElement(String uri, String localName, String qName)
             throws SAXException {
-        if (qName.equals("vid")) {
-            busList.add(bus);
-            bus.setVid(content);
+        System.out.println("uri: " + uri);
+        System.out.println("localName: " + localName);
+        System.out.println("qName: " + qName);
+        try {
+            if (qName.equals("vid")) {
+                busList.add(bus);
+                bus.setVid(content);
 
-            // For all other end tags the bus has to be updated.
-        } else if (qName.equals("lat")) {
-            bus.setLat(content);
+                // For all other end tags the bus has to be updated.
+            } else if (qName.equals("lat")) {
+                bus.setLat(content);
 
-        } else if (qName.equals("lon")) {
-            bus.setLon(content);
+            } else if (qName.equals("lon")) {
+                bus.setLon(content);
 
-        } else if (qName.equals("msg")) {
-            bus.setMsg(content);
+            } else if (qName.equals("tmstmp")) {
+                bus.setTmStmp(content);
 
-        } else if (qName.equals("tmstmp")) {
-            bus.setTmStmp(content);
+            } else if (qName.equals("hdg")) {
+                bus.setHdg(content);
 
-        } else if (qName.equals("hdg")) {
-            bus.setHdg(content);
+            } else if (qName.equals("pid")) {
+                bus.setPid(content);
 
-        } else if (qName.equals("pid")) {
-            bus.setPid(content);
+            } else if (qName.equals("rt")) {
+                bus.setRt(content);
 
-        } else if (qName.equals("rt")) {
-            bus.setRt(content);
+            } else if (qName.equals("msg")) {
+                getMessage(content);
 
-        } else if (qName.equals("des")) {
-            bus.setDes(content);
+            } else if (qName.equals("des")) {
+                bus.setDes(content);
 
-        } else if (qName.equals("pdist")) {
-            bus.setPdist(content);
+            } else if (qName.equals("pdist")) {
+                bus.setPdist(content);
 
-        } else if (qName.equals("spd")) {
-            bus.setSpd(content);
+            } else if (qName.equals("spd")) {
+                bus.setSpd(content);
 
-        } else if (qName.equals("tablockid")) {
-            bus.setTablockid(content);
+            } else if (qName.equals("tablockid")) {
+                bus.setTablockid(content);
 
-        } else if (qName.equals("tatripid")) {
-            bus.setTatripid(content);
+            } else if (qName.equals("tatripid")) {
+                bus.setTatripid(content);
 
+            } else if (qName.equals("dly")) {
+                bus.setDly(content);
+
+            } else if (qName.equals("error")) {
+                throw new BusNotRunningException(bus.getRt() + " is not running");
+
+            }
+        } catch(BusNotRunningException e) {
+            System.err.println(e.getMessage());
         }
-
     }
 
     /**
@@ -109,12 +121,32 @@ class SAXHandler extends DefaultHandler {
     // Triggered when the start of tag is found.
     public void startElement(String uri, String localName, String qName,
                              Attributes attributes) throws SAXException {
+        try {
+            if (qName.equals("vid")) {
+                bus = new Bus();
+                bus.setVid(content);
 
-        if (qName.equals("vid")) {
-            bus = new Bus();
-            bus.setVid(content);
-
+            } else if (qName.equals("error")) {
+                throw new BusNotRunningException("Bus isn't running.");
+            } else if (qName.equals("msg")) {
+                getMessage(content);
+            }
+        } catch(BusNotRunningException e) {
+            System.err.println(e.getMessage());
         }
+    }
+
+    /**
+     * if qName == msg, use this to get the message contents
+     * @param content the content of the message
+     * @throws BusNotRunningException
+     */
+    private void getMessage(String content) throws BusNotRunningException {
+        System.out.println(content);
+        if(content.equals("No data found for parameter"))
+            throw new BusNotRunningException(content);
+        else
+            bus.setMsg(content);
     }
 
 }

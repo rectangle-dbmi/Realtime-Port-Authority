@@ -29,8 +29,6 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
 
     public RequestTask(GoogleMap map, List<String> buses){
         mMap = map;
-        System.out.print("Is map null?");
-        System.out.println(mMap == null);
         selectedBuses = selectBuses(buses);
         bl = null;
     }
@@ -105,6 +103,18 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
         <string name="title_section8">P3</string>*/
         for(Bus bus : bl) {
             LatLng latlng = new LatLng(bus.getLat(), bus.getLon());
+            //TODO make the arrow the same name as the bus route to avoid (same as bus.getRt()) to avoid if else statements
+            //TODO add the arrows to the git
+            MarkerOptions marker = new MarkerOptions()
+                    .position(latlng)
+                    .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
+                    .snippet("Speed: " + bus.getSpd())
+                    .draggable(false)
+                    .rotation(bus.getHdg())
+                    .icon(BitmapDescriptorFactory.fromAsset("arrow"))
+                    .flat(true);
+            mMap.addMarker(marker);
+            //TODO use this one below when you change the arrow names to the bus.getRt()
 /*            MarkerOptions marker = new MarkerOptions()
                     .position(latlng)
                     .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
@@ -114,7 +124,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                     .icon(BitmapDescriptorFactory.fromAsset("arrow"))
                     .flat(true);
             mMap.addMarker(marker);*/
-            if(bus.getRt().equals("41")) {
+/*            if(bus.getRt().equals("41")) {
                 MarkerOptions marker = new MarkerOptions()
                 .position(latlng)
                         .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
@@ -201,7 +211,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                         .icon(BitmapDescriptorFactory.fromAsset("arrowYellow"))
                         .flat(true);
                 mMap.addMarker(marker);
-            }
+            }*/
         }
     }
 }
