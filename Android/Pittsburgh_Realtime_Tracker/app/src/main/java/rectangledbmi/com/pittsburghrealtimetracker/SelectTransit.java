@@ -409,12 +409,16 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
                             req = new RequestTask(mMap, buses);
                             req.execute();
                         }
+                        else
+                            mMap.clear();
                     }
                 });
             }
         };
         if(!buses.isEmpty())
             timer.schedule(task, 0, 10000); //it executes this every 1000ms
+        else
+            mMap.clear();
     }
 
     /**
