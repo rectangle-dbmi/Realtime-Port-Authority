@@ -13,8 +13,9 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.Bus;
 /**
  * The Handler for SAX Events.
  */
-class SAXHandler extends DefaultHandler {
 
+public class SAXHandler extends DefaultHandler {
+    //TODO want to update points as opposed to clearing the map, consider hashmap
     List<Bus> busList = new ArrayList<Bus>();
     Bus bus = null;
     String content = null;

@@ -125,6 +125,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
     protected void onPostExecute(List<Bus> list) {
 
         if(bl != null) {
+            //TODO want to update points as opposed to clearing the map, consider storing markers in hashmap
             for (Bus bus : bl) {
                 LatLng latlng = new LatLng(bus.getLat(), bus.getLon());
 
