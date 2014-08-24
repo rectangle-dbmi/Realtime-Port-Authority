@@ -32,7 +32,7 @@ public class NavigationDrawerFragment extends Fragment {
     /**
      * Remember the position of the selected item.
      */
-    private static final String STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
+    private static final String STATE_SELECTED_POSITIONS = "selected_navigation_drawer_positions";
 
     /**
      * Per the design guidelines, you should show the drawer on launch until the user manually
@@ -69,10 +69,11 @@ public class NavigationDrawerFragment extends Fragment {
         // drawer. See PREF_USER_LEARNED_DRAWER for details.
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mUserLearnedDrawer = sp.getBoolean(PREF_USER_LEARNED_DRAWER, false);
-        mSelected = new boolean[9];
+        //TODO need to use an xml value to get length of this list
+        mSelected = new boolean[8];
         if (savedInstanceState != null) {
             //TODO: learn how to use savedInstanceState to get previous buses back
-//            mCurrentSelectedPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
+            mSelected = savedInstanceState.getBooleanArray(STATE_SELECTED_POSITIONS);
             mFromSavedInstanceState = true;
         }
 
@@ -239,8 +240,10 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putBooleanArray(STATE_SELECTED_POSITIONS, mSelected);
 //        outState.putInt(STATE_SELECTED_POSITION, mCurrentSelectedPosition);
     }
+
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -298,4 +301,6 @@ public class NavigationDrawerFragment extends Fragment {
          */
         void onNavigationDrawerItemSelected(int position);
     }
+
+
 }
