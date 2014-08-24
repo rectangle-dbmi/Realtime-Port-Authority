@@ -41,6 +41,17 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
      */
     private List<String> buses;
 
+    /**
+     * updates the bus points on the UI
+     */
+    private Thread updateUI;
+
+
+    /**
+     * Saved instance of the buses that are selected
+     */
+    private final static String BUS_SELECT_STATE = "busesSelected";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,11 +66,33 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
         createBusList();
-
+        restoreInstanceState(savedInstanceState);
         //sets up the map
         setUpMapIfNeeded();
 
     }
+
+    /**
+     * Restores the instance state of the program
+     * @param savedInstanceState the saved instances of the app
+     */
+    private void restoreInstanceState(Bundle savedInstanceState) {
+        if(savedInstanceState != null) {
+            buses = savedInstanceState.getStringArrayList(BUS_SELECT_STATE);
+        }
+    }
+
+    /**
+     * Saves the instances of the app
+     * @param savedInstanceState the bundle of saved instances
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putStringArrayList(BUS_SELECT_STATE, (ArrayList<String>)buses);
+    }
+
+
 
     /**
      * initializes the bus list
@@ -68,6 +101,9 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
         //This will be changed as things go
         buses = new ArrayList<String>(8);
     }
+
+
+
 
     /**
      * Sets up map if it is needed
@@ -90,7 +126,28 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
     @Override
     protected void onResume() {
         super.onResume();
-        setUpMapIfNeeded();
+        if(mMap != null) {
+            setUpMap();
+        }
+        else
+            setUpMapIfNeeded();
+    }
+
+    protected void onPause() {
+        super.onPause();
+        stopThread();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        stopThread();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopThread();
     }
 
     /**
@@ -155,6 +212,7 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
         //TODO Need to be able to refresh the buses instantly however
         //the issue here is that the thread is not killable
 //        setUpMap();
+        setUpMap();
     }
 
     public void restoreActionBar() {
@@ -241,11 +299,14 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
 
     /**
      * Adds markers to map
+     * This is done in a thread.
+     *
+     * TODO this isn't working since it keeps running and not interrupting
      */
     private void setUpMap() {
         final Handler handler = new Handler();
-        //TODO make killable thread since we want the bus to appear the instant it's pressed
-        new Thread(new Runnable() {
+        stopThread();
+        updateUI = new Thread(new Runnable() {
             @Override
             public void run() {
                 // TODO Auto-generated method stub
@@ -256,8 +317,6 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
 
                             @Override
                             public void run() {
-                                // TODO Auto-generated method stub
-                                // TODO this isn't exactly doing anything here...
                                 mMap.clear();
                                 new RequestTask(mMap, buses).execute();
 
@@ -268,7 +327,19 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
                     }
                 }
             }
-        }).start();
+        });
+        if(buses != null && !buses.isEmpty())
+            updateUI.start();
+    }
+
+    /**
+     * Stops the thread
+     */
+    private void stopThread() {
+        if(updateUI != null) {
+            updateUI.interrupt();
+            updateUI = null;
+        }
     }
 
 }
