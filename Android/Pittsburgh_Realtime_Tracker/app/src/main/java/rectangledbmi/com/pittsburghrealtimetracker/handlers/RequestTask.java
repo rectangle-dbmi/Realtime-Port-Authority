@@ -125,7 +125,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                         .flat(true);
                 mMap.addMarker(marker);
             }
-            else if(bus.getRt().equals("48")) {
+            if(bus.getRt().equals("48")) {
                 MarkerOptions marker = new MarkerOptions()
                         .position(latlng)
                         .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
@@ -136,7 +136,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                         .flat(true);
                 mMap.addMarker(marker);
             }
-            else if(bus.getRt().equals("56")) {
+            if(bus.getRt().equals("56")) {
                 MarkerOptions marker = new MarkerOptions()
                         .position(latlng)
                         .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
@@ -147,7 +147,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                         .flat(true);
                 mMap.addMarker(marker);
             }
-            else if(bus.getRt().equals("8")) {
+            if(bus.getRt().equals("8")) {
                 MarkerOptions marker = new MarkerOptions()
                         .position(latlng)
                         .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
@@ -158,7 +158,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                         .flat(true);
                 mMap.addMarker(marker);
             }
-            else if(bus.getRt().equals("86")) {
+            if(bus.getRt().equals("86")) {
                 MarkerOptions marker = new MarkerOptions()
                         .position(latlng)
                         .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
@@ -169,7 +169,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                         .flat(true);
                 mMap.addMarker(marker);
             }
-            else if(bus.getRt().equals("88")) {
+            if(bus.getRt().equals("88")) {
                 MarkerOptions marker = new MarkerOptions()
                         .position(latlng)
                         .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
@@ -180,7 +180,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                         .flat(true);
                 mMap.addMarker(marker);
             }
-            else if(bus.getRt().equals("P1")) {
+            if(bus.getRt().equals("P1")) {
                 MarkerOptions marker = new MarkerOptions()
                         .position(latlng)
                         .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
@@ -191,7 +191,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                         .flat(true);
                 mMap.addMarker(marker);
             }
-            else if(bus.getRt().equals("P3")) {
+            if(bus.getRt().equals("P3")) {
                 MarkerOptions marker = new MarkerOptions()
                         .position(latlng)
                         .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
