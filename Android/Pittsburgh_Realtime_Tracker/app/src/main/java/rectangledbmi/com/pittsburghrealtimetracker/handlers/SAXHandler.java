@@ -19,6 +19,7 @@ class SAXHandler extends DefaultHandler {
     Bus bus = null;
     String content = null;
     String rt = null;
+//    Context context;
 
     /**
      *
@@ -27,6 +28,10 @@ class SAXHandler extends DefaultHandler {
         super();
     }
 
+/*    public SAXHandler(Context context) {
+        super();
+        this.context = context;
+    }*/
     /**
      *
      * @param ch
@@ -78,6 +83,7 @@ class SAXHandler extends DefaultHandler {
             } else if (qName.equals("rt")) {
                 if(bus != null)
                     bus.setRt(content);
+                rt = content;
 
             } else if (qName.equals("msg")) {
                 getMessage(content);
@@ -137,11 +143,11 @@ class SAXHandler extends DefaultHandler {
     /**
      * if qName == msg, use this to get the message contents
      * @param content the content of the message
-     * @throws BusNotRunningException
+     * @throws java.lang.NullPointerException
      */
-    private void getMessage(String content) {
+    private void getMessage(String content) throws NullPointerException {
         if(content.equals("No data found for parameter"))
-              System.err.println(content);
+            System.out.println(rt + " is not being tracked");
         else
             bus.setMsg(content);
     }

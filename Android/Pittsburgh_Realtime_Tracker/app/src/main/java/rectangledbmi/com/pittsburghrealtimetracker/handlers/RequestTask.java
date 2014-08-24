@@ -1,5 +1,7 @@
 package rectangledbmi.com.pittsburghrealtimetracker.handlers;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -38,6 +40,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
      * For example, if P1 and P3 was selected... this would be P1 and P3
      */
     String selectedBuses;
+
 
     public RequestTask(GoogleMap map, List<String> buses){
         mMap = map;
