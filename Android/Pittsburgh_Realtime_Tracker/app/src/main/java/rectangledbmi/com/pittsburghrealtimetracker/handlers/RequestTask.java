@@ -23,8 +23,20 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.Bus;
 
 public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
 
+    /**
+     * The google map fragment
+     */
     GoogleMap mMap;
+
+    /**
+     * The list of buses from the API
+     */
     List<Bus> bl;
+
+    /**
+     * The list of selected routes from the main activity comma delimited
+     * For example, if P1 and P3 was selected... this would be P1 and P3
+     */
     String selectedBuses;
 
     public RequestTask(GoogleMap map, List<String> buses){
@@ -39,7 +51,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
      * @return comma delimited string of buses. ex: buses -> [P1, P3]; return "P1,P3"
      */
     private String selectBuses(List<String> buses) {
-        StringBuffer string = new StringBuffer();
+        StringBuilder string = new StringBuilder();
         int oneLess = buses.size()-1;
         for(int i=0;i<buses.size();++i) {
             string.append(buses.get(i));
@@ -50,6 +62,12 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
         return string.toString();
     }
 
+    /**
+     * updates the UI in the background. Does it by feeding the URL of the API key and then running
+     * this on the String of selected buses (comma delimited
+     * @param void1 Not used
+     * @return an ArrayList of Buses
+     */
     @Override
     protected List<Bus> doInBackground(Void... void1) {
         SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -97,59 +115,15 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
         return bl;
     }
     //TODO make a HashMap for the bus markers and use that to update the marker location...
-    protected void onProgressUpdate(Integer... progress) {
+    protected void onProgressUpdate(Void... void1) {
     }
 
     @Override
     protected void onPostExecute(List<Bus> list) {
-/*        <string name="title_section1">41</string>
-        <string name="title_section2">48</string>
-        <string name="title_section3">56</string>
-        <string name="title_section4">8</string>
-        <string name="title_section5">86</string>
-        <string name="title_section6">88</string>
-        <string name="title_section7">P1</string>
-        <string name="title_section8">P3</string>*/
-//        for(Bus bus : bl) {
-//            LatLng latlng = new LatLng(bus.getLat(), bus.getLon());
-///*            MarkerOptions marker = new MarkerOptions()
-//                    .position(latlng)
-//                    .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
-//                    .snippet("Speed: " + bus.getSpd())
-//                    .draggable(false)
-//                    .rotation(bus.getHdg())
-//                    .icon(BitmapDescriptorFactory.fromAsset("arrow"))
-//                    .flat(true);
-//            mMap.addMarker(marker);*/
-//            if(bus.getRt().equals("41")) {
-//                MarkerOptions marker = new MarkerOptions()
-//                .position(latlng)
-//                        .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
-//                        .snippet("Speed: " + bus.getSpd())
-//                        .draggable(false)
-//                        .rotation(bus.getHdg())
-//                        .icon(BitmapDescriptorFactory.fromAsset("arrowBlack"))
-//                        .flat(true);
-//                mMap.addMarker(marker);
-//            }
-//            if(bus.getRt().equals("48")) {
-//                MarkerOptions marker = new MarkerOptions()
-//                        .position(latlng)
-//                        .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
-//                        .snippet("Speed: " + bus.getSpd())
-//                        .draggable(false)
-//                        .rotation(bus.getHdg())
-//                        .icon(BitmapDescriptorFactory.fromAsset("arrowBlue"))
-//                        .flat(true);
-////                mMap.addMarker(marker);
-////            }
-//            if(bus.getRt().equals("56")) {
 
         if(bl != null) {
             for (Bus bus : bl) {
                 LatLng latlng = new LatLng(bus.getLat(), bus.getLon());
-                //TODO make the arrow the same name as the bus route to avoid (same as bus.getRt()) to avoid if else statements
-                //TODO add the arrows to the git
 
                 MarkerOptions marker = new MarkerOptions()
                         .position(latlng)
@@ -162,150 +136,6 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                 mMap.addMarker(marker);
 
             }
-            //TODO use this one below when you change the arrow names to the bus.getRt()
-    /*            MarkerOptions marker = new MarkerOptions()
-                        .position(latlng)
-                        .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
-                        .snippet("Speed: " + bus.getSpd())
-                        .draggable(false)
-                        .rotation(bus.getHdg())
-                        .icon(BitmapDescriptorFactory.fromAsset("arrow"))
-                        .flat(true);
-                mMap.addMarker(marker);
-            }
-            if(bus.getRt().equals("86")) {
-                MarkerOptions marker = new MarkerOptions()
-                        .position(latlng)
-                        .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
-                        .snippet("Speed: " + bus.getSpd())
-                        .draggable(false)
-                        .rotation(bus.getHdg())
-                        .icon(BitmapDescriptorFactory.fromAsset("arrowPink"))
-                        .flat(true);
-                mMap.addMarker(marker);
-            }
-            if(bus.getRt().equals("88")) {
-                MarkerOptions marker = new MarkerOptions()
-                        .position(latlng)
-                        .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
-                        .snippet("Speed: " + bus.getSpd())
-                        .draggable(false)
-                        .rotation(bus.getHdg())
-                        .icon(BitmapDescriptorFactory.fromAsset("arrowRed"))
-                        .flat(true);
-                mMap.addMarker(marker);
-            }
-            if(bus.getRt().equals("P1")) {
-                MarkerOptions marker = new MarkerOptions()
-                        .position(latlng)
-                        .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
-                        .snippet("Speed: " + bus.getSpd())
-                        .draggable(false)
-                        .rotation(bus.getHdg())
-                        .icon(BitmapDescriptorFactory.fromAsset("arrowWhite"))
-                        .flat(true);
-                mMap.addMarker(marker);
-            }
-            if(bus.getRt().equals("P3")) {
-                MarkerOptions marker = new MarkerOptions()
-                        .position(latlng)
-                        .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
-                        .snippet("Speed: " + bus.getSpd())
-                        .draggable(false)
-                        .rotation(bus.getHdg())
-                        .icon(BitmapDescriptorFactory.fromAsset("arrowYellow"))
-                        .flat(true);
-                mMap.addMarker(marker);
-=======
-                mMap.addMarker(marker);*/
-    /*            if(bus.getRt().equals("41")) {
-                    MarkerOptions marker = new MarkerOptions()
-                    .position(latlng)
-                            .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
-                            .snippet("Speed: " + bus.getSpd())
-                            .draggable(false)
-                            .rotation(bus.getHdg())
-                            .icon(BitmapDescriptorFactory.fromAsset("arrowBlack"))
-                            .flat(true);
-                    mMap.addMarker(marker);
-                }
-                else if(bus.getRt().equals("48")) {
-                    MarkerOptions marker = new MarkerOptions()
-                            .position(latlng)
-                            .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
-                            .snippet("Speed: " + bus.getSpd())
-                            .draggable(false)
-                            .rotation(bus.getHdg())
-                            .icon(BitmapDescriptorFactory.fromAsset("arrowBlue"))
-                            .flat(true);
-                    mMap.addMarker(marker);
-                }
-                else if(bus.getRt().equals("56")) {
-                    MarkerOptions marker = new MarkerOptions()
-                            .position(latlng)
-                            .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
-                            .snippet("Speed: " + bus.getSpd())
-                            .draggable(false)
-                            .rotation(bus.getHdg())
-                            .icon(BitmapDescriptorFactory.fromAsset("arrowGreen"))
-                            .flat(true);
-                    mMap.addMarker(marker);
-                }
-                else if(bus.getRt().equals("8")) {
-                    MarkerOptions marker = new MarkerOptions()
-                            .position(latlng)
-                            .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
-                            .snippet("Speed: " + bus.getSpd())
-                            .draggable(false)
-                            .rotation(bus.getHdg())
-                            .icon(BitmapDescriptorFactory.fromAsset("arrowOrange"))
-                            .flat(true);
-                    mMap.addMarker(marker);
-                }
-                else if(bus.getRt().equals("86")) {
-                    MarkerOptions marker = new MarkerOptions()
-                            .position(latlng)
-                            .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
-                            .snippet("Speed: " + bus.getSpd())
-                            .draggable(false)
-                            .rotation(bus.getHdg())
-                            .icon(BitmapDescriptorFactory.fromAsset("arrowPink"))
-                            .flat(true);
-                    mMap.addMarker(marker);
-                }
-                else if(bus.getRt().equals("88")) {
-                    MarkerOptions marker = new MarkerOptions()
-                            .position(latlng)
-                            .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
-                            .snippet("Speed: " + bus.getSpd())
-                            .draggable(false)
-                            .rotation(bus.getHdg())
-                            .icon(BitmapDescriptorFactory.fromAsset("arrowRed"))
-                            .flat(true);
-                    mMap.addMarker(marker);
-                }
-                else if(bus.getRt().equals("P1")) {
-                    MarkerOptions marker = new MarkerOptions()
-                            .position(latlng)
-                            .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
-                            .snippet("Speed: " + bus.getSpd())
-                            .draggable(false)
-                            .rotation(bus.getHdg())
-                            .icon(BitmapDescriptorFactory.fromAsset("arrowWhite"))
-                            .flat(true);
-                    mMap.addMarker(marker);
-                }
-                else if(bus.getRt().equals("P3")) {
-                    MarkerOptions marker = new MarkerOptions()
-                            .position(latlng)
-                            .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
-                            .snippet("Speed: " + bus.getSpd())
-                            .draggable(false)
-                            .rotation(bus.getHdg())
-                            .icon(BitmapDescriptorFactory.fromAsset("arrowYellow"))
-                            .flat(true);
-                    mMap.addMarker(marker);
-                }*/
         }
     }
 }
