@@ -110,65 +110,60 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
         <string name="title_section6">88</string>
         <string name="title_section7">P1</string>
         <string name="title_section8">P3</string>*/
-<<<<<<< HEAD
-        for(Bus bus : bl) {
-            LatLng latlng = new LatLng(bus.getLat(), bus.getLon());
-/*            MarkerOptions marker = new MarkerOptions()
-                    .position(latlng)
-                    .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
-                    .snippet("Speed: " + bus.getSpd())
-                    .draggable(false)
-                    .rotation(bus.getHdg())
-                    .icon(BitmapDescriptorFactory.fromAsset("arrow"))
-                    .flat(true);
-            mMap.addMarker(marker);*/
-            if(bus.getRt().equals("41")) {
-                MarkerOptions marker = new MarkerOptions()
-                .position(latlng)
-                        .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
-                        .snippet("Speed: " + bus.getSpd())
-                        .draggable(false)
-                        .rotation(bus.getHdg())
-                        .icon(BitmapDescriptorFactory.fromAsset("arrowBlack"))
-                        .flat(true);
-                mMap.addMarker(marker);
-            }
-            if(bus.getRt().equals("48")) {
-                MarkerOptions marker = new MarkerOptions()
-                        .position(latlng)
-                        .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
-                        .snippet("Speed: " + bus.getSpd())
-                        .draggable(false)
-                        .rotation(bus.getHdg())
-                        .icon(BitmapDescriptorFactory.fromAsset("arrowBlue"))
-                        .flat(true);
-                mMap.addMarker(marker);
-            }
-            if(bus.getRt().equals("56")) {
-=======
+//        for(Bus bus : bl) {
+//            LatLng latlng = new LatLng(bus.getLat(), bus.getLon());
+///*            MarkerOptions marker = new MarkerOptions()
+//                    .position(latlng)
+//                    .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
+//                    .snippet("Speed: " + bus.getSpd())
+//                    .draggable(false)
+//                    .rotation(bus.getHdg())
+//                    .icon(BitmapDescriptorFactory.fromAsset("arrow"))
+//                    .flat(true);
+//            mMap.addMarker(marker);*/
+//            if(bus.getRt().equals("41")) {
+//                MarkerOptions marker = new MarkerOptions()
+//                .position(latlng)
+//                        .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
+//                        .snippet("Speed: " + bus.getSpd())
+//                        .draggable(false)
+//                        .rotation(bus.getHdg())
+//                        .icon(BitmapDescriptorFactory.fromAsset("arrowBlack"))
+//                        .flat(true);
+//                mMap.addMarker(marker);
+//            }
+//            if(bus.getRt().equals("48")) {
+//                MarkerOptions marker = new MarkerOptions()
+//                        .position(latlng)
+//                        .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
+//                        .snippet("Speed: " + bus.getSpd())
+//                        .draggable(false)
+//                        .rotation(bus.getHdg())
+//                        .icon(BitmapDescriptorFactory.fromAsset("arrowBlue"))
+//                        .flat(true);
+////                mMap.addMarker(marker);
+////            }
+//            if(bus.getRt().equals("56")) {
+
         if(bl != null) {
             for (Bus bus : bl) {
                 LatLng latlng = new LatLng(bus.getLat(), bus.getLon());
                 //TODO make the arrow the same name as the bus route to avoid (same as bus.getRt()) to avoid if else statements
                 //TODO add the arrows to the git
->>>>>>> upstream/master
+
                 MarkerOptions marker = new MarkerOptions()
                         .position(latlng)
                         .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
                         .snippet("Speed: " + bus.getSpd())
                         .draggable(false)
                         .rotation(bus.getHdg())
-                        .icon(BitmapDescriptorFactory.fromAsset("arrow"))
+                        .icon(BitmapDescriptorFactory.fromAsset(bus.getRt()))
                         .flat(true);
                 mMap.addMarker(marker);
-<<<<<<< HEAD
+
             }
-            if(bus.getRt().equals("8")) {
-                MarkerOptions marker = new MarkerOptions()
-=======
-                //TODO use this one below when you change the arrow names to the bus.getRt()
+            //TODO use this one below when you change the arrow names to the bus.getRt()
     /*            MarkerOptions marker = new MarkerOptions()
->>>>>>> upstream/master
                         .position(latlng)
                         .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
                         .snippet("Speed: " + bus.getSpd())
@@ -176,7 +171,6 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                         .rotation(bus.getHdg())
                         .icon(BitmapDescriptorFactory.fromAsset("arrow"))
                         .flat(true);
-<<<<<<< HEAD
                 mMap.addMarker(marker);
             }
             if(bus.getRt().equals("86")) {
@@ -312,8 +306,6 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                             .flat(true);
                     mMap.addMarker(marker);
                 }*/
->>>>>>> upstream/master
-            }
         }
     }
 }

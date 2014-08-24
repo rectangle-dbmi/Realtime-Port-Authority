@@ -15,11 +15,38 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestTask;
 
 
 public class SelectTransit extends Activity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+
+    /**
+     * Saved instance of the buses that are selected
+     */
+    private final static String BUS_SELECT_STATE = "busesSelected";
+
+    /**
+     * Saved instance key for the latitude
+     */
+    private final static String LAST_LATITUDE = "lastLatitude";
+
+    /**
+     * Saved instance key for the longitude
+     */
+    private final static String LAST_LONGITUDE = "lastLongitude";
+
+    /**
+     * Saved instance key for the zoom of the map
+     */
+    private final static String LAST_ZOOM = "lastZoom";
+
+    /**
+     * The latitude and longitude of Pittsburgh... used if the app doesn't have a saved state of the camera
+     */
+    private final static LatLng PITTSBURGH = new LatLng(40.441, -79.981);
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -37,20 +64,34 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
     private GoogleMap mMap;
 
     /**
+     * longitude of the map
+     */
+    private double longitude;
+
+    /**
+     * latitude of the map
+     */
+    private double latitude;
+
+    /**
+     * longitude of the map
+     */
+    private float zoom;
+
+    /**
      * list of buses
      */
     private List<String> buses;
 
     /**
-     * updates the bus points on the UI
+     * This is the object that updates the UI every 10 seconds
      */
-    private Thread updateUI;
-
+    private Timer timer;
 
     /**
-     * Saved instance of the buses that are selected
+     * This is the object that creates the action to update the UI
      */
-    private final static String BUS_SELECT_STATE = "busesSelected";
+    private TimerTask task;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,17 +120,43 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
     private void restoreInstanceState(Bundle savedInstanceState) {
         if(savedInstanceState != null) {
             buses = savedInstanceState.getStringArrayList(BUS_SELECT_STATE);
+            if(mMap != null) {
+                latitude = savedInstanceState.getDouble(LAST_LATITUDE);
+                longitude = savedInstanceState.getDouble(LAST_LONGITUDE);
+                zoom = savedInstanceState.getFloat(LAST_ZOOM);
+            }
+            else
+                defaultCameraLocation();
         }
+        else
+            defaultCameraLocation();
+    }
+
+    /**
+     * Instantiates the default camera coordinates
+     */
+    private void defaultCameraLocation() {
+        latitude = PITTSBURGH.latitude;
+        longitude = PITTSBURGH.longitude;
+        zoom = (float)11.88;
     }
 
     /**
      * Saves the instances of the app
+     *
+     * Right now, it saves the list of buses and the camera position of the map
+     *
      * @param savedInstanceState the bundle of saved instances
      */
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putStringArrayList(BUS_SELECT_STATE, (ArrayList<String>)buses);
+        if(mMap != null) {
+            savedInstanceState.putDouble(LAST_LATITUDE, mMap.getCameraPosition().target.latitude);
+            savedInstanceState.putDouble(LAST_LONGITUDE, mMap.getCameraPosition().target.longitude);
+            savedInstanceState.putFloat(LAST_ZOOM, mMap.getCameraPosition().zoom);
+        }
     }
 
 
@@ -99,7 +166,7 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
      */
     private void createBusList() {
         //This will be changed as things go
-        buses = new ArrayList<String>(8);
+        buses = new ArrayList<String>(getResources().getInteger(R.integer.number_of_buses));
     }
 
 
@@ -135,19 +202,19 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
 
     protected void onPause() {
         super.onPause();
-        stopThread();
+        stopTimer();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        stopThread();
+        stopTimer();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        stopThread();
+        stopTimer();
     }
 
     /**
@@ -292,8 +359,7 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
      * Polls self on the map and then centers the map on Pittsburgh
      */
     private void centerMap() {
-        LatLng pittsburgh = new LatLng(40.441, -79.981);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pittsburgh, (float) 11.88));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), zoom));
         mMap.setMyLocationEnabled(true);
     }
 
@@ -305,40 +371,63 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
      */
     private void setUpMap() {
         final Handler handler = new Handler();
-        stopThread();
-        updateUI = new Thread(new Runnable() {
+//        stopThread();
+//        updateUI = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                // TODO Auto-generated method stub
+//                while (!Thread.interrupted()) {
+//                    try {
+//                        Thread.sleep(10000);
+//                        handler.post(new Runnable() {
+//
+//                            @Override
+//                            public void run() {
+//                                mMap.clear();
+//                                new RequestTask(mMap, buses).execute();
+//
+//                            }
+//                        });
+//                    } catch (Exception e) {
+//                        // TODO: handle exception
+//                    }
+//                }
+//            }
+//        });
+//        if(buses != null && !buses.isEmpty())
+//            updateUI.start();
+        stopTimer();
+        timer = new Timer();
+        task = new TimerTask() {
             @Override
             public void run() {
-                // TODO Auto-generated method stub
-                while (!Thread.interrupted()) {
-                    try {
-                        Thread.sleep(10000);
-                        handler.post(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                mMap.clear();
-                                new RequestTask(mMap, buses).execute();
-
-                            }
-                        });
-                    } catch (Exception e) {
-                        // TODO: handle exception
+                handler.post(new Runnable() {
+                    public void run() {
+                        RequestTask req;
+                        if(!buses.isEmpty()) {
+                            mMap.clear();
+                            req = new RequestTask(mMap, buses);
+                            req.execute();
+                        }
                     }
-                }
+                });
             }
-        });
-        if(buses != null && !buses.isEmpty())
-            updateUI.start();
+        };
+        if(!buses.isEmpty())
+            timer.schedule(task, 0, 10000); //it executes this every 1000ms
     }
 
     /**
-     * Stops the thread
+     * Stops the timer task
      */
-    private void stopThread() {
-        if(updateUI != null) {
-            updateUI.interrupt();
-            updateUI = null;
+    private void stopTimer() {
+        if (timer != null) {
+            timer.cancel();
+            timer.purge();
+        }
+
+        if(task != null) {
+            task.cancel();
         }
     }
 

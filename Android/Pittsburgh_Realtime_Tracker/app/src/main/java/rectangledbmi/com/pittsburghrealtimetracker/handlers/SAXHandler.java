@@ -139,11 +139,9 @@ class SAXHandler extends DefaultHandler {
      * @param content the content of the message
      * @throws BusNotRunningException
      */
-    private void getMessage(String content) /*throws BusNotRunningException*/ {
-        System.out.println(content);
+    private void getMessage(String content) {
         if(content.equals("No data found for parameter"))
               System.err.println(content);
-//            throw new BusNotRunningException(content);
         else
             bus.setMsg(content);
     }
