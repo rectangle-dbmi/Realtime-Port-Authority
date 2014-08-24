@@ -18,6 +18,7 @@ class SAXHandler extends DefaultHandler {
     List<Bus> busList = new ArrayList<Bus>();
     Bus bus = null;
     String content = null;
+    String rt = null;
 
     /**
      *
@@ -52,9 +53,7 @@ class SAXHandler extends DefaultHandler {
     @Override
     public void endElement(String uri, String localName, String qName)
             throws SAXException {
-        System.out.println("uri: " + uri);
-        System.out.println("localName: " + localName);
-        System.out.println("qName: " + qName);
+
         try {
             if (qName.equals("vid")) {
                 busList.add(bus);
@@ -77,7 +76,8 @@ class SAXHandler extends DefaultHandler {
                 bus.setPid(content);
 
             } else if (qName.equals("rt")) {
-                bus.setRt(content);
+                if(bus != null)
+                    bus.setRt(content);
 
             } else if (qName.equals("msg")) {
                 getMessage(content);
@@ -99,12 +99,8 @@ class SAXHandler extends DefaultHandler {
 
             } else if (qName.equals("dly")) {
                 bus.setDly(content);
-
-            } else if (qName.equals("error")) {
-                throw new BusNotRunningException(bus.getRt() + " is not running");
-
             }
-        } catch(BusNotRunningException e) {
+        } catch(NullPointerException e) {
             System.err.println(e.getMessage());
         }
     }
@@ -126,14 +122,16 @@ class SAXHandler extends DefaultHandler {
                 bus = new Bus();
                 bus.setVid(content);
 
-            } else if (qName.equals("error")) {
-                throw new BusNotRunningException("Bus isn't running.");
-            } else if (qName.equals("msg")) {
-                getMessage(content);
             }
-        } catch(BusNotRunningException e) {
+        } catch(NullPointerException e) {
             System.err.println(e.getMessage());
         }
+ /*else if (qName.equals("rt")) {
+            System.err.println("Could approach error");
+//                throw new BusNotRunningException("Bus isn't running.");
+        } *//*else if (qName.equals("msg")) {
+                getMessage(content);
+            }*/
     }
 
     /**
@@ -141,10 +139,11 @@ class SAXHandler extends DefaultHandler {
      * @param content the content of the message
      * @throws BusNotRunningException
      */
-    private void getMessage(String content) throws BusNotRunningException {
+    private void getMessage(String content) /*throws BusNotRunningException*/ {
         System.out.println(content);
         if(content.equals("No data found for parameter"))
-            throw new BusNotRunningException(content);
+              System.err.println(content);
+//            throw new BusNotRunningException(content);
         else
             bus.setMsg(content);
     }
