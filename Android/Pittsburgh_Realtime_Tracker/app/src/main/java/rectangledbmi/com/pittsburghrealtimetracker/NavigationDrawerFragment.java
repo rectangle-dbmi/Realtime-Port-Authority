@@ -4,6 +4,7 @@ package rectangledbmi.com.pittsburghrealtimetracker;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.content.res.Resources;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -70,7 +71,7 @@ public class NavigationDrawerFragment extends Fragment {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mUserLearnedDrawer = sp.getBoolean(PREF_USER_LEARNED_DRAWER, false);
         //TODO need to use an xml value to get length of this list
-        mSelected = new boolean[8];
+        mSelected = new boolean[getResources().getInteger(R.integer.number_of_buses)];
         if (savedInstanceState != null) {
             //TODO: learn how to use savedInstanceState to get previous buses back
             mSelected = savedInstanceState.getBooleanArray(STATE_SELECTED_POSITIONS);
