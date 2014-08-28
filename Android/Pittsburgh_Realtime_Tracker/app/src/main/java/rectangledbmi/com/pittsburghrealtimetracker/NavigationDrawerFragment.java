@@ -1,17 +1,16 @@
 package rectangledbmi.com.pittsburghrealtimetracker;
 
 
-import android.app.Activity;
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.Fragment;
-import android.content.res.Resources;
-import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -71,7 +70,7 @@ public class NavigationDrawerFragment extends Fragment {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mUserLearnedDrawer = sp.getBoolean(PREF_USER_LEARNED_DRAWER, false);
         //TODO need to use an xml value to get length of this list
-        mSelected = new boolean[getResources().getInteger(R.integer.number_of_buses)];
+        mSelected = new boolean[getResources().getStringArray(R.array.buses).length];
         if (savedInstanceState != null) {
             //TODO: learn how to use savedInstanceState to get previous buses back
             mSelected = savedInstanceState.getBooleanArray(STATE_SELECTED_POSITIONS);
@@ -105,7 +104,8 @@ public class NavigationDrawerFragment extends Fragment {
                     getActionBar().getThemedContext(),
                     android.R.layout.simple_list_item_activated_1,
                     android.R.id.text1,
-                    new String[]{
+                    getResources().getStringArray(R.array.buses)
+                    /*new String[]{
                             getString(R.string.title_section1),
                             getString(R.string.title_section2),
                             getString(R.string.title_section3),
@@ -114,7 +114,7 @@ public class NavigationDrawerFragment extends Fragment {
                             getString(R.string.title_section6),
                             getString(R.string.title_section7),
                             getString(R.string.title_section8),
-                                  }
+                                  }*/
                                         )
                                   );
 //        mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
@@ -270,12 +270,24 @@ public class NavigationDrawerFragment extends Fragment {
             return true;
         }
 
-        if (item.getItemId() == R.id.action_example) {
-            Toast.makeText(getActivity(), "Example action.", Toast.LENGTH_SHORT).show();
+        if (item.getItemId() == R.id.action_clear) {
+            clearSelection();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * If the Clear Buses button is clicked, clears the selection and the selected buses
+     */
+    private void clearSelection() {
+        ((SelectTransit)getActivity()).clearBuses();
+        mSelected = new boolean[getResources().getStringArray(R.array.buses).length];
+        mDrawerListView.clearChoices();
+        ((SelectTransit)getActivity()).setUpMap();
+        Toast.makeText(getActivity(), "Cleared buses.", Toast.LENGTH_SHORT).show();
+
     }
 
     /**
