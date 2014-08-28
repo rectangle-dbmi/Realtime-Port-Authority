@@ -21,6 +21,7 @@ The file given by Port Authority is [here](http://www.portauthority.org/GeneralT
 - 88 (Penn)
 - P1 (East Busway - all stops)
 - P3 (East Busway - Oakland)
+- Y49 (Prospect Flyer)
 
 Don't ask us why Port Authority likes this this way.............. it's stupid I know.
 
