@@ -80,6 +80,8 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
 
     /**
      * list of buses
+     *
+     * public because we want to clear this list...
      */
     private List<String> buses;
 
@@ -92,6 +94,7 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
      * This is the object that creates the action to update the UI
      */
     private TimerTask task;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,9 +110,10 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
         createBusList();
-        restoreInstanceState(savedInstanceState);
         //sets up the map
+        restoreInstanceState(savedInstanceState);
         setUpMapIfNeeded();
+
 
     }
 
@@ -120,13 +124,13 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
     private void restoreInstanceState(Bundle savedInstanceState) {
         if(savedInstanceState != null) {
             buses = savedInstanceState.getStringArrayList(BUS_SELECT_STATE);
-            if(mMap != null) {
+//            if(mMap != null) {
                 latitude = savedInstanceState.getDouble(LAST_LATITUDE);
                 longitude = savedInstanceState.getDouble(LAST_LONGITUDE);
                 zoom = savedInstanceState.getFloat(LAST_ZOOM);
-            }
-            else
-                defaultCameraLocation();
+//            }
+//            else
+//                defaultCameraLocation();
         }
         else
             defaultCameraLocation();
@@ -163,10 +167,14 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
 
     /**
      * initializes the bus list
+     *
+     * Codewise most efficient way to pass the buses to the UI updater
+     *
+     * However, linear time worst case
      */
     private void createBusList() {
         //This will be changed as things go
-        buses = new ArrayList<String>(getResources().getInteger(R.integer.number_of_buses));
+        buses = new ArrayList<String>(getResources().getStringArray(R.array.buses).length);
     }
 
 
@@ -219,7 +227,7 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
 
     /**
      * Gets called from NavigationDrawerFragment's onclick? Supposed to...
-     * @param position the list selection selected starting from 1
+     * @param position the list selection selected starting from 0
      */
     @Override
     public void onNavigationDrawerItemSelected(int position) {
@@ -236,7 +244,7 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
      * @param number which bus in the list is pressed
      */
     public void onSectionAttached(int number) {
-        switch (number) {
+/*        switch (number) {
             case 0:
                 setList(getString(R.string.title_section1));
                 break;
@@ -261,12 +269,19 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
             case 7:
                 setList(getString(R.string.title_section8));
                 break;
-        }
+        }*/
+        setList(getResources().getStringArray(R.array.buses)[number]);
     }
 
     /**
      * If the selected bus is already in the list, remove it
      * else add it
+     *
+     * This list will then be passed onto the UI updater if it isn't empty.
+     *
+     * This is the best way codewise to pass the buses to the UI updater.
+     *
+     * Worst case is O(n) as we'd have to remove all buses here.
      *
      * we want to also be able to see the bus the instant it loads
      * @param selected the bus string
@@ -369,33 +384,8 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
      *
      * TODO this isn't working since it keeps running and not interrupting
      */
-    private void setUpMap() {
+    protected void setUpMap() {
         final Handler handler = new Handler();
-//        stopThread();
-//        updateUI = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                // TODO Auto-generated method stub
-//                while (!Thread.interrupted()) {
-//                    try {
-//                        Thread.sleep(10000);
-//                        handler.post(new Runnable() {
-//
-//                            @Override
-//                            public void run() {
-//                                mMap.clear();
-//                                new RequestTask(mMap, buses).execute();
-//
-//                            }
-//                        });
-//                    } catch (Exception e) {
-//                        // TODO: handle exception
-//                    }
-//                }
-//            }
-//        });
-//        if(buses != null && !buses.isEmpty())
-//            updateUI.start();
         stopTimer();
         timer = new Timer();
         task = new TimerTask() {
@@ -433,6 +423,13 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
         if(task != null) {
             task.cancel();
         }
+    }
+
+    /**
+     * @return The list of buses that are selected
+     */
+    protected void clearBuses() {
+        buses.clear();
     }
 
 }
