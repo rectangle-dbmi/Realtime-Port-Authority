@@ -2,11 +2,11 @@ Realtime-Port-Authority
 =======================
 
 The purpose of this was to create a real-time tracking of port authority
-of Pittsburgh, PA, using the realtime API given by [Port Authority](http://realtime.portauthority.org/bustime/home.jsp).
+of Pittsburgh, PA, using the realtime API given by [Port Authority](http://realtime.portauthority.org/bustime/home.jsp) on top of
+the Google Maps API.
 
-Right now, the plan is to make an app for both Android using [Android Studio](https://developer.android.com/sdk/installing/studio.html)
-and on Windows Mobile.
-A website is also in the works.
+### Releases:
+- [Google Play Store](https://play.google.com/store/apps/details?id=rectangledbmi.com.pittsburghrealtimetracker)
 
 API limitations:
 - the buses don't update until after 10+ seconds. Our app only updates 
