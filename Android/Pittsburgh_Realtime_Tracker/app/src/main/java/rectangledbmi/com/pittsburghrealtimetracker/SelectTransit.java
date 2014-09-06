@@ -124,13 +124,9 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
     private void restoreInstanceState(Bundle savedInstanceState) {
         if(savedInstanceState != null) {
             buses = savedInstanceState.getStringArrayList(BUS_SELECT_STATE);
-//            if(mMap != null) {
-                latitude = savedInstanceState.getDouble(LAST_LATITUDE);
-                longitude = savedInstanceState.getDouble(LAST_LONGITUDE);
-                zoom = savedInstanceState.getFloat(LAST_ZOOM);
-//            }
-//            else
-//                defaultCameraLocation();
+            latitude = savedInstanceState.getDouble(LAST_LATITUDE);
+            longitude = savedInstanceState.getDouble(LAST_LONGITUDE);
+            zoom = savedInstanceState.getFloat(LAST_ZOOM);
         }
         else
             defaultCameraLocation();
@@ -154,13 +150,13 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
      */
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putStringArrayList(BUS_SELECT_STATE, (ArrayList<String>)buses);
         if(mMap != null) {
             savedInstanceState.putDouble(LAST_LATITUDE, mMap.getCameraPosition().target.latitude);
             savedInstanceState.putDouble(LAST_LONGITUDE, mMap.getCameraPosition().target.longitude);
             savedInstanceState.putFloat(LAST_ZOOM, mMap.getCameraPosition().zoom);
         }
+        super.onSaveInstanceState(savedInstanceState);
     }
 
 
@@ -244,32 +240,6 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
      * @param number which bus in the list is pressed
      */
     public void onSectionAttached(int number) {
-/*        switch (number) {
-            case 0:
-                setList(getString(R.string.title_section1));
-                break;
-            case 1:
-                setList(getString(R.string.title_section2));
-                break;
-            case 2:
-                setList(getString(R.string.title_section3));
-                break;
-            case 3:
-                setList(getString(R.string.title_section4));
-                break;
-            case 4:
-                setList(getString(R.string.title_section5));
-                break;
-            case 5:
-                setList(getString(R.string.title_section6));
-                break;
-            case 6:
-                setList(getString(R.string.title_section7));
-                break;
-            case 7:
-                setList(getString(R.string.title_section8));
-                break;
-        }*/
         setList(getResources().getStringArray(R.array.buses)[number]);
     }
 

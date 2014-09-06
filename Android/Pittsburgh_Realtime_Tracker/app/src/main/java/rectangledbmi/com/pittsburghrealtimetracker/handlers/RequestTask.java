@@ -93,9 +93,9 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            SAXHandler handler;
+            BusSaxHandler handler;
             try {
-                handler = new SAXHandler();
+                handler = new BusSaxHandler();
                 try {
                     if (sp != null) {
                         sp.parse(new InputSource(url != null ? url.openStream() : null), handler);
@@ -108,7 +108,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-                bl = handler.busList;
+                bl = handler.getBusList();
             } catch (NullPointerException sax) {
 //                System.out.println(sax.getMessage());
                 System.err
