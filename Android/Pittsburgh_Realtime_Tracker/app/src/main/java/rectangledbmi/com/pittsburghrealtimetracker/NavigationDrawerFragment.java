@@ -41,6 +41,11 @@ public class NavigationDrawerFragment extends Fragment {
     private static final String PREF_USER_LEARNED_DRAWER = "navigation_drawer_learned";
 
     /**
+     * Key value for the selected buses
+     */
+    private static final String DRAWER_STATE = "drawer_state";
+
+    /**
      * A pointer to the current callbacks instance (the Activity).
      */
     private NavigationDrawerCallbacks mCallbacks;
@@ -73,7 +78,6 @@ public class NavigationDrawerFragment extends Fragment {
         mSelected = new boolean[getResources().getStringArray(R.array.buses).length];
         if (savedInstanceState != null) {
             //TODO: learn how to use savedInstanceState to get previous buses back
-            mSelected = savedInstanceState.getBooleanArray(STATE_SELECTED_POSITIONS);
             mFromSavedInstanceState = true;
         }
 
@@ -101,23 +105,14 @@ public class NavigationDrawerFragment extends Fragment {
         });
         mDrawerListView.setAdapter(
                 new ArrayAdapter<String>(
-                    getActionBar().getThemedContext(),
-                    android.R.layout.simple_list_item_activated_1,
-                    android.R.id.text1,
-                    getResources().getStringArray(R.array.buses)
-                    /*new String[]{
-                            getString(R.string.title_section1),
-                            getString(R.string.title_section2),
-                            getString(R.string.title_section3),
-                            getString(R.string.title_section4),
-                            getString(R.string.title_section5),
-                            getString(R.string.title_section6),
-                            getString(R.string.title_section7),
-                            getString(R.string.title_section8),
-                                  }*/
-                                        )
-                                  );
-//        mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+                        getActionBar().getThemedContext(),
+                        android.R.layout.simple_list_item_activated_1,
+                        android.R.id.text1,
+                        getResources().getStringArray(R.array.buses)
+                )
+        );
+        //        mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+        mDrawerListView.setSaveEnabled(true);
         return mDrawerListView;
     }
 
