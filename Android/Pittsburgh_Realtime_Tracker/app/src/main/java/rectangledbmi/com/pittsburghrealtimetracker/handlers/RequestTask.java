@@ -135,7 +135,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                         .snippet("Speed: " + bus.getSpd())
                         .draggable(false)
                         .rotation(bus.getHdg())
-                        .icon(BitmapDescriptorFactory.fromAsset(bus.getRt()))
+                        .icon(BitmapDescriptorFactory.fromAsset(bus.getRt() + ".png"))
                         .flat(true);
                 mMap.addMarker(marker);
 

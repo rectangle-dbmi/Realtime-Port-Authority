@@ -1,3 +1,4 @@
+/*
 package rectangledbmi.com.pittsburghrealtimetracker.world;
 
 import java.util.HashMap;
@@ -7,13 +8,15 @@ import java.util.logging.Handler;
 
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestRoutes;
 
+*/
 /**
  * Singleton class to store my dynamic static variables.
  *
  * Singleton class is ok because everytime the Globals is reset,
  *
  * Created by epicstar on 9/5/14.
- */
+ *//*
+
 public class Globals {
 
     private static Globals instance;
@@ -42,22 +45,7 @@ public class Globals {
     }
 
     public void setRoutes() {
-        if(routes == null) {
-            final Handler handler = new Handler();
-            handler.post(new Runnable() {
-                public void run() {
-                    RequestRoutes req = new RequestRoutes();
-                    req.execute();
-                    try {
-                        routes = req.get();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-        }
+
     }
 
     public void setBuses() {
@@ -84,3 +72,4 @@ public class Globals {
     }
 
 }
+*/
