@@ -111,6 +111,8 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                 bl = handler.getBusList();
             } catch (NullPointerException sax) {
 //                System.out.println(sax.getMessage());
+
+                sax.printStackTrace();
                 System.err
                         .println("Bus route is not tracked or all buses on route are in garage: " + selectedBuses);
 //                System.exit(0);

@@ -15,6 +15,11 @@ public class RouteSaxHandler extends TransitSAXHandler {
     private HashMap<String, Route> routes;
     private Route route;
 
+    public RouteSaxHandler() {
+        super();
+        routes = new HashMap<String, Route>();
+    }
+
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         try {

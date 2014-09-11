@@ -79,6 +79,7 @@ public class NavigationDrawerFragment extends Fragment {
         if (savedInstanceState != null) {
             //TODO: learn how to use savedInstanceState to get previous buses back
             mFromSavedInstanceState = true;
+            savedInstanceState.putBooleanArray(STATE_SELECTED_POSITIONS, mSelected);
         }
 
         // Select either the default item (0) or the last selected item.
@@ -113,6 +114,9 @@ public class NavigationDrawerFragment extends Fragment {
         );
         //        mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
         mDrawerListView.setSaveEnabled(true);
+        if(savedInstanceState != null) {
+            mDrawerListView.onRestoreInstanceState(savedInstanceState.getParcelable(DRAWER_STATE));
+        }
         return mDrawerListView;
     }
 
@@ -237,6 +241,7 @@ public class NavigationDrawerFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBooleanArray(STATE_SELECTED_POSITIONS, mSelected);
+        outState.putParcelable(DRAWER_STATE, mDrawerListView.onSaveInstanceState());
 //        outState.putInt(STATE_SELECTED_POSITION, mCurrentSelectedPosition);
     }
 
