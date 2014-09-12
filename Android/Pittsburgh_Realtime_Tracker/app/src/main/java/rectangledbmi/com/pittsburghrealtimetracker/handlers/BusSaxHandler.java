@@ -3,6 +3,7 @@ package rectangledbmi.com.pittsburghrealtimetracker.handlers;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import rectangledbmi.com.pittsburghrealtimetracker.world.Bus;
@@ -19,6 +20,7 @@ public class BusSaxHandler extends TransitSAXHandler {
 
     public BusSaxHandler() {
         super();
+        busList = new ArrayList<Bus>();
     }
 
     @Override

@@ -44,10 +44,6 @@ public abstract class TransitSAXHandler extends DefaultHandler {
         content = String.copyValueOf(ch, start, length).trim();
     }
 
-    protected String getContent() {
-        return content;
-    }
-
     /**
      *
      * @param uri

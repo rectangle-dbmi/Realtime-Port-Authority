@@ -111,6 +111,8 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                 bl = handler.getBusList();
             } catch (NullPointerException sax) {
 //                System.out.println(sax.getMessage());
+
+                sax.printStackTrace();
                 System.err
                         .println("Bus route is not tracked or all buses on route are in garage: " + selectedBuses);
 //                System.exit(0);
@@ -135,7 +137,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                         .snippet("Speed: " + bus.getSpd())
                         .draggable(false)
                         .rotation(bus.getHdg())
-                        .icon(BitmapDescriptorFactory.fromAsset(bus.getRt()))
+                        .icon(BitmapDescriptorFactory.fromAsset(bus.getRt() + ".png"))
                         .flat(true);
                 mMap.addMarker(marker);
 

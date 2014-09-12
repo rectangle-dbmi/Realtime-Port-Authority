@@ -2,26 +2,36 @@
 <resources>
 
     <string name="app_name">Pittsburgh Realtime Tracker</string>
-    <!--<string name="title_section1">41</string>-->
-    <!--<string name="title_section2">48</string>-->
-    <!--<string name="title_section3">56</string>-->
-    <!--<string name="title_section4">8</string>-->
-    <!--<string name="title_section5">86</string>-->
-    <!--<string name="title_section6">88</string>-->
-    <!--<string name="title_section7">P1</string>-->
-    <!--<string name="title_section8">P3</string>-->
     <string-array name="buses">
-        <item>41</item>
-        <item>48</item>
-        <item>56</item>
-        <item>8</item>
-        <item>86</item>
-        <item>88</item>
-        <item>P1</item>
-        <item>P3</item>
-        <item>Y49</item>
+        <item color="#ff6666">13</item>
+        <item color="#b22222">28X</item>
+        <item color="#0099cc">41</item>
+        <item color="#ff0066">48</item>
+        <item color="#ff1493">54</item>
+        <item color="#ff0000">56</item>
+        <item color="#00ff99">58</item>
+        <item color="#e0ffff">61A</item>
+        <item color="#afeeee">61B</item>
+        <item color="#00ffff">61C</item>
+        <item color="#7fffd4">61D</item>
+        <item color="#dc143c">71A</item>
+        <item color="#ffa07a">71B</item>
+        <item color="#f08080">71C</item>
+        <item color="#cd5c5c">71D</item>
+        <item color="#669933">75</item>
+        <item color="#98fb98">8</item>
+        <item color="#0000ff">86</item>
+        <item color="#0066ff">88</item>
+        <item color="#ffb6c1">93</item>
+        <item color="#008000">G2</item>
+        <item color="#9900ff">P1</item>
+        <item color="#ff00ff">P12</item>
+        <item color="#9933cc">P2</item>
+        <item color="#cc00ff">P3</item>
+        <item color="#ffff66">Y49</item>
     </string-array>
-    <string name="api-url">http://realtime.portauthority.org/bustime/api/v2/</string>
+
+<!--    <string name="api-url">http://realtime.portauthority.org/bustime/api/v2/</string>-->
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <!--<string name="action_example">Select Location</string>-->
