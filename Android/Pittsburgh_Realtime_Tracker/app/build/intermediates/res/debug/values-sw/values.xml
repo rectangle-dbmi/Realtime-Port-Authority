@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values-sw/values.xml -->
+    <eat-comment />
+
+    <string name="abc_action_bar_home_description" msgid="4600421777120114993">"Nenda mwanzo"</string>
+    <string name="abc_action_bar_up_description" msgid="1594238315039666878">"Nenda juu"</string>
+    <string name="abc_action_menu_overflow_description" msgid="3588849162933574182">"Chaguo zaidi"</string>
+    <string name="abc_action_mode_done" msgid="4076576682505996667">"Nimemaliza"</string>
+    <string name="abc_activity_chooser_view_see_all" msgid="7468859129482906941">"Angalia zote"</string>
+    <string name="abc_activitychooserview_choose_application" msgid="2031811694353399454">"Chagua programu"</string>
+    <string name="abc_searchview_description_clear" msgid="3691816814315814921">"Futa hoja"</string>
+    <string name="abc_searchview_description_query" msgid="2550479030709304392">"Hoja ya utafutaji"</string>
+    <string name="abc_searchview_description_search" msgid="8264924765203268293">"Tafuta"</string>
+    <string name="abc_searchview_description_submit" msgid="8928215447528550784">"Wasilisha hoja"</string>
+    <string name="abc_searchview_description_voice" msgid="893419373245838918">"Tafuta kwa kutamka"</string>
+    <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"Shiriki na:"</string>
+    <string name="abc_shareactionprovider_share_with_application" msgid="7165123711973476752">"Shiriki na %s"</string>
+    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values-sw/common_strings.xml -->
+    <eat-comment />
+
+    <string name="common_google_play_services_enable_button" msgid="4181637455539816337">"Wezesha huduma za Google Play"</string>
+    <string name="common_google_play_services_enable_text" msgid="7627896071867667758">"Programu hii haitafanya kazi mpaka utakapowezesha huduma za Google Play."</string>
+    <string name="common_google_play_services_enable_title" msgid="529078775174559253">"Wezesha huduma za Google Play"</string>
+    <string name="common_google_play_services_error_notification_requested_by_msg" msgid="2443362625939284971">"Imeombwa na <ns1:g id="APP_NAME">%1$s</ns1:g>"</string>
+    <string name="common_google_play_services_install_button" msgid="8515591849428043265">"Pata huduma za Google Play"</string>
+    <string name="common_google_play_services_install_text_phone" msgid="8685301130651051380">"Programu hii haiwezi kuendeshwa bila huduma za Google Play, ambazo hazipo kwenye simu yako."</string>
+    <string name="common_google_play_services_install_text_tablet" msgid="1589957570365247855">"Programu hii haiwezi kufanya kazi bila huduma za Google Play, ambazo hazipatikani kwenye kompyuta kibao yako."</string>
+    <string name="common_google_play_services_install_title" msgid="26645092511305524">"Pata huduma za Google Play"</string>
+    <string name="common_google_play_services_invalid_account_text" msgid="4983316348021735578">"Akaunti iliyobainishwa haipo kwenye kifaa hiki. Tafadhali chagua akaunti tofauti."</string>
+    <string name="common_google_play_services_invalid_account_title" msgid="1066672360770936753">"Akaunti Batili"</string>
+    <string name="common_google_play_services_needs_enabling_title" msgid="2583358409598976717">"Programu inahitaji huduma za Google Play ili iwashwe."</string>
+    <string name="common_google_play_services_network_error_text" msgid="9038847255613537209">"Muunganisho wa data unahitajika ili kuunganisha kwenye huduma za Google Play."</string>
+    <string name="common_google_play_services_network_error_title" msgid="3827284619958211114">"Hitilafu ya Mtandao"</string>
+    <string name="common_google_play_services_notification_needs_installation_title" msgid="8120534356798772974">"Programu inahitaji usakinishaji wa huduma za Google Play."</string>
+    <string name="common_google_play_services_notification_needs_update_title" msgid="1388129345631079938">"Programu inahitaji toleo jipya la huduma za Google Play."</string>
+    <string name="common_google_play_services_notification_ticker" msgid="1852570676146674985">"Hitilafu kwenye huduma za Google Play"</string>
+    <string name="common_google_play_services_unknown_issue" msgid="4762332809710093730">"Suala lisilojulikana na huduma za Google Play."</string>
+    <string name="common_google_play_services_unsupported_date_text" msgid="4725396522367789365">"Inaeonekana tarehe ya kifaa sio sahihi. Tafadhali angalia tarehe ya kifaa."</string>
+    <string name="common_google_play_services_unsupported_text" msgid="3542578567569488671">"Huduma za Google Play, ambazo baadhi ya programu zako zinategemea, si linganifu na kifaa chako. Tafadhali wasiliana na mtengenezaji kwa usaidizi."</string>
+    <string name="common_google_play_services_unsupported_title" msgid="6334768798839376943">"Huduma za Google Play"</string>
+    <string name="common_google_play_services_update_button" msgid="8932944190611227642">"Sasisha"</string>
+    <string name="common_google_play_services_update_text" msgid="448354684997260580">"Programu hii haiwezi kuendeshwa mpaka utakaposasisha huduma za Google Play."</string>
+    <string name="common_google_play_services_update_title" msgid="6006316683626838685">"Sasisha huduma za Google Play"</string>
+    <string name="common_signin_button_text" msgid="9071884888741449141">"Ingia"</string>
+    <string name="common_signin_button_text_long" msgid="2429381841831957106">"Ingia ukitumia Google"</string>
+    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/20.0.0/res/values-sw/values.xml -->
+    <eat-comment />
+
+    <string name="mr_media_route_button_content_description" msgid="4271159405637008602">"Towe la vyombo vya habari"</string>
+    <string name="mr_media_route_chooser_searching" msgid="7553005460920830010">"Inatafuta vifaa..."</string>
+    <string name="mr_media_route_chooser_title" msgid="7106830097177242655">"Unganisha kwenye kifaa"</string>
+    <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"Tenganisha"</string>
+    <string name="mr_system_route_name" msgid="5441529851481176817">"Mfumo"</string>
+    <string name="mr_user_route_category_name" msgid="7498112907524977311">"Vifaa"</string>
+
+</resources>
