@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values-iw/values.xml -->
+    <eat-comment />
+
+    <string name="abc_action_bar_home_description" msgid="4600421777120114993">"נווט לדף הבית"</string>
+    <string name="abc_action_bar_up_description" msgid="1594238315039666878">"נווט למעלה"</string>
+    <string name="abc_action_menu_overflow_description" msgid="3588849162933574182">"עוד אפשרויות"</string>
+    <string name="abc_action_mode_done" msgid="4076576682505996667">"בוצע"</string>
+    <string name="abc_activity_chooser_view_see_all" msgid="7468859129482906941">"ראה הכול"</string>
+    <string name="abc_activitychooserview_choose_application" msgid="2031811694353399454">"בחר אפליקציה"</string>
+    <string name="abc_searchview_description_clear" msgid="3691816814315814921">"מחק שאילתה"</string>
+    <string name="abc_searchview_description_query" msgid="2550479030709304392">"שאילתת חיפוש"</string>
+    <string name="abc_searchview_description_search" msgid="8264924765203268293">"חפש"</string>
+    <string name="abc_searchview_description_submit" msgid="8928215447528550784">"שלח שאילתה"</string>
+    <string name="abc_searchview_description_voice" msgid="893419373245838918">"חיפוש קולי"</string>
+    <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"שתף עם"</string>
+    <string name="abc_shareactionprovider_share_with_application" msgid="7165123711973476752">"‏שתף עם %s"</string>
+    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values-iw/common_strings.xml -->
+    <eat-comment />
+
+    <string name="common_google_play_services_enable_button" msgid="4181637455539816337">"‏הפעל את שירותי Google Play"</string>
+    <string name="common_google_play_services_enable_text" msgid="7627896071867667758">"‏אפליקציה זו לא תעבוד אם לא תפעיל את שירותי Google Play."</string>
+    <string name="common_google_play_services_enable_title" msgid="529078775174559253">"‏הפעלת שירותי Google Play"</string>
+    <string name="common_google_play_services_error_notification_requested_by_msg" msgid="2443362625939284971">"התבקשה על ידי <ns1:g id="APP_NAME">%1$s</ns1:g>"</string>
+    <string name="common_google_play_services_install_button" msgid="8515591849428043265">"‏קבל את שירותי Google Play"</string>
+    <string name="common_google_play_services_install_text_phone" msgid="8685301130651051380">"‏אפליקציה זו לא תפעל ללא שירותי Google Play, החסרים בטלפון שלך."</string>
+    <string name="common_google_play_services_install_text_tablet" msgid="1589957570365247855">"‏אפליקציה זו לא תפעל ללא שירותי Google Play, החסרים בטאבלט שלך."</string>
+    <string name="common_google_play_services_install_title" msgid="26645092511305524">"‏קבל את שירותי Google Play"</string>
+    <string name="common_google_play_services_invalid_account_text" msgid="4983316348021735578">"החשבון שצוין לא קיים במכשיר זה. בחר חשבון אחר."</string>
+    <string name="common_google_play_services_invalid_account_title" msgid="1066672360770936753">"חשבון לא חוקי"</string>
+    <string name="common_google_play_services_needs_enabling_title" msgid="2583358409598976717">"‏קיימת אפליקציה המחייבת הפעלה של שירותי Google Play."</string>
+    <string name="common_google_play_services_network_error_text" msgid="9038847255613537209">"‏דרוש חיבור נתונים כדי להתחבר לשירותי Google Play."</string>
+    <string name="common_google_play_services_network_error_title" msgid="3827284619958211114">"שגיאת רשת."</string>
+    <string name="common_google_play_services_notification_needs_installation_title" msgid="8120534356798772974">"‏קיימת אפליקציה המחייבת התקנה של שירותי Google Play."</string>
+    <string name="common_google_play_services_notification_needs_update_title" msgid="1388129345631079938">"‏קיימת אפליקציה המחייבת עדכון עבור שירותי Google Play."</string>
+    <string name="common_google_play_services_notification_ticker" msgid="1852570676146674985">"‏שגיאה בשירותי Google Play"</string>
+    <string name="common_google_play_services_unknown_issue" msgid="4762332809710093730">"‏בעיה לא ידועה בשירותי Google Play."</string>
+    <string name="common_google_play_services_unsupported_date_text" msgid="4725396522367789365">"נראה שהתאריך במכשיר שגוי. בדוק את התאריך במכשיר."</string>
+    <string name="common_google_play_services_unsupported_text" msgid="3542578567569488671">"‏שירותי Google Play, שחלק מהאפליקציות שלך מתבססות עליהם, אינם נתמכים על ידי המכשיר שברשותך. צור קשר עם היצרן לקבלת סיוע."</string>
+    <string name="common_google_play_services_unsupported_title" msgid="6334768798839376943">"‏שירותי Google Play"</string>
+    <string name="common_google_play_services_update_button" msgid="8932944190611227642">"עדכן"</string>
+    <string name="common_google_play_services_update_text" msgid="448354684997260580">"‏אפליקציה זו לא תפעל אם לא תעדכן את שירותי Google Play."</string>
+    <string name="common_google_play_services_update_title" msgid="6006316683626838685">"‏עדכון שירותי Google Play"</string>
+    <string name="common_signin_button_text" msgid="9071884888741449141">"היכנס"</string>
+    <string name="common_signin_button_text_long" msgid="2429381841831957106">"‏היכנס באמצעות Google"</string>
+    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/20.0.0/res/values-iw/values.xml -->
+    <eat-comment />
+
+    <string name="mr_media_route_button_content_description" msgid="4271159405637008602">"פלט מדיה"</string>
+    <string name="mr_media_route_chooser_searching" msgid="7553005460920830010">"מחפש מכשירים…"</string>
+    <string name="mr_media_route_chooser_title" msgid="7106830097177242655">"התחבר למכשיר"</string>
+    <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"התנתק"</string>
+    <string name="mr_system_route_name" msgid="5441529851481176817">"מערכת"</string>
+    <string name="mr_user_route_category_name" msgid="7498112907524977311">"מכשירים"</string>
+
+</resources>
