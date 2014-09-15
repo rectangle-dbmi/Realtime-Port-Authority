@@ -79,7 +79,6 @@ public class NavigationDrawerFragment extends Fragment {
         if (savedInstanceState != null) {
             //TODO: learn how to use savedInstanceState to get previous buses back
             mFromSavedInstanceState = true;
-            savedInstanceState.putBooleanArray(STATE_SELECTED_POSITIONS, mSelected);
         }
 
         // Select either the default item (0) or the last selected item.
@@ -96,6 +95,7 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
         mDrawerListView = (ListView) inflater.inflate(
                 R.layout.fragment_navigation_drawer, container, false);
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -115,7 +115,10 @@ public class NavigationDrawerFragment extends Fragment {
         //        mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
         mDrawerListView.setSaveEnabled(true);
         if(savedInstanceState != null) {
+            if(savedInstanceState.getParcelable(DRAWER_STATE) == null)
+                System.out.println("you suck...");
             mDrawerListView.onRestoreInstanceState(savedInstanceState.getParcelable(DRAWER_STATE));
+            savedInstanceState.putBooleanArray(STATE_SELECTED_POSITIONS, mSelected);
         }
         return mDrawerListView;
     }

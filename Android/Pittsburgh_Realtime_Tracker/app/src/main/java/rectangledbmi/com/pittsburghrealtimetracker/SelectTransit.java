@@ -122,16 +122,18 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
      * @param savedInstanceState the saved instances of the app
      */
     private void restoreInstanceState(Bundle savedInstanceState) {
-        if(savedInstanceState != null) {
+        System.out.println("In restore state...");
+        if (savedInstanceState != null) {
             buses = savedInstanceState.getStringArrayList(BUS_SELECT_STATE);
+            System.out.println(buses);
             latitude = savedInstanceState.getDouble(LAST_LATITUDE);
             longitude = savedInstanceState.getDouble(LAST_LONGITUDE);
             zoom = savedInstanceState.getFloat(LAST_ZOOM);
-        }
-        else
+        } else {
             defaultCameraLocation();
+            System.out.println("restore state is null..");
+        }
     }
-
     /**
      * Instantiates the default camera coordinates
      */
@@ -150,13 +152,14 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
      */
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putStringArrayList(BUS_SELECT_STATE, (ArrayList<String>)buses);
         if(mMap != null) {
             savedInstanceState.putDouble(LAST_LATITUDE, mMap.getCameraPosition().target.latitude);
             savedInstanceState.putDouble(LAST_LONGITUDE, mMap.getCameraPosition().target.longitude);
             savedInstanceState.putFloat(LAST_ZOOM, mMap.getCameraPosition().zoom);
         }
-        super.onSaveInstanceState(savedInstanceState);
+
     }
 
 
@@ -376,7 +379,7 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
             }
         };
         if(!buses.isEmpty())
-            timer.schedule(task, 0, 10000); //it executes this every 1000ms
+            timer.schedule(task, 0, 10000); //it executes this every 10000ms
         else
             mMap.clear();
     }
