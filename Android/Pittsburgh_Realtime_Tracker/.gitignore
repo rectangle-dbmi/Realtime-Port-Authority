@@ -3,4 +3,7 @@
 /.idea/workspace.xml
 /.idea/libraries
 .DS_Store
-/build
+app/build
+/app/apks
+/app/src/debug/res/values/google_maps_api.xml
+/app/src/release/res/values/google_maps_api.xml
