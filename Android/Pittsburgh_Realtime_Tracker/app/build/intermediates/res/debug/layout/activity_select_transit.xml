@@ -37,4 +37,4 @@
         tools:layout="@layout/fragment_navigation_drawer" />
 
 </android.support.v4.widget.DrawerLayout>
-<!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/layout/activity_select_transit.xml -->
+<!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/layout/activity_select_transit.xml -->

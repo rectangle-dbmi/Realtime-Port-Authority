@@ -7,4 +7,4 @@
     <item android:state_selected="true" android:color="@color/wallet_bright_foreground_holo_light"/>
     <item android:color="@color/wallet_bright_foreground_holo_light"/> <!-- not selected -->
 </selector>
-<!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/color/wallet_primary_text_holo_light.xml -->
+<!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/color/wallet_primary_text_holo_light.xml -->

@@ -22,4 +22,4 @@
           android:singleLine="true"
           android:layout_width="match_parent"
           android:layout_height="?attr/dropdownListPreferredItemHeight"
-          android:ellipsize="marquee"/><!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/layout/support_simple_spinner_dropdown_item.xml -->
+          android:ellipsize="marquee"/><!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/layout/support_simple_spinner_dropdown_item.xml -->

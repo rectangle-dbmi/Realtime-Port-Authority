@@ -1,12 +1,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".SelectTransit" >
-    <item android:id="@+id/action_example"
-        android:title="@string/action_example"
+    <item android:id="@+id/action_clear"
+        android:title="@string/action_clear"
         android:showAsAction="withText|ifRoom" />
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
-        android:orderInCategory="100"
-        android:showAsAction="never" />
+    <!--<item android:id="@+id/action_settings"-->
+        <!--android:title="@string/action_settings"-->
+        <!--android:orderInCategory="100"-->
+        <!--android:showAsAction="never" />-->
 </menu>
-<!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/menu/select_transit.xml -->
+<!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/menu/select_transit.xml -->

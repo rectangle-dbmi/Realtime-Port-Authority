@@ -2,56 +2,107 @@
 <merger version="2" >
 
     <dataSet config="20.0.0" >
-        <source path="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/support-v4/20.0.0/assets" />
+        <source path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/support-v4/20.0.0/assets" />
     </dataSet>
     <dataSet config="20.0.0" >
-        <source path="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/support-v13/20.0.0/assets" />
+        <source path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/support-v13/20.0.0/assets" />
     </dataSet>
     <dataSet config="20.0.0" >
-        <source path="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/assets" />
+        <source path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/assets" />
     </dataSet>
     <dataSet config="20.0.0" >
-        <source path="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/20.0.0/assets" />
+        <source path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/20.0.0/assets" />
     </dataSet>
     <dataSet config="20.0.0" >
-        <source path="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/gridlayout-v7/20.0.0/assets" />
+        <source path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/gridlayout-v7/20.0.0/assets" />
     </dataSet>
     <dataSet config="5.0.89" >
-        <source path="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/assets" />
+        <source path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/assets" />
     </dataSet>
     <dataSet config="main" >
-        <source path="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets" >
+        <source path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets" >
             <file
-                name="arrowYellow"
-                path="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/arrowYellow" />
+                name="86.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/86.png" />
             <file
-                name="arrowGreen"
-                path="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/arrowGreen" />
+                name="71B.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/71B.png" />
             <file
-                name="arrowBlue"
-                path="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/arrowBlue" />
+                name="61A.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/61A.png" />
             <file
-                name="arrowRed"
-                path="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/arrowRed" />
+                name="61B.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/61B.png" />
             <file
-                name="arrowPink"
-                path="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/arrowPink" />
+                name="54.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/54.png" />
             <file
-                name="arrowOrange"
-                path="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/arrowOrange" />
+                name="71C.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/71C.png" />
             <file
-                name="arrowBlack"
-                path="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/arrowBlack" />
+                name="61D.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/61D.png" />
             <file
-                name="arrow"
-                path="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/arrow" />
+                name="P1.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/P1.png" />
             <file
-                name="arrowWhite"
-                path="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/arrowWhite" />
+                name="58.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/58.png" />
+            <file
+                name="P3.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/P3.png" />
+            <file
+                name="75.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/75.png" />
+            <file
+                name="93.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/93.png" />
+            <file
+                name="48.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/48.png" />
+            <file
+                name="G2.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/G2.png" />
+            <file
+                name="8.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/8.png" />
+            <file
+                name="61C.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/61C.png" />
+            <file
+                name="56.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/56.png" />
+            <file
+                name="Y49.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/Y49.png" />
+            <file
+                name="71A.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/71A.png" />
+            <file
+                name="28X.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/28X.png" />
+            <file
+                name="88.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/88.png" />
+            <file
+                name="P2.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/P2.png" />
+            <file
+                name="P12.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/P12.png" />
+            <file
+                name="71D.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/71D.png" />
+            <file
+                name="41.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/41.png" />
+            <file
+                name="13.png"
+                path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/assets/13.png" />
         </source>
     </dataSet>
     <dataSet config="debug" >
-        <source path="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/debug/assets" />
+        <source path="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/debug/assets" />
     </dataSet>
 
 </merger>

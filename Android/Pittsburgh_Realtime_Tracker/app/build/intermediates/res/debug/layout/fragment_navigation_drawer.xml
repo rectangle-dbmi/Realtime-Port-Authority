@@ -10,4 +10,4 @@
     android:clickable="true"
     android:footerDividersEnabled="false"
     android:theme="@style/AppTheme" />
-<!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/layout/fragment_navigation_drawer.xml -->
+<!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/layout/fragment_navigation_drawer.xml -->

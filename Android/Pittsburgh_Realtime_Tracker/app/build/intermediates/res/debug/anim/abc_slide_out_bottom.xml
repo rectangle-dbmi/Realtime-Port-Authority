@@ -16,4 +16,4 @@
 <translate xmlns:android="http://schemas.android.com/apk/res/android"
            android:interpolator="@android:anim/accelerate_interpolator"
            android:fromYDelta="0" android:toYDelta="50%p"
-           android:duration="@android:integer/config_mediumAnimTime"/><!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/anim/abc_slide_out_bottom.xml -->
+           android:duration="@android:integer/config_mediumAnimTime"/><!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/anim/abc_slide_out_bottom.xml -->

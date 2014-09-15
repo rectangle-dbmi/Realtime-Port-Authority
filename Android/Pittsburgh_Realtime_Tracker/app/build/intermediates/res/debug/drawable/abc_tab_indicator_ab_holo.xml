@@ -32,4 +32,4 @@
     <item android:state_focused="true" android:state_selected="false" android:state_pressed="true" android:drawable="@drawable/abc_tab_unselected_pressed_holo" />
     <item android:state_focused="true" android:state_selected="true"  android:state_pressed="true" android:drawable="@drawable/abc_tab_selected_pressed_holo" />
 </selector>
-<!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/drawable/abc_tab_indicator_ab_holo.xml -->
+<!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/drawable/abc_tab_indicator_ab_holo.xml -->

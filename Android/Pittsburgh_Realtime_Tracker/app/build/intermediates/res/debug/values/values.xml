@@ -1,7 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
 
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/values/strings.xml -->
+    <eat-comment />
+
+    <string-array name="buses">
+        <item color="#ff6666">13</item>
+        <item color="#b22222">28X</item>
+        <item color="#0099cc">41</item>
+        <item color="#ff0066">48</item>
+        <item color="#ff1493">54</item>
+        <item color="#ff0000">56</item>
+        <item color="#00ff99">58</item>
+        <item color="#e0ffff">61A</item>
+        <item color="#afeeee">61B</item>
+        <item color="#00ffff">61C</item>
+        <item color="#7fffd4">61D</item>
+        <item color="#dc143c">71A</item>
+        <item color="#ffa07a">71B</item>
+        <item color="#f08080">71C</item>
+        <item color="#cd5c5c">71D</item>
+        <item color="#669933">75</item>
+        <item color="#98fb98">8</item>
+        <item color="#0000ff">86</item>
+        <item color="#0066ff">88</item>
+        <item color="#ffb6c1">93</item>
+        <item color="#008000">G2</item>
+        <item color="#9900ff">P1</item>
+        <item color="#ff00ff">P12</item>
+        <item color="#9933cc">P2</item>
+        <item color="#cc00ff">P3</item>
+        <item color="#ffff66">Y49</item>
+    </string-array>
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
     <eat-comment />
 
     <attr name="actionBarDivider" format="reference" />
@@ -45,14 +76,14 @@
     <attr name="listPreferredItemHeightSmall" format="dimension" />
     <attr name="listPreferredItemPaddingLeft" format="dimension" />
     <attr name="listPreferredItemPaddingRight" format="dimension" />
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/20.0.0/res/values/values.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/20.0.0/res/values/values.xml -->
     <eat-comment />
 
     <attr name="mediaRouteButtonStyle" format="reference" />
     <attr name="mediaRouteConnectingDrawable" format="reference" />
     <attr name="mediaRouteOffDrawable" format="reference" />
     <attr name="mediaRouteOnDrawable" format="reference" />
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
     <eat-comment />
 
     <attr name="searchDropdownBackground" format="reference" />
@@ -88,7 +119,7 @@
     <color name="abc_search_url_text_normal">#7fa87f</color>
     <color name="abc_search_url_text_pressed">@android:color/black</color>
     <color name="abc_search_url_text_selected">@android:color/black</color>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values/common_colors.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values/common_colors.xml -->
     <eat-comment />
 
     <color name="common_action_bar_splitter">#d2d2d2</color>
@@ -101,7 +132,7 @@
     <color name="common_signin_btn_light_text_disabled">#FFAAAAAA</color>
     <color name="common_signin_btn_light_text_focused">#FF737373</color>
     <color name="common_signin_btn_light_text_pressed">@android:color/white</color>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values/wallet_colors.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values/wallet_colors.xml -->
     <eat-comment />
 
     <color name="wallet_bright_foreground_disabled_holo_light">#ffb2b2b2</color>
@@ -117,7 +148,7 @@
     <color name="wallet_hint_foreground_holo_light">#808080</color>
     <color name="wallet_holo_blue_light">#ff33b5e5</color>
     <color name="wallet_link_text_light">#0000ee</color>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
     <eat-comment />
 
     <declare-styleable name="ActionBar">
@@ -245,7 +276,7 @@
         -->
         <attr name="expandActivityOverflowButtonDrawable" format="reference" />
     </declare-styleable>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values/admob_ads_attrs.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values/admob_ads_attrs.xml -->
     <eat-comment />
 
     <declare-styleable name="AdsAttrs">
@@ -267,7 +298,7 @@
         <!-- The ad unit ID. -->
         <attr name="adUnitId" format="string" />
     </declare-styleable>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
     <eat-comment />
 
     <declare-styleable name="CompatTextView">
@@ -275,7 +306,7 @@
         <!-- Present the text in ALL CAPS. This may use a small-caps form when available. -->
         <attr name="textAllCaps" format="reference|boolean" />
     </declare-styleable>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/gridlayout-v7/20.0.0/res/values/values.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/gridlayout-v7/20.0.0/res/values/values.xml -->
     <eat-comment />
 
     <declare-styleable name="GridLayout">
@@ -461,7 +492,7 @@
             <flag name="end" value="0x00800005" />
         </attr>
     </declare-styleable>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
     <eat-comment />
 
     <declare-styleable name="LinearLayoutICS">
@@ -478,7 +509,7 @@
         <!-- Size of padding on either end of a divider. -->
         <attr name="dividerPadding" format="dimension" />
     </declare-styleable>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values/maps_attrs.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values/maps_attrs.xml -->
     <eat-comment />
 
     <declare-styleable name="MapAttrs">
@@ -503,7 +534,7 @@
         <attr name="useViewLifecycle" format="boolean" />
         <attr name="zOrderOnTop" format="boolean" />
     </declare-styleable>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/20.0.0/res/values/values.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/20.0.0/res/values/values.xml -->
     <eat-comment />
 
     <declare-styleable name="MediaRouteButton">
@@ -518,7 +549,7 @@
         <attr name="android:minWidth" />
         <attr name="android:minHeight" />
     </declare-styleable>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
     <eat-comment />
 
     <declare-styleable name="MenuGroup">
@@ -788,7 +819,7 @@
         -->
         <attr name="android:focusable" />
     </declare-styleable>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values/wallet_attrs.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values/wallet_attrs.xml -->
     <eat-comment />
 
     <declare-styleable name="WalletFragmentOptions">
@@ -862,7 +893,7 @@
             <enum name="monochrome" value="2" />
         </attr>
     </declare-styleable>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
     <eat-comment />
 
     <dimen name="abc_action_bar_default_height">48dip</dimen>
@@ -882,27 +913,27 @@
     <dimen name="abc_panel_menu_list_width">296dp</dimen>
     <dimen name="abc_search_view_preferred_width">320dip</dimen>
     <dimen name="abc_search_view_text_min_width">160dip</dimen>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/values/dimens.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/values/dimens.xml -->
     <eat-comment />
 
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/gridlayout-v7/20.0.0/res/values/values.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/gridlayout-v7/20.0.0/res/values/values.xml -->
     <eat-comment />
 
     <dimen name="default_gap">16dip</dimen>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
     <eat-comment />
 
     <item name="dialog_fixed_height_major" type="dimen">80%</item>
     <item name="dialog_fixed_height_minor" type="dimen">100%</item>
     <item name="dialog_fixed_width_major" type="dimen">320dp</item>
     <item name="dialog_fixed_width_minor" type="dimen">320dp</item>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/values/dimens.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/values/dimens.xml -->
     <eat-comment />
 
     <dimen name="navigation_drawer_width">240dp</dimen>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
     <eat-comment />
 
     <item name="action_bar_activity_content" type="id"/>
@@ -913,11 +944,15 @@
     <item name="progress_horizontal" type="id"/>
 
     <integer name="abc_max_action_buttons">2</integer>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values/version.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values/version.xml -->
     <eat-comment />
 
     <integer name="google_play_services_version">5089000</integer>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/values/integers.xml -->
+    <eat-comment />
+
+    <integer name="number_of_buses">26</integer>
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
     <eat-comment />
 
     <string name="abc_action_bar_home_description">Navigate home</string>
@@ -933,14 +968,13 @@
     <string name="abc_searchview_description_voice">Voice search</string>
     <string name="abc_shareactionprovider_share_with">Share with</string>
     <string name="abc_shareactionprovider_share_with_application">Share with %s</string>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/values/strings.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/values/strings.xml -->
     <eat-comment />
 
     <string name="action_clear">Clear Transit</string>
-    <string name="action_example">Select Location</string>
     <string name="action_settings">Settings</string>
-    <string name="app_name">Pittsburgh Realtime Tracker</string>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values/common_strings.xml -->
+    <string name="app_name">PAT Realtime Tracker</string>
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values/common_strings.xml -->
     <eat-comment />
 
     <string name="common_google_play_services_enable_button" msgid="2523291102206661146">Enable Google Play services</string>
@@ -968,10 +1002,10 @@
     <string name="common_google_play_services_update_title" msgid="1788179980625863495">Update Google Play services</string>
     <string name="common_signin_button_text">Sign in</string>
     <string name="common_signin_button_text_long">Sign in with Google</string>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/debug/res/values/google_maps_api.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/debug/res/values/google_maps_api.xml -->
     <eat-comment />
 
-    <string name="google_maps_key" templateMergeStrategy="preserve">AIzaSyDQQNJoQrym9iDkR_V-u13mpQ1Hmgv9QpU</string>
+    <string name="google_maps_key" templateMergeStrategy="preserve">AIzaSyDzmslpuC3Pdnb1SsvoZT6vLmmHkQzJOkg</string>
     <string name="google_maps_key_instructions" templateMergeStrategy="replace">
         <!--
     TODO: Before you run your application, you need a Google Maps API key.
@@ -1002,7 +1036,7 @@ https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend
     AIzaSyDQQNJoQrym9iDkR_V-u13mpQ1Hmgv9QpU
         -->
     </string>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/20.0.0/res/values/values.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/20.0.0/res/values/values.xml -->
     <eat-comment />
 
     <string name="mr_media_route_button_content_description">Media output</string>
@@ -1011,31 +1045,23 @@ https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend
     <string name="mr_media_route_controller_disconnect">Disconnect</string>
     <string name="mr_system_route_name">System</string>
     <string name="mr_user_route_category_name">Devices</string>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/values/strings.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/values/strings.xml -->
     <eat-comment />
 
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="title_activity_maps_fragment">Map</string>
-    <string name="title_section1">41</string>
-    <string name="title_section2">48</string>
-    <string name="title_section3">56</string>
-    <string name="title_section4">8</string>
-    <string name="title_section5">86</string>
-    <string name="title_section6">88</string>
-    <string name="title_section7">P1</string>
-    <string name="title_section8">P3</string>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values/wallet_strings.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values/wallet_strings.xml -->
     <eat-comment />
 
     <string name="wallet_buy_button_place_holder" translation_description="Text on a button that allows a user to make a payment with Google Wallet [CHAR LIMIT=30]">Buy with Google</string>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/values/styles.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/values/styles.xml -->
     <eat-comment />
 
     <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
         <!-- Customize your theme here. -->
     </style>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
     <eat-comment />
 
     <style name="TextAppearance.AppCompat.Base.CompactMenu.Dialog" parent="android:TextAppearance.Medium">
@@ -1457,7 +1483,7 @@ https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend
     <style name="Theme.Base.AppCompat.Light.DialogWhenLarge" parent="Theme.Base.AppCompat.Light" />
 
     <style name="Theme.Base.Light" parent="android:Theme.Light" />
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values/admob_iap_style.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values/admob_iap_style.xml -->
     <eat-comment />
 
     <style name="Theme.IAPTheme" parent="android:Theme">
@@ -1468,7 +1494,7 @@ https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend
         <item name="android:windowIsFloating">true</item>
         <item name="android:backgroundDimEnabled">false</item>
     </style>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/20.0.0/res/values/values.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/20.0.0/res/values/values.xml -->
     <eat-comment />
 
     <style name="Theme.MediaRouter" parent="">
@@ -1484,7 +1510,7 @@ https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend
         <item name="mediaRouteConnectingDrawable">@drawable/mr_ic_media_route_connecting_holo_light</item>
         <item name="mediaRouteOnDrawable">@drawable/mr_ic_media_route_on_holo_light</item>
     </style>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values/wallet_styles.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values/wallet_styles.xml -->
     <eat-comment />
 
     <style name="WalletFragmentDefaultButtonTextAppearance">
@@ -1522,7 +1548,7 @@ https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend
         <item name="maskedWalletDetailsLogoTextColor">@color/wallet_bright_foreground_holo_dark</item>
         <item name="maskedWalletDetailsLogoImageType">classic</item>
     </style>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values/values.xml -->
     <eat-comment />
 
     <style name="Widget.AppCompat.ActionBar" parent="Widget.AppCompat.Base.ActionBar" />
@@ -1816,7 +1842,7 @@ https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend
     <style name="Widget.AppCompat.ProgressBar.Horizontal" parent="Widget.AppCompat.Base.ProgressBar.Horizontal" />
 
     <style name="Widget.AppCompat.Spinner.DropDown.ActionBar" parent="Widget.AppCompat.Base.Spinner" />
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/20.0.0/res/values/values.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/20.0.0/res/values/values.xml -->
     <eat-comment />
 
     <style name="Widget.MediaRouter.Light.MediaRouteButton" parent="Widget.AppCompat.Light.ActionButton">
