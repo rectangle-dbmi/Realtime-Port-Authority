@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">PA Realtime Tracker</string>
+    <string name="app_name">PAT Realtime Tracker</string>
     <string-array name="buses">
         <item color="#ff6666">13</item>
         <item color="#b22222">28X</item>
