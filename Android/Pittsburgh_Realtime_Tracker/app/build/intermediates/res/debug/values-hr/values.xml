@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
 
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values-hr/values.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/values-hr/values.xml -->
     <eat-comment />
 
     <string name="abc_action_bar_home_description" msgid="4600421777120114993">"Idi na početnu"</string>
@@ -17,7 +17,7 @@
     <string name="abc_searchview_description_voice" msgid="893419373245838918">"Glasovno pretraživanje"</string>
     <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"Dijeljenje sa"</string>
     <string name="abc_shareactionprovider_share_with_application" msgid="7165123711973476752">"Dijeljenje sa: %s"</string>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values-hr/common_strings.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.89/res/values-hr/common_strings.xml -->
     <eat-comment />
 
     <string name="common_google_play_services_enable_button" msgid="4181637455539816337">"Omogući usluge za Google Play"</string>
@@ -45,7 +45,7 @@
     <string name="common_google_play_services_update_title" msgid="6006316683626838685">"Ažuriraj usluge za Google Play"</string>
     <string name="common_signin_button_text" msgid="9071884888741449141">"Prijava"</string>
     <string name="common_signin_button_text_long" msgid="2429381841831957106">"Prijava uslugom Google"</string>
-    <!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/20.0.0/res/values-hr/values.xml -->
+    <!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/20.0.0/res/values-hr/values.xml -->
     <eat-comment />
 
     <string name="mr_media_route_button_content_description" msgid="4271159405637008602">"Medijski izlaz"</string>

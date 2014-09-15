@@ -5,4 +5,4 @@
     android:id="@+id/map"
     tools:context="rectangledbmi.com.pittsburghrealtimetracker.ui.MapsFragment"
     android:name="com.google.android.gms.maps.SupportMapFragment"/>
-<!-- From: file:/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/layout/activity_maps_fragment.xml -->
+<!-- From: file:/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/layout/activity_maps_fragment.xml -->
