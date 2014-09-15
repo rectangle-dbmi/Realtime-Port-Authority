@@ -1,4 +1,3 @@
-/Pittsburgh_Realtime_Tracker/build
-/Pittsburgh_Realtime_Tracker/app/apks
-/Pittsburgh_Realtime_Tracker/app/src/debug/res/values/google_maps_api.xml
-/Pittsburgh_Realtime_Tracke/app/src/release/res/values/google_maps_api.xml
+/apks
+/src/debug/res/values/google_maps_api.xml
+/src/release/res/values/google_maps_api.xml
