@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -21,6 +22,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ColoredArrayAdapter;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -101,7 +104,7 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectItem(position);
+                selectItem(position, view);
             }
         });
         mDrawerListView.setAdapter(
@@ -205,20 +208,21 @@ public class NavigationDrawerFragment extends Fragment {
      * Called with onClick. Gives the list item to SelectTransit by number starting from 1
      * @param position item clicked as an int
      */
-    private void selectItem(int position) {
+    private void selectItem(int position, View view) {
         if (mDrawerListView != null) {
             if(mSelected[position]) {
                 mDrawerListView.setItemChecked(position, false);
                 mSelected[position] = false;
+
             }
             else {
                 mDrawerListView.setItemChecked(position, true);
                 mSelected[position] = true;
             }
         }
-//        if (mDrawerLayout != null) {
-//            mDrawerLayout.closeDrawer(mFragmentContainerView);
-//        }
+        if (mDrawerLayout != null && mUserLearnedDrawer) {
+            mDrawerLayout.closeDrawer(mFragmentContainerView);
+        }
         if (mCallbacks != null) {
             mCallbacks.onNavigationDrawerItemSelected(position);
         }

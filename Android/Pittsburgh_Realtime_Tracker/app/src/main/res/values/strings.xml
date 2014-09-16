@@ -31,6 +31,35 @@
         <item color="#ffff66">Y49</item>
     </string-array>
 
+    <string-array name="buscolors">
+        <item name="13">#ff6666</item>
+        <item name="28X">#b22222</item>
+        <item name="41">#0099cc</item>
+        <item name="48">#ff0066</item>
+        <item name="54">#ff1493</item>
+        <item name="56">#ff0000</item>
+        <item name="58">#00ff99</item>
+        <item name="61A">#e0ffff</item>
+        <item name="61B">#afeeee</item>
+        <item name="61C">#00ffff</item>
+        <item name="61D">#7fffd4</item>
+        <item name="71A">#dc143c</item>
+        <item name="71B">#ffa07a</item>
+        <item name="71C">#f08080</item>
+        <item name="71D">#cd5c5c</item>
+        <item name="75">#669933</item>
+        <item name="8">#98fb98</item>
+        <item name="86">#0000ff</item>
+        <item name="88">#0066ff</item>
+        <item name="93">#ffb6c1</item>
+        <item name="G2">#008000</item>
+        <item name="P1">#9900ff</item>
+        <item name="P12">#ff00ff</item>
+        <item name="P2">#9933cc</item>
+        <item name="P3">#cc00ff</item>
+        <item name="Y49">#ffff66</item>
+    </string-array>
+
 <!--    <string name="api-url">http://realtime.portauthority.org/bustime/api/v2/</string>-->
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

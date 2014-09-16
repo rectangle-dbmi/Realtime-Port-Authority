@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Jeremy Jao
+
+This is supposed to be the code to make our custom list
+
+Don't exactly know how to do this though... with a list fragment...
+
+The idea is to create a custom ArrayAdapter (ColorArrayAdapter)
+
+
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:theme="@style/AppTheme" >
+
+    <!-- description of bus route -->
+    <TextView
+        android:id="@+id/bus_route"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"  />
+
+    <!-- bus route inside a box of color!!! Can change the text inside programmatically -->
+    <TextView
+        android:layout_width=""
+        android:layout_height=""
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true" />
+
+</RelativeLayout>
