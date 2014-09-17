@@ -59,6 +59,35 @@
         <item name="P3">#cc00ff</item>
         <item name="Y49">#ffff66</item>
     </string-array>
+    
+    <string-array name="bus_description">
+        <item name="13">Bellevue</item>
+        <item name="28X">Airport Flyer</item>
+        <item name="41">Bower Hill</item>
+        <item name="48">Arlington</item>
+        <item name="54">North Side-Oakland-Southside</item>
+        <item name="56">Lincoln Place</item>
+        <item name="58">Greenfield</item>
+        <item name="61A">North Braddock</item>
+        <item name="61B">Braddock-Swissvale</item>
+        <item name="61C">McKeesport-Homestead</item>
+        <item name="61D">Murray</item>
+        <item name="71A">Negley</item>
+        <item name="71B">Highland Park</item>
+        <item name="71C">Point Breeze</item>
+        <item name="71D">Hamilton</item>
+        <item name="75">Ellsworth</item>
+        <item name="8">Perrysville</item>
+        <item name="86">Liberty</item>
+        <item name="88">Penn</item>
+        <item name="93">Lawrenceville-Hazelwood</item>
+        <item name="G2">West Busway</item>
+        <item name="P1">East Busway-All Stops</item>
+        <item name="P12">Holiday Park Flyer</item>
+        <item name="P2">East Busway Short</item>
+        <item name="P3">East Busway-Oakland</item>
+        <item name="Y49">Prospect Flyer</item>
+    </string-array>
 
 <!--    <string name="api-url">http://realtime.portauthority.org/bustime/api/v2/</string>-->
     <string name="navigation_drawer_open">Open navigation drawer</string>

@@ -23,7 +23,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ColoredArrayAdapter;
+import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -104,26 +107,40 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectItem(position, view);
+                selectItem(position);
             }
         });
         mDrawerListView.setAdapter(
-                new ArrayAdapter<String>(
+                new ColoredArrayAdapter(
                         getActionBar().getThemedContext(),
-                        android.R.layout.simple_list_item_activated_1,
-                        android.R.id.text1,
-                        getResources().getStringArray(R.array.buses)
+                        R.layout.row_list,
+                        createRoutes()
                 )
         );
         //        mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
         mDrawerListView.setSaveEnabled(true);
         if(savedInstanceState != null) {
-            if(savedInstanceState.getParcelable(DRAWER_STATE) == null)
-                System.out.println("you suck...");
             mDrawerListView.onRestoreInstanceState(savedInstanceState.getParcelable(DRAWER_STATE));
             savedInstanceState.putBooleanArray(STATE_SELECTED_POSITIONS, mSelected);
         }
         return mDrawerListView;
+    }
+
+    /**
+     * s
+     * @return
+     */
+    private ArrayList<Route> createRoutes() {
+        String[] numbers, descriptions, colors;
+        numbers = getResources().getStringArray(R.array.buses);
+        descriptions = getResources().getStringArray(R.array.bus_description);
+        colors = getResources().getStringArray(R.array.buscolors);
+
+        ArrayList<Route> routes = new ArrayList<Route>(numbers.length);
+        for(int i=0;i<numbers.length;++i) {
+            routes.add(new Route(numbers[i], descriptions[i], colors[i]));
+        }
+        return routes;
     }
 
     public boolean isDrawerOpen() {
@@ -208,7 +225,7 @@ public class NavigationDrawerFragment extends Fragment {
      * Called with onClick. Gives the list item to SelectTransit by number starting from 1
      * @param position item clicked as an int
      */
-    private void selectItem(int position, View view) {
+    private void selectItem(int position) {
         if (mDrawerListView != null) {
             if(mSelected[position]) {
                 mDrawerListView.setItemChecked(position, false);
@@ -220,9 +237,9 @@ public class NavigationDrawerFragment extends Fragment {
                 mSelected[position] = true;
             }
         }
-        if (mDrawerLayout != null && mUserLearnedDrawer) {
-            mDrawerLayout.closeDrawer(mFragmentContainerView);
-        }
+//        if (mDrawerLayout != null && mUserLearnedDrawer) {
+//            mDrawerLayout.closeDrawer(mFragmentContainerView);
+//        }
         if (mCallbacks != null) {
             mCallbacks.onNavigationDrawerItemSelected(position);
         }
