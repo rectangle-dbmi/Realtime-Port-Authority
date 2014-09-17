@@ -17,21 +17,35 @@ The idea is to create a custom ArrayAdapter (ColorArrayAdapter)
 
     <!-- description of bus route -->
     <TextView
-        android:id="@+id/bus_route"
+        style="@style/AppTheme"
+        android:id="@+id/bus_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
+        android:layout_marginEnd="48dp"
+        android:layout_marginRight="48dp"
         android:layout_marginBottom="8dp"
-        android:layout_marginTop="8dp"  />
+        android:layout_marginTop="8dp"
+        android:layout_alignBaseline="@+id/bus_route"
+        android:textSize="18sp" />
 
     <!-- bus route inside a box of color!!! Can change the text inside programmatically -->
     <TextView
-        android:layout_width=""
-        android:layout_height=""
+        style="@style/AppTheme"
+        android:id="@+id/bus_route"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:textSize="14sp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:gravity="center"
+        android:background="@drawable/rectangle"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true" />
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"/>
 
 </RelativeLayout>
