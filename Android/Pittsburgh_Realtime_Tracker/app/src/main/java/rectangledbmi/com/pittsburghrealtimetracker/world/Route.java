@@ -126,6 +126,6 @@ public class Route {
      */
     @Override
     public String toString() {
-        return route + " - " + routeInfo;
+        return route + " - " + routeInfo + "\ncolor: " + routeColor + " - " + getColorAsString();
     }
 }
