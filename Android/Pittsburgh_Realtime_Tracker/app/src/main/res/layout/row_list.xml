@@ -10,7 +10,7 @@ The idea is to create a custom ArrayAdapter (ColorArrayAdapter)
 
 
 -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.CheckableRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@style/AppTheme" >
@@ -46,6 +46,6 @@ The idea is to create a custom ArrayAdapter (ColorArrayAdapter)
         android:background="@drawable/rectangle"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"/>
+        android:layout_centerVertical="true" />
 
-</RelativeLayout>
+</rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.CheckableRelativeLayout>
