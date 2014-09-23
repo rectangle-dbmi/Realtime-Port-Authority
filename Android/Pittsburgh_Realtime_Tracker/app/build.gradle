@@ -22,7 +22,7 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     // ensures we are running the latest version of 5.0.x play services
-    compile 'com.google.android.gms:play-services:5.+'
+    compile 'com.google.android.gms:play-services:5.0.+'
     // Support Libraries
     compile 'com.android.support:support-v4:20.0.0'
     compile 'com.android.support:gridlayout-v7:20.0.0'
