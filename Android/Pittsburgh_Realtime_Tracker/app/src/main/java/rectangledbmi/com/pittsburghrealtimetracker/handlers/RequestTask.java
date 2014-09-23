@@ -139,7 +139,12 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                         .rotation(bus.getHdg())
                         .icon(BitmapDescriptorFactory.fromAsset(bus.getRt() + ".png"))
                         .flat(true);
-                mMap.addMarker(marker);
+                try {
+                    mMap.addMarker(marker);
+                } catch(NullPointerException e) {
+                    System.err.println("mMap or marker is null");
+                }
+
 
             }
         }

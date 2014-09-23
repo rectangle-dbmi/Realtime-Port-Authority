@@ -71,18 +71,15 @@ public class ColoredArrayAdapter extends ArrayAdapter<Route> {
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.row_list, parent, false);
-        CheckedTextView description = (CheckedTextView) view.findViewById(R.id.bus_description);
-        CheckedTextView route = (CheckedTextView) view.findViewById(R.id.bus_route);
+        convertView = inflater.inflate(R.layout.row_list, parent, false);
+
+        TextView description = (TextView) convertView.findViewById(R.id.bus_description);
+        TextView route = (TextView) convertView.findViewById(R.id.bus_route);
         GradientDrawable icon = (GradientDrawable) route.getBackground();
         description.setText(objects.get(position).getRouteInfo());
         route.setText(objects.get(position).getRoute());
         icon.setColor(objects.get(position).getRouteColor());
-
-        if(isLight(objects.get(position).getRouteColor()))
-            route.setTextColor(Color.BLACK);
-
-        return view;
+        return convertView;
     }
 
     /**

@@ -16,7 +16,8 @@ public class CheckableRelativeLayout extends RelativeLayout implements Checkable
     private boolean mChecked;
 
     private static final int[] CHECKED_STATE_SET = {
-            android.R.attr.state_checked
+            android.R.attr.state_checked,
+            android.R.attr.state_checkable
     };
 
     public CheckableRelativeLayout(Context context, AttributeSet attrs) {
@@ -25,7 +26,7 @@ public class CheckableRelativeLayout extends RelativeLayout implements Checkable
 
     @Override
     protected int[] onCreateDrawableState(int extraSpace) {
-        final int[] drawableState = super.onCreateDrawableState(extraSpace + 1);
+        final int[] drawableState = super.onCreateDrawableState(extraSpace + CHECKED_STATE_SET.length);
         if (isChecked()) {
             mergeDrawableStates(drawableState, CHECKED_STATE_SET);
         }
