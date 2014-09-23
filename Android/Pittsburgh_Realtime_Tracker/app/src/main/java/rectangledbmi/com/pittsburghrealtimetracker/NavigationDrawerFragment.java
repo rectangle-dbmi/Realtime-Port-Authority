@@ -117,8 +117,8 @@ public class NavigationDrawerFragment extends Fragment {
                         createRoutes()
                 )
         );
+        mDrawerListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         //        mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
-        mDrawerListView.setSaveEnabled(true);
         if(savedInstanceState != null) {
             mDrawerListView.onRestoreInstanceState(savedInstanceState.getParcelable(DRAWER_STATE));
             savedInstanceState.putBooleanArray(STATE_SELECTED_POSITIONS, mSelected);
@@ -204,6 +204,7 @@ public class NavigationDrawerFragment extends Fragment {
             }
         };
 
+
         // If the user hasn't 'learned' about the drawer, open it to introduce them to the drawer,
         // per the navigation drawer design guidelines.
         if (!mUserLearnedDrawer && !mFromSavedInstanceState) {
@@ -222,7 +223,7 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     /**
-     * Called with onClick. Gives the list item to SelectTransit by number starting from 1
+     * Called with onClick. Gives the list item to SelectTransit by number starting from 0
      * @param position item clicked as an int
      */
     private void selectItem(int position) {
@@ -237,9 +238,7 @@ public class NavigationDrawerFragment extends Fragment {
                 mSelected[position] = true;
             }
         }
-//        if (mDrawerLayout != null && mUserLearnedDrawer) {
-//            mDrawerLayout.closeDrawer(mFragmentContainerView);
-//        }
+
         if (mCallbacks != null) {
             mCallbacks.onNavigationDrawerItemSelected(position);
         }

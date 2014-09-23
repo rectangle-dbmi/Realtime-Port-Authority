@@ -13,11 +13,12 @@ The idea is to create a custom ArrayAdapter (ColorArrayAdapter)
 <rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.CheckableRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:theme="@style/AppTheme" >
+    android:id="@+id/item"
+    android:background="@drawable/background"
+     >
 
     <!-- description of bus route -->
-    <CheckedTextView
-        style="@style/AppTheme"
+    <TextView
         android:id="@+id/bus_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -30,15 +31,16 @@ The idea is to create a custom ArrayAdapter (ColorArrayAdapter)
         android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp"
         android:layout_alignBaseline="@+id/bus_route"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:textColor="@android:color/white"
+        android:focusable="false" />
 
     <!-- bus route inside a box of color!!! Can change the text inside programmatically -->
-    <CheckedTextView
-        style="@style/AppTheme"
+    <TextView
         android:id="@+id/bus_route"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:textSize="14sp"
+        android:textSize="14dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
@@ -46,6 +48,8 @@ The idea is to create a custom ArrayAdapter (ColorArrayAdapter)
         android:background="@drawable/rectangle"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_centerVertical="true" />
+        android:layout_centerVertical="true"
+        android:textColor="@android:color/black"
+        android:focusable="false" />
 
 </rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.CheckableRelativeLayout>
