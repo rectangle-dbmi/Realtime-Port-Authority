@@ -405,4 +405,9 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
         buses.clear();
     }
 
+    public void onBackPressed() {
+        if(!mNavigationDrawerFragment.closeDrawer())
+            super.onBackPressed();
+    }
+
 }
