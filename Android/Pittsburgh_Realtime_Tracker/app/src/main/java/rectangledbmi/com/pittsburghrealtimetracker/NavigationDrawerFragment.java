@@ -254,6 +254,14 @@ public class NavigationDrawerFragment extends Fragment {
         }
     }
 
+    public boolean closeDrawer() {
+        if(isDrawerOpen()) {
+            mDrawerLayout.closeDrawer(mFragmentContainerView);
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public void onDetach() {
         super.onDetach();
