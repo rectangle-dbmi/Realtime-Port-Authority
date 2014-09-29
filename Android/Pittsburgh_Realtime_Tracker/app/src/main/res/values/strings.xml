@@ -80,7 +80,7 @@
         <item name="88">#0066ff</item>
         <item name="93">#ffb6c1</item>
         <item name="G2">#008000</item>
-        <item name="012">#ff8c00</item>
+        <item name="O12">#ff8c00</item>
         <item name="P1">#9900ff</item>
         <item name="P10">#9932cc</item>
         <item name="P12">#ff00ff</item>
@@ -124,7 +124,7 @@
         <item name="88">Penn</item>
         <item name="93">Lawrenceville-Hazelwood</item>
         <item name="G2">West Busway</item>
-        <item name="012">McKnight Flyer</item>
+        <item name="O12">McKnight Flyer</item>
         <item name="P1">East Busway-All Stops</item>
         <item name="P10">Allegheny Valley Flyer</item>
         <item name="P12">Holiday Park Flyer</item>
