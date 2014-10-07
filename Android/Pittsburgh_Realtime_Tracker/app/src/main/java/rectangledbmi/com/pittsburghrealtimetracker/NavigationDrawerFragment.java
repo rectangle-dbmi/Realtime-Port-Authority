@@ -24,6 +24,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ColoredArrayAdapter;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
@@ -35,6 +37,8 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
  */
 public class NavigationDrawerFragment extends Fragment {
 
+
+    private static final String MAX_CHECKED = "max_checked";
     /**
      * Remember the position of the selected item.
      */
@@ -60,12 +64,12 @@ public class NavigationDrawerFragment extends Fragment {
      * Helper component that ties the action bar to the navigation drawer.
      */
     private ActionBarDrawerToggle mDrawerToggle;
-
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerListView;
     private View mFragmentContainerView;
 
     private boolean[] mSelected;
+    private int amountSelected;
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
 
@@ -86,7 +90,7 @@ public class NavigationDrawerFragment extends Fragment {
             //TODO: learn how to use savedInstanceState to get previous buses back
             mFromSavedInstanceState = true;
         }
-
+        amountSelected = 0;
         // Select either the default item (0) or the last selected item.
 //        selectItem(mCurrentSelectedPosition);
     }
@@ -118,17 +122,27 @@ public class NavigationDrawerFragment extends Fragment {
                 )
         );
         mDrawerListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        restoreListView();
         //        mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
-        if(savedInstanceState != null) {
+/*        if(savedInstanceState != null) {
             mDrawerListView.onRestoreInstanceState(savedInstanceState.getParcelable(DRAWER_STATE));
             savedInstanceState.putBooleanArray(STATE_SELECTED_POSITIONS, mSelected);
-        }
+        }*/
         return mDrawerListView;
     }
 
+    private void restoreListView() {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        for(String selected : sp.getStringSet(STATE_SELECTED_POSITIONS, new HashSet<String>(0))) {
+            selectItem(Integer.parseInt(selected));
+        }
+    }
+
     /**
-     * s
-     * @return
+     * Creates an arraylist of routes for the list view.
+     *
+     * TODO: This is rather slow and takes up some time according to the Android Studio crap debugger
+     * @return the routes to be made for the listview
      */
     private ArrayList<Route> createRoutes() {
         String[] numbers, descriptions, colors;
@@ -228,20 +242,36 @@ public class NavigationDrawerFragment extends Fragment {
      */
     private void selectItem(int position) {
         if (mDrawerListView != null) {
-            if(mSelected[position]) {
-                mDrawerListView.setItemChecked(position, false);
-                mSelected[position] = false;
-
+            if(amountSelected < getResources().getInteger(R.integer.max_checked)) {
+                if(mDrawerListView.isItemChecked(position)) {
+                    mDrawerListView.setItemChecked(position, false);
+                    if(amountSelected > 0)
+                        --amountSelected;
+                }
+                else {
+                    mDrawerListView.setItemChecked(position, true);
+                    ++amountSelected;
+                }
+                if (mCallbacks != null) {
+                    mCallbacks.onNavigationDrawerItemSelected(position);
+                }
             }
             else {
-                mDrawerListView.setItemChecked(position, true);
-                mSelected[position] = true;
+                Toast.makeText(getActivity(), "Cannot select more than " + getResources().getInteger(R.integer.max_checked) + " buses.", Toast.LENGTH_LONG).show();
             }
+//                mDrawerListView.setItemChecked(position, !(mDrawerListView.isItemChecked(position)));
+    /*            if(mSelected[position]) {
+                    mDrawerListView.setItemChecked(position, false);
+                    mSelected[position] = false;
+
+                }
+                else {
+                    mDrawerListView.setItemChecked(position, true);
+                    mSelected[position] = true;
+                }*/
+
         }
 
-        if (mCallbacks != null) {
-            mCallbacks.onNavigationDrawerItemSelected(position);
-        }
     }
 
     @Override
@@ -271,8 +301,9 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBooleanArray(STATE_SELECTED_POSITIONS, mSelected);
-        outState.putParcelable(DRAWER_STATE, mDrawerListView.onSaveInstanceState());
+
+//        outState.putBooleanArray(STATE_SELECTED_POSITIONS, mSelected);
+//        outState.putParcelable(DRAWER_STATE, mDrawerListView.onSaveInstanceState());
 //        outState.putInt(STATE_SELECTED_POSITION, mCurrentSelectedPosition);
     }
 
@@ -334,6 +365,21 @@ public class NavigationDrawerFragment extends Fragment {
 
     private ActionBar getActionBar() {
         return getActivity().getActionBar();
+    }
+
+    /**
+     * Attempt to save the list view...
+     */
+    @Override
+    public void onStop() {
+        SharedPreferences sp = PreferenceManager
+                .getDefaultSharedPreferences(getActivity());
+        Set<String> listIds = new HashSet<String>(10);
+        for(long id : mDrawerListView.getCheckedItemIds()) {
+            listIds.add(Long.toString(id));
+        }
+        sp.edit().putStringSet(STATE_SELECTED_POSITIONS, listIds);
+        sp.edit().commit();
     }
 
     /**

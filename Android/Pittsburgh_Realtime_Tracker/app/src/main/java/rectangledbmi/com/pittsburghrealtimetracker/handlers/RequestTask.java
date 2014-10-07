@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -42,9 +43,9 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
     String selectedBuses;
 
 
-    public RequestTask(GoogleMap map, List<String> buses){
+    public RequestTask(GoogleMap map, Set<String> buses){
         mMap = map;
-        selectedBuses = selectBuses(buses);
+        selectedBuses = selectBuses(buses.toArray(new String[buses.size()]));
         bl = null;
     }
 
@@ -53,11 +54,11 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
      * @param buses list of buses from the main activity thread
      * @return comma delimited string of buses. ex: buses -> [P1, P3]; return "P1,P3"
      */
-    private String selectBuses(List<String> buses) {
+    private String selectBuses(String[] buses) {
         StringBuilder string = new StringBuilder();
-        int oneLess = buses.size()-1;
-        for(int i=0;i<buses.size();++i) {
-            string.append(buses.get(i));
+        int oneLess = buses.length-1;
+        for(int i=0;i<buses.length;++i) {
+            string.append(buses[i]);
             if(i != oneLess) {
                 string.append(",");
             }
