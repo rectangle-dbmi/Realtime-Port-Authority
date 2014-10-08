@@ -250,20 +250,22 @@ public class NavigationDrawerFragment extends Fragment {
      */
     private void selectItem(int position) {
         if (mDrawerListView != null) {
-            if(amountSelected < getResources().getInteger(R.integer.max_checked)) {
-                if(mSelected[position]) {
-                    setFalse(position);
-                }
-                else {
-                    setTrue(position);
-                }
-                if (mCallbacks != null) {
-                    mCallbacks.onNavigationDrawerItemSelected(position);
-                }
+            if (mSelected[position]) {
+                setFalse(position);
+            } else {
+                setTrue(position);
             }
-            else {
-                Toast.makeText(getActivity(), "Cannot select more than " + getResources().getInteger(R.integer.max_checked) + " buses.", Toast.LENGTH_LONG).show();
+            if (mCallbacks != null) {
+                mCallbacks.onNavigationDrawerItemSelected(position);
             }
+            if(amountSelected == getResources().getInteger(R.integer.max_checked))
+                Toast.makeText(getActivity(), "You have selected the max amount of routes (" +
+                        getResources().getInteger(R.integer.max_checked) +
+                        ").", Toast.LENGTH_LONG).show();
+
+            else if (amountSelected > getResources().getInteger(R.integer.max_checked))
+                Toast.makeText(getActivity(), "Cannot select more than " + getResources().getInteger(R.integer.max_checked) + " routes.", Toast.LENGTH_LONG).show();
+
 //                mDrawerListView.setItemChecked(position, !(mDrawerListView.isItemChecked(position)));
     /*            if(mSelected[position]) {
                     mDrawerListView.setItemChecked(position, false);
@@ -284,6 +286,7 @@ public class NavigationDrawerFragment extends Fragment {
      * @param position the location of the selection in the listview
      */
     private void setFalse(int position) {
+        System.out.println(position + " is now false");
         mDrawerListView.setItemChecked(position, false);
         mSelected[position] = false;
         if(amountSelected > 0)
@@ -294,6 +297,7 @@ public class NavigationDrawerFragment extends Fragment {
      * @param position the location of the selection in the listview
      */
     private void setTrue(int position) {
+        System.out.println(position + " is now true");
         mDrawerListView.setItemChecked(position, true);
         mSelected[position] = true;
         ++amountSelected;
