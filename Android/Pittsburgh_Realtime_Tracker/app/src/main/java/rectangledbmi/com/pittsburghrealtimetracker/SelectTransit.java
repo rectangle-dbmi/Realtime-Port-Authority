@@ -3,6 +3,7 @@ package rectangledbmi.com.pittsburghrealtimetracker;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -10,6 +11,9 @@ import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -27,7 +31,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestTask;
 /**
  * This is the main activity of the
  */
-public class SelectTransit extends Activity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+public class SelectTransit extends Activity implements NavigationDrawerFragment.NavigationDrawerCallbacks, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     /**
      * Saved instance of the buses that are selected
@@ -370,6 +374,13 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
      * Polls self on the map and then centers the map on Pittsburgh
      */
     private void centerMap() {
+//        GoogleApiClient client = new GoogleApiClient.Builder(this)
+//                .addApi(LocationServices.API)
+//                .addConnectionCallbacks(this)
+//                .addOnConnectionFailedListener(this)
+//                .build();
+//
+//        Location currentLocation = LocationServices.
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), zoom));
         mMap.setMyLocationEnabled(true);
     }
@@ -455,4 +466,18 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
             super.onBackPressed();
     }
 
+    @Override
+    public void onConnected(Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
 }
