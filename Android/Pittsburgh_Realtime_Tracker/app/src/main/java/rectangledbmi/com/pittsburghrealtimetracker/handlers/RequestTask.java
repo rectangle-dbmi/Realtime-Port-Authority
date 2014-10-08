@@ -46,6 +46,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
     public RequestTask(GoogleMap map, Set<String> buses){
         mMap = map;
         selectedBuses = selectBuses(buses.toArray(new String[buses.size()]));
+        System.out.println(selectedBuses);
         bl = null;
     }
 

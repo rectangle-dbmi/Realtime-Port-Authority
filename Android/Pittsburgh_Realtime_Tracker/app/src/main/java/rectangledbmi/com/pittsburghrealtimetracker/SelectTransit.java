@@ -2,8 +2,10 @@ package rectangledbmi.com.pittsburghrealtimetracker;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,7 +24,9 @@ import java.util.TimerTask;
 
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestTask;
 
-
+/**
+ * This is the main activity of the
+ */
 public class SelectTransit extends Activity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     /**
@@ -125,9 +129,11 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
      */
     private void restoreInstanceState(Bundle savedInstanceState) {
         System.out.println("In restore state...");
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        buses = sp.getStringSet(BUS_SELECT_STATE, new HashSet<String>(10));
         if (savedInstanceState != null) {
-//            buses = savedInstanceState.getStringArrayList(BUS_SELECT_STATE);
-            System.out.println(buses);
+//            buses = new HashSet<String>(savedInstanceState.getStringArray(BUS_SELECT_STATE));
+//            buses = new HashSet<String>(savedInstanceState.getStringArrayList(BUS_SELECT_STATE));
             latitude = savedInstanceState.getDouble(LAST_LATITUDE);
             longitude = savedInstanceState.getDouble(LAST_LONGITUDE);
             zoom = savedInstanceState.getFloat(LAST_ZOOM);
@@ -135,6 +141,8 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
             defaultCameraLocation();
             System.out.println("restore state is null..");
         }
+        System.out.println("The restore: " + buses);
+
     }
     /**
      * Instantiates the default camera coordinates
@@ -155,7 +163,9 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-//        savedInstanceState.putStringArrayList(BUS_SELECT_STATE, (ArrayList<String>)buses);
+//        ArrayList<String> list = new ArrayList<String>(buses.size());
+//        list.addAll(buses);
+//        savedInstanceState.putStringArrayList(BUS_SELECT_STATE, list);
         if(mMap != null) {
             savedInstanceState.putDouble(LAST_LATITUDE, mMap.getCameraPosition().target.latitude);
             savedInstanceState.putDouble(LAST_LONGITUDE, mMap.getCameraPosition().target.longitude);
@@ -217,6 +227,17 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
     protected void onStop() {
         super.onStop();
         stopTimer();
+        savePreferences();
+    }
+
+    /**
+     * Place to save preferences....
+     */
+    private void savePreferences() {
+        System.out.println("Saving the bus selection in Activity.");
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        sp.edit().putStringSet(BUS_SELECT_STATE, buses).apply();
+        sp.edit().commit();
     }
 
     @Override

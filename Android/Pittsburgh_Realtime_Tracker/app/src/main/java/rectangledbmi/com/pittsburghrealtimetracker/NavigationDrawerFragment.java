@@ -12,6 +12,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -93,6 +94,7 @@ public class NavigationDrawerFragment extends Fragment {
         amountSelected = 0;
         // Select either the default item (0) or the last selected item.
 //        selectItem(mCurrentSelectedPosition);
+
     }
 
     @Override
@@ -100,6 +102,8 @@ public class NavigationDrawerFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         // Indicate that this fragment would like to influence the set of actions in the action bar.
         setHasOptionsMenu(true);
+        restoreListView();
+
     }
 
     @Override
@@ -122,7 +126,6 @@ public class NavigationDrawerFragment extends Fragment {
                 )
         );
         mDrawerListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-        restoreListView();
         //        mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
 /*        if(savedInstanceState != null) {
             mDrawerListView.onRestoreInstanceState(savedInstanceState.getParcelable(DRAWER_STATE));
@@ -133,8 +136,12 @@ public class NavigationDrawerFragment extends Fragment {
 
     private void restoreListView() {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        System.out.println("In restore view");
+//        mSelected = new boolean[getResources().getStringArray(R.array.buses).length];
+        amountSelected = 0;
         for(String selected : sp.getStringSet(STATE_SELECTED_POSITIONS, new HashSet<String>(0))) {
-            selectItem(Integer.parseInt(selected));
+            setTrue(Integer.parseInt(selected));
+            System.out.println("Restoring: " + selected);
         }
     }
 
@@ -238,19 +245,17 @@ public class NavigationDrawerFragment extends Fragment {
 
     /**
      * Called with onClick. Gives the list item to SelectTransit by number starting from 0
+     * The selectItem is locked by
      * @param position item clicked as an int
      */
     private void selectItem(int position) {
         if (mDrawerListView != null) {
             if(amountSelected < getResources().getInteger(R.integer.max_checked)) {
-                if(mDrawerListView.isItemChecked(position)) {
-                    mDrawerListView.setItemChecked(position, false);
-                    if(amountSelected > 0)
-                        --amountSelected;
+                if(mSelected[position]) {
+                    setFalse(position);
                 }
                 else {
-                    mDrawerListView.setItemChecked(position, true);
-                    ++amountSelected;
+                    setTrue(position);
                 }
                 if (mCallbacks != null) {
                     mCallbacks.onNavigationDrawerItemSelected(position);
@@ -274,6 +279,25 @@ public class NavigationDrawerFragment extends Fragment {
 
     }
 
+    /**
+     * Sets the position of the list to false
+     * @param position the location of the selection in the listview
+     */
+    private void setFalse(int position) {
+        mDrawerListView.setItemChecked(position, false);
+        mSelected[position] = false;
+        if(amountSelected > 0)
+            --amountSelected;
+    }
+    /**
+     * Sets the position of the list to true
+     * @param position the location of the selection in the listview
+     */
+    private void setTrue(int position) {
+        mDrawerListView.setItemChecked(position, true);
+        mSelected[position] = true;
+        ++amountSelected;
+    }
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -347,7 +371,8 @@ public class NavigationDrawerFragment extends Fragment {
         ((SelectTransit)getActivity()).clearBuses();
         mSelected = new boolean[getResources().getStringArray(R.array.buses).length];
         mDrawerListView.clearChoices();
-        ((SelectTransit)getActivity()).setUpMap();
+        ((SelectTransit)getActivity()).clearAndAddToMap();
+        amountSelected = 0;
         Toast.makeText(getActivity(), "Cleared buses.", Toast.LENGTH_SHORT).show();
 
     }
@@ -372,14 +397,34 @@ public class NavigationDrawerFragment extends Fragment {
      */
     @Override
     public void onStop() {
+        super.onStop();
+        savePreferences();
+
+    }
+
+    /**
+     * Method to save preferences...
+     */
+    private void savePreferences() {
         SharedPreferences sp = PreferenceManager
                 .getDefaultSharedPreferences(getActivity());
         Set<String> listIds = new HashSet<String>(10);
-        for(long id : mDrawerListView.getCheckedItemIds()) {
+        SparseBooleanArray checked = mDrawerListView.getCheckedItemPositions();
+        System.out.println("In Stop. Size of Checked...: " + checked.size());
+/*        for(long id : mDrawerListView.getCheckedItemIds()) {
             listIds.add(Long.toString(id));
+            System.out.println("Saving: " + id);
+        }*/
+
+        for(int i=0;i<mDrawerListView.getCount();++i) {
+            if(checked.get(i)) {
+                listIds.add(Integer.toString(i));
+                System.out.println("Saving: " + i);
+            }
         }
-        sp.edit().putStringSet(STATE_SELECTED_POSITIONS, listIds);
+        sp.edit().putStringSet(STATE_SELECTED_POSITIONS, listIds).apply();
         sp.edit().commit();
+
     }
 
     /**
