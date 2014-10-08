@@ -3,19 +3,20 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 20
     buildToolsVersion '20.0.0'
-
     defaultConfig {
         applicationId "rectangledbmi.com.pittsburghrealtimetracker"
         minSdkVersion 16
         targetSdkVersion 20
-        versionCode 7
-        versionName "1.60"
+        versionCode 8
+        versionName "1.70"
     }
     buildTypes {
         release {
             runProguard true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    productFlavors {
     }
 }
 

@@ -2,26 +2,36 @@ package rectangledbmi.com.pittsburghrealtimetracker;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestTask;
 
-
-public class SelectTransit extends Activity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+/**
+ * This is the main activity of the
+ */
+public class SelectTransit extends Activity implements NavigationDrawerFragment.NavigationDrawerCallbacks, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     /**
      * Saved instance of the buses that are selected
@@ -83,7 +93,7 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
      *
      * public because we want to clear this list...
      */
-    private List<String> buses;
+    private Set<String> buses;
 
     /**
      * This is the object that updates the UI every 10 seconds
@@ -123,9 +133,11 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
      */
     private void restoreInstanceState(Bundle savedInstanceState) {
         System.out.println("In restore state...");
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        buses = sp.getStringSet(BUS_SELECT_STATE, new HashSet<String>(10));
         if (savedInstanceState != null) {
-            buses = savedInstanceState.getStringArrayList(BUS_SELECT_STATE);
-            System.out.println(buses);
+//            buses = new HashSet<String>(savedInstanceState.getStringArray(BUS_SELECT_STATE));
+//            buses = new HashSet<String>(savedInstanceState.getStringArrayList(BUS_SELECT_STATE));
             latitude = savedInstanceState.getDouble(LAST_LATITUDE);
             longitude = savedInstanceState.getDouble(LAST_LONGITUDE);
             zoom = savedInstanceState.getFloat(LAST_ZOOM);
@@ -133,6 +145,8 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
             defaultCameraLocation();
             System.out.println("restore state is null..");
         }
+        System.out.println("The restore: " + buses);
+
     }
     /**
      * Instantiates the default camera coordinates
@@ -153,7 +167,9 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        savedInstanceState.putStringArrayList(BUS_SELECT_STATE, (ArrayList<String>)buses);
+//        ArrayList<String> list = new ArrayList<String>(buses.size());
+//        list.addAll(buses);
+//        savedInstanceState.putStringArrayList(BUS_SELECT_STATE, list);
         if(mMap != null) {
             savedInstanceState.putDouble(LAST_LATITUDE, mMap.getCameraPosition().target.latitude);
             savedInstanceState.putDouble(LAST_LONGITUDE, mMap.getCameraPosition().target.longitude);
@@ -173,7 +189,7 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
      */
     private void createBusList() {
         //This will be changed as things go
-        buses = new ArrayList<String>(getResources().getStringArray(R.array.buses).length);
+        buses = new HashSet<String>(10);
     }
 
 
@@ -191,7 +207,6 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
             mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
-                centerMap();
                 setUpMap();
             }
         }
@@ -216,6 +231,17 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
     protected void onStop() {
         super.onStop();
         stopTimer();
+        savePreferences();
+    }
+
+    /**
+     * Place to save preferences....
+     */
+    private void savePreferences() {
+        System.out.println("Saving the bus selection in Activity.");
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        sp.edit().putStringSet(BUS_SELECT_STATE, buses).apply();
+        sp.edit().commit();
     }
 
     @Override
@@ -262,12 +288,13 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
     private void setList(String selected) {
         //TODO: perhaps look at constant time remove
         //TODO somehow the bus isn't being selected
-        if(!buses.remove(selected))
+        if(buses.remove(selected)) {
+
+        }
+        else {
             buses.add(selected);
-        //TODO Need to be able to refresh the buses instantly however
-        //the issue here is that the thread is not killable
-//        setUpMap();
-        setUpMap();
+        }
+        clearAndAddToMap();
     }
 
     public void restoreActionBar() {
@@ -347,6 +374,13 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
      * Polls self on the map and then centers the map on Pittsburgh
      */
     private void centerMap() {
+//        GoogleApiClient client = new GoogleApiClient.Builder(this)
+//                .addApi(LocationServices.API)
+//                .addConnectionCallbacks(this)
+//                .addOnConnectionFailedListener(this)
+//                .build();
+//
+//        Location currentLocation = LocationServices.
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), zoom));
         mMap.setMyLocationEnabled(true);
     }
@@ -355,11 +389,26 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
      * Adds markers to map
      * This is done in a thread.
      *
-     * TODO this isn't working since it keeps running and not interrupting
      */
     protected void setUpMap() {
-        final Handler handler = new Handler();
+        centerMap();
+        clearAndAddToMap();
+    }
+
+    /**
+     * Stops the bus refresh, then adds buses to the map
+     */
+    protected void clearAndAddToMap() {
         stopTimer();
+        addBuses();
+    }
+
+    /**
+     * adds buses to map. or else the map will be clear...
+     */
+    protected void addBuses() {
+
+        final Handler handler = new Handler();
         timer = new Timer();
         task = new TimerTask() {
             @Override
@@ -368,12 +417,12 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
                     public void run() {
                         RequestTask req;
                         if(!buses.isEmpty()) {
-                            mMap.clear();
+                            clearMap();
                             req = new RequestTask(mMap, buses);
                             req.execute();
                         }
                         else
-                            mMap.clear();
+                            clearMap();
                     }
                 });
             }
@@ -381,7 +430,7 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
         if(!buses.isEmpty())
             timer.schedule(task, 0, 10000); //it executes this every 10000ms
         else
-            mMap.clear();
+            clearMap();
     }
 
     /**
@@ -399,6 +448,13 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
     }
 
     /**
+     * General method to clear the map.
+     */
+    protected void clearMap() {
+        mMap.clear();
+    }
+
+    /**
      * @return The list of buses that are selected
      */
     protected void clearBuses() {
@@ -410,4 +466,18 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
             super.onBackPressed();
     }
 
+    @Override
+    public void onConnected(Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
 }
