@@ -2,6 +2,7 @@ package rectangledbmi.com.pittsburghrealtimetracker;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
@@ -13,7 +14,9 @@ import android.view.MenuItem;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -31,7 +34,11 @@ import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestTask;
 /**
  * This is the main activity of the
  */
-public class SelectTransit extends Activity implements NavigationDrawerFragment.NavigationDrawerCallbacks, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class SelectTransit extends Activity implements
+        NavigationDrawerFragment.NavigationDrawerCallbacks,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
 
     /**
      * Saved instance of the buses that are selected
@@ -105,6 +112,13 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
      */
     private TimerTask task;
 
+    private GoogleApiClient client;
+
+    private Location currentLocation;
+
+    private LocationRequest gLocationRequest;
+
+    private boolean inSavedState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,12 +133,25 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
+        setGoogleApiClient();
         createBusList();
         //sets up the map
+        inSavedState = false;
         restoreInstanceState(savedInstanceState);
         setUpMapIfNeeded();
 
 
+    }
+
+    /**
+     * Sets the application google Api Location client
+     */
+    private void setGoogleApiClient() {
+        client = new GoogleApiClient.Builder(getApplicationContext())
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
     }
 
     /**
@@ -136,6 +163,7 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         buses = sp.getStringSet(BUS_SELECT_STATE, new HashSet<String>(10));
         if (savedInstanceState != null) {
+            inSavedState = true;
 //            buses = new HashSet<String>(savedInstanceState.getStringArray(BUS_SELECT_STATE));
 //            buses = new HashSet<String>(savedInstanceState.getStringArrayList(BUS_SELECT_STATE));
             latitude = savedInstanceState.getDouble(LAST_LATITUDE);
@@ -143,7 +171,7 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
             zoom = savedInstanceState.getFloat(LAST_ZOOM);
         } else {
             defaultCameraLocation();
-            System.out.println("restore state is null..");
+//            System.out.println("restore state is null..");
         }
         System.out.println("The restore: " + buses);
 
@@ -229,9 +257,16 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
 
     @Override
     protected void onStop() {
-        super.onStop();
         stopTimer();
         savePreferences();
+        client.disconnect();
+        super.onStop();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        client.connect();
     }
 
     /**
@@ -371,17 +406,23 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
 //    }
 
     /**
-     * Polls self on the map and then centers the map on Pittsburgh
+     * Polls self on the map and then centers the map on Pittsburgh or you if you're in Pittsburgh..
      */
     private void centerMap() {
-//        GoogleApiClient client = new GoogleApiClient.Builder(this)
-//                .addApi(LocationServices.API)
-//                .addConnectionCallbacks(this)
-//                .addOnConnectionFailedListener(this)
-//                .build();
-//
-//        Location currentLocation = LocationServices.
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), zoom));
+        System.out.println("Centering Map");
+        if(currentLocation != null && !inSavedState) {
+
+            double currentLatitude = currentLocation.getLatitude();
+            double currentLongitude = currentLocation.getLongitude();
+            // case where you are inside Pittsburgh...
+            if((currentLatitude > 39.859673 && currentLatitude < 40.992847) &&
+                    (currentLongitude > -80.372815 && currentLongitude < -79.414258)) {
+                latitude = currentLatitude;
+                longitude = currentLongitude;
+                zoom = (long)7.00;
+            }
+        }
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), zoom));
         mMap.setMyLocationEnabled(true);
     }
 
@@ -391,7 +432,6 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
      *
      */
     protected void setUpMap() {
-        centerMap();
         clearAndAddToMap();
     }
 
@@ -410,6 +450,7 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
 
         final Handler handler = new Handler();
         timer = new Timer();
+        Context context = this;
         task = new TimerTask() {
             @Override
             public void run() {
@@ -419,6 +460,8 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
                         if(!buses.isEmpty()) {
                             clearMap();
                             req = new RequestTask(mMap, buses);
+//                            req = new RequestTask(mMap, buses, context);
+
                             req.execute();
                         }
                         else
@@ -468,7 +511,19 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
 
     @Override
     public void onConnected(Bundle bundle) {
+        gLocationRequest = LocationRequest.create();
+        gLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        gLocationRequest.setInterval(1000);
+        currentLocation = LocationServices.FusedLocationApi.getLastLocation(client);
+        if(currentLocation == null) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(client, gLocationRequest, this);
+            if(currentLocation != null) {
+                LocationServices.FusedLocationApi.removeLocationUpdates(client, this);
+            }
 
+        }
+        System.out.println("Location: " + currentLocation);
+        centerMap();
     }
 
     @Override
@@ -478,6 +533,13 @@ public class SelectTransit extends Activity implements NavigationDrawerFragment.
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
+        System.out.println("Connection failed");
+    }
 
+    @Override
+    public void onLocationChanged(Location location) {
+        if(location != null) {
+            currentLocation = location;
+        }
     }
 }

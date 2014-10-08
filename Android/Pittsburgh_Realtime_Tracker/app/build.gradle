@@ -7,8 +7,8 @@ android {
         applicationId "rectangledbmi.com.pittsburghrealtimetracker"
         minSdkVersion 16
         targetSdkVersion 20
-        versionCode 8
-        versionName "1.70"
+        versionCode 9
+        versionName "1.71"
     }
     buildTypes {
         release {
@@ -23,7 +23,7 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     // ensures we are running the latest version of 5.0.x play services
-    // keep in mind that the latest version I have on my phone is 6.X. I don't know why this doesn't have it.
+    // keep in mind that the latest version I have on my phone is 6.X. Google Play Store prevents me from doing anything about this...
     compile 'com.google.android.gms:play-services:5.0.+'
     // Support Libraries
     compile 'com.android.support:support-v4:20.0.0'
