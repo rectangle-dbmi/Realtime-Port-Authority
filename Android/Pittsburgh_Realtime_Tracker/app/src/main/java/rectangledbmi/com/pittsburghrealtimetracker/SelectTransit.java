@@ -458,7 +458,7 @@ public class SelectTransit extends Activity implements
                     (currentLongitude > -80.372815 && currentLongitude < -79.414258)) {
                 latitude = currentLatitude;
                 longitude = currentLongitude;
-                zoom = (long)16.10;
+                zoom = (long)15.00;
             }
         }
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), zoom));
