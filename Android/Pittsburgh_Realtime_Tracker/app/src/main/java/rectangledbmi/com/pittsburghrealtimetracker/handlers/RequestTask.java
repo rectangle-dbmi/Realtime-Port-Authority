@@ -1,6 +1,5 @@
 package rectangledbmi.com.pittsburghrealtimetracker.handlers;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 
@@ -17,8 +16,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,7 +69,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
         while(this.context.isBusTaskRunning()) {}
         mMap = map;
         selectedBuses = selectBuses(buses.toArray(new String[buses.size()]));
-        System.out.println(selectedBuses);
+//        System.out.println(selectedBuses);
 //        bl = null;
         this.busMarkers = busMarkers;
     }
@@ -161,12 +158,12 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
             Map<Integer, Marker> newBusMarkers = new HashMap<Integer, Marker>(bl.size());
             LatLng latlng;
 
-            if(busMarkers == null) {
+/*            if(busMarkers == null) {
                 System.out.println("Bus Markers is null");
             }
             else {
                 System.out.println("bus markers is not null. Replacing...");
-            }
+            }*/
 
             for (Bus bus : bl) {
                 latlng = new LatLng(bus.getLat(), bus.getLon());
@@ -196,17 +193,17 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
     private void updateMarker(Bus bus, LatLng latlng, Map<Integer, Marker> newBusMarkers) {
         Marker mark = busMarkers.remove(bus.getVid());
         if (mark != null) {
-            System.out.println(bus.getVid() + " updated");
+//            System.out.println(bus.getVid() + " updated");
             //If the mark is found, update the marker. Add it to the new map, then delete the old reference to the marker
             mark.setTitle(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes());
             mark.setPosition(latlng);
             mark.setRotation(bus.getHdg());
             mark.setSnippet("Speed: " + bus.getSpd());
+            mark.setIcon(BitmapDescriptorFactory.fromAsset(bus.getRt() + ".png"));
             newBusMarkers.put(bus.getVid(), mark);
 
         }
         else {
-            System.out.println(bus.getVid() + " not found...");
             addNewMarker(bus, latlng, newBusMarkers);
         }
     }
@@ -228,7 +225,6 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                 .flat(true);
         try {
             newBusMarkers.put(bus.getVid(), mMap.addMarker(marker));
-            System.out.println(bus.getVid() + " added.");
         } catch(NullPointerException e) {
             System.err.println("mMap or marker is null");
         }
@@ -241,7 +237,6 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
         if(busMarkers != null) {
             for(Marker marker : busMarkers.values()) {
                 marker.remove();
-                System.out.println("removing " + marker.getId());
             }
 //            busMarkers.clear();
         }

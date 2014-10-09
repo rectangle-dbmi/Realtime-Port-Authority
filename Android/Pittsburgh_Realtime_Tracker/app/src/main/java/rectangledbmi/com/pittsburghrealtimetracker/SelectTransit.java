@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -16,24 +15,20 @@ import android.view.MenuItem;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-
 
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestTask;
 
@@ -129,11 +124,6 @@ public class SelectTransit extends Activity implements
     private Location currentLocation;
 
     /**
-     * This is the location request using FusedLocationAPI to get the person's last known location
-     */
-    private LocationRequest gLocationRequest;
-
-    /**
      * This specifies whether to center the map on the person or not. Used because if we rotate the
      * screen when the app is opened, it will lose the location of the most current location of the
      * map.
@@ -145,6 +135,9 @@ public class SelectTransit extends Activity implements
      */
     private Map<Integer, Marker> busMarkers;
 
+    /**
+     * Reminds us if the bus task is running or not to update the buses (workaround for asynctask ******)
+     */
     private boolean isBusTaskRunning;
 
 
@@ -167,7 +160,6 @@ public class SelectTransit extends Activity implements
         //sets up the map
         inSavedState = false;
         restoreInstanceState(savedInstanceState);
-        System.out.println("In create");
         isBusTaskRunning = false;
 //        setUpMapIfNeeded();
 
@@ -191,7 +183,6 @@ public class SelectTransit extends Activity implements
      * @param savedInstanceState the saved instances of the app
      */
     private void restoreInstanceState(Bundle savedInstanceState) {
-        System.out.println("In restore state...");
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         buses = sp.getStringSet(BUS_SELECT_STATE, new HashSet<String>(10));
         if (savedInstanceState != null) {
@@ -203,9 +194,7 @@ public class SelectTransit extends Activity implements
             zoom = savedInstanceState.getFloat(LAST_ZOOM);
         } else {
             defaultCameraLocation();
-//            System.out.println("restore state is null..");
         }
-        System.out.println("The restore: " + buses);
 
     }
     /**
@@ -281,7 +270,6 @@ public class SelectTransit extends Activity implements
     @Override
     protected void onResume() {
         super.onResume();
-        System.out.println("In resume");
         if(mMap != null) {
             setUpMap();
         }
@@ -310,7 +298,6 @@ public class SelectTransit extends Activity implements
      * Place to save preferences....
      */
     private void savePreferences() {
-        System.out.println("Saving the bus selection in Activity.");
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         sp.edit().putStringSet(BUS_SELECT_STATE, buses).apply();
         sp.edit().commit();
@@ -373,6 +360,7 @@ public class SelectTransit extends Activity implements
 
     public void restoreActionBar() {
         ActionBar actionBar = getActionBar();
+        assert actionBar != null;
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(mTitle);
@@ -454,20 +442,18 @@ public class SelectTransit extends Activity implements
             double currentLatitude = currentLocation.getLatitude();
             double currentLongitude = currentLocation.getLongitude();
             // case where you are inside Pittsburgh...
-//            if((currentLatitude > 39.859673 && currentLatitude < 40.992847) &&
-//                    (currentLongitude > -80.372815 && currentLongitude < -79.414258)) {
+            if((currentLatitude > 39.859673 && currentLatitude < 40.992847) &&
+                    (currentLongitude > -80.372815 && currentLongitude < -79.414258)) {
                 latitude = currentLatitude;
                 longitude = currentLongitude;
                 zoom = (long)15.00;
-<<<<<<< HEAD
-//            }
-=======
+
             }
->>>>>>> list_save
         }
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), zoom));
         mMap.setMyLocationEnabled(true);
-    }
+
+        }
 
     /**
      * Adds markers to map
@@ -495,7 +481,6 @@ public class SelectTransit extends Activity implements
         final Handler handler = new Handler();
         timer = new Timer();
         final Context context = this;
-        RequestTask resq;
         task = new TimerTask() {
             @Override
             public void run() {
@@ -507,7 +492,7 @@ public class SelectTransit extends Activity implements
 
                             req = new RequestTask(mMap, buses, busMarkers, context);
 //                            req = new RequestTask(mMap, buses, context);
-                            while(isBusTaskRunning) {}
+                            while(isBusTaskRunning);
                             req.execute();
                         }
                         else
@@ -529,7 +514,7 @@ public class SelectTransit extends Activity implements
     private void stopTimer() {
 
         // wait for the bus task to finish!
-        while(isBusTaskRunning) {}
+        while(isBusTaskRunning);
 
         if (timer != null) {
             timer.cancel();
@@ -569,7 +554,10 @@ public class SelectTransit extends Activity implements
      */
     @Override
     public void onConnected(Bundle bundle) {
-        gLocationRequest = LocationRequest.create();
+        /*
+      This is the location request using FusedLocationAPI to get the person's last known location
+     */
+        LocationRequest gLocationRequest = LocationRequest.create();
         gLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         gLocationRequest.setInterval(1000);
         currentLocation = LocationServices.FusedLocationApi.getLastLocation(client);
@@ -580,7 +568,7 @@ public class SelectTransit extends Activity implements
             }
 
         }
-        System.out.println("Location: " + currentLocation);
+//        System.out.println("Location: " + currentLocation);
         centerMap();
     }
 
@@ -616,9 +604,9 @@ public class SelectTransit extends Activity implements
     }
 
     public void setBusMarkers(Map<Integer, Marker> busMarkers) {
-        System.out.println("Old busmarker: " + busMarkers);
+//        System.out.println("Old busmarker: " + busMarkers);
         this.busMarkers = busMarkers;
-        System.out.println("New busmarker: " + busMarkers);
+//        System.out.println("New busmarker: " + busMarkers);
     }
 
     public void setBusTaskRunning(boolean isBusTaskRunning) {
