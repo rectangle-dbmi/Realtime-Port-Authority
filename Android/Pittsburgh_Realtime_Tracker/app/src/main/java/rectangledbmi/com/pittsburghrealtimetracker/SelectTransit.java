@@ -430,12 +430,12 @@ public class SelectTransit extends Activity implements
             double currentLatitude = currentLocation.getLatitude();
             double currentLongitude = currentLocation.getLongitude();
             // case where you are inside Pittsburgh...
-            if((currentLatitude > 39.859673 && currentLatitude < 40.992847) &&
-                    (currentLongitude > -80.372815 && currentLongitude < -79.414258)) {
+//            if((currentLatitude > 39.859673 && currentLatitude < 40.992847) &&
+//                    (currentLongitude > -80.372815 && currentLongitude < -79.414258)) {
                 latitude = currentLatitude;
                 longitude = currentLongitude;
-                zoom = (long)16.10;
-            }
+                zoom = (long)15.00;
+//            }
         }
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), zoom));
         mMap.setMyLocationEnabled(true);
