@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -112,12 +113,26 @@ public class SelectTransit extends Activity implements
      */
     private TimerTask task;
 
+    /**
+     * This is the client that will center the map on the person using the app.
+     */
     private GoogleApiClient client;
 
+    /**
+     * This is where the person is when he first opens the app
+     */
     private Location currentLocation;
 
+    /**
+     * This is the location request using FusedLocationAPI to get the person's last known location
+     */
     private LocationRequest gLocationRequest;
 
+    /**
+     * This specifies whether to center the map on the person or not. Used because if we rotate the
+     * screen when the app is opened, it will lose the location of the most current location of the
+     * map.
+     */
     private boolean inSavedState;
 
     @Override
@@ -509,6 +524,10 @@ public class SelectTransit extends Activity implements
             super.onBackPressed();
     }
 
+    /**
+     * Part of the GoogleApiClient connection. If it is connected
+     * @param bundle
+     */
     @Override
     public void onConnected(Bundle bundle) {
         gLocationRequest = LocationRequest.create();
@@ -526,14 +545,28 @@ public class SelectTransit extends Activity implements
         centerMap();
     }
 
+    /**
+     * Not sure what to do with this...
+     * @param i dunno...
+     */
     @Override
     public void onConnectionSuspended(int i) {
 
     }
 
+    /**
+     * This is where the GoogleApiClient will fail. So far, just have it stored into a log...
+     * @param connectionResult The specified code if the GoogleApiClient fails to connect!
+     */
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        System.out.println("Connection failed");
+        Log.i("Google API Location Services Error", connectionResult.toString());
+/*        switch(connectionResult.getErrorCode()) {
+            case (ConnectionResult.API_UNAVAILABLE) : {
+
+            }
+        }*/
+//        TODO: Perhaps based on the connection result, we can close and make custom error messages.
     }
 
     @Override
