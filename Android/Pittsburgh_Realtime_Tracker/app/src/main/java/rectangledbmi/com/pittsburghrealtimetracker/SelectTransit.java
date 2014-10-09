@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -22,13 +23,17 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+
 
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestTask;
 
@@ -135,6 +140,15 @@ public class SelectTransit extends Activity implements
      */
     private boolean inSavedState;
 
+    /**
+     * This is the store for the busMarkers
+     */
+    private Map<Integer, Marker> busMarkers;
+
+    private boolean isBusTaskRunning;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -153,7 +167,10 @@ public class SelectTransit extends Activity implements
         //sets up the map
         inSavedState = false;
         restoreInstanceState(savedInstanceState);
-        setUpMapIfNeeded();
+        System.out.println("In create");
+        isBusTaskRunning = false;
+//        setUpMapIfNeeded();
+
 
 
     }
@@ -256,8 +273,15 @@ public class SelectTransit extends Activity implements
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        client.connect();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+        System.out.println("In resume");
         if(mMap != null) {
             setUpMap();
         }
@@ -266,8 +290,10 @@ public class SelectTransit extends Activity implements
     }
 
     protected void onPause() {
-        super.onPause();
         stopTimer();
+        clearMap();
+        super.onPause();
+
     }
 
     @Override
@@ -278,11 +304,7 @@ public class SelectTransit extends Activity implements
         super.onStop();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        client.connect();
-    }
+
 
     /**
      * Place to save preferences....
@@ -296,8 +318,10 @@ public class SelectTransit extends Activity implements
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         stopTimer();
+        clearMap();
+        super.onDestroy();
+
     }
 
     /**
@@ -435,7 +459,11 @@ public class SelectTransit extends Activity implements
                 latitude = currentLatitude;
                 longitude = currentLongitude;
                 zoom = (long)15.00;
+<<<<<<< HEAD
 //            }
+=======
+            }
+>>>>>>> list_save
         }
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), zoom));
         mMap.setMyLocationEnabled(true);
@@ -447,6 +475,7 @@ public class SelectTransit extends Activity implements
      *
      */
     protected void setUpMap() {
+        clearMap();
         clearAndAddToMap();
     }
 
@@ -465,18 +494,20 @@ public class SelectTransit extends Activity implements
 
         final Handler handler = new Handler();
         timer = new Timer();
-        Context context = this;
+        final Context context = this;
+        RequestTask resq;
         task = new TimerTask() {
             @Override
             public void run() {
                 handler.post(new Runnable() {
+                    RequestTask req;
                     public void run() {
-                        RequestTask req;
                         if(!buses.isEmpty()) {
-                            clearMap();
-                            req = new RequestTask(mMap, buses);
-//                            req = new RequestTask(mMap, buses, context);
+//                            clearMap();
 
+                            req = new RequestTask(mMap, buses, busMarkers, context);
+//                            req = new RequestTask(mMap, buses, context);
+                            while(isBusTaskRunning) {}
                             req.execute();
                         }
                         else
@@ -485,8 +516,9 @@ public class SelectTransit extends Activity implements
                 });
             }
         };
-        if(!buses.isEmpty())
+        if(!buses.isEmpty()) {
             timer.schedule(task, 0, 10000); //it executes this every 10000ms
+        }
         else
             clearMap();
     }
@@ -495,6 +527,10 @@ public class SelectTransit extends Activity implements
      * Stops the timer task
      */
     private void stopTimer() {
+
+        // wait for the bus task to finish!
+        while(isBusTaskRunning) {}
+
         if (timer != null) {
             timer.cancel();
             timer.purge();
@@ -509,7 +545,10 @@ public class SelectTransit extends Activity implements
      * General method to clear the map.
      */
     protected void clearMap() {
-        mMap.clear();
+        busMarkers = null;
+        if(mMap != null)
+            mMap.clear();
+        System.out.println("Cleared map...");
     }
 
     /**
@@ -574,5 +613,19 @@ public class SelectTransit extends Activity implements
         if(location != null) {
             currentLocation = location;
         }
+    }
+
+    public void setBusMarkers(Map<Integer, Marker> busMarkers) {
+        System.out.println("Old busmarker: " + busMarkers);
+        this.busMarkers = busMarkers;
+        System.out.println("New busmarker: " + busMarkers);
+    }
+
+    public void setBusTaskRunning(boolean isBusTaskRunning) {
+        this.isBusTaskRunning = isBusTaskRunning;
+    }
+
+    public boolean isBusTaskRunning() {
+        return isBusTaskRunning;
     }
 }
