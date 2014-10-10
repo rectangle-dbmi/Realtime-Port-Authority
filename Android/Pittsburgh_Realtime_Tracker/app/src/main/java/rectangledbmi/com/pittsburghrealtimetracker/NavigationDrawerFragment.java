@@ -103,7 +103,6 @@ public class NavigationDrawerFragment extends Fragment {
         // Indicate that this fragment would like to influence the set of actions in the action bar.
         setHasOptionsMenu(true);
         restoreListView();
-
     }
 
     @Override
@@ -136,12 +135,12 @@ public class NavigationDrawerFragment extends Fragment {
 
     private void restoreListView() {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        System.out.println("In restore view");
+//        System.out.println("In restore view");
 //        mSelected = new boolean[getResources().getStringArray(R.array.buses).length];
         amountSelected = 0;
         for(String selected : sp.getStringSet(STATE_SELECTED_POSITIONS, new HashSet<String>(0))) {
             setTrue(Integer.parseInt(selected));
-            System.out.println("Restoring: " + selected);
+//            System.out.println("Restoring: " + selected);
         }
     }
 
@@ -286,7 +285,7 @@ public class NavigationDrawerFragment extends Fragment {
      * @param position the location of the selection in the listview
      */
     private void setFalse(int position) {
-        System.out.println(position + " is now false");
+//        System.out.println(position + " is now false");
         mDrawerListView.setItemChecked(position, false);
         mSelected[position] = false;
         if(amountSelected > 0)
@@ -297,7 +296,7 @@ public class NavigationDrawerFragment extends Fragment {
      * @param position the location of the selection in the listview
      */
     private void setTrue(int position) {
-        System.out.println(position + " is now true");
+//        System.out.println(position + " is now true");
         mDrawerListView.setItemChecked(position, true);
         mSelected[position] = true;
         ++amountSelected;
@@ -401,8 +400,9 @@ public class NavigationDrawerFragment extends Fragment {
      */
     @Override
     public void onStop() {
-        super.onStop();
         savePreferences();
+        super.onStop();
+
 
     }
 
@@ -414,7 +414,7 @@ public class NavigationDrawerFragment extends Fragment {
                 .getDefaultSharedPreferences(getActivity());
         Set<String> listIds = new HashSet<String>(10);
         SparseBooleanArray checked = mDrawerListView.getCheckedItemPositions();
-        System.out.println("In Stop. Size of Checked...: " + checked.size());
+//        System.out.println("In Stop. Size of Checked...: " + checked.size());
 /*        for(long id : mDrawerListView.getCheckedItemIds()) {
             listIds.add(Long.toString(id));
             System.out.println("Saving: " + id);
@@ -423,7 +423,7 @@ public class NavigationDrawerFragment extends Fragment {
         for(int i=0;i<mDrawerListView.getCount();++i) {
             if(checked.get(i)) {
                 listIds.add(Integer.toString(i));
-                System.out.println("Saving: " + i);
+//                System.out.println("Saving: " + i);
             }
         }
         sp.edit().putStringSet(STATE_SELECTED_POSITIONS, listIds).apply();

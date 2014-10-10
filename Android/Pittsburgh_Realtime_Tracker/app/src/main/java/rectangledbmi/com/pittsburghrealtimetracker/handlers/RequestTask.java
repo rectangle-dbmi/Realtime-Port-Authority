@@ -1,12 +1,12 @@
 package rectangledbmi.com.pittsburghrealtimetracker.handlers;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.xml.sax.InputSource;
@@ -15,39 +15,63 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import rectangledbmi.com.pittsburghrealtimetracker.SelectTransit;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Bus;
 
+/**
+ * This is the Asynctask that will update the bus locations...
+ *
+ * Hopefully I'm doing this correctly!
+ */
 public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
 
     /**
      * The google map fragment
      */
-    GoogleMap mMap;
-
-    /**
-     * The list of buses from the API
-     */
-    List<Bus> bl;
+    private GoogleMap mMap;
+//
+//    /**
+//     * The list of buses from the API
+//     */
+//    private List<Bus> bl;
 
     /**
      * The list of selected routes from the main activity comma delimited
      * For example, if P1 and P3 was selected... this would be P1 and P3
      */
-    String selectedBuses;
+    private String selectedBuses;
+
+    /**
+     * This is to store the bus markers! String will be the bus number (not the route number).
+     */
+    private Map<Integer, Marker> busMarkers;
+
+    /**
+     * Main Activity Context...
+     */
+    private SelectTransit context;
+
+    private static SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
 
 
-    public RequestTask(GoogleMap map, Set<String> buses){
+    public RequestTask(GoogleMap map, Set<String> buses, Map<Integer, Marker> busMarkers, Context context){
+        this.context = (SelectTransit)context;
+        while(this.context.isBusTaskRunning()) {}
         mMap = map;
         selectedBuses = selectBuses(buses.toArray(new String[buses.size()]));
-        System.out.println(selectedBuses);
-        bl = null;
+//        System.out.println(selectedBuses);
+//        bl = null;
+        this.busMarkers = busMarkers;
     }
 
     /**
@@ -77,6 +101,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
     protected List<Bus> doInBackground(Void... void1) {
         SAXParserFactory spf = SAXParserFactory.newInstance();
         SAXParser sp = null;
+        List<Bus> bl = null;
         try {
             sp = spf.newSAXParser();
         } catch (ParserConfigurationException e) {
@@ -126,29 +151,95 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
     }
 
     @Override
-    protected void onPostExecute(List<Bus> list) {
-
+    protected void onPostExecute(List<Bus> bl) {
+        context.setBusTaskRunning(true);
         if(bl != null) {
-            //TODO want to update points as opposed to clearing the map, consider storing markers in hashmap
-            for (Bus bus : bl) {
-                LatLng latlng = new LatLng(bus.getLat(), bus.getLon());
 
-                MarkerOptions marker = new MarkerOptions()
-                        .position(latlng)
-                        .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
-                        .snippet("Speed: " + bus.getSpd())
-                        .draggable(false)
-                        .rotation(bus.getHdg())
-                        .icon(BitmapDescriptorFactory.fromAsset(bus.getRt() + ".png"))
-                        .flat(true);
-                try {
-                    mMap.addMarker(marker);
-                } catch(NullPointerException e) {
-                    System.err.println("mMap or marker is null");
+            Map<Integer, Marker> newBusMarkers = new HashMap<Integer, Marker>(bl.size());
+            LatLng latlng;
+
+/*            if(busMarkers == null) {
+                System.out.println("Bus Markers is null");
+            }
+            else {
+                System.out.println("bus markers is not null. Replacing...");
+            }*/
+
+            for (Bus bus : bl) {
+                latlng = new LatLng(bus.getLat(), bus.getLon());
+
+                if(busMarkers != null) {
+
+                    updateMarker(bus, latlng, newBusMarkers);
+                }
+                else {
+                    addNewMarker(bus, latlng, newBusMarkers);
                 }
 
 
             }
+            removeOldBuses();
+            context.setBusMarkers(newBusMarkers);
+        }
+        context.setBusTaskRunning(false);
+    }
+
+    /**
+     * Updates the marker already on the map
+     * @param newBusMarkers the new bus list
+     * @param bus the bus being updated
+     * @param latlng the LatLng of the bus's location
+     */
+    private void updateMarker(Bus bus, LatLng latlng, Map<Integer, Marker> newBusMarkers) {
+        Marker mark = busMarkers.remove(bus.getVid());
+        if (mark != null) {
+//            System.out.println(bus.getVid() + " updated");
+            //If the mark is found, update the marker. Add it to the new map, then delete the old reference to the marker
+            mark.setTitle(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes());
+            mark.setPosition(latlng);
+            mark.setRotation(bus.getHdg());
+            mark.setSnippet("Speed: " + bus.getSpd());
+            mark.setIcon(BitmapDescriptorFactory.fromAsset(bus.getRt() + ".png"));
+            newBusMarkers.put(bus.getVid(), mark);
+
+        }
+        else {
+            addNewMarker(bus, latlng, newBusMarkers);
         }
     }
+
+    /**
+     * Add a new marker to the map
+     * @param bus the bus being added
+     * @param latlng the location of the bus
+     * @param newBusMarkers the new bus list
+     */
+    private void addNewMarker(Bus bus, LatLng latlng, Map<Integer, Marker> newBusMarkers) {
+        MarkerOptions marker = new MarkerOptions()
+                .position(latlng)
+                .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
+                .snippet("Speed: " + bus.getSpd())
+                .draggable(false)
+                .rotation(bus.getHdg())
+                .icon(BitmapDescriptorFactory.fromAsset(bus.getRt() + ".png"))
+                .flat(true);
+        try {
+            newBusMarkers.put(bus.getVid(), mMap.addMarker(marker));
+        } catch(NullPointerException e) {
+            System.err.println("mMap or marker is null");
+        }
+    }
+
+    /**
+     * Removes the no longer visible buses to the list.
+     */
+    private void removeOldBuses() {
+        if(busMarkers != null) {
+            for(Marker marker : busMarkers.values()) {
+                marker.remove();
+            }
+//            busMarkers.clear();
+        }
+    }
+
 }
