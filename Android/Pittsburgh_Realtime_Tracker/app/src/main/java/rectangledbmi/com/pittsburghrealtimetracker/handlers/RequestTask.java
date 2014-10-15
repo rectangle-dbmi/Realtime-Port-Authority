@@ -144,7 +144,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                         .println("Bus route is not tracked or all buses on route are in garage: " + selectedBuses);
                 //                System.exit(0);
             }
-            System.out.println("Results: " + bl);
+//            System.out.println("Results: " + bl);
             return bl;
         }
         System.out.println("Task is already running...");

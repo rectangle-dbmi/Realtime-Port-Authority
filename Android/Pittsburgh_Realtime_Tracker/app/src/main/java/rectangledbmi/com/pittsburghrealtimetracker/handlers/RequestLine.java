@@ -7,19 +7,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 /**
  * Created by epicstar on 10/14/14.
@@ -39,48 +35,119 @@ public class RequestLine extends AsyncTask<Void, Void, List<LatLng>> {
     }
     @Override
     protected List<LatLng> doInBackground(Void... voids) {
-        SAXParserFactory spf = SAXParserFactory.newInstance();
-        SAXParser sp = null;
-        try {
-            sp = spf.newSAXParser();
-        } catch(ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        }
+//        SAXParserFactory spf = SAXParserFactory.newInstance();
+//        SAXParser sp = null;
+//        try {
+//            sp = spf.newSAXParser();
+//        } catch(ParserConfigurationException e) {
+//            e.printStackTrace();
+//        } catch (SAXException e) {
+//            e.printStackTrace();
+//        }
+//
+//        URL url = null;
+//
+//        try {
+//            url = new URL(
+//                    "http://realtime.portauthority.org/bustime/api/v2/getpatterns?key=KiJEdJUDgRFxcG7cpt3ae6xxJ&rt=" + selectedRoute
+//            );
+//        } catch (MalformedURLException e) {
+//            e.printStackTrace();
+//        }
+//
+//        RouteLineSaxHandler handler;
+//        List<LatLng> points = null;
+//        try {
+//            handler = new RouteLineSaxHandler();
+//            try {
+//                if(sp != null) {
+//                    sp.parse(new InputSource(url != null ? url.openStream() : null), handler);
+//                }
+//            } catch (SAXException e) {
+//                e.printStackTrace();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            System.out.println(handler.getPoints());
+//            points = handler.getPoints();
+//        } catch (NullPointerException e) {
+//            System.out.println("Routes are not being added");
+//        }
 
-        URL url = null;
-
+        List<LatLng> points = null;
+        XmlPullParserFactory pullParserFactory;
         try {
-            url = new URL(
+            pullParserFactory = XmlPullParserFactory.newInstance();
+            XmlPullParser parser = pullParserFactory.newPullParser();
+            URL url = new URL(
                     "http://realtime.portauthority.org/bustime/api/v2/getpatterns?key=KiJEdJUDgRFxcG7cpt3ae6xxJ&rt=" + selectedRoute
             );
-        } catch (MalformedURLException e) {
+
+            parser.setInput(url.openStream(), null);
+            points = parseXML(parser);
+            System.out.println(points);
+        } catch (XmlPullParserException e) {
             e.printStackTrace();
-        }
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
 
-        RouteLineSaxHandler handler;
-        List<LatLng> points = null;
-        try {
-            handler = new RouteLineSaxHandler();
-            try {
-                if(sp != null) {
-                    sp.parse(new InputSource(url != null ? url.openStream() : null), handler);
+        }
+        return points;
+
+    }
+
+    private synchronized List<LatLng> parseXML(XmlPullParser parser) throws XmlPullParserException, IOException {
+        List<LatLng> points = new LinkedList<LatLng>();
+        int eventType = parser.getEventType();
+        double tempLat = 0.0;
+        double tempLong = 0.0;
+        int seq = 1;
+        int tempSeq = 0;
+        while(eventType != XmlPullParser.END_DOCUMENT) {
+            String name = null;
+
+            switch (eventType) {
+
+                case(XmlPullParser.START_TAG) : {
+                    name = parser.getName();
+                    if("rtdir".equals(name)) {
+                        addPoints(points, tempLat, tempLong, seq, tempSeq, true);
+                        seq = 1;
+                    }
+
+                    else if("lat".equals(name)) {
+                        tempLat = Double.parseDouble(parser.nextText());
+//                        System.out.println("Lat: " + tempLat);
+                    }
+                    else if("lon".equals(name)) {
+                        tempLong = Double.parseDouble(parser.nextText());
+//                        System.out.println("Lon: " + tempLong);
+                    }
+                    else if("seq".equals(name)) {
+                        tempSeq = Integer.parseInt(parser.nextText());
+                    }
                 }
-            } catch (SAXException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+                case(XmlPullParser.END_TAG) : {
+                    if("pt".equals(name)) {
+                        seq = addPoints(points, tempLat, tempLong, seq, tempSeq, false);
+                    }
+                }
             }
-            System.out.println(handler.getPoints());
-            points = handler.getPoints();
-        } catch (NullPointerException e) {
-            System.out.println("Routes are not being added");
+            eventType = parser.next();
         }
-
-
         return points;
     }
+
+    private synchronized int addPoints(List<LatLng> points, double tempLat, double tempLong, int seq, int tempSeq, boolean loop) {
+        if((tempLat != 0.0 || tempLong != 0.0) && (loop || seq == tempSeq)) {
+            points.add(new LatLng(tempLat, tempLong));
+            return seq + 1;
+        }
+        return seq;
+    }
+
 
     @Override
     protected void onPostExecute(List<LatLng> latLngs) {
