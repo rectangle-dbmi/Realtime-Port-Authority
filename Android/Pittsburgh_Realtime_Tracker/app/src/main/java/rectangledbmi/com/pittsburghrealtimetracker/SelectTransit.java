@@ -4,6 +4,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,13 +24,16 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.Polyline;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestLine;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestTask;
 
 /**
@@ -140,6 +144,8 @@ public class SelectTransit extends Activity implements
      */
     private boolean isBusTaskRunning;
 
+    private Map<String, Polyline> routeLines;
+
 
 
     @Override
@@ -161,6 +167,7 @@ public class SelectTransit extends Activity implements
         inSavedState = false;
         restoreInstanceState(savedInstanceState);
         isBusTaskRunning = false;
+
 //        setUpMapIfNeeded();
 
 
@@ -238,7 +245,8 @@ public class SelectTransit extends Activity implements
      */
     private void createBusList() {
         //This will be changed as things go
-        buses = new HashSet<String>(10);
+        buses = new HashSet<String>(getResources().getInteger(R.integer.max_checked));
+        routeLines = new HashMap<String, Polyline>(getResources().getInteger(R.integer.max_checked));
     }
 
 
@@ -330,7 +338,24 @@ public class SelectTransit extends Activity implements
      * @param number which bus in the list is pressed
      */
     public void onSectionAttached(int number) {
+        setPolyline(number);
         setList(getResources().getStringArray(R.array.buses)[number]);
+    }
+
+    private synchronized void setPolyline(int number) {
+        System.out.println("Attempting to add polyline here!");
+        String route = getResources().getStringArray(R.array.buses)[number];
+        int color = Color.parseColor(getResources().getStringArray(R.array.buscolors)[number]);
+        Polyline polyline = routeLines.get(route);
+        if(polyline == null) {
+            System.out.println("polyline was null");
+            new RequestLine(mMap, routeLines, route, color).execute();
+        }
+        else if(polyline.isVisible()) {
+            polyline.setVisible(false);
+        }
+        else
+            polyline.setVisible(true);
     }
 
     /**
@@ -476,7 +501,7 @@ public class SelectTransit extends Activity implements
     /**
      * adds buses to map. or else the map will be clear...
      */
-    protected void addBuses() {
+    protected synchronized void addBuses() {
 
         final Handler handler = new Handler();
         timer = new Timer();
@@ -531,8 +556,10 @@ public class SelectTransit extends Activity implements
      */
     protected void clearMap() {
         busMarkers = null;
-        if(mMap != null)
+        if(mMap != null) {
+            routeLines = new HashMap<String, Polyline>(getResources().getInteger(R.integer.max_checked));
             mMap.clear();
+        }
         System.out.println("Cleared map...");
     }
 
