@@ -25,6 +25,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -138,7 +139,7 @@ public class NavigationDrawerFragment extends Fragment {
 //        System.out.println("In restore view");
 //        mSelected = new boolean[getResources().getStringArray(R.array.buses).length];
         amountSelected = 0;
-        for(String selected : sp.getStringSet(STATE_SELECTED_POSITIONS, new HashSet<String>(0))) {
+        for(String selected : sp.getStringSet(STATE_SELECTED_POSITIONS, Collections.synchronizedSet(new HashSet<String>(0)))) {
             setTrue(Integer.parseInt(selected));
 //            System.out.println("Restoring: " + selected);
         }
@@ -412,7 +413,7 @@ public class NavigationDrawerFragment extends Fragment {
     private void savePreferences() {
         SharedPreferences sp = PreferenceManager
                 .getDefaultSharedPreferences(getActivity());
-        Set<String> listIds = new HashSet<String>(10);
+        Set<String> listIds = Collections.synchronizedSet(new HashSet<String>(10));
         SparseBooleanArray checked = mDrawerListView.getCheckedItemPositions();
 //        System.out.println("In Stop. Size of Checked...: " + checked.size());
 /*        for(long id : mDrawerListView.getCheckedItemIds()) {

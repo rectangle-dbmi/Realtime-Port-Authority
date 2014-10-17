@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -54,7 +56,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
     /**
      * This is to store the bus markers! String will be the bus number (not the route number).
      */
-    private Map<Integer, Marker> busMarkers;
+    private ConcurrentMap<Integer, Marker> busMarkers;
 
     /**
      * Main Activity Context...
@@ -64,9 +66,8 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
     private static SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
 
 
-    public RequestTask(GoogleMap map, Set<String> buses, Map<Integer, Marker> busMarkers, Context context){
+    public RequestTask(GoogleMap map, Set<String> buses, ConcurrentMap<Integer, Marker> busMarkers, Context context){
         this.context = (SelectTransit)context;
-        while(this.context.isBusTaskRunning()) {}
         mMap = map;
         selectedBuses = selectBuses(buses.toArray(new String[buses.size()]));
 //        System.out.println(selectedBuses);
@@ -99,18 +100,19 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
      */
     @Override
     protected List<Bus> doInBackground(Void... void1) {
-        SAXParserFactory spf = SAXParserFactory.newInstance();
-        SAXParser sp = null;
-        List<Bus> bl = null;
-        try {
-            sp = spf.newSAXParser();
-        } catch (ParserConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        if(!context.isBusTaskRunning()) {
+            SAXParserFactory spf = SAXParserFactory.newInstance();
+            SAXParser sp = null;
+            List<Bus> bl = null;
+            try {
+                sp = spf.newSAXParser();
+            } catch (ParserConfigurationException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (SAXException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
             URL url = null;
             try {
                 url = new URL(
@@ -137,51 +139,57 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                 }
                 bl = handler.getBusList();
             } catch (NullPointerException sax) {
-//                System.out.println(sax.getMessage());
+                //                System.out.println(sax.getMessage());
 
                 sax.printStackTrace();
                 System.err
                         .println("Bus route is not tracked or all buses on route are in garage: " + selectedBuses);
-//                System.exit(0);
+                //                System.exit(0);
             }
-        return bl;
-    }
-    //TODO make a HashMap for the bus markers and use that to update the marker location...
-    protected void onProgressUpdate(Void... void1) {
+//            System.out.println("Results: " + bl);
+            return bl;
+        }
+        System.out.println("Task is already running...");
+        return null;
     }
 
     @Override
     protected void onPostExecute(List<Bus> bl) {
-        context.setBusTaskRunning(true);
-        if(bl != null) {
+        if(!context.isBusTaskRunning()) {
+            context.setBusTaskRunning(true);
 
-            Map<Integer, Marker> newBusMarkers = new HashMap<Integer, Marker>(bl.size());
-            LatLng latlng;
+            System.out.println("Task starting after thread ran");
 
-/*            if(busMarkers == null) {
-                System.out.println("Bus Markers is null");
-            }
-            else {
-                System.out.println("bus markers is not null. Replacing...");
-            }*/
+            if (bl != null) {
 
-            for (Bus bus : bl) {
-                latlng = new LatLng(bus.getLat(), bus.getLon());
+                ConcurrentMap<Integer, Marker> newBusMarkers = new ConcurrentHashMap<Integer, Marker>(bl.size());
+                LatLng latlng;
 
-                if(busMarkers != null) {
-
-                    updateMarker(bus, latlng, newBusMarkers);
+    /*            if(busMarkers == null) {
+                    System.out.println("Bus Markers is null");
                 }
                 else {
-                    addNewMarker(bus, latlng, newBusMarkers);
+                    System.out.println("bus markers is not null. Replacing...");
+                }*/
+
+                for (Bus bus : bl) {
+                    latlng = new LatLng(bus.getLat(), bus.getLon());
+
+                    if (busMarkers != null) {
+
+                        updateMarker(bus, latlng, newBusMarkers);
+                    } else {
+                        addNewMarker(bus, latlng, newBusMarkers);
+                    }
+
+
                 }
-
-
+                removeOldBuses();
+                context.setBusMarkers(newBusMarkers);
             }
-            removeOldBuses();
-            context.setBusMarkers(newBusMarkers);
+            System.out.println("Task has stopped running");
+            context.setBusTaskRunning(false);
         }
-        context.setBusTaskRunning(false);
     }
 
     /**
@@ -190,21 +198,24 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
      * @param bus the bus being updated
      * @param latlng the LatLng of the bus's location
      */
-    private void updateMarker(Bus bus, LatLng latlng, Map<Integer, Marker> newBusMarkers) {
-        Marker mark = busMarkers.remove(bus.getVid());
-        if (mark != null) {
-//            System.out.println(bus.getVid() + " updated");
-            //If the mark is found, update the marker. Add it to the new map, then delete the old reference to the marker
-            mark.setTitle(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes());
-            mark.setPosition(latlng);
-            mark.setRotation(bus.getHdg());
-            mark.setSnippet("Speed: " + bus.getSpd());
-            mark.setIcon(BitmapDescriptorFactory.fromAsset(bus.getRt() + ".png"));
-            newBusMarkers.put(bus.getVid(), mark);
+    private synchronized void updateMarker(Bus bus, LatLng latlng, ConcurrentMap<Integer, Marker> newBusMarkers) {
+        try {
+            Marker mark = busMarkers.remove(bus.getVid());
+            if (mark != null) {
+                //            System.out.println(bus.getVid() + " updated");
+                //If the mark is found, update the marker. Add it to the new map, then delete the old reference to the marker
+                mark.setTitle(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes());
+                mark.setPosition(latlng);
+                mark.setRotation(bus.getHdg());
+                mark.setSnippet("Speed: " + bus.getSpd());
+//                mark.setIcon(BitmapDescriptorFactory.fromAsset(bus.getRt() + ".png"));
+                newBusMarkers.putIfAbsent(bus.getVid(), mark);
 
-        }
-        else {
-            addNewMarker(bus, latlng, newBusMarkers);
+            } else {
+                addNewMarker(bus, latlng, newBusMarkers);
+            }
+        } catch(NullPointerException e) {
+            System.err.println("Something went wrong while updating...");
         }
     }
 
@@ -214,7 +225,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
      * @param latlng the location of the bus
      * @param newBusMarkers the new bus list
      */
-    private void addNewMarker(Bus bus, LatLng latlng, Map<Integer, Marker> newBusMarkers) {
+    private synchronized void addNewMarker(Bus bus, LatLng latlng, ConcurrentMap<Integer, Marker> newBusMarkers) {
         MarkerOptions marker = new MarkerOptions()
                 .position(latlng)
                 .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
@@ -233,7 +244,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
     /**
      * Removes the no longer visible buses to the list.
      */
-    private void removeOldBuses() {
+    private synchronized void removeOldBuses() {
         if(busMarkers != null) {
             for(Marker marker : busMarkers.values()) {
                 marker.remove();
