@@ -26,12 +26,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polyline;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestLine;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestTask;
@@ -137,14 +141,15 @@ public class SelectTransit extends Activity implements
     /**
      * This is the store for the busMarkers
      */
-    private Map<Integer, Marker> busMarkers;
+    private ConcurrentMap<Integer, Marker> busMarkers;
 
     /**
      * Reminds us if the bus task is running or not to update the buses (workaround for asynctask ******)
      */
     private boolean isBusTaskRunning;
 
-    private Map<String, Polyline> routeLines;
+//    private ConcurrentMap<String, List<Polyline>> routeLines;
+    private ConcurrentMap<String, Polyline> routeLines;
 
 
 
@@ -245,8 +250,9 @@ public class SelectTransit extends Activity implements
      */
     private void createBusList() {
         //This will be changed as things go
-        buses = new HashSet<String>(getResources().getInteger(R.integer.max_checked));
-        routeLines = new HashMap<String, Polyline>(getResources().getInteger(R.integer.max_checked));
+        buses = Collections.synchronizedSet(new HashSet<String>(getResources().getInteger(R.integer.max_checked)));
+        routeLines = new ConcurrentHashMap<String, Polyline>(getResources().getInteger(R.integer.max_checked));
+//        routeLines = new ConcurrentHashMap<String, List<Polyline>>(getResources().getInteger(R.integer.max_checked));
     }
 
 
@@ -343,19 +349,39 @@ public class SelectTransit extends Activity implements
     }
 
     private synchronized void setPolyline(int number) {
-        System.out.println("Attempting to add polyline here!");
         String route = getResources().getStringArray(R.array.buses)[number];
         int color = Color.parseColor(getResources().getStringArray(R.array.buscolors)[number]);
         Polyline polyline = routeLines.get(route);
+//        List<Polyline> polylines = routeLines.get(route);
         if(polyline == null) {
-            System.out.println("polyline was null");
             new RequestLine(mMap, routeLines, route, color).execute();
         }
         else if(polyline.isVisible()) {
             polyline.setVisible(false);
         }
-        else
+        else {
             polyline.setVisible(true);
+        }
+        /*if(polylines == null) {
+            System.out.println("polyline was null");
+            new RequestLine(mMap, routeLines, route, color).execute();
+        }
+        else if(polylines.get(0).isVisible()) {
+            setVisiblePolylines(polylines, false);
+        }
+        else
+            setVisiblePolylines(polylines, true);*/
+    }
+
+    /**
+     * sets a visible or invisible polylines for a route
+     * @param polylines
+     * @param visible
+     */
+    private void setVisiblePolylines(List<Polyline> polylines, boolean visible) {
+        for(Polyline polyline : polylines) {
+            polyline.setVisible(visible);
+        }
     }
 
     /**
@@ -493,7 +519,7 @@ public class SelectTransit extends Activity implements
     /**
      * Stops the bus refresh, then adds buses to the map
      */
-    protected void clearAndAddToMap() {
+    protected synchronized void clearAndAddToMap() {
         stopTimer();
         addBuses();
     }
@@ -533,13 +559,23 @@ public class SelectTransit extends Activity implements
             clearMap();
     }
 
+
+    private synchronized void removeBuses() {
+        if(busMarkers != null) {
+            for (Marker busMarker : busMarkers.values()) {
+                busMarker.remove();
+            }
+            busMarkers = null;
+        }
+
+    }
+
     /**
      * Stops the timer task
      */
-    private void stopTimer() {
-
+    private synchronized void stopTimer() {
+        removeBuses();
         // wait for the bus task to finish!
-        while(isBusTaskRunning);
 
         if (timer != null) {
             timer.cancel();
@@ -557,7 +593,8 @@ public class SelectTransit extends Activity implements
     protected void clearMap() {
         busMarkers = null;
         if(mMap != null) {
-            routeLines = new HashMap<String, Polyline>(getResources().getInteger(R.integer.max_checked));
+            routeLines = new ConcurrentHashMap<String, Polyline>(getResources().getInteger(R.integer.max_checked));
+//            routeLines = new ConcurrentHashMap<String, List<Polyline>>(getResources().getInteger(R.integer.max_checked));
             mMap.clear();
         }
         System.out.println("Cleared map...");
@@ -630,7 +667,7 @@ public class SelectTransit extends Activity implements
         }
     }
 
-    public void setBusMarkers(Map<Integer, Marker> busMarkers) {
+    public void setBusMarkers(ConcurrentMap<Integer, Marker> busMarkers) {
 //        System.out.println("Old busmarker: " + busMarkers);
         this.busMarkers = busMarkers;
 //        System.out.println("New busmarker: " + busMarkers);
