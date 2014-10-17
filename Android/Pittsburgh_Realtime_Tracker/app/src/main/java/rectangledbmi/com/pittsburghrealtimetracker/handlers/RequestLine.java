@@ -218,7 +218,7 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LatLng>> {
                 System.out.println("Last added to end of first");
             }
             System.out.println("Final... " + distanceBtwn(finalList.getFirst(), finalList.getLast()));
-            if(distanceBtwn(finalList.getFirst(), finalList.getLast()) <= (float)700) {
+            if(distanceBtwn(finalList.getFirst(), finalList.getLast()) <= (float)300) {
                 finalList.add(new LatLng(finalList.getFirst().latitude, finalList.getFirst().longitude));
             }
 
