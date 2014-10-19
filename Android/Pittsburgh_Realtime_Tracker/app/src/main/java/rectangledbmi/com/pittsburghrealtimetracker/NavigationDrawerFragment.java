@@ -1,17 +1,18 @@
 package rectangledbmi.com.pittsburghrealtimetracker;
 
 
-import android.app.ActionBar;
 import android.app.Activity;
-import android.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v4.app.Fragment;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.Toolbar;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -74,6 +75,7 @@ public class NavigationDrawerFragment extends Fragment {
     private int amountSelected;
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
+    private Toolbar toolbar;
 
     public NavigationDrawerFragment() {
     }
@@ -110,6 +112,8 @@ public class NavigationDrawerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+
+
         mDrawerListView = (ListView) inflater.inflate(
                 R.layout.fragment_navigation_drawer, container, false);
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -177,27 +181,36 @@ public class NavigationDrawerFragment extends Fragment {
     public void setUp(int fragmentId, DrawerLayout drawerLayout) {
         mFragmentContainerView = getActivity().findViewById(fragmentId);
         mDrawerLayout = drawerLayout;
+        toolbar = (Toolbar) getView().findViewById(R.id.toolbar);
 
         // set a custom shadow that overlays the main content when the drawer opens
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         // set up the drawer's list view with items and click listener
 
-        ActionBar actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeButtonEnabled(true);
+//        ActionBar actionBar = getActionBar();
+//        actionBar.setDisplayHomeAsUpEnabled(true);
+//        actionBar.setHomeButtonEnabled(true);
+
 
         // ActionBarDrawerToggle ties together the the proper interactions
         // between the navigation drawer and the action bar app icon.
         mDrawerToggle = new ActionBarDrawerToggle(
                 getActivity(),                    /* host Activity */
                 mDrawerLayout,                    /* DrawerLayout object */
-                R.drawable.ic_drawer,             /* nav drawer image to replace 'Up' caret */
+                toolbar,             /* toolbar to put the navigationdrawer toggle on... */
                 R.string.navigation_drawer_open,  /* "open drawer" description for accessibility */
                 R.string.navigation_drawer_close  /* "close drawer" description for accessibility */
-        ) {
+        )/*        mDrawerToggle = new ActionBarDrawerToggle(
+                getActivity(),                    *//* host Activity *//*
+                mDrawerLayout,                    *//* DrawerLayout object *//*
+                R.drawable.ic_drawer,             *//* nav drawer image to replace 'Up' caret *//*
+                R.string.navigation_drawer_open,  *//* "open drawer" description for accessibility *//*
+                R.string.navigation_drawer_close  *//* "close drawer" description for accessibility *//*
+        )*/ {
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
+                ((SelectTransit)getActivity()).clearAndAddToMap();
                 if (!isAdded()) {
                     return;
                 }
@@ -224,7 +237,6 @@ public class NavigationDrawerFragment extends Fragment {
                 getActivity().invalidateOptionsMenu(); // calls onPrepareOptionsMenu()
             }
         };
-
 
         // If the user hasn't 'learned' about the drawer, open it to introduce them to the drawer,
         // per the navigation drawer design guidelines.
@@ -320,6 +332,14 @@ public class NavigationDrawerFragment extends Fragment {
         return false;
     }
 
+    public boolean openDrawer() {
+        if(!isDrawerOpen()) {
+            mDrawerLayout.openDrawer(mFragmentContainerView);
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public void onDetach() {
         super.onDetach();
@@ -388,12 +408,12 @@ public class NavigationDrawerFragment extends Fragment {
     private void showGlobalContextActionBar() {
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+//        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setTitle(R.string.app_name);
     }
 
     private ActionBar getActionBar() {
-        return getActivity().getActionBar();
+        return ((SelectTransit)getActivity()).getSupportActionBar();
     }
 
     /**
@@ -413,8 +433,9 @@ public class NavigationDrawerFragment extends Fragment {
     private void savePreferences() {
         SharedPreferences sp = PreferenceManager
                 .getDefaultSharedPreferences(getActivity());
-        Set<String> listIds = Collections.synchronizedSet(new HashSet<String>(10));
         SparseBooleanArray checked = mDrawerListView.getCheckedItemPositions();
+        Set<String> listIds = Collections.synchronizedSet(new HashSet<String>(10));
+
 //        System.out.println("In Stop. Size of Checked...: " + checked.size());
 /*        for(long id : mDrawerListView.getCheckedItemIds()) {
             listIds.add(Long.toString(id));
@@ -428,7 +449,6 @@ public class NavigationDrawerFragment extends Fragment {
             }
         }
         sp.edit().putStringSet(STATE_SELECTED_POSITIONS, listIds).apply();
-        sp.edit().commit();
 
     }
 

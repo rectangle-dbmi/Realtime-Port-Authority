@@ -23,8 +23,8 @@ import java.util.concurrent.ConcurrentMap;
  * This is the way to add the polylines if it's not present on the map
  * Created by epicstar on 10/14/14.
  */
-public class RequestLine extends AsyncTask<Void, Void, LinkedList<LatLng>> {
-//public class RequestLine extends AsyncTask<Void, Void, LinkedList<LinkedList<LatLng>>> {
+//public class RequestLine extends AsyncTask<Void, Void, LinkedList<LatLng>> {
+public class RequestLine extends AsyncTask<Void, Void, LinkedList<LinkedList<LatLng>>> {
     /**
      * The Google Map
      */
@@ -32,8 +32,8 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LatLng>> {
     /**
      * the Map that contains the Polylines by bus route string
      */
-//    private ConcurrentMap<String, List<Polyline>> patterns;
-    private ConcurrentMap<String, Polyline> patterns;
+    private ConcurrentMap<String, List<Polyline>> patterns;
+//    private ConcurrentMap<String, Polyline> patterns;
 
     /**
      * The route that was selected
@@ -45,8 +45,8 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LatLng>> {
      */
     private int color;
     //TODO: selectedRoute and color have to go out in order to add the polylines to the map...
-    public RequestLine(GoogleMap mMap, ConcurrentMap<String, Polyline> patterns, String selectedRoute, int color) {
-//    public RequestLine(GoogleMap mMap, ConcurrentMap<String, List<Polyline>> patterns, String selectedRoute, int color) {
+//    public RequestLine(GoogleMap mMap, ConcurrentMap<String, Polyline> patterns, String selectedRoute, int color) {
+    public RequestLine(GoogleMap mMap, ConcurrentMap<String, List<Polyline>> patterns, String selectedRoute, int color) {
         this.mMap = mMap;
         this.patterns = patterns;
         this.selectedRoute = selectedRoute;
@@ -59,8 +59,8 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LatLng>> {
      * @return the results to put the PolyLine on the map as a list
      */
     @Override
-    protected LinkedList<LatLng> doInBackground(Void... voids) {
-//    protected LinkedList<LinkedList<LatLng>> doInBackground(Void... voids) {
+//    protected LinkedList<LatLng> doInBackground(Void... voids) {
+    protected LinkedList<LinkedList<LatLng>> doInBackground(Void... voids) {
 //        SAXParserFactory spf = SAXParserFactory.newInstance();
 //        SAXParser sp = null;
 //        try {
@@ -100,8 +100,8 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LatLng>> {
 //            System.out.println("Routes are not being added");
 //        }
 
-        LinkedList<LatLng> points;
-//        LinkedList<LinkedList<LatLng>> points;
+//        LinkedList<LatLng> points;
+        LinkedList<LinkedList<LatLng>> points;
         XmlPullParserFactory pullParserFactory;
         try {
             pullParserFactory = XmlPullParserFactory.newInstance();
@@ -132,8 +132,8 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LatLng>> {
      * @throws XmlPullParserException
      * @throws IOException
      */
-    private synchronized LinkedList<LatLng> parseXML(XmlPullParser parser) throws XmlPullParserException, IOException {
-//    private synchronized LinkedList<LinkedList<LatLng>> parseXML(XmlPullParser parser) throws XmlPullParserException, IOException {
+//    private LinkedList<LatLng> parseXML(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private LinkedList<LinkedList<LatLng>> parseXML(XmlPullParser parser) throws XmlPullParserException, IOException {
         LinkedList<LatLng> points = new LinkedList<LatLng>();
         LinkedList<LinkedList<LatLng>> allPoints = new LinkedList<LinkedList<LatLng>>();
         int eventType = parser.getEventType();
@@ -176,58 +176,62 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LatLng>> {
             }
             eventType = parser.next();
         }
-        return putPointsInOrder(allPoints);
-//        return allPoints;
+//        return putPointsInOrder(allPoints);
+        connectPoints(allPoints);
+        return allPoints;
     }
 
-    private synchronized LinkedList<LatLng> putPointsInOrder(LinkedList<LinkedList<LatLng>> allPoints) {
-        LinkedList<LatLng> finalList = new LinkedList<LatLng>();
-        finalList.addAll(allPoints.removeFirst());
-        LatLng connectFrom = finalList.getLast();
-
-        while(allPoints.size() > 1) {
+    private void connectPoints(LinkedList<LinkedList<LatLng>> allPoints) {
+        boolean[] firstconnect = new boolean[allPoints.size()];
+        boolean[] lastconnect = new boolean[allPoints.size()];
+        int firstindex = 0;
+        for(LinkedList<LatLng> firstPoint : allPoints) {
+            LatLng tempLatLng = new LatLng(0, 0);
             float min = Float.MAX_VALUE;
-            int index = 0;
-            int tempIndex = index;
-            for(LinkedList<LatLng> currentPoly : allPoints) {
-                float tempDistance = distanceBtwn(connectFrom, currentPoly.getFirst());
-                if(tempDistance < min) {
-                    min = tempDistance;
-                    tempIndex = index;
+            int lastindex = 0;
+            int templastindex = Integer.MAX_VALUE;
+            if(!firstconnect[firstindex]) {
+                for (LinkedList<LatLng> endPoints : allPoints) {
+                    if (!lastconnect[lastindex] && !equals(firstPoint, endPoints)) {
+
+                        float tempdistance = distanceBtwn(firstPoint.getFirst(), endPoints.getLast());
+
+                        if (tempdistance == (float)0) {
+                            templastindex = lastindex;
+                            firstconnect[firstindex] = true;
+                            lastconnect[lastindex++] = true;
+                            break;
+                        } else if (tempdistance < min) {
+                            min = tempdistance;
+                            tempLatLng = endPoints.getLast();
+                            templastindex = lastindex;
+                        }
+                    }
+                    ++lastindex;
                 }
-                ++index;
+                if ((templastindex != Integer.MAX_VALUE &&
+                            !firstconnect[firstindex] &&
+                            !lastconnect[templastindex]) &&
+                        !tempLatLng.equals(new LatLng(0, 0)) &&
+                        (min != Float.MAX_VALUE)) {
+                    firstPoint.add(0, tempLatLng);
+                    firstconnect[firstindex] = true;
+                    lastconnect[templastindex] = true;
+                }
+                ++firstindex;
             }
-            finalList.addAll(allPoints.remove(tempIndex));
-            connectFrom = finalList.getLast();
-        }
-        if(!allPoints.isEmpty() ) {
-            System.out.println(selectedRoute);
-            LinkedList<LatLng> lastPoints = allPoints.getLast();
-            System.out.println(distanceBtwn(finalList.getLast(), lastPoints.getFirst()) + " first vs. last");
-            System.out.println(distanceBtwn(finalList.getFirst(), lastPoints.getLast()) + " last vs. first");
-
-            float firstToLast = distanceBtwn(finalList.getLast(), lastPoints.getFirst());
-            float lastToFirst = distanceBtwn(finalList.getFirst(), lastPoints.getLast());
-            if((firstToLast < lastToFirst) && (firstToLast <= (float)700)) {
-                System.out.println("last added to end");
-                finalList.addAll(lastPoints);
-            }
-            else if(lastToFirst <= (float)700){
-                lastPoints.addAll(finalList);
-                finalList = lastPoints;
-                System.out.println("Last added to end of first");
-            }
-            System.out.println("Final... " + distanceBtwn(finalList.getFirst(), finalList.getLast()));
-            if(distanceBtwn(finalList.getFirst(), finalList.getLast()) <= (float)300) {
-                finalList.add(new LatLng(finalList.getFirst().latitude, finalList.getFirst().longitude));
-            }
-
         }
 
-        return finalList;
     }
 
-    private synchronized float distanceBtwn(LatLng from, LatLng to) {
+    private boolean equals(LinkedList<LatLng> firstPoint, LinkedList<LatLng> lastPoint) {
+        return (firstPoint.size() == lastPoint.size() &&
+                firstPoint.getFirst().equals(lastPoint.getFirst()) &&
+                firstPoint.getLast().equals(lastPoint.getLast()));
+    }
+
+
+    private float distanceBtwn(LatLng from, LatLng to) {
         Location A = new Location("A");
         A.setLatitude(from.latitude);
         A.setLongitude(from.longitude);
@@ -249,7 +253,7 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LatLng>> {
      * @param loop whether or not the this is a looparound add (TODO: broken here)
      * @return the sequence incremented if successful. else the same sequence...
      */
-    private synchronized int addPoints(LinkedList<LatLng> points, double tempLat, double tempLong, int seq, int tempSeq, boolean loop) {
+    private int addPoints(LinkedList<LatLng> points, double tempLat, double tempLong, int seq, int tempSeq, boolean loop) {
         if((tempLat != 0.0 || tempLong != 0.0) && (seq == tempSeq)) {
             LatLng templatlong = new LatLng(tempLat, tempLong);
 //            if(!points.contains(templatlong)) {
@@ -263,7 +267,7 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LatLng>> {
     /**
      * Adds the polyline to the map on the UI thread
      * @param latLngs the results from doInBackground obtained from the XML
-     *//*
+     */
     @Override
     protected void onPostExecute(LinkedList<LinkedList<LatLng>> latLngs) {
         List<Polyline> polylines = new LinkedList<Polyline>();
@@ -273,11 +277,11 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LatLng>> {
             }
             patterns.put(selectedRoute, polylines);
         }
-    }*/
-    @Override
-    protected void onPostExecute(LinkedList<LatLng> latLngs) {
-        if(latLngs != null) {
-            patterns.put(selectedRoute, mMap.addPolyline(new PolylineOptions().addAll(latLngs).color(color).geodesic(true).visible(true)));
-        }
     }
+//    @Override
+//    protected void onPostExecute(LinkedList<LatLng> latLngs) {
+//        if(latLngs != null) {
+//            patterns.put(selectedRoute, mMap.addPolyline(new PolylineOptions().addAll(latLngs).color(color).geodesic(true).visible(true)));
+//        }
+//    }
 }

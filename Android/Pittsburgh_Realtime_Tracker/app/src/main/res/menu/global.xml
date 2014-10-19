@@ -1,6 +1,12 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:appcompat="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/action_select_buses"
+        android:title="@string/action_select_buses"
+        android:orderInCategory="100"
+        appcompat:showAsAction="never" />
     <!--<item android:id="@+id/action_settings"-->
         <!--android:title="@string/action_settings"-->
-        <!--android:orderInCategory="100"-->
-        <!--android:showAsAction="never" />-->
+        <!--android:orderInCategory="101"-->
+        <!--appcompat:showAsAction="never" />-->
+
 </menu>
