@@ -3,11 +3,15 @@
 
     <string name="app_name">PAT Realtime Tracker</string>
     <string-array name="buses">
+        <item color="#cc00cc">12</item>
         <item color="#ff6666">13</item>
+        <item color="#f4a460">14</item>
         <item color="#fa8072">16</item>
         <item color="#006666">26</item>
         <item color="#009999">27</item>
         <item color="#b22222">28X</item>
+        <item color="#0066cc">29</item>
+        <item color="#00cccc">31</item>
         <item color="#ff6699">36</item>
         <item color="#ff99cc">38</item>
         <item color="#ffcccc">39</item>
@@ -29,6 +33,7 @@
         <item color="#ffa07a">71B</item>
         <item color="#f08080">71C</item>
         <item color="#cd5c5c">71D</item>
+        <item color="#ff33ff">74</item>
         <item color="#669933">75</item>
         <item color="#98fb98">8</item>
         <item color="#ffd700">82</item>
@@ -37,21 +42,30 @@
         <item color="#ffb6c1">93</item>
         <item color="#008000">G2</item>
         <item color="#ff8c00">O12</item>
+        <item color="#ff7f50">O5</item>
         <item color="#9900ff">P1</item>
         <item color="#9932cc">P10</item>
         <item color="#ff00ff">P12</item>
         <item color="#9933cc">P2</item>
         <item color="#cc00ff">P3</item>
+        <item color="#9933ff">P7</item>
+        <item color="#6600ff">P76</item>
+        <item color="#6633ff">P78</item>
         <item color="#ffff33">Y1</item>
+        <item color="#ffffcc">Y47</item>
         <item color="#ffff66">Y49</item>
     </string-array>
 
     <string-array name="buscolors">
+        <item name="12">#cc00cc</item>
         <item name="13">#ff6666</item>
+        <item name="14">#f4a460</item>
         <item name="16">#fa8072</item>
         <item name="26">#006666</item>
         <item name="27">#009999</item>
         <item name="28X">#b22222</item>
+        <item name="29">#0066cc</item>
+        <item name="31">#00cccc</item>
         <item name="36">#ff6699</item>
         <item name="38">#ff99cc</item>
         <item name="39">#ffcccc</item>
@@ -73,6 +87,7 @@
         <item name="71B">#ffa07a</item>
         <item name="71C">#f08080</item>
         <item name="71D">#cd5c5c</item>
+        <item name="74">#ff33ff</item>
         <item name="75">#669933</item>
         <item name="8">#98fb98</item>
         <item name="82">#ffd700</item>
@@ -81,21 +96,30 @@
         <item name="93">#ffb6c1</item>
         <item name="G2">#008000</item>
         <item name="O12">#ff8c00</item>
+        <item name="O5">#ff7f50</item>
         <item name="P1">#9900ff</item>
         <item name="P10">#9932cc</item>
         <item name="P12">#ff00ff</item>
         <item name="P2">#9933cc</item>
         <item name="P3">#cc00ff</item>
+        <item name="P7">#9933ff</item>
+        <item name="P76">#6600ff</item>
+        <item name="P78">#6633ff</item>
         <item name="Y1">#ffff33</item>
+        <item name="Y47">#ffffcc</item>
         <item name="Y49">#ffff66</item>
     </string-array>
     
     <string-array name="bus_description">
+        <item name="12">McKnight</item>
         <item name="13">Bellevue</item>
+        <item name="14">Ohio Valley</item>
         <item name="16">Brighton</item>
         <item name="26">Chartiers</item>
         <item name="27">Fairywood</item>
         <item name="28X">Airport Flyer</item>
+        <item name="29">Robinson</item>
+        <item name="31">Bridgeville</item>
         <item name="36">Banksville</item>
         <item name="38">Greentree</item>
         <item name="39">Brookline</item>
@@ -117,6 +141,7 @@
         <item name="71B">Highland Park</item>
         <item name="71C">Point Breeze</item>
         <item name="71D">Hamilton</item>
+        <item name="74">Homewood-Squirrel Hill</item>
         <item name="75">Ellsworth</item>
         <item name="8">Perrysville</item>
         <item name="82">Lincoln</item>
@@ -125,12 +150,17 @@
         <item name="93">Lawrenceville-Hazelwood</item>
         <item name="G2">West Busway</item>
         <item name="O12">McKnight Flyer</item>
+        <item name="O5">Thompson Run Flyer</item>
         <item name="P1">East Busway-All Stops</item>
         <item name="P10">Allegheny Valley Flyer</item>
         <item name="P12">Holiday Park Flyer</item>
         <item name="P2">East Busway Short</item>
         <item name="P3">East Busway-Oakland</item>
+        <item name="P7">McKeesport Flyer</item>
+        <item name="P76">Lincoln Highway Flyer</item>
+        <item name="P78">Oakmont Flyer</item>
         <item name="Y1">Large Flyer</item>
+        <item name="Y47">Curry Flyer</item>
         <item name="Y49">Prospect Flyer</item>
     </string-array>
 

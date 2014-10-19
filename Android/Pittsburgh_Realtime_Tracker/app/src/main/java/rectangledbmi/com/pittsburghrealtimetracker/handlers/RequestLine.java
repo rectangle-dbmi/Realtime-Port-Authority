@@ -132,7 +132,7 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LatLng>> {
      * @throws XmlPullParserException
      * @throws IOException
      */
-    private synchronized LinkedList<LatLng> parseXML(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private LinkedList<LatLng> parseXML(XmlPullParser parser) throws XmlPullParserException, IOException {
 //    private synchronized LinkedList<LinkedList<LatLng>> parseXML(XmlPullParser parser) throws XmlPullParserException, IOException {
         LinkedList<LatLng> points = new LinkedList<LatLng>();
         LinkedList<LinkedList<LatLng>> allPoints = new LinkedList<LinkedList<LatLng>>();
@@ -180,7 +180,7 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LatLng>> {
 //        return allPoints;
     }
 
-    private synchronized LinkedList<LatLng> putPointsInOrder(LinkedList<LinkedList<LatLng>> allPoints) {
+    private LinkedList<LatLng> putPointsInOrder(LinkedList<LinkedList<LatLng>> allPoints) {
         LinkedList<LatLng> finalList = new LinkedList<LatLng>();
         finalList.addAll(allPoints.removeFirst());
         LatLng connectFrom = finalList.getLast();
@@ -227,7 +227,7 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LatLng>> {
         return finalList;
     }
 
-    private synchronized float distanceBtwn(LatLng from, LatLng to) {
+    private float distanceBtwn(LatLng from, LatLng to) {
         Location A = new Location("A");
         A.setLatitude(from.latitude);
         A.setLongitude(from.longitude);
@@ -249,7 +249,7 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LatLng>> {
      * @param loop whether or not the this is a looparound add (TODO: broken here)
      * @return the sequence incremented if successful. else the same sequence...
      */
-    private synchronized int addPoints(LinkedList<LatLng> points, double tempLat, double tempLong, int seq, int tempSeq, boolean loop) {
+    private int addPoints(LinkedList<LatLng> points, double tempLat, double tempLong, int seq, int tempSeq, boolean loop) {
         if((tempLat != 0.0 || tempLong != 0.0) && (seq == tempSeq)) {
             LatLng templatlong = new LatLng(tempLat, tempLong);
 //            if(!points.contains(templatlong)) {
