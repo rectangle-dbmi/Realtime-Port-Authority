@@ -147,7 +147,7 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LinkedList<Lat
         double tempLong = 0.0;
         int seq = 1;
         int tempSeq = 0;
-        TransitStop transitStop = null;
+//        TransitStop transitStop = null;
         while(eventType != XmlPullParser.END_DOCUMENT) {
             String name = null;
 
@@ -180,12 +180,12 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LinkedList<Lat
 //                            isStop = true;
 //                        }
 //                    }*/
-                    else if("stpid".equals(name)) {
+/*                    else if("stpid".equals(name)) {
                         transitStop = new TransitStop(Integer.parseInt(parser.nextText()));
                     }
                     else if("stpnm".equals(name)) {
                         transitStop.setDescription(parser.nextText());
-                    }
+                    }*/
                 }
                 case(XmlPullParser.END_TAG) : {
                     if("pt".equals(name)) {
@@ -232,7 +232,7 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LinkedList<Lat
                             !firstconnect[firstindex] &&
                             !lastconnect[templastindex]) &&
                         !tempLatLng.equals(new LatLng(0, 0)) &&
-                        (min != Float.MAX_VALUE) && min <= (float)6000) {
+                        (min != Float.MAX_VALUE) && min <= (float)700) {
                     firstPoint.add(0, tempLatLng);
                     firstconnect[firstindex] = true;
                     lastconnect[templastindex] = true;
