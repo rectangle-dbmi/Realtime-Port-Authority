@@ -1,6 +1,5 @@
 package rectangledbmi.com.pittsburghrealtimetracker;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -9,7 +8,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
-import android.app.ActionBar;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,7 +44,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestTask;
 /**
  * This is the main activity of the
  */
-public class SelectTransit extends Activity implements
+public class SelectTransit extends ActionBarActivity implements
         NavigationDrawerFragment.NavigationDrawerCallbacks,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -158,7 +159,7 @@ public class SelectTransit extends Activity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_transit);
         mNavigationDrawerFragment = (NavigationDrawerFragment)
-                getFragmentManager().findFragmentById(R.id.navigation_drawer);
+                getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
 
         // Set up the drawer.
@@ -306,8 +307,6 @@ public class SelectTransit extends Activity implements
         super.onStop();
     }
 
-
-
     /**
      * Place to save preferences....
      */
@@ -410,13 +409,19 @@ public class SelectTransit extends Activity implements
     }
 
     public void restoreActionBar() {
-        ActionBar actionBar = getActionBar();
-        assert actionBar != null;
+        Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
+        if(toolbar != null) {
+            setSupportActionBar(toolbar);
+
+        }
+
+//        ActionBar actionBar = getSupportActionBar();
+//        assert actionBar != null;
 //        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        actionBar.setDisplayHomeAsUpEnabled(false);
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(mTitle);
-        actionBar.show();
+//        actionBar.setDisplayHomeAsUpEnabled(false);
+//        actionBar.setDisplayShowTitleEnabled(true);
+//        actionBar.setTitle(mTitle);
+//        actionBar.show();
     }
 
     //dunno...
