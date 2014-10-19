@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -28,10 +27,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polyline;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -50,6 +47,10 @@ public class SelectTransit extends ActionBarActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
+    /**
+     * saved indexes from selection
+     */
+    private static final String STATE_SELECTED_POSITIONS = "selected_navigation_drawer_positions";
     /**
      * Saved instance of the buses that are selected
      */
@@ -149,8 +150,8 @@ public class SelectTransit extends ActionBarActivity implements
      */
     private boolean isBusTaskRunning;
 
-//    private ConcurrentMap<String, List<Polyline>> routeLines;
-    private ConcurrentMap<String, Polyline> routeLines;
+    private ConcurrentMap<String, List<Polyline>> routeLines;
+//    private ConcurrentMap<String, Polyline> routeLines;
 
 
 
@@ -252,8 +253,8 @@ public class SelectTransit extends ActionBarActivity implements
     private void createBusList() {
         //This will be changed as things go
         buses = Collections.synchronizedSet(new HashSet<String>(getResources().getInteger(R.integer.max_checked)));
-        routeLines = new ConcurrentHashMap<String, Polyline>(getResources().getInteger(R.integer.max_checked));
-//        routeLines = new ConcurrentHashMap<String, List<Polyline>>(getResources().getInteger(R.integer.max_checked));
+//        routeLines = new ConcurrentHashMap<String, Polyline>(getResources().getInteger(R.integer.max_checked));
+        routeLines = new ConcurrentHashMap<String, List<Polyline>>(getResources().getInteger(R.integer.max_checked));
     }
 
 
@@ -313,7 +314,6 @@ public class SelectTransit extends ActionBarActivity implements
     private void savePreferences() {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         sp.edit().putStringSet(BUS_SELECT_STATE, buses).apply();
-        sp.edit().commit();
     }
 
     @Override
@@ -350,18 +350,18 @@ public class SelectTransit extends ActionBarActivity implements
     private synchronized void setPolyline(int number) {
         String route = getResources().getStringArray(R.array.buses)[number];
         int color = Color.parseColor(getResources().getStringArray(R.array.buscolors)[number]);
-        Polyline polyline = routeLines.get(route);
-//        List<Polyline> polylines = routeLines.get(route);
-        if(polyline == null) {
-            new RequestLine(mMap, routeLines, route, color).execute();
-        }
-        else if(polyline.isVisible()) {
-            polyline.setVisible(false);
-        }
-        else {
-            polyline.setVisible(true);
-        }
-        /*if(polylines == null) {
+//        Polyline polyline = routeLines.get(route);
+        List<Polyline> polylines = routeLines.get(route);
+//        if(polyline == null) {
+//            new RequestLine(mMap, routeLines, route, color).execute();
+//        }
+//        else if(polyline.isVisible()) {
+//            polyline.setVisible(false);
+//        }
+//        else {
+//            polyline.setVisible(true);
+//        }
+        if(polylines == null) {
             System.out.println("polyline was null");
             new RequestLine(mMap, routeLines, route, color).execute();
         }
@@ -369,17 +369,17 @@ public class SelectTransit extends ActionBarActivity implements
             setVisiblePolylines(polylines, false);
         }
         else
-            setVisiblePolylines(polylines, true);*/
+            setVisiblePolylines(polylines, true);
     }
 
     /**
      * sets a visible or invisible polylines for a route
      * @param polylines
-     * @param visible
+     * @param visibility
      */
-    private void setVisiblePolylines(List<Polyline> polylines, boolean visible) {
+    private void setVisiblePolylines(List<Polyline> polylines, boolean visibility) {
         for(Polyline polyline : polylines) {
-            polyline.setVisible(visible);
+            polyline.setVisible(visibility);
         }
     }
 
@@ -405,7 +405,7 @@ public class SelectTransit extends ActionBarActivity implements
         else {
             buses.add(selected);
         }
-        clearAndAddToMap();
+//        clearAndAddToMap();
     }
 
     public void restoreActionBar() {
@@ -414,6 +414,8 @@ public class SelectTransit extends ActionBarActivity implements
             setSupportActionBar(toolbar);
 
         }
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
 //        ActionBar actionBar = getSupportActionBar();
 //        assert actionBar != null;
@@ -443,10 +445,13 @@ public class SelectTransit extends ActionBarActivity implements
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-//        int id = item.getItemId();
+        int id = item.getItemId();
 //        if (id == R.id.action_settings) {
 //            return true;
 //        }
+        if(id == R.id.action_select_buses) {
+            mNavigationDrawerFragment.openDrawer();
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -494,7 +499,6 @@ public class SelectTransit extends ActionBarActivity implements
      * Polls self on the map and then centers the map on Pittsburgh or you if you're in Pittsburgh..
      */
     private void centerMap() {
-        System.out.println("Centering Map");
         if(currentLocation != null && !inSavedState) {
 
             double currentLatitude = currentLocation.getLatitude();
@@ -514,13 +518,25 @@ public class SelectTransit extends ActionBarActivity implements
         }
 
     /**
-     * Adds markers to map
+     * Adds markers to map.
+     * This is only called when we resume the map
      * This is done in a thread.
      *
      */
     protected void setUpMap() {
         clearMap();
+        restorePolylines();
         clearAndAddToMap();
+    }
+
+    protected void restorePolylines() {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        Set<String> selected = sp.getStringSet(STATE_SELECTED_POSITIONS, null);
+        if(selected != null) {
+            for(String select : selected) {
+                setPolyline(Integer.parseInt(select));
+            }
+        }
     }
 
     /**
@@ -600,11 +616,10 @@ public class SelectTransit extends ActionBarActivity implements
     protected void clearMap() {
         busMarkers = null;
         if(mMap != null) {
-            routeLines = new ConcurrentHashMap<String, Polyline>(getResources().getInteger(R.integer.max_checked));
-//            routeLines = new ConcurrentHashMap<String, List<Polyline>>(getResources().getInteger(R.integer.max_checked));
+//            routeLines = new ConcurrentHashMap<String, Polyline>(getResources().getInteger(R.integer.max_checked));
+            routeLines = new ConcurrentHashMap<String, List<Polyline>>(getResources().getInteger(R.integer.max_checked));
             mMap.clear();
         }
-        System.out.println("Cleared map...");
     }
 
     /**

@@ -170,6 +170,7 @@
     <!--<string name="action_example">Select Location</string>-->
     <string name="action_clear">Clear Transit</string>
     <string name="action_settings">Settings</string>
+    <string name="action_select_buses">Select Buses</string>
     <string name="title_activity_maps_fragment">Map</string>
 
 </resources>

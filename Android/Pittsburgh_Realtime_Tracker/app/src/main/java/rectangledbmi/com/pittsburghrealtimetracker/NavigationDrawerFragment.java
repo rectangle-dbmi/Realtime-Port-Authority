@@ -112,7 +112,7 @@ public class NavigationDrawerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        toolbar = (Toolbar) inflater.inflate(R.layout.toolbar, container , false);
+
 
         mDrawerListView = (ListView) inflater.inflate(
                 R.layout.fragment_navigation_drawer, container, false);
@@ -181,6 +181,7 @@ public class NavigationDrawerFragment extends Fragment {
     public void setUp(int fragmentId, DrawerLayout drawerLayout) {
         mFragmentContainerView = getActivity().findViewById(fragmentId);
         mDrawerLayout = drawerLayout;
+        toolbar = (Toolbar) getView().findViewById(R.id.toolbar);
 
         // set a custom shadow that overlays the main content when the drawer opens
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
@@ -196,7 +197,7 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerToggle = new ActionBarDrawerToggle(
                 getActivity(),                    /* host Activity */
                 mDrawerLayout,                    /* DrawerLayout object */
-                toolbar,             /* nav drawer image to replace 'Up' caret */
+                toolbar,             /* toolbar to put the navigationdrawer toggle on... */
                 R.string.navigation_drawer_open,  /* "open drawer" description for accessibility */
                 R.string.navigation_drawer_close  /* "close drawer" description for accessibility */
         )/*        mDrawerToggle = new ActionBarDrawerToggle(
@@ -209,6 +210,7 @@ public class NavigationDrawerFragment extends Fragment {
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
+                ((SelectTransit)getActivity()).clearAndAddToMap();
                 if (!isAdded()) {
                     return;
                 }
@@ -235,7 +237,6 @@ public class NavigationDrawerFragment extends Fragment {
                 getActivity().invalidateOptionsMenu(); // calls onPrepareOptionsMenu()
             }
         };
-
 
         // If the user hasn't 'learned' about the drawer, open it to introduce them to the drawer,
         // per the navigation drawer design guidelines.
@@ -326,6 +327,14 @@ public class NavigationDrawerFragment extends Fragment {
     public boolean closeDrawer() {
         if(isDrawerOpen()) {
             mDrawerLayout.closeDrawer(mFragmentContainerView);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean openDrawer() {
+        if(!isDrawerOpen()) {
+            mDrawerLayout.openDrawer(mFragmentContainerView);
             return true;
         }
         return false;
@@ -424,8 +433,9 @@ public class NavigationDrawerFragment extends Fragment {
     private void savePreferences() {
         SharedPreferences sp = PreferenceManager
                 .getDefaultSharedPreferences(getActivity());
-        Set<String> listIds = Collections.synchronizedSet(new HashSet<String>(10));
         SparseBooleanArray checked = mDrawerListView.getCheckedItemPositions();
+        Set<String> listIds = Collections.synchronizedSet(new HashSet<String>(10));
+
 //        System.out.println("In Stop. Size of Checked...: " + checked.size());
 /*        for(long id : mDrawerListView.getCheckedItemIds()) {
             listIds.add(Long.toString(id));
@@ -439,7 +449,6 @@ public class NavigationDrawerFragment extends Fragment {
             }
         }
         sp.edit().putStringSet(STATE_SELECTED_POSITIONS, listIds).apply();
-        sp.edit().commit();
 
     }
 
