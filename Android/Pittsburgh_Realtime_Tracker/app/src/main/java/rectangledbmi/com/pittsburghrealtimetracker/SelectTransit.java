@@ -153,6 +153,8 @@ public class SelectTransit extends ActionBarActivity implements
     private ConcurrentMap<String, List<Polyline>> routeLines;
 //    private ConcurrentMap<String, Polyline> routeLines;
 
+    private ConcurrentMap<Integer, Marker> busStops;
+
 
 
     @Override
@@ -255,6 +257,7 @@ public class SelectTransit extends ActionBarActivity implements
         buses = Collections.synchronizedSet(new HashSet<String>(getResources().getInteger(R.integer.max_checked)));
 //        routeLines = new ConcurrentHashMap<String, Polyline>(getResources().getInteger(R.integer.max_checked));
         routeLines = new ConcurrentHashMap<String, List<Polyline>>(getResources().getInteger(R.integer.max_checked));
+        busMarkers = new ConcurrentHashMap<Integer, Marker>(100);
     }
 
 
@@ -363,7 +366,7 @@ public class SelectTransit extends ActionBarActivity implements
 //        }
         if(polylines == null) {
             System.out.println("polyline was null");
-            new RequestLine(mMap, routeLines, route, color).execute();
+            new RequestLine(mMap, routeLines, route, busStops, color).execute();
         }
         else if(polylines.get(0).isVisible()) {
             setVisiblePolylines(polylines, false);
