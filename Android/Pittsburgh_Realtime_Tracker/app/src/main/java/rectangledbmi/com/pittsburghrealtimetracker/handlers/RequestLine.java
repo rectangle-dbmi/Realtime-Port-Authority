@@ -213,7 +213,7 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LinkedList<Lat
                             !firstconnect[firstindex] &&
                             !lastconnect[templastindex]) &&
                         !tempLatLng.equals(new LatLng(0, 0)) &&
-                        (min != Float.MAX_VALUE)) {
+                        (min != Float.MAX_VALUE) && min <= (float)6000) {
                     firstPoint.add(0, tempLatLng);
                     firstconnect[firstindex] = true;
                     lastconnect[templastindex] = true;
