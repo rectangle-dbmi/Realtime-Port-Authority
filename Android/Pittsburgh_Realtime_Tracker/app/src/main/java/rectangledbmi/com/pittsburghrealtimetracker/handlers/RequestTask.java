@@ -216,6 +216,8 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
             }
         } catch(NullPointerException e) {
             System.err.println("Something went wrong while updating...");
+        } catch(IllegalArgumentException e) {
+            System.err.println("Somehow the marker is missing");
         }
     }
 
