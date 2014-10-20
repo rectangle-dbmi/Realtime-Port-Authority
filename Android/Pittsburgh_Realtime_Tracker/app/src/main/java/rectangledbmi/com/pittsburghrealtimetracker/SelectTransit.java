@@ -1,6 +1,7 @@
 package rectangledbmi.com.pittsburghrealtimetracker;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
@@ -454,6 +455,11 @@ public class SelectTransit extends ActionBarActivity implements
 //        }
         if(id == R.id.action_select_buses) {
             mNavigationDrawerFragment.openDrawer();
+        }
+        if(id == R.id.action_about){
+            Intent intent = new Intent(this, AboutActivity.class);
+            startActivity(intent);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
