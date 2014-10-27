@@ -178,6 +178,7 @@ public class SelectTransit extends ActionBarActivity implements
         restoreInstanceState(savedInstanceState);
         isBusTaskRunning = false;
 
+
 //        setUpMapIfNeeded();
 
 
@@ -560,6 +561,9 @@ public class SelectTransit extends ActionBarActivity implements
      * adds buses to map. or else the map will be clear...
      */
     protected synchronized void addBuses() {
+
+        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        //int RATE = Integer.parseInt(prefs.getString(getString(R.string.pref_refresh_rate), getString(R.string.pref_default_refresh_rate)));
 
         final Handler handler = new Handler();
         timer = new Timer();

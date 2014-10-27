@@ -2,7 +2,11 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+        <!-- Set AppCompat’s actionBarStyle -->
+
+        <!-- Set AppCompat’s color theming attrs -->
+        <item name="colorPrimary">#000</item>
+        <item name="colorPrimaryDark">@color/material_blue_grey_900</item>
     </style>
 
 </resources>
