@@ -535,8 +535,8 @@ public class SelectTransit extends ActionBarActivity implements
      */
     protected void setUpMap() {
         clearMap();
-        restorePolylines();
         clearAndAddToMap();
+        restorePolylines();
     }
 
     protected void restorePolylines() {
