@@ -14,6 +14,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import rectangledbmi.com.pittsburghrealtimetracker.hidden.PortAuthorityAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 
 /**
@@ -42,9 +43,7 @@ public class RequestRoutes extends AsyncTask<Void, Void, Map<String, Route>> {
         URL url = null;
 
         try {
-            url = new URL(
-                    "http://realtime.portauthority.org/bustime/api/v2/getroutes?key=KiJEdJUDgRFxcG7cpt3ae6xxJ"
-            );
+            url = PortAuthorityAPI.getRoutes();
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
