@@ -20,11 +20,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
+import rectangledbmi.com.pittsburghrealtimetracker.hidden.PortAuthorityAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 
 /**
  * This is the way to add the polylines if it's not present on the map
- * Created by epicstar on 10/14/14.
+ *
+ * REQUIRES PortAuthorityAPI class to get the Port Authority URLs
+ *
+ * TODO: to get the bus stops... change linkedList<LinkedList<LatLng>> to be a custom wrapper
+ *
+ * @author Jeremy Jao
  */
 //public class RequestLine extends AsyncTask<Void, Void, LinkedList<LatLng>> {
 public class RequestLine extends AsyncTask<Void, Void, LinkedList<LinkedList<LatLng>>> {
@@ -112,9 +118,9 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LinkedList<Lat
         try {
             pullParserFactory = XmlPullParserFactory.newInstance();
             XmlPullParser parser = pullParserFactory.newPullParser();
-            URL url = new URL(
+            URL url = /*new URL(
                     "http://realtime.portauthority.org/bustime/api/v2/getpatterns?key=KiJEdJUDgRFxcG7cpt3ae6xxJ&rt=" + selectedRoute
-            );
+            );*/ PortAuthorityAPI.getPatterns(selectedRoute);
 
             parser.setInput(url.openStream(), null);
             // get the list...
