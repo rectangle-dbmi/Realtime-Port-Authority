@@ -5,6 +5,13 @@ The purpose of this was to create a real-time tracking of port authority
 of Pittsburgh, PA, using the realtime API given by [Port Authority](http://realtime.portauthority.org/bustime/home.jsp) on top of
 the Google Maps API.
 
+### Features:
+- Buses Run at Realtime
+- ListView saves via sharedpreferences
+- polylines added via Asynctask
+- multiple polylines connected to each other
+- uses xml to read and write
+
 ### Releases:
 - [Google Play Store](https://play.google.com/store/apps/details?id=rectangledbmi.com.pittsburghrealtimetracker)
 
@@ -13,17 +20,6 @@ API limitations:
 every 10 seconds
 - There are only a couple buses offered publicly. We promise to get updates
 to the new buses as soon as possible!
-
-######Current Realtime Port Authority Routes:
-- 41 (Bower Hill)
-- 48 (Arlington)
-- 56 (Lincoln Place)
-- 8  (Perrysville)
-- 86 (Liberty)
-- 88 (Penn)
-- P1 (East Busway - all stops)
-- P3 (East Busway - Oakland)
-- Y49 (Prospect Flyer)
 
 #Android Development
 
