@@ -8,3 +8,4 @@
 /app/apks
 /app/src/debug/res/values/google_maps_api.xml
 /app/src/release/res/values/google_maps_api.xml
+/app/src/main/java/rectangledbmi/com/pittsburghrealtimetracker/hidden/

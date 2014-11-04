@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -19,9 +20,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
+import rectangledbmi.com.pittsburghrealtimetracker.hidden.PortAuthorityAPI;
+import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
+
 /**
  * This is the way to add the polylines if it's not present on the map
- * Created by epicstar on 10/14/14.
+ *
+ * REQUIRES PortAuthorityAPI class to get the Port Authority URLs
+ *
+ * TODO: to get the bus stops... change linkedList<LinkedList<LatLng>> to be a custom wrapper
+ *
+ * @author Jeremy Jao
  */
 //public class RequestLine extends AsyncTask<Void, Void, LinkedList<LatLng>> {
 public class RequestLine extends AsyncTask<Void, Void, LinkedList<LinkedList<LatLng>>> {
@@ -40,17 +49,20 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LinkedList<Lat
      */
     private String selectedRoute;
 
+    private ConcurrentMap<Integer, Marker> busStops;
+
     /**
      * The route color
      */
     private int color;
     //TODO: selectedRoute and color have to go out in order to add the polylines to the map...
 //    public RequestLine(GoogleMap mMap, ConcurrentMap<String, Polyline> patterns, String selectedRoute, int color) {
-    public RequestLine(GoogleMap mMap, ConcurrentMap<String, List<Polyline>> patterns, String selectedRoute, int color) {
+    public RequestLine(GoogleMap mMap, ConcurrentMap<String, List<Polyline>> patterns, String selectedRoute, ConcurrentMap<Integer, Marker> busStops, int color) {
         this.mMap = mMap;
         this.patterns = patterns;
         this.selectedRoute = selectedRoute;
         this.color = color;
+        this.busStops = busStops;
     }
 
     /**
@@ -106,9 +118,9 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LinkedList<Lat
         try {
             pullParserFactory = XmlPullParserFactory.newInstance();
             XmlPullParser parser = pullParserFactory.newPullParser();
-            URL url = new URL(
+            URL url = /*new URL(
                     "http://realtime.portauthority.org/bustime/api/v2/getpatterns?key=KiJEdJUDgRFxcG7cpt3ae6xxJ&rt=" + selectedRoute
-            );
+            );*/ PortAuthorityAPI.getPatterns(selectedRoute);
 
             parser.setInput(url.openStream(), null);
             // get the list...
@@ -141,6 +153,7 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LinkedList<Lat
         double tempLong = 0.0;
         int seq = 1;
         int tempSeq = 0;
+//        TransitStop transitStop = null;
         while(eventType != XmlPullParser.END_DOCUMENT) {
             String name = null;
 
@@ -167,6 +180,18 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LinkedList<Lat
                     else if("seq".equals(name)) {
                         tempSeq = Integer.parseInt(parser.nextText());
                     }
+///*                    else if("typ".equals(name)) {
+//                        String type = parser.nextText();
+//                        if("S".equals(type)) {
+//                            isStop = true;
+//                        }
+//                    }*/
+/*                    else if("stpid".equals(name)) {
+                        transitStop = new TransitStop(Integer.parseInt(parser.nextText()));
+                    }
+                    else if("stpnm".equals(name)) {
+                        transitStop.setDescription(parser.nextText());
+                    }*/
                 }
                 case(XmlPullParser.END_TAG) : {
                     if("pt".equals(name)) {
@@ -213,7 +238,7 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LinkedList<Lat
                             !firstconnect[firstindex] &&
                             !lastconnect[templastindex]) &&
                         !tempLatLng.equals(new LatLng(0, 0)) &&
-                        (min != Float.MAX_VALUE)) {
+                        (min != Float.MAX_VALUE) && min <= (float)700) {
                     firstPoint.add(0, tempLatLng);
                     firstconnect[firstindex] = true;
                     lastconnect[templastindex] = true;

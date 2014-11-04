@@ -1,6 +1,7 @@
 package rectangledbmi.com.pittsburghrealtimetracker;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
@@ -153,6 +154,8 @@ public class SelectTransit extends ActionBarActivity implements
     private ConcurrentMap<String, List<Polyline>> routeLines;
 //    private ConcurrentMap<String, Polyline> routeLines;
 
+    private ConcurrentMap<Integer, Marker> busStops;
+
 
 
     @Override
@@ -174,6 +177,7 @@ public class SelectTransit extends ActionBarActivity implements
         inSavedState = false;
         restoreInstanceState(savedInstanceState);
         isBusTaskRunning = false;
+
 
 //        setUpMapIfNeeded();
 
@@ -255,6 +259,7 @@ public class SelectTransit extends ActionBarActivity implements
         buses = Collections.synchronizedSet(new HashSet<String>(getResources().getInteger(R.integer.max_checked)));
 //        routeLines = new ConcurrentHashMap<String, Polyline>(getResources().getInteger(R.integer.max_checked));
         routeLines = new ConcurrentHashMap<String, List<Polyline>>(getResources().getInteger(R.integer.max_checked));
+        busMarkers = new ConcurrentHashMap<Integer, Marker>(100);
     }
 
 
@@ -363,7 +368,7 @@ public class SelectTransit extends ActionBarActivity implements
 //        }
         if(polylines == null) {
             System.out.println("polyline was null");
-            new RequestLine(mMap, routeLines, route, color).execute();
+            new RequestLine(mMap, routeLines, route, busStops, color).execute();
         }
         else if(polylines.get(0).isVisible()) {
             setVisiblePolylines(polylines, false);
@@ -451,6 +456,11 @@ public class SelectTransit extends ActionBarActivity implements
 //        }
         if(id == R.id.action_select_buses) {
             mNavigationDrawerFragment.openDrawer();
+        }
+        if(id == R.id.action_about){
+            Intent intent = new Intent(this, AboutActivity.class);
+            startActivity(intent);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -551,6 +561,9 @@ public class SelectTransit extends ActionBarActivity implements
      * adds buses to map. or else the map will be clear...
      */
     protected synchronized void addBuses() {
+
+        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        //int RATE = Integer.parseInt(prefs.getString(getString(R.string.pref_refresh_rate), getString(R.string.pref_default_refresh_rate)));
 
         final Handler handler = new Handler();
         timer = new Timer();

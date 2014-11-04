@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 21
-    buildToolsVersion '21.0.1'
+    buildToolsVersion '21.1'
     defaultConfig {
         applicationId "rectangledbmi.com.pittsburghrealtimetracker"
         minSdkVersion 16
         targetSdkVersion 21
-        versionCode 15
-        versionName "1.99"
+        versionCode 17
+        versionName "2.10"
     }
     buildTypes {
         release {
@@ -24,8 +24,8 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     // ensures we are running the latest version of 5.0.x play services
     // keep in mind that the latest version I have on my phone is 6.X. Google Play Store prevents me from doing anything about this...
-    compile 'com.google.android.gms:play-services:6.1.+'
     // Support Libraries
+    compile 'com.google.android.gms:play-services:6.1.71'
     compile 'com.android.support:support-v4:21.+'
     compile 'com.android.support:appcompat-v7:21.+'
     compile 'com.android.support:gridlayout-v7:21.+'
