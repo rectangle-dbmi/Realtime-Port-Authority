@@ -28,12 +28,15 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import rectangledbmi.com.pittsburghrealtimetracker.SelectTransit;
+import rectangledbmi.com.pittsburghrealtimetracker.hidden.PortAuthorityAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Bus;
 
 /**
  * This is the Asynctask that will update the bus locations...
  *
  * Hopefully I'm doing this correctly!
+ *
+ * REQUIRES PortAuthorityAPI class to get the Port Authority URLs
  */
 public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
 
@@ -115,9 +118,8 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
             }
             URL url = null;
             try {
-                url = new URL(
-                        "http://realtime.portauthority.org/bustime/api/v2/getvehicles?key=KiJEdJUDgRFxcG7cpt3ae6xxJ&rt=" + selectedBuses
-                );
+                url = PortAuthorityAPI.getVehicles(selectedBuses);
+
             } catch (MalformedURLException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -251,7 +253,6 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
             for(Marker marker : busMarkers.values()) {
                 marker.remove();
             }
-//            busMarkers.clear();
         }
     }
 
