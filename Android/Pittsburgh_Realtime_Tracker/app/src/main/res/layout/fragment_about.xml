@@ -1,8 +1,10 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent" android:layout_height="fill_parent" android:background="@color/background_material_dark" android:fillViewport="true">
 <RelativeLayout
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@color/background_material_dark">
+    android:padding="12dp"
+    >
 
     <TextView
         android:layout_width="wrap_content"
@@ -73,7 +75,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Vincent Agresti (Project Manager)"
+        android:text="@string/vincent"
         android:id="@+id/dev3_about"
         android:layout_below="@+id/dev2_about"
         android:paddingLeft="30dp"
@@ -85,9 +87,9 @@
         android:layout_height="wrap_content"
         android:id="@+id/imageView"
         android:src="@drawable/ic_launcher"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
+        android:layout_below="@id/disclaimer"
         android:paddingBottom="12dp"
         android:paddingRight="12dp" />
 
@@ -97,11 +99,25 @@
         android:layout_toLeftOf="@+id/imageView"
         android:id="@+id/version"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentBottom="true"
         android:text="@string/versionName"
         android:paddingLeft="12dp"
         android:paddingBottom="20dp"
+        android:paddingTop="20dp"
+        android:layout_below="@id/disclaimer"
         android:textColor="@color/secondary_text_default_material_dark"
     />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/dev3_about"
+        android:id="@+id/disclaimer"
+        android:textColor="@color/primary_text_default_material_dark"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:paddingTop="30dp"
+        android:paddingBottom="30dp"
+        android:text="@string/disclaim"
+    />
+
 
 </RelativeLayout>
+</ScrollView>
