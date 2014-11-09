@@ -3,6 +3,7 @@ package rectangledbmi.com.pittsburghrealtimetracker;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 
-public class AboutActivity extends Activity {
+public class AboutActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

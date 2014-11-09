@@ -7,7 +7,15 @@
         <item color="#cc00cc">12</item>
         <item color="#ff6666">13</item>
         <item color="#f4a460">14</item>
+        <item color="#ff6633">15</item>
         <item color="#fa8072">16</item>
+        <item color="#ff3300">17</item>
+        <item color="#00ff66">19L</item>
+        <item color="#ff33cc">2</item>
+        <item color="#00cc00">20</item>
+        <item color="#99cc00">21</item>
+        <item color="#00ff00">22</item>
+        <item color="#009900">24</item>
         <item color="#006666">26</item>
         <item color="#009999">27</item>
         <item color="#b22222">28X</item>
@@ -36,6 +44,7 @@
         <item color="#cd5c5c">71D</item>
         <item color="#ff33ff">74</item>
         <item color="#669933">75</item>
+        <item color="#ff9933">79</item>
         <item color="#98fb98">8</item>
         <item color="#ffd700">82</item>
         <item color="#0000ff">86</item>
@@ -47,6 +56,7 @@
         <item color="#9900ff">P1</item>
         <item color="#9932cc">P10</item>
         <item color="#ff00ff">P12</item>
+        <item color="#cc0000">P16</item>
         <item color="#9933cc">P2</item>
         <item color="#cc00ff">P3</item>
         <item color="#9933ff">P7</item>
@@ -60,7 +70,15 @@
         <item name="12">#cc00cc</item>
         <item name="13">#ff6666</item>
         <item name="14">#f4a460</item>
+        <item name="15">#ff6633</item>
         <item name="16">#fa8072</item>
+        <item name="17">#ff3300</item>
+        <item name="19L">#00ff66</item>
+        <item name="2">#ff33cc</item>
+        <item name="20">#00cc00</item>
+        <item name="21">#99cc00</item>
+        <item name="22">#00ff00</item>
+        <item name="24">#009900</item>
         <item name="26">#006666</item>
         <item name="27">#009999</item>
         <item name="28X">#b22222</item>
@@ -89,6 +107,7 @@
         <item name="71D">#cd5c5c</item>
         <item name="74">#ff33ff</item>
         <item name="75">#669933</item>
+        <item name="79">#ff9933</item>
         <item name="8">#98fb98</item>
         <item name="82">#ffd700</item>
         <item name="86">#0000ff</item>
@@ -100,6 +119,7 @@
         <item name="P1">#9900ff</item>
         <item name="P10">#9932cc</item>
         <item name="P12">#ff00ff</item>
+        <item name="P16">#cc0000</item>
         <item name="P2">#9933cc</item>
         <item name="P3">#cc00ff</item>
         <item name="P7">#9933ff</item>
@@ -113,7 +133,15 @@
         <item name="12">McKnight</item>
         <item name="13">Bellevue</item>
         <item name="14">Ohio Valley</item>
+        <item name="15">Charles</item>
         <item name="16">Brighton</item>
+        <item name="17">Shadeland</item>
+        <item name="19L">Emsworth Limited</item>
+        <item name="2">Mount Royal</item>
+        <item name="20">Kennedy</item>
+        <item name="21">Coraopolis</item>
+        <item name="22">McCoy</item>
+        <item name="24">West Park</item>
         <item name="26">Chartiers</item>
         <item name="27">Fairywood</item>
         <item name="28X">Airport Flyer</item>
@@ -142,6 +170,7 @@
         <item name="71D">Hamilton</item>
         <item name="74">Homewood-Squirrel Hill</item>
         <item name="75">Ellsworth</item>
+        <item name="79">East Hills</item>
         <item name="8">Perrysville</item>
         <item name="82">Lincoln</item>
         <item name="86">Liberty</item>
@@ -153,6 +182,7 @@
         <item name="P1">East Busway-All Stops</item>
         <item name="P10">Allegheny Valley Flyer</item>
         <item name="P12">Holiday Park Flyer</item>
+        <item name="P16">Penn Hills Flyer</item>
         <item name="P2">East Busway Short</item>
         <item name="P3">East Busway-Oakland</item>
         <item name="P7">McKeesport Flyer</item>
@@ -172,7 +202,7 @@
     <string name="action_select_buses">Select Buses</string>
     <string name="title_activity_maps_fragment">Map</string>
     <string name="action_about">About</string>
-    <string name="title_activity_about">AboutActivity</string>
+    <string name="title_activity_about">About</string>
     <string name="hello_world">Hello world!</string>
 
 </resources>
