@@ -204,5 +204,12 @@
     <string name="action_about">About</string>
     <string name="title_activity_about">About</string>
     <string name="hello_world">Hello world!</string>
-
+    <!-- About Strings -->
+    <string name="created_by">This app was created with love by:</string>
+    <string name="ritwik">Ritwik Gupta (Developer)</string>
+    <string name="jeremy">Jeremy Jao (Developer)</string>
+    <string name="vincent">Vincent Agresti (Project Manager)</string>
+    <string name="remark_1">This application is open source:</string>
+    <string name="source_code">https://github.com/rectangle-dbmi/Realtime-Port-Authority</string>
+    <string name="versionName">2.10</string>
 </resources>

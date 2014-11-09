@@ -1,15 +1,17 @@
 package rectangledbmi.com.pittsburghrealtimetracker;
 
-import android.app.Activity;
 import android.app.Fragment;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 
 
 public class AboutActivity extends ActionBarActivity {
@@ -23,6 +25,15 @@ public class AboutActivity extends ActionBarActivity {
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
+//        try {
+////            TextView version = (TextView)findViewById(R.id.version);
+////            version.setText(getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
+////        } catch (PackageManager.NameNotFoundException e) {
+////            e.printStackTrace();
+////        }
+//        TextView link = (TextView)findViewById(R.id.source_link);
+//        link.setMovementMethod(LinkMovementMethod.getInstance());
+
     }
 
 
