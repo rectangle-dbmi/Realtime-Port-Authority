@@ -118,6 +118,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
             }
             URL url = null;
             try {
+//                System.out.println(PortAuthorityAPI.getVehicles(selectedBuses));
                 url = PortAuthorityAPI.getVehicles(selectedBuses);
 
             } catch (MalformedURLException e) {

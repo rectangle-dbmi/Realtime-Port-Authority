@@ -14,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -48,6 +49,7 @@ public class SelectTransit extends ActionBarActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
+    private static final String BUSLIST_SIZE = "buslist_size";
     /**
      * saved indexes from selection
      */
@@ -319,6 +321,7 @@ public class SelectTransit extends ActionBarActivity implements
     private void savePreferences() {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         sp.edit().putStringSet(BUS_SELECT_STATE, buses).apply();
+        sp.edit().putInt(BUSLIST_SIZE, getResources().getStringArray(R.array.buses).length).apply();
     }
 
     @Override
@@ -367,7 +370,7 @@ public class SelectTransit extends ActionBarActivity implements
 //            polyline.setVisible(true);
 //        }
         if(polylines == null) {
-            System.out.println("polyline was null");
+//            System.out.println("polyline was null");
             new RequestLine(mMap, routeLines, route, busStops, color).execute();
         }
         else if(polylines.get(0).isVisible()) {
@@ -416,8 +419,11 @@ public class SelectTransit extends ActionBarActivity implements
     public void restoreActionBar() {
         Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
         if(toolbar != null) {
-            setSupportActionBar(toolbar);
-
+            try {
+                setSupportActionBar(toolbar);
+            } catch(Throwable e) {
+                Toast.makeText(this, "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Toast.LENGTH_LONG);
+            }
         }
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -518,7 +524,7 @@ public class SelectTransit extends ActionBarActivity implements
                     (currentLongitude > -80.372815 && currentLongitude < -79.414258)) {
                 latitude = currentLatitude;
                 longitude = currentLongitude;
-                zoom = (long)15.00;
+                zoom = (long)14.20;
 
             }
         }
@@ -534,6 +540,7 @@ public class SelectTransit extends ActionBarActivity implements
      *
      */
     protected void setUpMap() {
+//        System.out.println("restore...");
         clearMap();
         clearAndAddToMap();
         restorePolylines();
@@ -547,6 +554,7 @@ public class SelectTransit extends ActionBarActivity implements
                 setPolyline(Integer.parseInt(select));
             }
         }
+//        System.out.println("Polylines restored");
     }
 
     /**
@@ -555,6 +563,7 @@ public class SelectTransit extends ActionBarActivity implements
     protected synchronized void clearAndAddToMap() {
         stopTimer();
         addBuses();
+//        System.out.println("Added buses");
     }
 
     /**

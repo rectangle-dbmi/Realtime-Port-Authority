@@ -26,7 +26,7 @@ dependencies {
     // keep in mind that the latest version I have on my phone is 6.X. Google Play Store prevents me from doing anything about this...
     // Support Libraries
 
-    compile 'com.google.android.gms:play-services:6.1.71'
+    compile 'com.google.android.gms:play-services:6.1.+'
     compile 'com.android.support:support-v4:21.+'
     compile 'com.android.support:appcompat-v7:21.+'
     compile 'com.android.support:gridlayout-v7:21.+'

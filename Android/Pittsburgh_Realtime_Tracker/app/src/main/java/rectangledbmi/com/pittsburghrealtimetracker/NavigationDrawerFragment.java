@@ -40,6 +40,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
  */
 public class NavigationDrawerFragment extends Fragment {
 
+    private static final String BUSLIST_SIZE = "buslist_size";
 
     private static final String MAX_CHECKED = "max_checked";
     /**
@@ -143,10 +144,17 @@ public class NavigationDrawerFragment extends Fragment {
 //        System.out.println("In restore view");
 //        mSelected = new boolean[getResources().getStringArray(R.array.buses).length];
         amountSelected = 0;
-        for(String selected : sp.getStringSet(STATE_SELECTED_POSITIONS, Collections.synchronizedSet(new HashSet<String>(0)))) {
-            setTrue(Integer.parseInt(selected));
+        int list_size = sp.getInt(BUSLIST_SIZE, -1);
+        if(list_size != -1 && getResources().getStringArray(R.array.buses).length == list_size) {
+            for (String selected : sp.getStringSet(STATE_SELECTED_POSITIONS, Collections.synchronizedSet(new HashSet<String>(0)))) {
+                setTrue(Integer.parseInt(selected));
 //            System.out.println("Restoring: " + selected);
+            }
+        } else {
+            openDrawer();
+            Toast.makeText(getActivity(), "New buses were added. Please re-select your buses", Toast.LENGTH_LONG).show();
         }
+
     }
 
     /**

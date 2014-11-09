@@ -52,7 +52,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Vincent Agresti (Designer)"
+        android:text="Vincent Agresti (Project Manager)"
         android:id="@+id/dev3_about"
         android:layout_below="@+id/dev2_about"
         android:paddingLeft="30dp"
