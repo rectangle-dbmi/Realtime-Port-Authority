@@ -2,64 +2,10 @@
 <pre-dex-items>
 
     <item
-        dex="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/pre-dexed/debug/classes-fc3fe931ee45ef8487fcc70dc556054809150289.jar"
-        jar="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.0/classes.jar"
+        dex="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/pre-dexed/debug/classes-b7130c6bed2a86f4d02de20b08e325eca7828d39.jar"
+        jar="/home/epicstar/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/6.1.71/classes.jar"
         jumboMode="false"
-        revision="21.0.1"
-        sha1="686344a780033e4ba22b926cd225f8d4941247e6"/>
-    <item
-        dex="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/pre-dexed/debug/classes-7dfa10e780573241bb88f5c05a650335903aa98b.jar"
-        jar="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/support-v13/21.0.0/classes.jar"
-        jumboMode="false"
-        revision="21.0.1"
-        sha1="0c0c19759e5868604a3b4c2c0074ee9404d73c76"/>
-    <item
-        dex="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/pre-dexed/debug/internal_impl-21.0.0-88187b7c39e806949a6774ee2f6fc73126e84003.jar"
-        jar="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/21.0.0/libs/internal_impl-21.0.0.jar"
-        jumboMode="false"
-        revision="21.0.1"
-        sha1="0b5932f7c5092bde386d4da46b7ef4a71fa7c966"/>
-    <item
-        dex="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/pre-dexed/debug/support-annotations-21.0.0-ae1a45c5a9b617628c4ffef74d9bfb455beb327a.jar"
-        jar="/home/rgupta/Documents/AndroidStudio/sdk/extras/android/m2repository/com/android/support/support-annotations/21.0.0/support-annotations-21.0.0.jar"
-        jumboMode="false"
-        revision="21.0.1"
-        sha1="1a578b9607b36266c63d43a4fa0ab5664dbe911e"/>
-    <item
-        dex="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/pre-dexed/debug/classes-cbc59c2d923e2cd7d2fdfa3d25c12c39f39456b9.jar"
-        jar="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.0/classes.jar"
-        jumboMode="false"
-        revision="21.0.1"
-        sha1="95fd37732ec852e99f07eeb516a3650172f1d136"/>
-    <item
-        dex="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/pre-dexed/debug/internal_impl-21.0.0-81192107cc944d251c97924b8a57d0974cd6df22.jar"
-        jar="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/support-v13/21.0.0/libs/internal_impl-21.0.0.jar"
-        jumboMode="false"
-        revision="21.0.1"
-        sha1="5a8e01742aee890c56fe638ea7c921b91a3fdc62"/>
-    <item
-        dex="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/pre-dexed/debug/internal_impl-21.0.0-144bc666604edb9b1e0512ad0e84d6776b915c30.jar"
-        jar="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.0/libs/internal_impl-21.0.0.jar"
-        jumboMode="false"
-        revision="21.0.1"
-        sha1="1609e6d42d0480b0f4188e2c29f75388fa12a8f0"/>
-    <item
-        dex="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/pre-dexed/debug/classes-9b6fb9db76e527884a83023326d0669c7f75af24.jar"
-        jar="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/gridlayout-v7/21.0.0/classes.jar"
-        jumboMode="false"
-        revision="21.0.1"
-        sha1="6c6b497aa9e3aadbaabf975379e7914fa9e65523"/>
-    <item
-        dex="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/pre-dexed/debug/classes-7b5211b3908b41d23933699c9e52414854f15e72.jar"
-        jar="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/21.0.0/classes.jar"
-        jumboMode="false"
-        revision="21.0.1"
-        sha1="b7edba70906e9532762ee1f8e5ea662b118feb62"/>
-    <item
-        dex="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/pre-dexed/debug/classes-ef17dccc218b39688c780261e91d8c46c102ea1a.jar"
-        jar="/home/rgupta/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/6.1.11/classes.jar"
-        jumboMode="false"
-        revision="21.0.1"
-        sha1="0f700f6802ba1a1f1fa7ac26d5db0666a89d75a6"/>
+        revision="21.1.0"
+        sha1="0f6d5c1ef2e982c3b7858408e3df389cf5d202da"/>
 
 </pre-dex-items>
