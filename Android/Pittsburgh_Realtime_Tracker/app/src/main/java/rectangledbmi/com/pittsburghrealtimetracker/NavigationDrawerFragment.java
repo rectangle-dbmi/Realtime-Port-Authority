@@ -145,14 +145,15 @@ public class NavigationDrawerFragment extends Fragment {
 //        mSelected = new boolean[getResources().getStringArray(R.array.buses).length];
         amountSelected = 0;
         int list_size = sp.getInt(BUSLIST_SIZE, -1);
-        if(list_size != -1 && getResources().getStringArray(R.array.buses).length == list_size) {
+        if(getResources().getStringArray(R.array.buses).length == list_size) {
             for (String selected : sp.getStringSet(STATE_SELECTED_POSITIONS, Collections.synchronizedSet(new HashSet<String>(0)))) {
                 setTrue(Integer.parseInt(selected));
 //            System.out.println("Restoring: " + selected);
             }
         } else {
-            openDrawer();
-            Toast.makeText(getActivity(), "New buses were added. Please re-select your buses", Toast.LENGTH_LONG).show();
+            //Something should be here...
+            if(list_size != -1)
+                Toast.makeText(getActivity(), "New buses were added. Please re-select your buses", Toast.LENGTH_LONG).show();
         }
 
     }
