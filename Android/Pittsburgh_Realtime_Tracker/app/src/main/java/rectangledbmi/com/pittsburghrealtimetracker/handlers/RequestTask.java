@@ -11,6 +11,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -54,7 +57,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
      * The list of selected routes from the main activity comma delimited
      * For example, if P1 and P3 was selected... this would be P1 and P3
      */
-    private String selectedBuses;
+    private Set<String> selectedBuses;
 
     /**
      * This is to store the bus markers! String will be the bus number (not the route number).
@@ -72,28 +75,28 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
     public RequestTask(GoogleMap map, Set<String> buses, ConcurrentMap<Integer, Marker> busMarkers, Context context){
         this.context = (SelectTransit)context;
         mMap = map;
-        selectedBuses = selectBuses(buses.toArray(new String[buses.size()]));
+        selectedBuses = buses;
 //        System.out.println(selectedBuses);
 //        bl = null;
         this.busMarkers = busMarkers;
     }
 
-    /**
-     * Takes the list of buses and returns a comma delimited string of routes
-     * @param buses list of buses from the main activity thread
-     * @return comma delimited string of buses. ex: buses -> [P1, P3]; return "P1,P3"
-     */
-    private String selectBuses(String[] buses) {
-        StringBuilder string = new StringBuilder();
-        int oneLess = buses.length-1;
-        for(int i=0;i<buses.length;++i) {
-            string.append(buses[i]);
-            if(i != oneLess) {
-                string.append(",");
-            }
-        }
-        return string.toString();
-    }
+//    /**
+//     * Takes the list of buses and returns a comma delimited string of routes
+//     * @param buses list of buses from the main activity thread
+//     * @return comma delimited string of buses. ex: buses -> [P1, P3]; return "P1,P3"
+//     */
+//    private String selectBuses(String[] buses) {
+//        StringBuilder string = new StringBuilder();
+//        int oneLess = buses.length-1;
+//        for(int i=0;i<buses.length;++i) {
+//            string.append(buses[i]);
+//            if(i != oneLess) {
+//                string.append(",");
+//            }
+//        }
+//        return string.toString();
+//    }
 
     /**
      * updates the UI in the background. Does it by feeding the URL of the API key and then running
@@ -104,43 +107,25 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
     @Override
     protected List<Bus> doInBackground(Void... void1) {
         if(!context.isBusTaskRunning()) {
-            SAXParserFactory spf = SAXParserFactory.newInstance();
-            SAXParser sp = null;
             List<Bus> bl = null;
             try {
-                sp = spf.newSAXParser();
-            } catch (ParserConfigurationException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (SAXException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            URL url = null;
-            try {
-//                System.out.println(PortAuthorityAPI.getVehicles(selectedBuses));
-                url = PortAuthorityAPI.getVehicles(selectedBuses);
-
-            } catch (MalformedURLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            BusSaxHandler handler;
-            try {
-                handler = new BusSaxHandler();
-                try {
-                    if (sp != null) {
-                        sp.parse(new InputSource(url != null ? url.openStream() : null), handler);
-                    }
-
-                } catch (SAXException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                bl = handler.getBusList();
+                URL url = PortAuthorityAPI.getVehicles(selectedBuses.toArray(new String[selectedBuses.size()]));
+                BusXMLPullParser buses = new BusXMLPullParser(url);
+                bl = buses.createBusList();
+//                handler = new BusSaxHandler();
+//                try {
+//                    if (sp != null) {
+//                        sp.parse(new InputSource(url != null ? url.openStream() : null), handler);
+//                    }
+//
+//                } catch (SAXException e) {
+//                    // TODO Auto-generated catch block
+//                    e.printStackTrace();
+//                } catch (IOException e) {
+//                    // TODO Auto-generated catch block
+//                    e.printStackTrace();
+//                }
+//                bl = handler.getBusList();
             } catch (NullPointerException sax) {
                 //                System.out.println(sax.getMessage());
 
@@ -148,6 +133,10 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                 System.err
                         .println("Bus route is not tracked or all buses on route are in garage: " + selectedBuses);
                 //                System.exit(0);
+            } catch (XmlPullParserException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 //            System.out.println("Results: " + bl);
             return bl;

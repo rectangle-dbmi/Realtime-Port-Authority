@@ -204,7 +204,11 @@ public class SelectTransit extends ActionBarActivity implements
      */
     private void restoreInstanceState(Bundle savedInstanceState) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        buses = sp.getStringSet(BUS_SELECT_STATE, new HashSet<String>(10));
+        if(sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
+            buses = sp.getStringSet(BUS_SELECT_STATE, new HashSet<String>(getResources().getInteger(R.integer.max_checked)));
+        } else {
+            buses = new HashSet<String>(getResources().getInteger(R.integer.max_checked));
+        }
         if (savedInstanceState != null) {
             inSavedState = true;
 //            buses = new HashSet<String>(savedInstanceState.getStringArray(BUS_SELECT_STATE));
@@ -548,10 +552,12 @@ public class SelectTransit extends ActionBarActivity implements
 
     protected void restorePolylines() {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        Set<String> selected = sp.getStringSet(STATE_SELECTED_POSITIONS, null);
-        if(selected != null) {
-            for(String select : selected) {
-                setPolyline(Integer.parseInt(select));
+        if(sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
+            Set<String> selected = sp.getStringSet(STATE_SELECTED_POSITIONS, null);
+            if (selected != null) {
+                for (String select : selected) {
+                    setPolyline(Integer.parseInt(select));
+                }
             }
         }
 //        System.out.println("Polylines restored");

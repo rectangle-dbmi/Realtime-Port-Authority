@@ -114,48 +114,51 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LinkedList<Lat
 //        TransitStop transitStop = null;
         while(eventType != XmlPullParser.END_DOCUMENT) {
             String name = null;
+            try {
+                switch (eventType) {
 
-            switch (eventType) {
+                    case (XmlPullParser.START_TAG): {
+                        name = parser.getName();
+                        if ("rtdir".equals(name)) {
+                            points = new LinkedList<LatLng>();
+                            allPoints.add(points);
 
-                case(XmlPullParser.START_TAG) : {
-                    name = parser.getName();
-                    if("rtdir".equals(name)) {
-                        points = new LinkedList<LatLng>();
-                        allPoints.add(points);
-
-//                        addPoints(points, tempLat, tempLong, seq, tempSeq, true);
-                        seq = 1;
+                            //                        addPoints(points, tempLat, tempLong, seq, tempSeq, true);
+                            seq = 1;
+                        } else if ("lat".equals(name)) {
+                            tempLat = Double.parseDouble(parser.nextText());
+                            //                        System.out.println("Lat: " + tempLat);
+                        } else if ("lon".equals(name)) {
+                            tempLong = Double.parseDouble(parser.nextText());
+                            //                        System.out.println("Lon: " + tempLong);
+                        } else if ("seq".equals(name)) {
+                            tempSeq = Integer.parseInt(parser.nextText());
+                        }
+                        ///*                    else if("typ".equals(name)) {
+                        //                        String type = parser.nextText();
+                        //                        if("S".equals(type)) {
+                        //                            isStop = true;
+                        //                        }
+                        //                    }*/
+    /*                    else if("stpid".equals(name)) {
+                            transitStop = new TransitStop(Integer.parseInt(parser.nextText()));
+                        }
+                        else if("stpnm".equals(name)) {
+                            transitStop.setDescription(parser.nextText());
+                        }*/
+                        break;
                     }
-
-                    else if("lat".equals(name)) {
-                        tempLat = Double.parseDouble(parser.nextText());
-//                        System.out.println("Lat: " + tempLat);
+                    case (XmlPullParser.END_TAG): {
+                        name = parser.getName();
+                        if ("pt".equals(name)) {
+                            seq = addPoints(points, tempLat, tempLong, seq, tempSeq, false);
+                        }
+                        break;
                     }
-                    else if("lon".equals(name)) {
-                        tempLong = Double.parseDouble(parser.nextText());
-//                        System.out.println("Lon: " + tempLong);
-                    }
-                    else if("seq".equals(name)) {
-                        tempSeq = Integer.parseInt(parser.nextText());
-                    }
-///*                    else if("typ".equals(name)) {
-//                        String type = parser.nextText();
-//                        if("S".equals(type)) {
-//                            isStop = true;
-//                        }
-//                    }*/
-/*                    else if("stpid".equals(name)) {
-                        transitStop = new TransitStop(Integer.parseInt(parser.nextText()));
-                    }
-                    else if("stpnm".equals(name)) {
-                        transitStop.setDescription(parser.nextText());
-                    }*/
                 }
-                case(XmlPullParser.END_TAG) : {
-                    if("pt".equals(name)) {
-                        seq = addPoints(points, tempLat, tempLong, seq, tempSeq, false);
-                    }
-                }
+
+            } catch(NullPointerException e) {
+
             }
             eventType = parser.next();
         }
