@@ -426,7 +426,7 @@ public class SelectTransit extends ActionBarActivity implements
             try {
                 setSupportActionBar(toolbar);
             } catch(Throwable e) {
-                Toast.makeText(this, "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Toast.LENGTH_LONG);
+                Toast.makeText(this, "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Toast.LENGTH_LONG).show();
             }
         }
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -576,9 +576,6 @@ public class SelectTransit extends ActionBarActivity implements
      * adds buses to map. or else the map will be clear...
      */
     protected synchronized void addBuses() {
-
-        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        //int RATE = Integer.parseInt(prefs.getString(getString(R.string.pref_refresh_rate), getString(R.string.pref_default_refresh_rate)));
 
         final Handler handler = new Handler();
         timer = new Timer();
