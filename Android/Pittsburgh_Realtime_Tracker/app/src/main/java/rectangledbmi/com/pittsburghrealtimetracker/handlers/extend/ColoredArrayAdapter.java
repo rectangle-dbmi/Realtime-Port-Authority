@@ -78,6 +78,7 @@ public class ColoredArrayAdapter extends ArrayAdapter<Route> {
         GradientDrawable icon = (GradientDrawable) route.getBackground();
         description.setText(objects.get(position).getRouteInfo());
         route.setText(objects.get(position).getRoute());
+//        route.setTextColor(isLight(objects.get(position).getRouteColor()) ? Color.BLACK : Color.WHITE);
         icon.setColor(objects.get(position).getRouteColor());
         return convertView;
     }
@@ -92,6 +93,6 @@ public class ColoredArrayAdapter extends ArrayAdapter<Route> {
      * @return whether or not the background color is light or not (.345 is the current threshold)
      */
     private boolean isLight(int color) {
-        return 1.0-(0.299*Color.red(color) + 0.587*Color.green(color) + 0.114*Color.blue(color))/255 < .345;
+        return 1.0-(0.299*Color.red(color) + 0.587*Color.green(color) + 0.114*Color.blue(color))/255 < .5;
     }
 }
