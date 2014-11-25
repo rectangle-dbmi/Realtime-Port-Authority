@@ -69,7 +69,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
      */
     private SelectTransit context;
 
-    private static SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
+//    private static SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
 
 
     public RequestTask(GoogleMap map, Set<String> buses, ConcurrentMap<Integer, Marker> busMarkers, Context context){
@@ -227,6 +227,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                 .draggable(false)
                 .rotation(bus.getHdg())
                 .icon(BitmapDescriptorFactory.fromAsset(bus.getRt() + ".png"))
+                .anchor((float)0.453125, (float)0.25)
                 .flat(true);
         try {
             newBusMarkers.put(bus.getVid(), mMap.addMarker(marker));
