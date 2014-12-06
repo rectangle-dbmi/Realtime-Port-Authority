@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 21
-    buildToolsVersion '21.1'
+    buildToolsVersion '21.1.1'
     defaultConfig {
         applicationId "rectangledbmi.com.pittsburghrealtimetracker"
         minSdkVersion 16
         targetSdkVersion 21
-        versionCode 24
-        versionName "2.171"
+        versionCode 25
+        versionName "2.20"
     }
     buildTypes {
         release {

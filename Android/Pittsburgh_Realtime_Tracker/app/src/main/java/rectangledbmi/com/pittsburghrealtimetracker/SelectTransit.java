@@ -351,7 +351,8 @@ public class SelectTransit extends ActionBarActivity implements
     }
 
     /**
-     * Gets called when one of the buses is pressed
+     * Gets called when one of the buses is pressed. Take note routes will always have more than one
+     * polyline.
      * @param number which bus in the list is pressed
      */
     public void onSectionAttached(int number) {
@@ -377,6 +378,9 @@ public class SelectTransit extends ActionBarActivity implements
 //            System.out.println("polyline was null");
             new RequestLine(mMap, routeLines, route, busStops, color).execute();
         }
+        else if(polylines.isEmpty()) {
+            Toast.makeText(this, route + " " + getString(R.string.route_not_found), Toast.LENGTH_LONG).show();
+        }
         else if(polylines.get(0).isVisible()) {
             setVisiblePolylines(polylines, false);
         }
@@ -386,8 +390,8 @@ public class SelectTransit extends ActionBarActivity implements
 
     /**
      * sets a visible or invisible polylines for a route
-     * @param polylines
-     * @param visibility
+     * @param polylines list of polylines
+     * @param visibility whether or not the polylines are visible or not
      */
     private void setVisiblePolylines(List<Polyline> polylines, boolean visibility) {
         for(Polyline polyline : polylines) {
@@ -546,8 +550,11 @@ public class SelectTransit extends ActionBarActivity implements
     protected void setUpMap() {
 //        System.out.println("restore...");
         clearMap();
-        clearAndAddToMap();
-        restorePolylines();
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        if(sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
+            clearAndAddToMap();
+            restorePolylines();
+        }
     }
 
     protected void restorePolylines() {
