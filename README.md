@@ -23,6 +23,6 @@ to the new buses as soon as possible!
 
 #Android Development
 
-This will be done using [Android Studio](https://developer.android.com/sdk/installing/studio.html) 0.8.6 beta as of 08-20-2014.
+This will be done using [Android Studio](https://developer.android.com/sdk/installing/studio.html) 1.0 RC4 as of 12-07-2014.
 
 
