@@ -4,8 +4,11 @@ import android.location.Location;
 import android.os.AsyncTask;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -20,7 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
+import rectangledbmi.com.pittsburghrealtimetracker.R;
+import rectangledbmi.com.pittsburghrealtimetracker.handlers.containers.RequestLineContainer;
 import rectangledbmi.com.pittsburghrealtimetracker.hidden.PortAuthorityAPI;
+import rectangledbmi.com.pittsburghrealtimetracker.world.LineInfo;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 
 /**
@@ -33,7 +39,8 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
  * @author Jeremy Jao
  */
 //public class RequestLine extends AsyncTask<Void, Void, LinkedList<LatLng>> {
-public class RequestLine extends AsyncTask<Void, Void, LinkedList<LinkedList<LatLng>>> {
+//public class RequestLine extends AsyncTask<Void, Void, LinkedList<LinkedList<LatLng>>> {
+public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
     /**
      * The Google Map
      */
@@ -72,8 +79,9 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LinkedList<Lat
      */
     @Override
 //    protected LinkedList<LatLng> doInBackground(Void... voids) {
-    protected LinkedList<LinkedList<LatLng>> doInBackground(Void... voids) {
-        LinkedList<LinkedList<LatLng>> points;
+    protected RequestLineContainer doInBackground(Void... voids) {
+//        LinkedList<LinkedList<LatLng>> points;
+        RequestLineContainer points;
         XmlPullParserFactory pullParserFactory;
         try {
             pullParserFactory = XmlPullParserFactory.newInstance();
@@ -103,26 +111,36 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LinkedList<Lat
      * @throws IOException
      */
 //    private LinkedList<LatLng> parseXML(XmlPullParser parser) throws XmlPullParserException, IOException {
-    private LinkedList<LinkedList<LatLng>> parseXML(XmlPullParser parser) throws XmlPullParserException, IOException {
-        LinkedList<LatLng> points = new LinkedList<LatLng>();
-        LinkedList<LinkedList<LatLng>> allPoints = new LinkedList<LinkedList<LatLng>>();
+//    private LinkedList<LinkedList<LatLng>> parseXML(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private RequestLineContainer parseXML(XmlPullParser parser) throws XmlPullParserException, IOException {
+
+        LinkedList<LatLng> points = new LinkedList<>();
+        LinkedList<LinkedList<LatLng>> allPoints = new LinkedList<>();
+        LinkedList<LineInfo> busStopInfos = new LinkedList<>();
         int eventType = parser.getEventType();
         double tempLat = 0.0;
         double tempLong = 0.0;
         int seq = 1;
         int tempSeq = 0;
-//        TransitStop transitStop = null;
+
+        String rtdir = null;
+
+        String stpnm = null;
+        String stpid = null;
+        boolean isBusStop = false;
+
         while(eventType != XmlPullParser.END_DOCUMENT) {
             String name = null;
+
             try {
                 switch (eventType) {
 
                     case (XmlPullParser.START_TAG): {
                         name = parser.getName();
                         if ("rtdir".equals(name)) {
-                            points = new LinkedList<LatLng>();
+                            points = new LinkedList<>();
                             allPoints.add(points);
-
+                            rtdir = parser.nextText();
                             //                        addPoints(points, tempLat, tempLong, seq, tempSeq, true);
                             seq = 1;
                         } else if ("lat".equals(name)) {
@@ -133,26 +151,30 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LinkedList<Lat
                             //                        System.out.println("Lon: " + tempLong);
                         } else if ("seq".equals(name)) {
                             tempSeq = Integer.parseInt(parser.nextText());
+                        } else if("typ".equals(name)) {
+                            if("S".equals(parser.nextText())) {
+                                isBusStop = true;
+                            }
+                        } else if("stpid".equals(name)) {
+                            stpid = parser.nextText();
+                        } else if("stpnm".equals(name)) {
+                            stpnm = parser.nextText();
                         }
-                        ///*                    else if("typ".equals(name)) {
-                        //                        String type = parser.nextText();
-                        //                        if("S".equals(type)) {
-                        //                            isStop = true;
-                        //                        }
-                        //                    }*/
-    /*                    else if("stpid".equals(name)) {
-                            transitStop = new TransitStop(Integer.parseInt(parser.nextText()));
-                        }
-                        else if("stpnm".equals(name)) {
-                            transitStop.setDescription(parser.nextText());
-                        }*/
+
                         break;
                     }
                     case (XmlPullParser.END_TAG): {
                         name = parser.getName();
                         if ("pt".equals(name)) {
                             seq = addPoints(points, tempLat, tempLong, seq, tempSeq, false);
+                            if(isBusStop) {
+                                busStopInfos.add(new LineInfo(stpid, stpnm, rtdir, tempLat, tempLong));
+                                isBusStop = false;
+                                stpid = null;
+                                stpnm = null;
+                            }
                         }
+
                         break;
                     }
                 }
@@ -164,8 +186,11 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LinkedList<Lat
         }
 //        return putPointsInOrder(allPoints);
         connectPoints(allPoints);
-        return allPoints;
+//        return allPoints;
+        return new RequestLineContainer(allPoints, busStopInfos);
     }
+
+
 
     private void connectPoints(LinkedList<LinkedList<LatLng>> allPoints) {
         boolean[] firstconnect = new boolean[allPoints.size()];
@@ -252,16 +277,35 @@ public class RequestLine extends AsyncTask<Void, Void, LinkedList<LinkedList<Lat
 
     /**
      * Adds the polyline to the map on the UI thread
-     * @param latLngs the results from doInBackground obtained from the XML
+//     * @param latLngs the results from doInBackground obtained from the XML
      */
     @Override
-    protected void onPostExecute(LinkedList<LinkedList<LatLng>> latLngs) {
-        List<Polyline> polylines = new LinkedList<Polyline>();
+//    protected void onPostExecute(LinkedList<LinkedList<LatLng>> latLngs) {
+    protected void onPostExecute(RequestLineContainer container) {
+        LinkedList<LinkedList<LatLng>> latLngs = container.getPolylinesInfo();
+        LinkedList<LineInfo> busStopInfos = container.getBusStopInfos();
+        List<Polyline> polylines = new LinkedList<>();
         if(latLngs != null) {
             for(LinkedList<LatLng> points : latLngs) {
                 polylines.add(mMap.addPolyline(new PolylineOptions().addAll(points).color(color).geodesic(true).visible(true)));
             }
             patterns.put(selectedRoute, polylines);
+        }
+
+        if(busStopInfos != null) {
+            for(LineInfo busStopInfo : busStopInfos) {
+                Marker marker = mMap.addMarker(new MarkerOptions().
+                                position(busStopInfo.getLatLng()).
+                                flat(false).
+                                title("(" + busStopInfo.getStpid() + ") " + busStopInfo.getStpnm()).
+                                snippet(busStopInfo.getRtdir()).
+                                draggable(false).
+                                icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_stop)).
+                                anchor(.5f, .5f)
+
+                );
+            }
+
         }
     }
 //    @Override
