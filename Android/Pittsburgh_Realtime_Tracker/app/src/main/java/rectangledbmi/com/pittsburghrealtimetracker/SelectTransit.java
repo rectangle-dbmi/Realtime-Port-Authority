@@ -206,7 +206,7 @@ public class SelectTransit extends ActionBarActivity implements
         if (sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
             buses = sp.getStringSet(BUS_SELECT_STATE, new HashSet<String>(getResources().getInteger(R.integer.max_checked)));
         } else {
-            buses = new HashSet<String>(getResources().getInteger(R.integer.max_checked));
+            buses = new HashSet<>(getResources().getInteger(R.integer.max_checked));
         }
         if (savedInstanceState != null) {
             inSavedState = true;
@@ -263,8 +263,8 @@ public class SelectTransit extends ActionBarActivity implements
         //This will be changed as things go
         buses = Collections.synchronizedSet(new HashSet<String>(getResources().getInteger(R.integer.max_checked)));
 //        routeLines = new ConcurrentHashMap<String, Polyline>(getResources().getInteger(R.integer.max_checked));
-        routeLines = new ConcurrentHashMap<String, List<Polyline>>(getResources().getInteger(R.integer.max_checked));
-        busMarkers = new ConcurrentHashMap<Integer, Marker>(100);
+        routeLines = new ConcurrentHashMap<>(getResources().getInteger(R.integer.max_checked));
+        busMarkers = new ConcurrentHashMap<>(100);
     }
 
 
@@ -412,9 +412,7 @@ public class SelectTransit extends ActionBarActivity implements
     private void setList(String selected) {
         //TODO: perhaps look at constant time remove
         //TODO somehow the bus isn't being selected
-        if (buses.remove(selected)) {
-            ;
-        } else {
+        if (!buses.remove(selected)) {
             buses.add(selected);
         }
 //        clearAndAddToMap();
@@ -595,7 +593,6 @@ public class SelectTransit extends ActionBarActivity implements
 
                             req = new RequestTask(mMap, buses, busMarkers, context);
 //                            req = new RequestTask(mMap, buses, context);
-                            while (isBusTaskRunning) ;
                             req.execute();
                         } else
                             clearMap();
@@ -645,7 +642,7 @@ public class SelectTransit extends ActionBarActivity implements
         if (mMap != null) {
 //            routeLines = new ConcurrentHashMap<String, Polyline>(getResources().getInteger(R.integer.max_checked));
             //routeLines.clear();
-            routeLines = new ConcurrentHashMap<String, List<Polyline>>(getResources().getInteger(R.integer.max_checked));
+            routeLines = new ConcurrentHashMap<>(getResources().getInteger(R.integer.max_checked));
             mMap.clear();
         }
     }
