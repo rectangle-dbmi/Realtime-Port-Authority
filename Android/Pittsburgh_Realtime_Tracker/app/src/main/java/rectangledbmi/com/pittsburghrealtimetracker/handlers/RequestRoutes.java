@@ -34,9 +34,7 @@ public class RequestRoutes extends AsyncTask<Void, Void, Map<String, Route>> {
         SAXParser sp = null;
         try {
             sp = spf.newSAXParser();
-        } catch(ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
+        } catch(ParserConfigurationException | SAXException e) {
             e.printStackTrace();
         }
 
@@ -55,9 +53,7 @@ public class RequestRoutes extends AsyncTask<Void, Void, Map<String, Route>> {
                 if(sp != null) {
                     sp.parse(new InputSource(url != null ? url.openStream() : null), handler);
                 }
-            } catch (SAXException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
+            } catch (SAXException | IOException e) {
                 e.printStackTrace();
             }
             routes = handler.getRoutes();
