@@ -235,7 +235,7 @@ public class SelectTransit extends ActionBarActivity implements
     private void defaultCameraLocation() {
         latitude = PITTSBURGH.latitude;
         longitude = PITTSBURGH.longitude;
-        zoom = (float) 11.88;
+        zoom = (float)15.0;
     }
 
     /**
@@ -312,7 +312,7 @@ public class SelectTransit extends ActionBarActivity implements
                     public boolean onMarkerClick(Marker marker) {
 
                         if(marker != null) {
-                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), zoom));
+                            mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
                             marker.showInfoWindow();
                             return true;
                         }
@@ -684,7 +684,7 @@ public class SelectTransit extends ActionBarActivity implements
 //            routeLines = new ConcurrentHashMap<String, Polyline>(getResources().getInteger(R.integer.max_checked));
             //routeLines.clear();
             routeLines = new ConcurrentHashMap<>(getResources().getInteger(R.integer.max_checked));
-            transitStop.clearRoutes();
+            transitStop = new TransitStop();
             mMap.clear();
         }
     }

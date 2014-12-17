@@ -17,6 +17,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.LinkedList;
@@ -97,14 +98,19 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
         RequestLineContainer points;
         XmlPullParserFactory pullParserFactory;
         try {
+            points = null;
             pullParserFactory = XmlPullParserFactory.newInstance();
             XmlPullParser parser = pullParserFactory.newPullParser();
             URL url = PortAuthorityAPI.getPatterns(selectedRoute);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setConnectTimeout(5000);
-            parser.setInput(conn.getInputStream(), null);
-            // get the list...
-            points = parseXML(parser);
+            InputStream in = conn.getInputStream();
+            if(in != null) {
+                parser.setInput(conn.getInputStream(), null);
+                // get the list...
+                points = parseXML(parser);
+            }
+
         } catch (XmlPullParserException e) {
             e.printStackTrace();
             return null;
