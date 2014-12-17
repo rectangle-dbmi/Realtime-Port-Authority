@@ -24,6 +24,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polyline;
@@ -159,6 +160,8 @@ public class SelectTransit extends ActionBarActivity implements
 
     private ConcurrentMap<Integer, Marker> busStops;
 
+    private TransitStop transitStop;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -218,6 +221,10 @@ public class SelectTransit extends ActionBarActivity implements
             zoom = savedInstanceState.getFloat(LAST_ZOOM);
         } else {
             defaultCameraLocation();
+        }
+
+        if(transitStop == null) {
+            transitStop = new TransitStop();
         }
 
     }
@@ -282,6 +289,36 @@ public class SelectTransit extends ActionBarActivity implements
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 setUpMap();
+                mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+                    @Override
+                    public void onCameraChange(CameraPosition cameraPosition) {
+                        if(zoom != cameraPosition.zoom) {
+                            zoom = cameraPosition.zoom;
+//                            System.out.println(Float.toString(zoom));
+                            transitStop.checkAllVisibility(zoom, Float.parseFloat(getString(R.string.zoom_level)));
+                        }
+                    }
+                });
+
+                /*
+                TODO:
+                a. Make an XML PullParser for getpredictions (all we need is bus route: <list of 3 times>)
+                b. update snippet with the times: marker.setSnippet
+                c. Make the snippet follow Google Maps time implementation!!!
+                d. getpredictions&stpid=marker.getTitle().<regex on \(.+\)> since this is where the stop id is to get stop id.
+                 */
+                mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                    @Override
+                    public boolean onMarkerClick(Marker marker) {
+
+                        if(marker != null) {
+                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), zoom));
+                            marker.showInfoWindow();
+                            return true;
+                        }
+                        return false;
+                    }
+                });
             }
         }
     }
@@ -375,13 +412,16 @@ public class SelectTransit extends ActionBarActivity implements
 //        }
         if (polylines == null) {
 //            System.out.println("polyline was null");
-            new RequestLine(mMap, routeLines, route, busStops, color).execute();
+            new RequestLine(mMap, routeLines, route, busStops, color, zoom, Float.parseFloat(getString(R.string.zoom_level)), transitStop).execute();
         } else if (polylines.isEmpty()) {
             Toast.makeText(this, route + " " + getString(R.string.route_not_found), Toast.LENGTH_LONG).show();
         } else if (polylines.get(0).isVisible()) {
             setVisiblePolylines(polylines, false);
-        } else
+            transitStop.removeRoute(route);
+        } else {
             setVisiblePolylines(polylines, true);
+            transitStop.updateAddRoutes(route, zoom, Float.parseFloat(getString(R.string.zoom_level)));
+        }
     }
 
     /**
@@ -644,6 +684,7 @@ public class SelectTransit extends ActionBarActivity implements
 //            routeLines = new ConcurrentHashMap<String, Polyline>(getResources().getInteger(R.integer.max_checked));
             //routeLines.clear();
             routeLines = new ConcurrentHashMap<>(getResources().getInteger(R.integer.max_checked));
+            transitStop.clearRoutes();
             mMap.clear();
         }
     }

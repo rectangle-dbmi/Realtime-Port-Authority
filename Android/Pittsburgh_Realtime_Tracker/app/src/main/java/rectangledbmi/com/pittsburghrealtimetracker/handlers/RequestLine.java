@@ -17,6 +17,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
@@ -58,18 +59,30 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
 
     private ConcurrentMap<Integer, Marker> busStops;
 
+    private float zoom, zoomVisibility;
+
+    TransitStop transitStop;
+
     /**
      * The route color
      */
     private int color;
     //TODO: selectedRoute and color have to go out in order to add the polylines to the map...
 //    public RequestLine(GoogleMap mMap, ConcurrentMap<String, Polyline> patterns, String selectedRoute, int color) {
-    public RequestLine(GoogleMap mMap, ConcurrentMap<String, List<Polyline>> patterns, String selectedRoute, ConcurrentMap<Integer, Marker> busStops, int color) {
+    public RequestLine(GoogleMap mMap, ConcurrentMap<String, List<Polyline>> patterns,
+                       String selectedRoute, ConcurrentMap<Integer, Marker> busStops, int color,
+                       float zoomLevel,
+                       float zoomVisibility,
+                       TransitStop stopMap
+    ) {
         this.mMap = mMap;
         this.patterns = patterns;
         this.selectedRoute = selectedRoute;
         this.color = color;
         this.busStops = busStops;
+        this.zoom = zoom;
+        this.transitStop = stopMap;
+        this.zoomVisibility = zoomVisibility;
     }
 
     /**
@@ -87,8 +100,9 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
             pullParserFactory = XmlPullParserFactory.newInstance();
             XmlPullParser parser = pullParserFactory.newPullParser();
             URL url = PortAuthorityAPI.getPatterns(selectedRoute);
-
-            parser.setInput(url.openStream(), null);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setConnectTimeout(5000);
+            parser.setInput(conn.getInputStream(), null);
             // get the list...
             points = parseXML(parser);
         } catch (XmlPullParserException e) {
@@ -293,17 +307,29 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
         }
 
         if(busStopInfos != null) {
-            for(LineInfo busStopInfo : busStopInfos) {
-                Marker marker = mMap.addMarker(new MarkerOptions().
-                                position(busStopInfo.getLatLng()).
-                                flat(false).
-                                title("(" + busStopInfo.getStpid() + ") " + busStopInfo.getStpnm()).
-                                snippet(busStopInfo.getRtdir()).
-                                draggable(false).
-                                icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_stop)).
-                                anchor(.5f, .5f)
 
-                );
+            for(LineInfo busStopInfo : busStopInfos) {
+                if(!transitStop.addRouteToMarker(busStopInfo.getStpid(), selectedRoute, zoom, zoomVisibility)) {
+                    Marker marker = mMap.addMarker(new MarkerOptions().
+                                    position(busStopInfo.getLatLng()).
+                                    alpha(.7f).
+                                    flat(false).
+                                    title("(" + busStopInfo.getStpid() + ") " + busStopInfo.getStpnm()).
+                                    snippet(busStopInfo.getRtdir()).
+                                    draggable(false).
+                                    icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_stop)).
+                                    anchor(.5f, .5f)
+                                    .visible(false)
+                    );
+
+                    /*if(*/transitStop.addMarkerToRoute(marker, busStopInfo.getStpid(), selectedRoute, zoom, zoomVisibility);/*)
+                        System.out.println("added stop to transitStop");
+                    else {
+                        System.out.println(busStopInfo.getStpid() + " bus stop never added");
+                    }*/
+                }/* else {
+                    System.out.println("Bus stop already present... added route to marker");
+                }*/
             }
 
         }

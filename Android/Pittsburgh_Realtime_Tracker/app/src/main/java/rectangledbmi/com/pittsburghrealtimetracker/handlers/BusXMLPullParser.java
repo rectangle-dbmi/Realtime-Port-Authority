@@ -5,6 +5,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,7 +27,7 @@ public class BusXMLPullParser {
         this.url = url;
         XmlPullParserFactory pullParserFactory = XmlPullParserFactory.newInstance();
         parser = pullParserFactory.newPullParser();
-        busList = new LinkedList<Bus>();
+        busList = new LinkedList<>();
     }
 
     /**
@@ -36,7 +37,9 @@ public class BusXMLPullParser {
      * @throws XmlPullParserException
      */
     public List<Bus> createBusList() throws IOException, XmlPullParserException {
-        parser.setInput(url.openStream(), null);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setConnectTimeout(5000);
+        parser.setInput(conn.getInputStream(), null);
         parseXML();
         return getBusList();
     }
