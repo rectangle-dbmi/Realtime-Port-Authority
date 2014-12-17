@@ -312,7 +312,7 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
                 if(!transitStop.addRouteToMarker(busStopInfo.getStpid(), selectedRoute, zoom, zoomVisibility)) {
                     Marker marker = mMap.addMarker(new MarkerOptions().
                                     position(busStopInfo.getLatLng()).
-                                    alpha(.7f).
+                                    alpha(.65f).
                                     flat(false).
                                     title("(" + busStopInfo.getStpid() + ") " + busStopInfo.getStpnm()).
                                     snippet(busStopInfo.getRtdir()).
