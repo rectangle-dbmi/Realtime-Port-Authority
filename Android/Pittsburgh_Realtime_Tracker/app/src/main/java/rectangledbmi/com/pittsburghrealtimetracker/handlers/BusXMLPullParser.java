@@ -1,5 +1,8 @@
 package rectangledbmi.com.pittsburghrealtimetracker.handlers;
 
+import android.content.Context;
+import android.widget.Toast;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -22,13 +25,15 @@ public class BusXMLPullParser {
     private List<Bus> busList;
     private URL url;
     XmlPullParser parser;
+    Context context; //Application context passed in
 
-    public BusXMLPullParser(URL url) throws XmlPullParserException {
+    public BusXMLPullParser(URL url, Context context) throws XmlPullParserException {
 
         this.url = url;
         XmlPullParserFactory pullParserFactory = XmlPullParserFactory.newInstance();
         parser = pullParserFactory.newPullParser();
         busList = new LinkedList<>();
+        this.context = context;
     }
 
     /**
@@ -44,6 +49,8 @@ public class BusXMLPullParser {
         if(in != null) {
             parser.setInput(conn.getInputStream(), null);
             parseXML();
+        } else {
+            Toast.makeText(context, "Connection Timeout, Internet problem", Toast.LENGTH_LONG).show();
         }
 
         return getBusList();

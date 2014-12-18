@@ -1,10 +1,14 @@
 package rectangledbmi.com.pittsburghrealtimetracker.handlers;
 
+import android.content.Context;
+import android.widget.Toast;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
@@ -19,12 +23,14 @@ public class PredictionsXMLPullParser {
     private List<Prediction> predictionList;
     private URL url;
     XmlPullParser parser;
+    Context context; //Application context passed in
 
-    public PredictionsXMLPullParser(URL url) throws XmlPullParserException {
+    public PredictionsXMLPullParser(URL url, Context context) throws XmlPullParserException {
 
         this.url = url;
         XmlPullParserFactory pullParserFactory = XmlPullParserFactory.newInstance();
         parser = pullParserFactory.newPullParser();
+        this.context = context;
     }
 
     /**
@@ -37,8 +43,13 @@ public class PredictionsXMLPullParser {
     public List<Prediction> createPredictionList() throws IOException, XmlPullParserException {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setConnectTimeout(5000);
-        parser.setInput(conn.getInputStream(), null);
-        parseXML();
+        InputStream in = conn.getInputStream();
+        if(in != null) {
+            parser.setInput(conn.getInputStream(), null);
+            parseXML();
+        } else {
+            Toast.makeText(context, "Connection Timeout, Internet problem", Toast.LENGTH_LONG).show();
+        }
         return getPredictionList();
     }
 
