@@ -98,7 +98,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
             List<Bus> bl = null;
             try {
                 URL url = PortAuthorityAPI.getVehicles(selectedBuses.toArray(new String[selectedBuses.size()]));
-                BusXMLPullParser buses = new BusXMLPullParser(url);
+                BusXMLPullParser buses = new BusXMLPullParser(url, context.getApplicationContext());
                 bl = buses.createBusList();
 //                handler = new BusSaxHandler();
 //                try {
