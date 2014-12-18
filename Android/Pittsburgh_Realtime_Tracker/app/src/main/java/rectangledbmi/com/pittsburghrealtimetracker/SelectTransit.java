@@ -1,5 +1,6 @@
 package rectangledbmi.com.pittsburghrealtimetracker;
 
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -314,8 +315,11 @@ public class SelectTransit extends ActionBarActivity implements
 
                         if(marker != null) {
                             mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
-//                            new RequestPredictions(marker, busMarkers.keySet(), transitStop.getStopIds());
+                            new RequestPredictions(marker, busMarkers.keySet(), transitStop.getStopIds());
                             marker.showInfoWindow();
+                            String message = "Stop 1:\tPRDTM\nStop 2:\tPRDTM";
+                            String title = "Bus";
+                            showDialog(message, title);
                             return true;
                         }
                         return false;
@@ -323,6 +327,16 @@ public class SelectTransit extends ActionBarActivity implements
                 });
             }
         }
+    }
+
+    public void showDialog(String message, String title) {
+        FragmentManager fm = getFragmentManager();
+        BusInformationDialog newFragment = new BusInformationDialog();
+        newFragment.message = message;
+        newFragment.title = title;
+        newFragment.setStyle(R.style.Base_Theme_AppCompat_Light_Dialog, 0);
+        newFragment.setCancelable(true);
+        newFragment.show(fm, "Test");
     }
 
     @Override

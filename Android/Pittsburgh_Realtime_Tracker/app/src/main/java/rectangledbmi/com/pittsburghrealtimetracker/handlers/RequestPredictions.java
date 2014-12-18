@@ -8,8 +8,6 @@ import com.google.android.gms.maps.model.Marker;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import rectangledbmi.com.pittsburghrealtimetracker.hidden.PortAuthorityAPI;
 
