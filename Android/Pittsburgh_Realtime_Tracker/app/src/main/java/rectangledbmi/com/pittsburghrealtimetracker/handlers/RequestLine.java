@@ -157,28 +157,36 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
 
                     case (XmlPullParser.START_TAG): {
                         name = parser.getName();
-                        if ("rtdir".equals(name)) {
-                            points = new LinkedList<>();
-                            allPoints.add(points);
-                            rtdir = parser.nextText();
-                            //                        addPoints(points, tempLat, tempLong, seq, tempSeq, true);
-                            seq = 1;
-                        } else if ("lat".equals(name)) {
-                            tempLat = Double.parseDouble(parser.nextText());
-                            //                        System.out.println("Lat: " + tempLat);
-                        } else if ("lon".equals(name)) {
-                            tempLong = Double.parseDouble(parser.nextText());
-                            //                        System.out.println("Lon: " + tempLong);
-                        } else if ("seq".equals(name)) {
-                            tempSeq = Integer.parseInt(parser.nextText());
-                        } else if("typ".equals(name)) {
-                            if("S".equals(parser.nextText())) {
-                                isBusStop = true;
-                            }
-                        } else if("stpid".equals(name)) {
-                            stpid = parser.nextText();
-                        } else if("stpnm".equals(name)) {
-                            stpnm = parser.nextText();
+                        switch (name) {
+                            case "rtdir":
+                                points = new LinkedList<>();
+                                allPoints.add(points);
+                                rtdir = parser.nextText();
+                                //                        addPoints(points, tempLat, tempLong, seq, tempSeq, true);
+                                seq = 1;
+                                break;
+                            case "lat":
+                                tempLat = Double.parseDouble(parser.nextText());
+                                //                        System.out.println("Lat: " + tempLat);
+                                break;
+                            case "lon":
+                                tempLong = Double.parseDouble(parser.nextText());
+                                //                        System.out.println("Lon: " + tempLong);
+                                break;
+                            case "seq":
+                                tempSeq = Integer.parseInt(parser.nextText());
+                                break;
+                            case "typ":
+                                if ("S".equals(parser.nextText())) {
+                                    isBusStop = true;
+                                }
+                                break;
+                            case "stpid":
+                                stpid = parser.nextText();
+                                break;
+                            case "stpnm":
+                                stpnm = parser.nextText();
+                                break;
                         }
 
                         break;
