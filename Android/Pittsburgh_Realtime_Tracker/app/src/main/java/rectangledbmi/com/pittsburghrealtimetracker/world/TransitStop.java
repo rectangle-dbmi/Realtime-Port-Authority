@@ -5,6 +5,7 @@ import com.google.android.gms.maps.model.Marker;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -101,6 +102,10 @@ public class TransitStop {
         }
     }
 
+    public Set<Integer> getStopIds() {
+        return stops.keySet();
+    }
+
     public class TransitStopContainer {
 
         private Marker marker;
@@ -118,6 +123,7 @@ public class TransitStop {
             if(marker != null) {
                 unSelectedBuses.remove(route);
                 if(selectedBuses.add(route)) {
+                    System.out.println("setting visibility");
                     setVisible(zoom, visibleZoomLevel);
 
                 }
@@ -175,7 +181,9 @@ public class TransitStop {
 
         public boolean setVisible(float zoom, float visibleZoomLevel) {
             if(hasMarker()) {
-                if ((!selectedBuses.isEmpty()) && zoom > visibleZoomLevel) {
+//                System.out.println(zoom);
+//                System.out.println(zoom >= visibleZoomLevel);
+                if ((!selectedBuses.isEmpty()) && zoom >= visibleZoomLevel) {
                     marker.setVisible(true);
 //                    System.out.println(marker);
 //                    System.out.println("Marker should be visible " + marker.isVisible());

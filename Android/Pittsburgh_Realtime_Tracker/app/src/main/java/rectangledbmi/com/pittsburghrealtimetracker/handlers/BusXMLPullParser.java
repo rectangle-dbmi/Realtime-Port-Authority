@@ -77,32 +77,46 @@ public class BusXMLPullParser {
                             bus = new Bus();
                         } else {
                             //below is to add a new vehicle
-                            if ("vid".equals(name)) {
-                                bus.setVid(parser.nextText());
-                            } else if ("tmstmp".equals(name)) {
-                                bus.setTmStmp(parser.nextText());
-                            } else if ("lat".equals(name)) {
-                                bus.setLat(parser.nextText());
-                            } else if ("lon".equals(name)) {
-                                bus.setLon(parser.nextText());
-                            } else if ("hdg".equals(name)) {
-                                bus.setHdg(parser.nextText());
-                            } else if ("pid".equals(name)) {
-                                bus.setPid(parser.nextText());
-                            } else if ("rt".equals(name)) {
-                                bus.setRt(parser.nextText());
-                            } else if ("des".equals(name)) {
-                                bus.setDes(parser.nextText());
-                            } else if ("pdist".equals(name)) {
-                                bus.setPdist(parser.nextText());
-                            } else if ("dly".equals(name)) {
-                                bus.setDly(parser.nextText());
-                            } else if ("spd".equals(name)) {
-                                bus.setSpd(parser.nextText());
-                            } else if ("tablockid".equals(name)) {
-                                bus.setTablockid(parser.nextText());
-                            } else if ("tatripid".equals(name)) {
-                                bus.setTatripid(parser.nextText());
+                            switch (name) {
+                                case "vid":
+                                    bus.setVid(parser.nextText());
+                                    break;
+                                case "tmstmp":
+                                    bus.setTmStmp(parser.nextText());
+                                    break;
+                                case "lat":
+                                    bus.setLat(parser.nextText());
+                                    break;
+                                case "lon":
+                                    bus.setLon(parser.nextText());
+                                    break;
+                                case "hdg":
+                                    bus.setHdg(parser.nextText());
+                                    break;
+                                case "pid":
+                                    bus.setPid(parser.nextText());
+                                    break;
+                                case "rt":
+                                    bus.setRt(parser.nextText());
+                                    break;
+                                case "des":
+                                    bus.setDes(parser.nextText());
+                                    break;
+                                case "pdist":
+                                    bus.setPdist(parser.nextText());
+                                    break;
+                                case "dly":
+                                    bus.setDly(parser.nextText());
+                                    break;
+                                case "spd":
+                                    bus.setSpd(parser.nextText());
+                                    break;
+                                case "tablockid":
+                                    bus.setTablockid(parser.nextText());
+                                    break;
+                                case "tatripid":
+                                    bus.setTatripid(parser.nextText());
+                                    break;
                             }
                         }
                         break;

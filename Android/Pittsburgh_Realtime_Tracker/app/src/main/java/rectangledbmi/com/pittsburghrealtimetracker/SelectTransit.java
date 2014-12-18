@@ -39,6 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestLine;
+import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestTask;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 
@@ -235,7 +236,7 @@ public class SelectTransit extends ActionBarActivity implements
     private void defaultCameraLocation() {
         latitude = PITTSBURGH.latitude;
         longitude = PITTSBURGH.longitude;
-        zoom = (float)15.0;
+        zoom = (float)11.8;
     }
 
     /**
@@ -313,6 +314,7 @@ public class SelectTransit extends ActionBarActivity implements
 
                         if(marker != null) {
                             mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
+//                            new RequestPredictions(marker, busMarkers.keySet(), transitStop.getStopIds());
                             marker.showInfoWindow();
                             return true;
                         }
@@ -568,7 +570,7 @@ public class SelectTransit extends ActionBarActivity implements
                     (currentLongitude > -80.372815 && currentLongitude < -79.414258)) {
                 latitude = currentLatitude;
                 longitude = currentLongitude;
-                zoom = (long) 14.20;
+                zoom = (float) 14.2;
 
             }
         }
