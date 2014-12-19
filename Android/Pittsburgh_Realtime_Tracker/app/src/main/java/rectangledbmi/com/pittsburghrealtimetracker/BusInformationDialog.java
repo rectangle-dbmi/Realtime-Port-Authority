@@ -19,7 +19,7 @@ public class BusInformationDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.Theme_Transparent);
 
         View view = getActivity().getLayoutInflater().inflate(R.layout.fragment_information_dialog, null);
         builder.setView(view);
@@ -37,6 +37,7 @@ public class BusInformationDialog extends DialogFragment {
 
         TextView text = (TextView) view.findViewById(R.id.info_text);
         text.setText(message);
+        text.setTextColor(getResources().getColor(R.color.orange_600));
 
         return builder.create();
     }
