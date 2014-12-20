@@ -16,7 +16,7 @@ import java.util.List;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Prediction;
 
 /**
- * Created by rgupta on 12/17/14.
+ * Created by Ritwik Gupta on 12/17/14.
  */
 public class PredictionsXMLPullParser {
 

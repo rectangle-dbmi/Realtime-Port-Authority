@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- CUSTOM -->
+    <color name="blue_500_trans">#555677fc</color>
+
     <!-- RED -->
     <color name="red_50">#fde0dc</color>
     <color name="red_100">#f9bdbb</color>

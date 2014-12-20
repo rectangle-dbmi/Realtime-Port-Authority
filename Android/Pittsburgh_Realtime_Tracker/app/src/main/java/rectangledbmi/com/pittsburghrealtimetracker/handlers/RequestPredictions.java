@@ -29,7 +29,6 @@ public class RequestPredictions extends AsyncTask<Void, Void, String> {
     @Override
     protected String doInBackground(Void... params) {
         String markerTitle = marker.getTitle();
-//        Matcher m = Pattern.compile("\\(([^)]+)\\)").matcher(markerTitle);
         String snippet = null;
         try {
             URL url = null;
@@ -50,7 +49,6 @@ public class RequestPredictions extends AsyncTask<Void, Void, String> {
         } catch(MalformedURLException e) {
             Log.i("HELLO", e.getMessage());
         }
-
 
         return snippet;
     }

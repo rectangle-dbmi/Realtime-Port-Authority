@@ -4,7 +4,6 @@ import android.location.Location;
 import android.os.AsyncTask;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -22,7 +21,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 import rectangledbmi.com.pittsburghrealtimetracker.R;
@@ -33,25 +31,24 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 
 /**
  * This is the way to add the polylines if it's not present on the map
- *
+ * <p/>
  * REQUIRES PortAuthorityAPI class to get the Port Authority URLs
- *
+ * <p/>
  * TODO: to get the bus stops... change linkedList<LinkedList<LatLng>> to be a custom wrapper
  *
  * @author Jeremy Jao
  */
-//public class RequestLine extends AsyncTask<Void, Void, LinkedList<LatLng>> {
-//public class RequestLine extends AsyncTask<Void, Void, LinkedList<LinkedList<LatLng>>> {
+
 public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
     /**
      * The Google Map
      */
     private GoogleMap mMap;
+
     /**
      * the Map that contains the Polylines by bus route string
      */
     private ConcurrentMap<String, List<Polyline>> patterns;
-//    private ConcurrentMap<String, Polyline> patterns;
 
     /**
      * The route that was selected
@@ -68,8 +65,8 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
      * The route color
      */
     private int color;
+
     //TODO: selectedRoute and color have to go out in order to add the polylines to the map...
-//    public RequestLine(GoogleMap mMap, ConcurrentMap<String, Polyline> patterns, String selectedRoute, int color) {
     public RequestLine(GoogleMap mMap, ConcurrentMap<String, List<Polyline>> patterns,
                        String selectedRoute, ConcurrentMap<Integer, Marker> busStops, int color,
                        float zoomLevel,
@@ -81,20 +78,19 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
         this.selectedRoute = selectedRoute;
         this.color = color;
         this.busStops = busStops;
-        this.zoom = zoom;
+        this.zoom = zoomLevel;
         this.transitStop = stopMap;
         this.zoomVisibility = zoomVisibility;
     }
 
     /**
      * Pull parser that gets the XML from the background
+     *
      * @param voids nothing
      * @return the results to put the PolyLine on the map as a list
      */
     @Override
-//    protected LinkedList<LatLng> doInBackground(Void... voids) {
     protected RequestLineContainer doInBackground(Void... voids) {
-//        LinkedList<LinkedList<LatLng>> points;
         RequestLineContainer points;
         XmlPullParserFactory pullParserFactory;
         try {
@@ -105,7 +101,7 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setConnectTimeout(5000);
             InputStream in = conn.getInputStream();
-            if(in != null) {
+            if (in != null) {
                 parser.setInput(conn.getInputStream(), null);
                 // get the list...
                 points = parseXML(parser);
@@ -125,13 +121,12 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
 
     /**
      * This is the pull parser method to get the polyline points for the specific route
+     *
      * @param parser the XMLPullParser that opens the URL
      * @return the list of points for the Polyline to be added
      * @throws XmlPullParserException
      * @throws IOException
      */
-//    private LinkedList<LatLng> parseXML(XmlPullParser parser) throws XmlPullParserException, IOException {
-//    private LinkedList<LinkedList<LatLng>> parseXML(XmlPullParser parser) throws XmlPullParserException, IOException {
     private RequestLineContainer parseXML(XmlPullParser parser) throws XmlPullParserException, IOException {
 
         LinkedList<LatLng> points = new LinkedList<>();
@@ -149,8 +144,8 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
         String stpid = null;
         boolean isBusStop = false;
 
-        while(eventType != XmlPullParser.END_DOCUMENT) {
-            String name = null;
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            String name;
 
             try {
                 switch (eventType) {
@@ -162,16 +157,13 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
                                 points = new LinkedList<>();
                                 allPoints.add(points);
                                 rtdir = parser.nextText();
-                                //                        addPoints(points, tempLat, tempLong, seq, tempSeq, true);
                                 seq = 1;
                                 break;
                             case "lat":
                                 tempLat = Double.parseDouble(parser.nextText());
-                                //                        System.out.println("Lat: " + tempLat);
                                 break;
                             case "lon":
                                 tempLong = Double.parseDouble(parser.nextText());
-                                //                        System.out.println("Lon: " + tempLong);
                                 break;
                             case "seq":
                                 tempSeq = Integer.parseInt(parser.nextText());
@@ -195,7 +187,7 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
                         name = parser.getName();
                         if ("pt".equals(name)) {
                             seq = addPoints(points, tempLat, tempLong, seq, tempSeq, false);
-                            if(isBusStop) {
+                            if (isBusStop) {
                                 busStopInfos.add(new LineInfo(stpid, stpnm, rtdir, tempLat, tempLong));
                                 isBusStop = false;
                                 stpid = null;
@@ -207,35 +199,33 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
                     }
                 }
 
-            } catch(NullPointerException e) {
+            } catch (NullPointerException e) {
 
             }
             eventType = parser.next();
         }
-//        return putPointsInOrder(allPoints);
         connectPoints(allPoints);
-//        return allPoints;
+
         return new RequestLineContainer(allPoints, busStopInfos);
     }
-
 
 
     private void connectPoints(LinkedList<LinkedList<LatLng>> allPoints) {
         boolean[] firstconnect = new boolean[allPoints.size()];
         boolean[] lastconnect = new boolean[allPoints.size()];
         int firstindex = 0;
-        for(LinkedList<LatLng> firstPoint : allPoints) {
+        for (LinkedList<LatLng> firstPoint : allPoints) {
             LatLng tempLatLng = new LatLng(0, 0);
             float min = Float.MAX_VALUE;
             int lastindex = 0;
             int templastindex = Integer.MAX_VALUE;
-            if(!firstconnect[firstindex]) {
+            if (!firstconnect[firstindex]) {
                 for (LinkedList<LatLng> endPoints : allPoints) {
                     if (!lastconnect[lastindex] && !equals(firstPoint, endPoints)) {
 
                         float tempdistance = distanceBtwn(firstPoint.getFirst(), endPoints.getLast());
 
-                        if (tempdistance == (float)0) {
+                        if (tempdistance == (float) 0) {
                             templastindex = lastindex;
                             firstconnect[firstindex] = true;
                             lastconnect[lastindex++] = true;
@@ -249,10 +239,10 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
                     ++lastindex;
                 }
                 if ((templastindex != Integer.MAX_VALUE &&
-                            !firstconnect[firstindex] &&
-                            !lastconnect[templastindex]) &&
+                        !firstconnect[firstindex] &&
+                        !lastconnect[templastindex]) &&
                         !tempLatLng.equals(new LatLng(0, 0)) &&
-                        (min != Float.MAX_VALUE) && min <= (float)700) {
+                        (min != Float.MAX_VALUE) && min <= (float) 700) {
                     firstPoint.add(0, tempLatLng);
                     firstconnect[firstindex] = true;
                     lastconnect[templastindex] = true;
@@ -284,46 +274,44 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
     /**
      * Adds points to the points list (the list of points for the PolyLine). adds if the sequence is correct
      * and the tempLat or tempLong isn't the initialized value (Africa -> 0.0, 0.0)
-     * @param points the list of points for the Polyline
-     * @param tempLat the temporary latitude
+     *
+     * @param points   the list of points for the Polyline
+     * @param tempLat  the temporary latitude
      * @param tempLong the temporary longitude
-     * @param seq the sequence counter
-     * @param tempSeq What the XML says its sequence is
-     * @param loop whether or not the this is a looparound add (TODO: broken here)
+     * @param seq      the sequence counter
+     * @param tempSeq  What the XML says its sequence is
+     * @param loop     whether or not the this is a looparound add (TODO: broken here)
      * @return the sequence incremented if successful. else the same sequence...
      */
     private int addPoints(LinkedList<LatLng> points, double tempLat, double tempLong, int seq, int tempSeq, boolean loop) {
-        if((tempLat != 0.0 || tempLong != 0.0) && (seq == tempSeq)) {
+        if ((tempLat != 0.0 || tempLong != 0.0) && (seq == tempSeq)) {
             LatLng templatlong = new LatLng(tempLat, tempLong);
-//            if(!points.contains(templatlong)) {
-                points.add(templatlong);
-                return seq + 1;
-//            }
+            points.add(templatlong);
+            return seq + 1;
         }
         return seq;
     }
 
     /**
      * Adds the polyline to the map on the UI thread
-//     * @param latLngs the results from doInBackground obtained from the XML
+     *
      */
     @Override
-//    protected void onPostExecute(LinkedList<LinkedList<LatLng>> latLngs) {
     protected void onPostExecute(RequestLineContainer container) {
         LinkedList<LinkedList<LatLng>> latLngs = container.getPolylinesInfo();
         LinkedList<LineInfo> busStopInfos = container.getBusStopInfos();
         List<Polyline> polylines = new LinkedList<>();
-        if(latLngs != null) {
-            for(LinkedList<LatLng> points : latLngs) {
+        if (latLngs != null) {
+            for (LinkedList<LatLng> points : latLngs) {
                 polylines.add(mMap.addPolyline(new PolylineOptions().addAll(points).color(color).geodesic(true).visible(true)));
             }
             patterns.put(selectedRoute, polylines);
         }
 
-        if(busStopInfos != null) {
+        if (busStopInfos != null) {
 
-            for(LineInfo busStopInfo : busStopInfos) {
-                if(!transitStop.addRouteToMarker(busStopInfo.getStpid(), selectedRoute, zoom, zoomVisibility)) {
+            for (LineInfo busStopInfo : busStopInfos) {
+                if (!transitStop.addRouteToMarker(busStopInfo.getStpid(), selectedRoute, zoom, zoomVisibility)) {
                     Marker marker = mMap.addMarker(new MarkerOptions().
                                     position(busStopInfo.getLatLng()).
                                     alpha(.65f).
@@ -335,23 +323,9 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
                                     anchor(.5f, .5f)
                                     .visible(false)
                     );
-
-                    /*if(*/transitStop.addMarkerToRoute(marker, busStopInfo.getStpid(), selectedRoute, zoom, zoomVisibility);/*)
-                        System.out.println("added stop to transitStop");
-                    else {
-                        System.out.println(busStopInfo.getStpid() + " bus stop never added");
-                    }*/
-                }/* else {
-                    System.out.println("Bus stop already present... added route to marker");
-                }*/
+                    transitStop.addMarkerToRoute(marker, busStopInfo.getStpid(), selectedRoute, zoom, zoomVisibility);
+                }
             }
-
         }
     }
-//    @Override
-//    protected void onPostExecute(LinkedList<LatLng> latLngs) {
-//        if(latLngs != null) {
-//            patterns.put(selectedRoute, mMap.addPolyline(new PolylineOptions().addAll(latLngs).color(color).geodesic(true).visible(true)));
-//        }
-//    }
 }
