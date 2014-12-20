@@ -1,6 +1,7 @@
 package rectangledbmi.com.pittsburghrealtimetracker.handlers;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -11,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.LinkedList;
 import java.util.List;
 
 import rectangledbmi.com.pittsburghrealtimetracker.world.Prediction;
@@ -31,6 +33,7 @@ public class PredictionsXMLPullParser {
         XmlPullParserFactory pullParserFactory = XmlPullParserFactory.newInstance();
         parser = pullParserFactory.newPullParser();
         this.context = context;
+        predictionList = null;
     }
 
     /**
@@ -42,9 +45,11 @@ public class PredictionsXMLPullParser {
      */
     public List<Prediction> createPredictionList() throws IOException, XmlPullParserException {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
         conn.setConnectTimeout(5000);
         InputStream in = conn.getInputStream();
         if(in != null) {
+            predictionList = new LinkedList<>();
             parser.setInput(conn.getInputStream(), null);
             parseXML();
         } else {
@@ -77,43 +82,65 @@ public class PredictionsXMLPullParser {
                 switch (eventType) {
 
                     case (XmlPullParser.START_TAG): {
-                        if ("stpid".equals(name)) { //new vehicle seen and make sure nothing else is there
-                            prediction = new Prediction();
-                            prediction.setStpid(parser.nextText());
-                        } else {
+//                        if ("stpid".equals(name)) { //new vehicle seen and make sure nothing else is there
+//                            prediction = new Prediction();
+//                            prediction.setStpid(parser.nextText());
+//                        } else {
                             //below is to add a new vehicle
-                            if ("vid".equals(name)) {
-                                prediction.setVid(parser.nextText());
-                            } else if ("tmstmp".equals(name)) {
-                                prediction.setTmpstmp(parser.nextText());
-                            } else if ("rt".equals(name)) {
-                                prediction.setRt(parser.nextText());
-                            } else if ("des".equals(name)) {
-                                prediction.setDes(parser.nextText());
-                            } else if ("dly".equals(name)) {
-                                prediction.setDly(parser.nextText());
-                            } else if ("tablockid".equals(name)) {
-                                prediction.setTablockid(parser.nextText());
-                            } else if ("tatripid".equals(name)) {
-                                prediction.setTatripid(parser.nextText());
-                            } else if ("typ".equals(name)) {
-                                prediction.setTyp(parser.nextText());
-                            } else if ("stpnm".equals(name)) {
-                                prediction.setStpnm(parser.nextText());
-                            } else if ("dstp".equals(name)) {
-                                prediction.setDstp(parser.nextText());
-                            } else if ("rtdir".equals(name)) {
-                                prediction.setRtdir(parser.nextText());
-                            } else if ("prdtm".equals(name)) {
-                                prediction.setPrdtm(parser.nextText());
-                            } else if ("prtctdn".equals(name)) {
-                                prediction.setPrdctdn(parser.nextText());
-                            }
+                        Log.i("predictions_xml_start_tag", name);
+                            switch (name) {
+                                case "prd":
+                                    prediction = new Prediction();
+                                    break;
+                                case "vid":
+                                    prediction.setVid(parser.nextText());
+                                    break;
+                                case "tmstmp":
+                                    prediction.setTmpstmp(parser.nextText());
+                                    break;
+                                case "rt":
+                                    prediction.setRt(parser.nextText());
+                                    break;
+                                case "des":
+                                    prediction.setDes(parser.nextText());
+                                    break;
+                                case "dly":
+                                    prediction.setDly(parser.nextText());
+                                    break;
+                                case "tablockid":
+                                    prediction.setTablockid(parser.nextText());
+                                    break;
+                                case "tatripid":
+                                    prediction.setTatripid(parser.nextText());
+                                    break;
+                                case "typ":
+                                    prediction.setTyp(parser.nextText());
+                                    break;
+                                case "stpnm":
+                                    prediction.setStpnm(parser.nextText());
+                                    break;
+                                case "stpid":
+                                    prediction.setStpid(parser.nextText());
+                                    break;
+                                case "dstp":
+                                    prediction.setDstp(parser.nextText());
+                                    break;
+                                case "rtdir":
+                                    prediction.setRtdir(parser.nextText());
+                                    break;
+                                case "prdtm":
+                                    prediction.setPrdtm(parser.nextText());
+                                    break;
+                                case "prtctdn":
+                                    prediction.setPrdctdn(parser.nextText());
+                                    break;
+//                            }
                         }
                         break;
                     }
                     case (XmlPullParser.END_TAG): { //adds to new vehicle
-                        if ("stpid".equals(name)) {
+                        if ("prd".equals(name)) {
+                            Log.i("prediction_object", prediction.toString());
                             predictionList.add(prediction);
                         }
                         break;
@@ -121,7 +148,7 @@ public class PredictionsXMLPullParser {
 
                 }
             } catch (NullPointerException e) {
-                System.err.println("Prediction get error.");
+                Log.e("nullpointer_xml", e.getMessage());
             }
             eventType = parser.next();
         }

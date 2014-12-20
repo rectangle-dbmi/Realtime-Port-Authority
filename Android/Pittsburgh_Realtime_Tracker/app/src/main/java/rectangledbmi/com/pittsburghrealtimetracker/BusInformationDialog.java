@@ -17,6 +17,14 @@ public class BusInformationDialog extends DialogFragment {
     String message;
     String title;
 
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
