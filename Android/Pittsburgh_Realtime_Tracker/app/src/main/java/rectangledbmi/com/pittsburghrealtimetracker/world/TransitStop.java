@@ -198,7 +198,7 @@ public class TransitStop {
             if(marker != null) {
                 unSelectedBuses.remove(route);
                 if(selectedBuses.add(route)) {
-                    System.out.println("setting visibility");
+//                    System.out.println("setting visibility");
                     setVisible(zoom, visibleZoomLevel);
 
                 }

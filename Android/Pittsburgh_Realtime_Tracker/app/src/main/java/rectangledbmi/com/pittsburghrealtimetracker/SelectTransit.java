@@ -303,12 +303,12 @@ public class SelectTransit extends ActionBarActivity implements
                     public boolean onMarkerClick(Marker marker) {
                         if (marker != null) {
                             mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
-                            new RequestPredictions(marker, busMarkers.keySet(), transitStop.getStopIds());
-                            marker.showInfoWindow();
+                            new RequestPredictions(busMarkers.keySet(), transitStop.getStopIds(), getFragmentManager(), getApplicationContext()).execute(marker.getTitle());
+//                            marker.showInfoWindow();
 
                             String message = "Stop 1:\tPRDTM\nStop 2:\tPRDTM";
                             String title = "Bus";
-                            showDialog(message, title);
+//                            showDialog(message, title);
 
                             return true;
                         }
@@ -319,14 +319,7 @@ public class SelectTransit extends ActionBarActivity implements
         }
     }
 
-    public void showDialog(String message, String title) {
-        BusInformationDialog busInfoDialog = new BusInformationDialog();
-        busInfoDialog.message = message;
-        busInfoDialog.title = title;
-        busInfoDialog.setStyle(R.style.Base_Theme_AppCompat_Light_Dialog, 0);
-        busInfoDialog.setCancelable(true);
-        busInfoDialog.show(getFragmentManager(), "Test");
-    }
+
 
     @Override
     protected void onStart() {
