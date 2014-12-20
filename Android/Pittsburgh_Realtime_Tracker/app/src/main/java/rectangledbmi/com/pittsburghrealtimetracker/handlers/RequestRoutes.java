@@ -61,7 +61,6 @@ public class RequestRoutes extends AsyncTask<Void, Void, Map<String, Route>> {
             System.out.println("Routes are not being added");
         }
 
-
         return routes;
     }
 }
