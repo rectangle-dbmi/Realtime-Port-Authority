@@ -18,6 +18,9 @@ public class BusInformationDialog extends DialogFragment {
     String title;
 
     public void setMessage(String message) {
+        if(message.length() < 3){
+            message = "No predictions";
+        }
         this.message = message;
     }
 

@@ -5,14 +5,11 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.google.android.gms.maps.model.Marker;
-
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -69,6 +66,7 @@ public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
     protected ETAContainer doInBackground(String... marker) {
 //        System.out.println("marker title: " + marker[0]);
         String markerTitle = marker[0];
+        String message = "";
 //        String snippet = null;
         try {
             URL url = null;
@@ -95,13 +93,14 @@ public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
                     for(Prediction prediction : predictions) {
                         StringBuilder addString = new StringBuilder(prediction.getPrdtm().split(" ")[1]);
                         System.out.println(addString);
+                        int i = 0;
                         if(sw == 0) {
-
                             StringBuilder tempString = idTimes.putIfAbsent(prediction.getStpnm(), addString);
                             if(tempString != null) {
                                 tempString.append("\t");
                                 tempString.append(addString);
                             }
+                            message = createMessage(idTimes, sw);
                             System.out.println(idTimes.get(prediction.getStpid()));
                         } else if (sw == 1) {
                             StringBuilder tempString = idTimes.putIfAbsent(prediction.getRt(), addString);
@@ -110,9 +109,9 @@ public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
                                 tempString.append(addString);
                                 System.out.println(idTimes.get(prediction.getVid()));
                             }
+                            message = createMessage(idTimes, sw);
                         }
                     }
-                    String message = createMessage(idTimes, sw);
                     System.out.println(message);
                     return new ETAContainer(markerTitle, message);
                 }
@@ -141,11 +140,14 @@ public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
     public String createMessage(ConcurrentHashMap<String, StringBuilder> idTimes, int sw) {
         StringBuilder st = new StringBuilder();
         Set<Map.Entry<String, StringBuilder>> idEntries = idTimes.entrySet();
+        int i = 0;
         for(Map.Entry<String, StringBuilder> info : idEntries) {
+            if(i == 5 && sw == 0){ break; }
+            i++;
             System.out.println("key: " + info.getKey());
             System.out.println("value " + info.getValue());
             st.append(info.getKey());
-            st.append(":\n\t");
+            st.append(":\n  ");
             st.append(info.getValue());
             st.append("\n");
         }
