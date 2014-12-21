@@ -53,7 +53,7 @@ public class BusInformationDialog extends DialogFragment {
         //Set message and color
         TextView text = (TextView) view.findViewById(R.id.info_text);
         text.setText(message);
-        text.setTextColor(getResources().getColor(R.color.orange_600));
+        text.setTextColor(Color.WHITE);
 
         //Add animations to Dialog
         final Dialog dialog = builder.create();
