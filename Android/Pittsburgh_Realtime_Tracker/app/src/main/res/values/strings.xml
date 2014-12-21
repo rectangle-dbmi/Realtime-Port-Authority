@@ -297,7 +297,7 @@
     <string name="action_about">About</string>
     <string name="title_activity_about">About</string>
     <string name="hello_world">Hello world!</string>
-    <string name="info_dismiss">Dismiss</string>
+    <string name="info_dismiss">Looks good!</string>
     <!-- About Strings -->
     <string name="created_by">This app was created with love by:</string>
     <string name="ritwik">Ritwik Gupta (Developer)</string>
