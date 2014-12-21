@@ -5,11 +5,18 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.Marker;
+
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,8 +37,11 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.Prediction;
 public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
 
 //    private Marker marker;
+    private GoogleMap mMap;
+    private Marker marker;
     private Set<Integer> busIds;
     private Set<Integer> stopIds;
+    private Set<String> selectedBuses;
     private FragmentManager fragmentManager;
     private Context context;
 
@@ -43,10 +53,17 @@ public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
      * @param fragmentManager the fragment manager class from the activity
      * @param context the context of the activity
      */
-    public RequestPredictions(Set<Integer> busIds, Set<Integer> stopIds, FragmentManager fragmentManager, Context context) {
-//        this.marker = marker;
+    public RequestPredictions(GoogleMap mMap,
+                              Marker marker,
+                              Set<Integer> busIds, Set<Integer> stopIds,
+                              FragmentManager fragmentManager,
+                              Set<String> selectedBuses,
+                              Context context) {
+        this.marker = marker;
+        this.mMap = mMap;
         this.busIds = busIds;
         this.stopIds = stopIds;
+        this.selectedBuses = selectedBuses;
         this.fragmentManager = fragmentManager;
         this.context = context;
     }
@@ -59,13 +76,12 @@ public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
      * * get the info of the bus or stop id
      * * return this into an ETAContainer
      *
-     * @param marker the title of the marker
      * @return an ETA Container that contains the dialog's title and message
      */
     @Override
-    protected ETAContainer doInBackground(String... marker) {
+    protected ETAContainer doInBackground(String... params) {
 //        System.out.println("marker title: " + marker[0]);
-        String markerTitle = marker[0];
+        String markerTitle = params[0];
         String message = "";
 //        String snippet = null;
         try {
@@ -73,13 +89,13 @@ public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
             int id = Integer.parseInt(markerTitle.substring(markerTitle.indexOf("(") + 1, markerTitle.indexOf(")")));
             int sw = -1;
             if (busIds.contains(id)) {
-                System.out.println("bus");
+                Log.i("prediction_type", "bus");
                 url = PortAuthorityAPI.getBusPredictions(id);
 
                 sw = 0; //looking at a bus id
             } else if (stopIds.contains(id)) {
-                System.out.println("stop");
-                url = PortAuthorityAPI.getStopPredictions(id);
+                Log.i("prediction_type", "stop");
+                url = PortAuthorityAPI.getStopPredictions(id, selectedBuses);
                 sw = 1; // we are looking at a stopID
             }
 //            System.out.println(url);
@@ -88,31 +104,45 @@ public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
                 PredictionsXMLPullParser predictionsXMLPullParser = new PredictionsXMLPullParser(url, context);
                 List<Prediction> predictions = predictionsXMLPullParser.createPredictionList();
                 StringBuilder st = new StringBuilder();
-                ConcurrentHashMap<String, StringBuilder> idTimes = new ConcurrentHashMap<>();
+                ConcurrentHashMap<String, StringBuilder> busPredictions = new ConcurrentHashMap<>();
+                LinkedList<String> stopPredictions = new LinkedList<>();
+
                 if(predictions != null) {
+                    int i = 0;
                     for(Prediction prediction : predictions) {
-                        StringBuilder addString = new StringBuilder(prediction.getPrdtm().split(" ")[1]);
-                        System.out.println(addString);
-                        int i = 0;
-                        if(sw == 0) {
-                            StringBuilder tempString = idTimes.putIfAbsent(prediction.getStpnm(), addString);
+                        Log.i("time", prediction.getPrdtm().split(" ")[1]);
+                        SimpleDateFormat date = new SimpleDateFormat("hh:mm a");
+
+                        StringBuilder addString = new StringBuilder(date.format(new SimpleDateFormat("HH:mm").parse(prediction.getPrdtm().split(" ")[1])));
+//                        System.out.println(addString);
+
+                        if(sw == 0) { // bus dialog that displays stops
+                          /*  StringBuilder tempString = busPredictions.putIfAbsent(prediction.getStpnm(), addString);
                             if(tempString != null) {
                                 tempString.append("\t");
                                 tempString.append(addString);
-                            }
-                            message = createMessage(idTimes, sw);
-                            System.out.println(idTimes.get(prediction.getStpid()));
-                        } else if (sw == 1) {
-                            StringBuilder tempString = idTimes.putIfAbsent(prediction.getRt(), addString);
+                            }*/
+                            stopPredictions.add("(" + prediction.getStpid() + ")" + prediction.getStpnm() + ":\t" + addString);
+                            if(++i == 5)
+                                break;
+//                            message = createMessage(busPredictions, sw);
+//                            System.out.println(busPredictions.get(prediction.getStpid()));
+                        } else if (sw == 1) { // stop dialog that displays routes
+                            StringBuilder tempString = busPredictions.putIfAbsent(prediction.getRt(), addString);
                             if(tempString != null) {
                                 tempString.append("\t");
                                 tempString.append(addString);
-                                System.out.println(idTimes.get(prediction.getVid()));
+//                                System.out.println(busPredictions.get(prediction.getVid()));
                             }
-                            message = createMessage(idTimes, sw);
+//                            message = createMessage(busPredictions, sw);
                         }
                     }
-                    System.out.println(message);
+                    if(sw == 0) {
+                        message = createMessage(stopPredictions);
+                    } else if(sw == 1) {
+                        message = createMessage(busPredictions, sw);
+                    }
+//                    System.out.println(message);
                     return new ETAContainer(markerTitle, message);
                 }
             }
@@ -122,6 +152,8 @@ public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
             Log.i("HELLO", e.getMessage());
         } catch (XmlPullParserException | IOException e) {
             Log.e("XML_ERROR", e.getMessage());
+            e.printStackTrace();
+        } catch (ParseException e) {
             e.printStackTrace();
         }
 
@@ -144,8 +176,8 @@ public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
         for(Map.Entry<String, StringBuilder> info : idEntries) {
             if(i == 5 && sw == 0){ break; }
             i++;
-            System.out.println("key: " + info.getKey());
-            System.out.println("value " + info.getValue());
+//            System.out.println("key: " + info.getKey());
+//            System.out.println("value " + info.getValue());
             st.append(info.getKey());
             st.append(":\n  ");
             st.append(info.getValue());
@@ -155,9 +187,21 @@ public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
         return st.toString();
     }
 
+    public String createMessage(LinkedList<String> stringLinkedList) {
+        StringBuilder st = new StringBuilder();
+
+        for(String string : stringLinkedList) {
+            st.append(string);
+            st.append("\n");
+        }
+
+        return st.toString();
+    }
+
     protected void onPostExecute(ETAContainer container) {
         if(container != null) {
             showDialog(container.getMessage(), container.getTitle());
+
 //        if(snippet != null && snippet.length() > 0)
 //            marker.setSnippet(snippet);
         }

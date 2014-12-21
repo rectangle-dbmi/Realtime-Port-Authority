@@ -87,7 +87,7 @@ public class PredictionsXMLPullParser {
 //                            prediction.setStpid(parser.nextText());
 //                        } else {
                             //below is to add a new vehicle
-                        Log.i("predictions_xml_start_tag", name);
+//                        Log.i("predictions_xml_start_tag", name);
                             switch (name) {
                                 case "prd":
                                     prediction = new Prediction();
@@ -140,7 +140,7 @@ public class PredictionsXMLPullParser {
                     }
                     case (XmlPullParser.END_TAG): { //adds to new vehicle
                         if ("prd".equals(name)) {
-                            Log.i("prediction_object", prediction.toString());
+//                            Log.i("prediction_object", prediction.toString());
                             predictionList.add(prediction);
                         }
                         break;

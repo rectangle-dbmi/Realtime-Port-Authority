@@ -316,7 +316,7 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
                                     position(busStopInfo.getLatLng()).
                                     alpha(.65f).
                                     flat(false).
-                                    title("(" + busStopInfo.getStpid() + ") " + busStopInfo.getStpnm()).
+                                    title("(" + busStopInfo.getStpid() + ") " + busStopInfo.getStpnm() + " " + busStopInfo.getRtdir()).
                                     snippet(busStopInfo.getRtdir()).
                                     draggable(false).
                                     icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_stop)).

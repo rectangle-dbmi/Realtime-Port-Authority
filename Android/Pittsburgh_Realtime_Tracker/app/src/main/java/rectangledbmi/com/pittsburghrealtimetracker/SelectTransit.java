@@ -183,7 +183,7 @@ public class SelectTransit extends ActionBarActivity implements
         inSavedState = false;
         restoreInstanceState(savedInstanceState);
         isBusTaskRunning = false;
-
+        zoom = 15.0f;
     }
 
     /**
@@ -301,13 +301,23 @@ public class SelectTransit extends ActionBarActivity implements
                 mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                     @Override
                     public boolean onMarkerClick(Marker marker) {
+
                         if (marker != null) {
-                            mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
-                            new RequestPredictions(busMarkers.keySet(), transitStop.getStopIds(), getFragmentManager(), getApplicationContext()).execute(marker.getTitle());
+                            final Marker mark = marker;
+                            mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()), 400, null);
+                            final Handler handler = new Handler();
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    new RequestPredictions(mMap, mark, busMarkers.keySet(), transitStop.getStopIds(), getFragmentManager(), buses,
+                                            getApplicationContext()).execute(mark.getTitle());
+                                }
+                            }, 400);
+
 //                            marker.showInfoWindow();
 
-                            String message = "Stop 1:\tPRDTM\nStop 2:\tPRDTM";
-                            String title = "Bus";
+//                            String message = "Stop 1:\tPRDTM\nStop 2:\tPRDTM";
+//                            String title = "Bus";
 //                            showDialog(message, title);
 
                             return true;
@@ -499,7 +509,7 @@ public class SelectTransit extends ActionBarActivity implements
                     (currentLongitude > -80.372815 && currentLongitude < -79.414258)) {
                 latitude = currentLatitude;
                 longitude = currentLongitude;
-                zoom = (float) 14.2;
+                zoom = (float) 15.0;
 
             }
         }
@@ -519,7 +529,14 @@ public class SelectTransit extends ActionBarActivity implements
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         if (sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
             clearAndAddToMap();
-            restorePolylines();
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    restorePolylines();
+                }
+            }, 100);
+
         }
     }
 
