@@ -93,7 +93,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
         if (!context.isBusTaskRunning()) {
             context.setBusTaskRunning(true);
 
-            Log.e("onPostExecute ERROR", "Task starting after thread ran");
+            Log.i("onPostExecute ERROR", "Task starting after thread ran");
 
             if (bl != null) {
 
@@ -113,7 +113,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                 removeOldBuses();
                 context.setBusMarkers(newBusMarkers);
             }
-            System.out.println("Task has stopped running");
+            Log.i("onPostExecute task_stop", "Task has stopped running");
             context.setBusTaskRunning(false);
         }
     }
@@ -139,9 +139,10 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                 addNewMarker(bus, latlng, newBusMarkers);
             }
         } catch (NullPointerException e) {
-            System.err.println("Something went wrong while updating...");
+            Log.e("bus_nullpointer", "Something went wrong while updating...");
         } catch (IllegalArgumentException e) {
-            System.err.println("Somehow the marker is missing");
+            Log.e("bus_illegalargument", "Somehow the marker is missing");
+
         }
     }
 
@@ -165,7 +166,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
         try {
             newBusMarkers.put(bus.getVid(), mMap.addMarker(marker));
         } catch (NullPointerException e) {
-            System.err.println("mMap or marker is null");
+            Log.e("null_new_bus", "mMap or marker is null");
         }
     }
 
