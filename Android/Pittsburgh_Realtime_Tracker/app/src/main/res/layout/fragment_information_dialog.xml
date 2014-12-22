@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/info_text"
         android:textAppearance="@android:style/TextAppearance.Theme.Dialog"
+        android:textColor="@android:color/secondary_text_dark"
         android:gravity="left"
         android:layout_gravity="center_horizontal"
         android:layout_margin="8dp"/>

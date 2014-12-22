@@ -93,7 +93,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
         if (!context.isBusTaskRunning()) {
             context.setBusTaskRunning(true);
 
-            Log.i("onPostExecute ERROR", "Task starting after thread ran");
+            Log.i("onPostExecute task_start", "Task starting after thread ran");
 
             if (bl != null) {
 

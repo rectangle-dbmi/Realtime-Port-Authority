@@ -5,7 +5,9 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -53,12 +55,15 @@ public class BusInformationDialog extends DialogFragment {
         //Set message and color
         TextView text = (TextView) view.findViewById(R.id.info_text);
         text.setText(message);
-        text.setTextColor(Color.WHITE);
 
         //Add animations to Dialog
         final Dialog dialog = builder.create();
-        dialog.getWindow().getAttributes().windowAnimations = R.style.Theme_BusDialogTransparent;
-
+        WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
+        params.windowAnimations = R.style.Theme_BusDialogTransparent;
+        params.y = 500;
+        dialog.getWindow().setGravity(Gravity.TOP|Gravity.CENTER);
+        dialog.getWindow().setAttributes(params);
+//        getDialog().getWindow().setAttributes(params);
         return dialog;
     }
 
