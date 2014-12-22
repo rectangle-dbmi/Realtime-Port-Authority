@@ -1,7 +1,9 @@
 package rectangledbmi.com.pittsburghrealtimetracker.handlers;
 
 import android.location.Location;
+import android.net.http.HttpResponseCache;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -100,6 +102,15 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
             URL url = PortAuthorityAPI.getPatterns(selectedRoute);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setConnectTimeout(5000);
+            conn.setUseCaches(true);
+
+            conn.addRequestProperty("Cache-Control", "max-age="+(60*60*24));
+            HttpResponseCache cache = HttpResponseCache.getInstalled();
+            if(cache != null) {
+                Log.i("cache_info_lines", selectedRoute + ": " + Integer.toString(cache.getHitCount()));
+            } else {
+                Log.i("cache_info", selectedRoute + ": " + "cache is empty");
+            }
             InputStream in = conn.getInputStream();
             if (in != null) {
                 parser.setInput(conn.getInputStream(), null);
@@ -298,32 +309,34 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
      */
     @Override
     protected void onPostExecute(RequestLineContainer container) {
-        LinkedList<LinkedList<LatLng>> latLngs = container.getPolylinesInfo();
-        LinkedList<LineInfo> busStopInfos = container.getBusStopInfos();
-        List<Polyline> polylines = new LinkedList<>();
-        if (latLngs != null) {
-            for (LinkedList<LatLng> points : latLngs) {
-                polylines.add(mMap.addPolyline(new PolylineOptions().addAll(points).color(color).geodesic(true).visible(true)));
+        if(container != null) {
+            LinkedList<LinkedList<LatLng>> latLngs = container.getPolylinesInfo();
+            LinkedList<LineInfo> busStopInfos = container.getBusStopInfos();
+            List<Polyline> polylines = new LinkedList<>();
+            if (latLngs != null) {
+                for (LinkedList<LatLng> points : latLngs) {
+                    polylines.add(mMap.addPolyline(new PolylineOptions().addAll(points).color(color).geodesic(true).visible(true)));
+                }
+                patterns.put(selectedRoute, polylines);
             }
-            patterns.put(selectedRoute, polylines);
-        }
 
-        if (busStopInfos != null) {
+            if (busStopInfos != null) {
 
-            for (LineInfo busStopInfo : busStopInfos) {
-                if (!transitStop.addRouteToMarker(busStopInfo.getStpid(), selectedRoute, zoom, zoomVisibility)) {
-                    Marker marker = mMap.addMarker(new MarkerOptions().
-                                    position(busStopInfo.getLatLng()).
-                                    alpha(.65f).
-                                    flat(false).
-                                    title("(" + busStopInfo.getStpid() + ") " + busStopInfo.getStpnm() + " " + busStopInfo.getRtdir()).
-                                    snippet(busStopInfo.getRtdir()).
-                                    draggable(false).
-                                    icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_stop)).
-                                    anchor(.5f, .5f)
-                                    .visible(false)
-                    );
-                    transitStop.addMarkerToRoute(marker, busStopInfo.getStpid(), selectedRoute, zoom, zoomVisibility);
+                for (LineInfo busStopInfo : busStopInfos) {
+                    if (!transitStop.addRouteToMarker(busStopInfo.getStpid(), selectedRoute, zoom, zoomVisibility)) {
+                        Marker marker = mMap.addMarker(new MarkerOptions().
+                                        position(busStopInfo.getLatLng()).
+                                        alpha(.65f).
+                                        flat(false).
+                                        title("(" + busStopInfo.getStpid() + ") " + busStopInfo.getStpnm() + " " + busStopInfo.getRtdir()).
+                                        snippet(busStopInfo.getRtdir()).
+                                        draggable(false).
+                                        icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_stop)).
+                                        anchor(.5f, .5f)
+                                        .visible(false)
+                        );
+                        transitStop.addMarkerToRoute(marker, busStopInfo.getStpid(), selectedRoute, zoom, zoomVisibility);
+                    }
                 }
             }
         }

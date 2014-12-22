@@ -45,6 +45,7 @@ public class BusXMLPullParser {
     public List<Bus> createBusList() throws IOException, XmlPullParserException {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setConnectTimeout(5000);
+        conn.setUseCaches(false);
         InputStream in = conn.getInputStream();
         if(in != null) {
             parser.setInput(conn.getInputStream(), null);

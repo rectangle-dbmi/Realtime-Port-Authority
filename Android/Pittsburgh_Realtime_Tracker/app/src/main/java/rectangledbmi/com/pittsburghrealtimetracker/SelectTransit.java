@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.http.HttpResponseCache;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -29,6 +30,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polyline;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -181,6 +183,7 @@ public class SelectTransit extends ActionBarActivity implements
         createBusList();
         //sets up the map
         inSavedState = false;
+        enableHttpResponseCache();
         restoreInstanceState(savedInstanceState);
         isBusTaskRunning = false;
         zoom = 15.0f;
@@ -195,6 +198,22 @@ public class SelectTransit extends ActionBarActivity implements
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
+    }
+
+    private void enableHttpResponseCache() {
+        try {
+            long httpCacheSize = 10 * 1024 * 1024; // 10 MiB
+            File fetch = getExternalCacheDir();
+            if(fetch == null) {
+                fetch = getCacheDir();
+            }
+            File httpCacheDir = new File(fetch, "http");
+            Class.forName("android.net.http.HttpResponseCache")
+                    .getMethod("install", File.class, long.class)
+                    .invoke(null, httpCacheDir, httpCacheSize);
+        } catch (Exception httpResponseCacheNotAvailable) {
+            Log.d("HTTP_response_cache", "HTTP response cache is unavailable.");
+        }
     }
 
     /**
@@ -358,6 +377,10 @@ public class SelectTransit extends ActionBarActivity implements
         stopTimer();
         savePreferences();
         client.disconnect();
+        HttpResponseCache cache = HttpResponseCache.getInstalled();
+        if (cache != null) {
+            cache.flush();
+        }
         super.onStop();
     }
 
@@ -525,9 +548,10 @@ public class SelectTransit extends ActionBarActivity implements
      */
     protected void setUpMap() {
 //        System.out.println("restore...");
-        clearMap();
+//        clearMap();
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         if (sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
+
             clearAndAddToMap();
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {

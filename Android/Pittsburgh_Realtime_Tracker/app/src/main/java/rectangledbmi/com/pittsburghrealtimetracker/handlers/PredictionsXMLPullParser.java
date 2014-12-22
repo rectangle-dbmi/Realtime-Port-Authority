@@ -47,6 +47,7 @@ public class PredictionsXMLPullParser {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
         conn.setConnectTimeout(5000);
+        conn.setUseCaches(false);
         InputStream in = conn.getInputStream();
         if(in != null) {
             predictionList = new LinkedList<>();

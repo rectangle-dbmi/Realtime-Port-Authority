@@ -4,6 +4,7 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.WindowManager;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -212,7 +213,7 @@ public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
         BusInformationDialog busInfoDialog = new BusInformationDialog();
         busInfoDialog.setMessage(message);
         busInfoDialog.setTitle(title);
-        busInfoDialog.setStyle(R.style.Base_Theme_AppCompat_Light_Dialog, 0);
+        busInfoDialog.setStyle(R.style.Base_Theme_AppCompat_Light_Dialog, 10);
         busInfoDialog.setCancelable(true);
         busInfoDialog.show(fragmentManager, "ETAs");
 //        busInfoDialog.show();
