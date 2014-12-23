@@ -7,10 +7,13 @@ the Google Maps API.
 
 ### Features:
 - Buses Run at Realtime
+- shows ETAs of buses to stops and stops to buses
+- shows stop markers above a certain zoom
 - ListView saves via sharedpreferences
 - polylines added via Asynctask
 - multiple polylines connected to each other
-- uses xml to read and write
+- uses xml to read and write via XmlPullParser
+
 
 ### Releases:
 - [Google Play Store](https://play.google.com/store/apps/details?id=rectangledbmi.com.pittsburghrealtimetracker)

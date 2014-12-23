@@ -297,6 +297,7 @@
     <string name="action_about">About</string>
     <string name="title_activity_about">About</string>
     <string name="hello_world">Hello world!</string>
+    <string name="info_dismiss">Looks good!</string>
     <!-- About Strings -->
     <string name="created_by">This app was created with love by:</string>
     <string name="ritwik">Ritwik Gupta (Developer)</string>
@@ -304,7 +305,9 @@
     <string name="vincent">Vincent Agresti (Project Manager)</string>
     <string name="remark_1">This application is open source:</string>
     <string name="source_code">https://github.com/rectangle-dbmi/Realtime-Port-Authority</string>
-    <string name="versionName">2.20</string>
+    <string name="versionName">3.0</string>
+    <string name="zoom_level">15.0</string>
     <string name="disclaim">DISCLAMER: We are not responsible for which buses and routes are being tracked as we are only getting the information from Port Authority. If a certain route or bus is not on our app, this is most likely not our fault but of Port Authority. If the map is empty, please report this to our Play Store email or create an issue on our Github above immediately.</string>
     <string name="route_not_found">is not found. Either there is no route information, no internet connection, or the API Call limit has been exceeded.</string>
+    <string name="predictions_not_available">No predictions found.</string>
 </resources>

@@ -31,7 +31,6 @@ public class BusSaxHandler extends TransitSAXHandler {
                 busList.add(bus);
                 bus.setVid(content);
 
-                // For all other end tags the bus has to be updated.
             } else if (qName.equals("lat")) {
                 bus.setLat(content);
 

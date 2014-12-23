@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.http.HttpResponseCache;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -24,10 +25,12 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polyline;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -38,7 +41,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestLine;
+import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestTask;
+import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter;
+import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 
 /**
  * This is the main activity of the
@@ -158,6 +164,8 @@ public class SelectTransit extends ActionBarActivity implements
 
     private ConcurrentMap<Integer, Marker> busStops;
 
+    private TransitStop transitStop;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -176,13 +184,10 @@ public class SelectTransit extends ActionBarActivity implements
         createBusList();
         //sets up the map
         inSavedState = false;
+        enableHttpResponseCache();
         restoreInstanceState(savedInstanceState);
         isBusTaskRunning = false;
-
-
-//        setUpMapIfNeeded();
-
-
+//        zoom = 15.0f;
     }
 
     /**
@@ -194,6 +199,22 @@ public class SelectTransit extends ActionBarActivity implements
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
+    }
+
+    private void enableHttpResponseCache() {
+        try {
+            long httpCacheSize = 10 * 1024 * 1024; // 10 MiB
+            File fetch = getExternalCacheDir();
+            if(fetch == null) {
+                fetch = getCacheDir();
+            }
+            File httpCacheDir = new File(fetch, "http");
+            Class.forName("android.net.http.HttpResponseCache")
+                    .getMethod("install", File.class, long.class)
+                    .invoke(null, httpCacheDir, httpCacheSize);
+        } catch (Exception httpResponseCacheNotAvailable) {
+            Log.d("HTTP_response_cache", "HTTP response cache is unavailable.");
+        }
     }
 
     /**
@@ -210,13 +231,15 @@ public class SelectTransit extends ActionBarActivity implements
         }
         if (savedInstanceState != null) {
             inSavedState = true;
-//            buses = new HashSet<String>(savedInstanceState.getStringArray(BUS_SELECT_STATE));
-//            buses = new HashSet<String>(savedInstanceState.getStringArrayList(BUS_SELECT_STATE));
             latitude = savedInstanceState.getDouble(LAST_LATITUDE);
             longitude = savedInstanceState.getDouble(LAST_LONGITUDE);
             zoom = savedInstanceState.getFloat(LAST_ZOOM);
         } else {
             defaultCameraLocation();
+        }
+
+        if (transitStop == null) {
+            transitStop = new TransitStop();
         }
 
     }
@@ -227,7 +250,7 @@ public class SelectTransit extends ActionBarActivity implements
     private void defaultCameraLocation() {
         latitude = PITTSBURGH.latitude;
         longitude = PITTSBURGH.longitude;
-        zoom = (float) 11.88;
+        zoom = (float) 11.8;
     }
 
     /**
@@ -262,7 +285,7 @@ public class SelectTransit extends ActionBarActivity implements
     private void createBusList() {
         //This will be changed as things go
         buses = Collections.synchronizedSet(new HashSet<String>(getResources().getInteger(R.integer.max_checked)));
-//        routeLines = new ConcurrentHashMap<String, Polyline>(getResources().getInteger(R.integer.max_checked));
+
         routeLines = new ConcurrentHashMap<>(getResources().getInteger(R.integer.max_checked));
         busMarkers = new ConcurrentHashMap<>(100);
     }
@@ -274,16 +297,61 @@ public class SelectTransit extends ActionBarActivity implements
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
-            // Try to obtain the map from the SupportMapFragment.
-//            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-//                    .getMap();
             mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
+
                 setUpMap();
+                mMap.setInfoWindowAdapter(new ETAWindowAdapter(getLayoutInflater()));
+                mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+                    @Override
+                    public void onCameraChange(CameraPosition cameraPosition) {
+                        if (zoom != cameraPosition.zoom) {
+                            zoom = cameraPosition.zoom;
+                            transitStop.checkAllVisibility(zoom, Float.parseFloat(getString(R.string.zoom_level)));
+                        }
+                    }
+                });
+
+                /*
+                TODO:
+                a. Make an XML PullParser for getpredictions (all we need is bus route: <list of 3 times>)
+                b. update snippet with the times: marker.setSnippet
+                c. Make the snippet follow Google Maps time implementation!!!
+                d. getpredictions&stpid=marker.getTitle().<regex on \(.+\)> since this is where the stop id is to get stop id.
+                 */
+                mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                    @Override
+                    public boolean onMarkerClick(Marker marker) {
+
+                        if (marker != null) {
+//                            final Marker mark = marker;
+                            mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()), 400, null);
+//                            final Handler handler = new Handler();
+//                            handler.postDelayed(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    new RequestPredictions(mMap, mark, busMarkers.keySet(), transitStop.getStopIds(), getFragmentManager(), buses,
+//                                            getApplicationContext()).execute(mark.getTitle());
+//                                }
+//                            }, 400);
+                            new RequestPredictions(getApplicationContext(), marker, buses).execute(marker.getTitle());
+
+
+//                            String message = "Stop 1:\tPRDTM\nStop 2:\tPRDTM";
+//                            String title = "Bus";
+//                            showDialog(message, title);
+
+                            return true;
+                        }
+                        return false;
+                    }
+                });
             }
         }
     }
+
+
 
     @Override
     protected void onStart() {
@@ -312,6 +380,10 @@ public class SelectTransit extends ActionBarActivity implements
         stopTimer();
         savePreferences();
         client.disconnect();
+        HttpResponseCache cache = HttpResponseCache.getInstalled();
+        if (cache != null) {
+            cache.flush();
+        }
         super.onStop();
     }
 
@@ -341,10 +413,6 @@ public class SelectTransit extends ActionBarActivity implements
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
         onSectionAttached(position);
-//        FragmentManager fragmentManager = getFragmentManager();
-//        fragmentManager.beginTransaction()
-//                .replace(R.id.maps_fragment, MapFragment.newInstance(position + 1))
-//                .commit();
     }
 
     /**
@@ -361,26 +429,19 @@ public class SelectTransit extends ActionBarActivity implements
     private synchronized void setPolyline(int number) {
         String route = getResources().getStringArray(R.array.buses)[number];
         int color = Color.parseColor(getResources().getStringArray(R.array.buscolors)[number]);
-//        Polyline polyline = routeLines.get(route);
         List<Polyline> polylines = routeLines.get(route);
-//        if(polyline == null) {
-//            new RequestLine(mMap, routeLines, route, color).execute();
-//        }
-//        else if(polyline.isVisible()) {
-//            polyline.setVisible(false);
-//        }
-//        else {
-//            polyline.setVisible(true);
-//        }
+
         if (polylines == null) {
-//            System.out.println("polyline was null");
-            new RequestLine(mMap, routeLines, route, busStops, color).execute();
+            new RequestLine(mMap, routeLines, route, busStops, color, zoom, Float.parseFloat(getString(R.string.zoom_level)), transitStop).execute();
         } else if (polylines.isEmpty()) {
             Toast.makeText(this, route + " " + getString(R.string.route_not_found), Toast.LENGTH_LONG).show();
         } else if (polylines.get(0).isVisible()) {
             setVisiblePolylines(polylines, false);
-        } else
+            transitStop.removeRoute(route);
+        } else {
             setVisiblePolylines(polylines, true);
+            transitStop.updateAddRoutes(route, zoom, Float.parseFloat(getString(R.string.zoom_level)));
+        }
     }
 
     /**
@@ -415,7 +476,6 @@ public class SelectTransit extends ActionBarActivity implements
         if (!buses.remove(selected)) {
             buses.add(selected);
         }
-//        clearAndAddToMap();
     }
 
     public void restoreActionBar() {
@@ -428,15 +488,6 @@ public class SelectTransit extends ActionBarActivity implements
             }
         }
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-
-//        ActionBar actionBar = getSupportActionBar();
-//        assert actionBar != null;
-//        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-//        actionBar.setDisplayHomeAsUpEnabled(false);
-//        actionBar.setDisplayShowTitleEnabled(true);
-//        actionBar.setTitle(mTitle);
-//        actionBar.show();
     }
 
     //dunno...
@@ -460,9 +511,6 @@ public class SelectTransit extends ActionBarActivity implements
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
         if (id == R.id.action_select_buses) {
             mNavigationDrawerFragment.openDrawer();
         }
@@ -473,46 +521,6 @@ public class SelectTransit extends ActionBarActivity implements
         }
         return super.onOptionsItemSelected(item);
     }
-
-//    /**
-//     * A placeholder fragment containing a simple view.
-//     */
-//    public static class PlaceholderFragment extends Fragment {
-//        /**
-//         * The fragment argument representing the section number for this
-//         * fragment.
-//         */
-//        private static final String ARG_SECTION_NUMBER = "section_number";
-//
-//        /**
-//         * Returns a new instance of this fragment for the given section
-//         * number.
-//         */
-//        public static PlaceholderFragment newInstance(int sectionNumber) {
-//            PlaceholderFragment fragment = new PlaceholderFragment();
-//            Bundle args = new Bundle();
-//            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-//            fragment.setArguments(args);
-//            return fragment;
-//        }
-//
-//        public PlaceholderFragment() {
-//        }
-//
-//        @Override
-//        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-//                Bundle savedInstanceState) {
-//            View rootView = inflater.inflate(R.layout.fragment_select_transit, container, false);
-//            return rootView;
-//        }
-//
-//        @Override
-//        public void onAttach(Activity activity) {
-//            super.onAttach(activity);
-//            ((SelectTransit) activity).onSectionAttached(
-//                    getArguments().getInt(ARG_SECTION_NUMBER));
-//        }
-//    }
 
     /**
      * Polls self on the map and then centers the map on Pittsburgh or you if you're in Pittsburgh..
@@ -527,9 +535,13 @@ public class SelectTransit extends ActionBarActivity implements
                     (currentLongitude > -80.372815 && currentLongitude < -79.414258)) {
                 latitude = currentLatitude;
                 longitude = currentLongitude;
-                zoom = (long) 14.20;
+                zoom = (float) 15.0;
 
+            } else {
+                zoom = 11.82f;
             }
+        } else {
+            zoom = 11.82f;
         }
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), zoom));
         mMap.setMyLocationEnabled(true);
@@ -543,11 +555,19 @@ public class SelectTransit extends ActionBarActivity implements
      */
     protected void setUpMap() {
 //        System.out.println("restore...");
-        clearMap();
+//        clearMap();
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         if (sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
+
             clearAndAddToMap();
-            restorePolylines();
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    restorePolylines();
+                }
+            }, 100);
+
         }
     }
 
@@ -561,7 +581,6 @@ public class SelectTransit extends ActionBarActivity implements
                 }
             }
         }
-//        System.out.println("Polylines restored");
     }
 
     /**
@@ -640,9 +659,8 @@ public class SelectTransit extends ActionBarActivity implements
     protected void clearMap() {
         busMarkers = null;
         if (mMap != null) {
-//            routeLines = new ConcurrentHashMap<String, Polyline>(getResources().getInteger(R.integer.max_checked));
-            //routeLines.clear();
             routeLines = new ConcurrentHashMap<>(getResources().getInteger(R.integer.max_checked));
+            transitStop = new TransitStop();
             mMap.clear();
         }
     }
@@ -703,11 +721,6 @@ public class SelectTransit extends ActionBarActivity implements
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Log.i("Google API Location Services Error", connectionResult.toString());
         Toast.makeText(this, "Google connection failed, please try again later", Toast.LENGTH_LONG).show();
-/*        switch(connectionResult.getErrorCode()) {
-            case (ConnectionResult.API_UNAVAILABLE) : {
-
-            }
-        }*/
 //        TODO: Perhaps based on the connection result, we can close and make custom error messages.
     }
 
@@ -719,9 +732,7 @@ public class SelectTransit extends ActionBarActivity implements
     }
 
     public void setBusMarkers(ConcurrentMap<Integer, Marker> busMarkers) {
-//        System.out.println("Old busmarker: " + busMarkers);
         this.busMarkers = busMarkers;
-//        System.out.println("New busmarker: " + busMarkers);
     }
 
     public void setBusTaskRunning(boolean isBusTaskRunning) {

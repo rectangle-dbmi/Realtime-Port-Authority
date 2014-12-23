@@ -1,10 +1,15 @@
 package rectangledbmi.com.pittsburghrealtimetracker.handlers;
 
+import android.content.Context;
+import android.widget.Toast;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
@@ -20,13 +25,15 @@ public class BusXMLPullParser {
     private List<Bus> busList;
     private URL url;
     XmlPullParser parser;
+    Context context; //Application context passed in
 
-    public BusXMLPullParser(URL url) throws XmlPullParserException {
+    public BusXMLPullParser(URL url, Context context) throws XmlPullParserException {
 
         this.url = url;
         XmlPullParserFactory pullParserFactory = XmlPullParserFactory.newInstance();
         parser = pullParserFactory.newPullParser();
-        busList = new LinkedList<Bus>();
+        busList = new LinkedList<>();
+        this.context = context;
     }
 
     /**
@@ -36,8 +43,17 @@ public class BusXMLPullParser {
      * @throws XmlPullParserException
      */
     public List<Bus> createBusList() throws IOException, XmlPullParserException {
-        parser.setInput(url.openStream(), null);
-        parseXML();
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setConnectTimeout(5000);
+        conn.setUseCaches(false);
+        InputStream in = conn.getInputStream();
+        if(in != null) {
+            parser.setInput(conn.getInputStream(), null);
+            parseXML();
+        } else {
+            Toast.makeText(context, "Connection Timeout, Internet problem", Toast.LENGTH_LONG).show();
+        }
+
         return getBusList();
     }
 
@@ -69,32 +85,46 @@ public class BusXMLPullParser {
                             bus = new Bus();
                         } else {
                             //below is to add a new vehicle
-                            if ("vid".equals(name)) {
-                                bus.setVid(parser.nextText());
-                            } else if ("tmstmp".equals(name)) {
-                                bus.setTmStmp(parser.nextText());
-                            } else if ("lat".equals(name)) {
-                                bus.setLat(parser.nextText());
-                            } else if ("lon".equals(name)) {
-                                bus.setLon(parser.nextText());
-                            } else if ("hdg".equals(name)) {
-                                bus.setHdg(parser.nextText());
-                            } else if ("pid".equals(name)) {
-                                bus.setPid(parser.nextText());
-                            } else if ("rt".equals(name)) {
-                                bus.setRt(parser.nextText());
-                            } else if ("des".equals(name)) {
-                                bus.setDes(parser.nextText());
-                            } else if ("pdist".equals(name)) {
-                                bus.setPdist(parser.nextText());
-                            } else if ("dly".equals(name)) {
-                                bus.setDly(parser.nextText());
-                            } else if ("spd".equals(name)) {
-                                bus.setSpd(parser.nextText());
-                            } else if ("tablockid".equals(name)) {
-                                bus.setTablockid(parser.nextText());
-                            } else if ("tatripid".equals(name)) {
-                                bus.setTatripid(parser.nextText());
+                            switch (name) {
+                                case "vid":
+                                    bus.setVid(parser.nextText());
+                                    break;
+                                case "tmstmp":
+                                    bus.setTmStmp(parser.nextText());
+                                    break;
+                                case "lat":
+                                    bus.setLat(parser.nextText());
+                                    break;
+                                case "lon":
+                                    bus.setLon(parser.nextText());
+                                    break;
+                                case "hdg":
+                                    bus.setHdg(parser.nextText());
+                                    break;
+                                case "pid":
+                                    bus.setPid(parser.nextText());
+                                    break;
+                                case "rt":
+                                    bus.setRt(parser.nextText());
+                                    break;
+                                case "des":
+                                    bus.setDes(parser.nextText());
+                                    break;
+                                case "pdist":
+                                    bus.setPdist(parser.nextText());
+                                    break;
+                                case "dly":
+                                    bus.setDly(parser.nextText());
+                                    break;
+                                case "spd":
+                                    bus.setSpd(parser.nextText());
+                                    break;
+                                case "tablockid":
+                                    bus.setTablockid(parser.nextText());
+                                    break;
+                                case "tatripid":
+                                    bus.setTatripid(parser.nextText());
+                                    break;
                             }
                         }
                         break;

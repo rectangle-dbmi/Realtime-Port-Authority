@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 21
-    buildToolsVersion '21.1.1'
+    buildToolsVersion '21.1.2'
     defaultConfig {
         applicationId "rectangledbmi.com.pittsburghrealtimetracker"
         minSdkVersion 16
         targetSdkVersion 21
-        versionCode 25
-        versionName "2.20"
+        versionCode 31
+        versionName "3.0"
     }
     buildTypes {
         release {
@@ -26,7 +26,7 @@ dependencies {
     // keep in mind that the latest version I have on my phone is 6.X. Google Play Store prevents me from doing anything about this...
     // Support Libraries
 
-    compile 'com.google.android.gms:play-services:6.1.+'
+    compile 'com.google.android.gms:play-services:6.5.+'
     compile 'com.android.support:support-v4:21.+'
     compile 'com.android.support:appcompat-v7:21.+'
     compile 'com.android.support:gridlayout-v7:21.+'
