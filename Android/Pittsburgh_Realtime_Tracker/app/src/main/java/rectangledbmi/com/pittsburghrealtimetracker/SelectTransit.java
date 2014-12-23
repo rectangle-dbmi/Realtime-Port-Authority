@@ -187,7 +187,7 @@ public class SelectTransit extends ActionBarActivity implements
         enableHttpResponseCache();
         restoreInstanceState(savedInstanceState);
         isBusTaskRunning = false;
-        zoom = 15.0f;
+//        zoom = 15.0f;
     }
 
     /**
@@ -300,6 +300,7 @@ public class SelectTransit extends ActionBarActivity implements
             mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
+
                 setUpMap();
                 mMap.setInfoWindowAdapter(new ETAWindowAdapter(getLayoutInflater()));
                 mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
@@ -536,7 +537,11 @@ public class SelectTransit extends ActionBarActivity implements
                 longitude = currentLongitude;
                 zoom = (float) 15.0;
 
+            } else {
+                zoom = 11.82f;
             }
+        } else {
+            zoom = 11.82f;
         }
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), zoom));
         mMap.setMyLocationEnabled(true);
