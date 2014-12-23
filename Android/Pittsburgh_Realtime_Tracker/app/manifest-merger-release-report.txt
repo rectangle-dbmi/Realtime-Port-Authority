@@ -1,6 +1,8 @@
 -- Merging decision tree log ---
 manifest
 ADDED from AndroidManifest.xml:2:1
+	xmlns:android
+		ADDED from AndroidManifest.xml:2:11
 	package
 		ADDED from AndroidManifest.xml:3:5
 		INJECTED from AndroidManifest.xml:0:0
@@ -8,8 +10,6 @@ ADDED from AndroidManifest.xml:2:1
 	android:versionName
 		INJECTED from AndroidManifest.xml:0:0
 		INJECTED from AndroidManifest.xml:0:0
-	xmlns:android
-		ADDED from AndroidManifest.xml:2:11
 	android:versionCode
 		INJECTED from AndroidManifest.xml:0:0
 		INJECTED from AndroidManifest.xml:0:0
@@ -39,7 +39,7 @@ ADDED from AndroidManifest.xml:15:5
 		ADDED from AndroidManifest.xml:15:22
 application
 ADDED from AndroidManifest.xml:18:5
-MERGED from com.google.android.gms:play-services:6.1.71:16:5
+MERGED from com.google.android.gms:play-services:6.5.87:20:5
 MERGED from com.android.support:support-v4:21.0.3:16:5
 MERGED from com.android.support:support-v4:21.0.3:16:5
 MERGED from com.android.support:appcompat-v7:21.0.3:16:5
@@ -57,10 +57,10 @@ MERGED from com.android.support:support-v4:21.0.3:16:5
 		ADDED from AndroidManifest.xml:19:9
 	android:icon
 		ADDED from AndroidManifest.xml:20:9
-	android:installLocation
-		ADDED from AndroidManifest.xml:21:9
 	android:theme
 		ADDED from AndroidManifest.xml:23:9
+	android:installLocation
+		ADDED from AndroidManifest.xml:21:9
 activity#rectangledbmi.com.pittsburghrealtimetracker.SelectTransit
 ADDED from AndroidManifest.xml:24:9
 	android:label
@@ -79,16 +79,17 @@ ADDED from AndroidManifest.xml:29:17
 		ADDED from AndroidManifest.xml:29:27
 meta-data#com.google.android.gms.version
 ADDED from AndroidManifest.xml:40:9
-	android:value
-		ADDED from AndroidManifest.xml:42:13
+MERGED from com.google.android.gms:play-services:6.5.87:21:9
 	android:name
 		ADDED from AndroidManifest.xml:41:13
+	android:value
+		ADDED from AndroidManifest.xml:42:13
 meta-data#com.google.android.maps.v2.API_KEY
 ADDED from AndroidManifest.xml:43:9
-	android:value
-		ADDED from AndroidManifest.xml:45:13
 	android:name
 		ADDED from AndroidManifest.xml:44:13
+	android:value
+		ADDED from AndroidManifest.xml:45:13
 activity#rectangledbmi.com.pittsburghrealtimetracker.AboutActivity
 ADDED from AndroidManifest.xml:47:9
 	android:label
@@ -99,13 +100,13 @@ ADDED from AndroidManifest.xml:47:9
 		ADDED from AndroidManifest.xml:48:13
 meta-data#android.support.PARENT_ACTIVITY
 ADDED from AndroidManifest.xml:51:13
-	android:value
-		ADDED from AndroidManifest.xml:53:17
 	android:name
 		ADDED from AndroidManifest.xml:52:17
+	android:value
+		ADDED from AndroidManifest.xml:53:17
 uses-sdk
 INJECTED from AndroidManifest.xml:0:0 reason: use-sdk injection requested
-MERGED from com.google.android.gms:play-services:6.1.71:15:5
+MERGED from com.google.android.gms:play-services:6.5.87:18:5
 MERGED from com.android.support:support-v4:21.0.3:15:5
 MERGED from com.android.support:support-v4:21.0.3:15:5
 MERGED from com.android.support:appcompat-v7:21.0.3:15:5

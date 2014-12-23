@@ -129,7 +129,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
         try {
             Marker mark = busMarkers.remove(bus.getVid());
             if (mark != null) {
-                mark.setTitle(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes());
+                mark.setTitle(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes() + (bus.isDly() ? " - Delayed" : "" ));
                 mark.setPosition(latlng);
                 mark.setRotation(bus.getHdg());
                 mark.setSnippet("Speed: " + bus.getSpd());
@@ -156,7 +156,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
     private synchronized void addNewMarker(Bus bus, LatLng latlng, ConcurrentMap<Integer, Marker> newBusMarkers) {
         MarkerOptions marker = new MarkerOptions()
                 .position(latlng)
-                .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes())
+                .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes() + (bus.isDly() ? " - Delayed" : ""))
                 .snippet("Speed: " + bus.getSpd())
                 .draggable(false)
                 .rotation(bus.getHdg())

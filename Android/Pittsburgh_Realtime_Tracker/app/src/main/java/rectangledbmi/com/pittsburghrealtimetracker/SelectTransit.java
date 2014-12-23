@@ -43,6 +43,7 @@ import java.util.concurrent.ConcurrentMap;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestLine;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestTask;
+import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 
 /**
@@ -300,6 +301,7 @@ public class SelectTransit extends ActionBarActivity implements
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 setUpMap();
+                mMap.setInfoWindowAdapter(new ETAWindowAdapter(getLayoutInflater()));
                 mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
                     @Override
                     public void onCameraChange(CameraPosition cameraPosition) {
@@ -322,18 +324,18 @@ public class SelectTransit extends ActionBarActivity implements
                     public boolean onMarkerClick(Marker marker) {
 
                         if (marker != null) {
-                            final Marker mark = marker;
+//                            final Marker mark = marker;
                             mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()), 400, null);
-                            final Handler handler = new Handler();
-                            handler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    new RequestPredictions(mMap, mark, busMarkers.keySet(), transitStop.getStopIds(), getFragmentManager(), buses,
-                                            getApplicationContext()).execute(mark.getTitle());
-                                }
-                            }, 400);
+//                            final Handler handler = new Handler();
+//                            handler.postDelayed(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    new RequestPredictions(mMap, mark, busMarkers.keySet(), transitStop.getStopIds(), getFragmentManager(), buses,
+//                                            getApplicationContext()).execute(mark.getTitle());
+//                                }
+//                            }, 400);
+                            new RequestPredictions(getApplicationContext(), marker, buses).execute(marker.getTitle());
 
-//                            marker.showInfoWindow();
 
 //                            String message = "Stop 1:\tPRDTM\nStop 2:\tPRDTM";
 //                            String title = "Bus";
