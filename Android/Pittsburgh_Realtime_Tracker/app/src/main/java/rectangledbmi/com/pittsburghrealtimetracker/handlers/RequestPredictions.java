@@ -38,34 +38,39 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.Prediction;
 public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
 
 //    private Marker marker;
-    private GoogleMap mMap;
+//    private GoogleMap mMap;
     private Marker marker;
-    private Set<Integer> busIds;
-    private Set<Integer> stopIds;
+//    private Set<Integer> busIds;
+//    private Set<Integer> stopIds;
     private Set<String> selectedBuses;
-    private FragmentManager fragmentManager;
+//    private FragmentManager fragmentManager;
     private Context context;
 
 
-    /**
+/*    /**
      * Initializes the asynctask
      * @param busIds set of id of buses
      * @param stopIds set of id of bus stops
      * @param fragmentManager the fragment manager class from the activity
      * @param context the context of the activity
      */
-    public RequestPredictions(GoogleMap mMap,
+    public RequestPredictions(/*GoogleMap mMap,
                               Marker marker,
                               Set<Integer> busIds, Set<Integer> stopIds,
                               FragmentManager fragmentManager,
-                              Set<String> selectedBuses,
-                              Context context) {
+                              Set<String> selectedBuses,*/
+                              Context context,
+                              Marker marker,
+                              Set<String> selectedBuses
+
+
+    ) {
         this.marker = marker;
-        this.mMap = mMap;
-        this.busIds = busIds;
-        this.stopIds = stopIds;
+//        this.mMap = mMap;
+//        this.busIds = busIds;
+//        this.stopIds = stopIds;
         this.selectedBuses = selectedBuses;
-        this.fragmentManager = fragmentManager;
+//        this.fragmentManager = fragmentManager;
         this.context = context;
     }
 
@@ -88,24 +93,28 @@ public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
         try {
             URL url = null;
             int id = Integer.parseInt(markerTitle.substring(markerTitle.indexOf("(") + 1, markerTitle.indexOf(")")));
-            int sw = -1;
-            if (busIds.contains(id)) {
+            int sw = 0;
+            if (params[0].contains("INBOUND") || params[0].contains("OUTBOUND")) {
+                Log.i("stop_id", Integer.toString(id));
+                Log.i("selected buses", selectedBuses.toString());
+
+                url = PortAuthorityAPI.getStopPredictions(id, selectedBuses);
+                Log.i("url", url.toString());
+                Log.i("prediction_type", "stop");
+
+                sw = 1; //looking at a bus id
+            } else {
                 Log.i("prediction_type", "bus");
                 url = PortAuthorityAPI.getBusPredictions(id);
-
-                sw = 0; //looking at a bus id
-            } else if (stopIds.contains(id)) {
-                Log.i("prediction_type", "stop");
-                url = PortAuthorityAPI.getStopPredictions(id, selectedBuses);
-                sw = 1; // we are looking at a stopID
+//                sw = 0; // we are looking at a bus id
             }
 //            System.out.println(url);
 //            Log.i("predictions_url", url.toString());
-            if(url != null || sw != -1) {
+            if(url != null) {
                 PredictionsXMLPullParser predictionsXMLPullParser = new PredictionsXMLPullParser(url, context);
                 List<Prediction> predictions = predictionsXMLPullParser.createPredictionList();
                 StringBuilder st = new StringBuilder();
-                ConcurrentHashMap<String, StringBuilder> busPredictions = new ConcurrentHashMap<>();
+//                ConcurrentHashMap<String, StringBuilder> busPredictions = new ConcurrentHashMap<>();
                 LinkedList<String> stopPredictions = new LinkedList<>();
 
                 if(predictions != null) {
@@ -123,26 +132,21 @@ public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
                                 tempString.append("\t");
                                 tempString.append(addString);
                             }*/
-                            stopPredictions.add("(" + prediction.getStpid() + ")" + prediction.getStpnm() + ":\t" + addString);
-                            if(++i == 5)
-                                break;
+                            stopPredictions.add("(" + prediction.getStpid() + ")" + prediction.getStpnm() + ": " + addString);
 //                            message = createMessage(busPredictions, sw);
 //                            System.out.println(busPredictions.get(prediction.getStpid()));
                         } else if (sw == 1) { // stop dialog that displays routes
-                            StringBuilder tempString = busPredictions.putIfAbsent(prediction.getRt(), addString);
-                            if(tempString != null) {
-                                tempString.append("\t");
-                                tempString.append(addString);
-//                                System.out.println(busPredictions.get(prediction.getVid()));
-                            }
-//                            message = createMessage(busPredictions, sw);
+                            Log.i("delayed", prediction.getDly());
+                            stopPredictions.add(prediction.getRt() + " (" + prediction.getVid() + "): " + addString + (prediction.getDly().equals("true") ? " - delayed" : ""));
                         }
+                        if(++i == 8)
+                            break;
                     }
-                    if(sw == 0) {
+//                    if(sw == 0) {
                         message = createMessage(stopPredictions);
-                    } else if(sw == 1) {
-                        message = createMessage(busPredictions, sw);
-                    }
+//                    } else if(sw == 1) {
+//                        message = createMessage(busPredictions, sw);
+//                    }
 //                    System.out.println(message);
                     return new ETAContainer(markerTitle, message);
                 }
@@ -201,21 +205,24 @@ public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
 
     protected void onPostExecute(ETAContainer container) {
         if(container != null) {
-            showDialog(container.getMessage(), container.getTitle());
-
+//            showDialog(container.getMessage(), container.getTitle());
 //        if(snippet != null && snippet.length() > 0)
-//            marker.setSnippet(snippet);
+            if(!container.getMessage().isEmpty())
+                marker.setSnippet(container.getMessage());
+            else
+                marker.setSnippet(context.getResources().getString(R.string.predictions_not_available));
+            marker.showInfoWindow();
         }
 
     }
 
-    public void showDialog(String message, String title) {
-        BusInformationDialog busInfoDialog = new BusInformationDialog();
-        busInfoDialog.setMessage(message);
-        busInfoDialog.setTitle(title);
-        busInfoDialog.setStyle(R.style.Base_Theme_AppCompat_Light_Dialog, 10);
-        busInfoDialog.setCancelable(true);
-        busInfoDialog.show(fragmentManager, "ETAs");
-//        busInfoDialog.show();
-    }
+//    public void showDialog(String message, String title) {
+//        BusInformationDialog busInfoDialog = new BusInformationDialog();
+//        busInfoDialog.setMessage(message);
+//        busInfoDialog.setTitle(title);
+//        busInfoDialog.setStyle(R.style.Base_Theme_AppCompat_Light_Dialog, 10);
+//        busInfoDialog.setCancelable(true);
+//        busInfoDialog.show(fragmentManager, "ETAs");
+////        busInfoDialog.show();
+//    }
 }

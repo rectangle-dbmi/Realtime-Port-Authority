@@ -49,6 +49,8 @@ public class Bus {
 
     public int getSpd() { return Integer.parseInt(spd); }
 
+    public boolean isDly() { return "true".equals(dly); }
+
     public void setSpd(String spd) {
         this.spd = spd;
     }
