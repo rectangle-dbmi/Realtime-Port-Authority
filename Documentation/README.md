@@ -2,32 +2,19 @@ Documentation
 =============
 
 
-[BusTime Developer API Guide 2.4.pdf](https://github.com/epicmeowsni/Realtime-Port-Authority/blob/master/Documentation/BusTime%20Developer%20API%20Guide%202.4.pdf) is the API guide to the Real-Time Tracking of Port Authority.
+[BusTime Developer API Guide 2.4.pdf](https://github.com/rectangle-dbmi/Realtime-Port-Authority/blob/master/Documentation/BusTime%20Developer%20API%20Guide%202.4.pdf) is the API guide to the Real-Time Tracking of Port Authority.
 
-[Realtime Port Authority Bus Tracker Website](http://realtime.portauthority.org/)
+[Realtime Port Authority Bus Tracker Website](http://truetime.portauthority.org/)
 
 Google's [General Transit Reference Specification](https://developers.google.com/transit/gtfs/reference) is also an important read.
 
-The file given by Port Authority is [here](http://www.portauthority.org/GeneralTransitFeed/) but this is only for taking note of stops and whatnot.
+The file given by Port Authority is [here](http://www.portauthority.org/GeneralTransitFeed/) but this is only for taking note of stops and whatnot. We do not use this at the moment.
 
 [Google Maps API](https://developers.google.com/maps/)
 
-######Current Realtime Port Authority Routes:
-- 41 (Bower Hill)
-- 48 (Arlington)
-- 56 (Lincoln Place)
-- 8  (Perrysville)
-- 86 (Liberty)
-- 88 (Penn)
-- P1 (East Busway - all stops)
-- P3 (East Busway - Oakland)
-- Y49 (Prospect Flyer)
-
-Don't ask us why Port Authority likes this this way.............. it's stupid I know.
-
 ##For Developers
 
-Make sure you get your API key... You must first make an account in http://realtime.portauthority.com,
+Make sure you get your API key... You must first make an account in http://truetime.portauthority.com,
 go to My Account, then request for an API Key.
 
 Looks like in order for this to go commercially, we would have to request
@@ -111,20 +98,20 @@ It seems hard but it really isn't... not really... But there are some quirks
 	- `sudo add-apt-repository ppa:webupd8team/java`
 	- `sudo apt-get update`
 	- `sudo apt-get install oracle-java7-installer`
-		- note... oracle-java8-installer works too...
-		- but make sure oracle java7 is the main one...
-		- Take note that java 8 and android isn't happening in the near future... yet...
+	- `sudo apt-get install oracle-java8-installer`
+		- make sure java oracle 8 is the main java jdk
 2. Install 32-bit libraries (assuming 12.04 or 14.04 ubuntu)
 	- `sudo apt-get install libc6:i386`
 	- `sudo apt-get install libncurses5:i386`
 	- `sudo apt-get install libstdc++6:i386`
+	- `sudo apt-get install lib32z1`
 3. Install Android Studio..
 	- `sudo add-apt-repository ppa:paolorotolo/android-studio`
 	- `sudo apt-get update`
 	- `sudo apt-get install android-studio`
-4. Install the update that pops up (would be 0.8.6)
+4. Install the update that pops up (would be 1.0.2)
 5. Install the SDK Manager and install
-	- to 4.2.2
+	- API 16 to the most recent (21 atm)
 	- Google Play Services
 	- Google Repositories
 	- ... pretty much everything kinda a little
@@ -142,6 +129,6 @@ Do not open the project until you do all of these steps....
 - **You need to change the Java JVM too...**
 	- right-click the project folder and click on **Open Module Settings** near the bottom of the dropdown box
 	- change the JDK to Java 7 Oracle (look for yours or look below..)
-		- mine was `/usr/lib/jvm/java-7-oracle` which will be the same if you install the real version.
+		- mine was `/usr/lib/jvm/java-8-oracle` which will be the same if you install the real version.
 
 After this... should be good... Make sure if you're editing the files in Android Studio, use the program to commit and whatnot. This is because it'll commit and .gitignore the correct files. If you don't do this, it'll mess up the whole project!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
