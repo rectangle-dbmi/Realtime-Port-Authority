@@ -26,6 +26,10 @@ to the new buses as soon as possible!
 
 #Android Development
 
+Please refer to the [Documentation](https://github.com/rectangle-dbmi/Realtime-Port-Authority/tree/master/Documentation) for instructions to install and use the project. You may have to scroll down to the bottom and please read the headers before we make a wiki.
+
+Before running the program, you must request to get the PortAuthorityAPI class and email one of the main contributors.
+
 This will be done using [Android Studio](https://developer.android.com/sdk/installing/studio.html) 1.0 as of 12-09-2014.
 
 
