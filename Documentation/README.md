@@ -90,7 +90,7 @@ So then... TODOS as of 07.29.2014:
 It seems hard but it really isn't... not really... But there are some quirks
 
 ######Prequisites:
-- [Oracle Java 7](http://www.webupd8.org/2012/09/install-oracle-java-8-in-ubuntu-via-ppa.html)
+- [Oracle Java 8](http://www.webupd8.org/2012/09/install-oracle-java-8-in-ubuntu-via-ppa.html)
 - [32-Bit Libraries](http://askubuntu.com/questions/454253/how-to-run-android-sdk-in-ubuntu-64-bits)
 
 ######Instructions:
@@ -128,7 +128,7 @@ Do not open the project until you do all of these steps....
 - click on the android there
 - **You need to change the Java JVM too...**
 	- right-click the project folder and click on **Open Module Settings** near the bottom of the dropdown box
-	- change the JDK to Java 7 Oracle (look for yours or look below..)
+	- change the JDK to Java 8 Oracle (look for yours or look below..)
 		- mine was `/usr/lib/jvm/java-8-oracle` which will be the same if you install the real version.
 
 After this... should be good... Make sure if you're editing the files in Android Studio, use the program to commit and whatnot. This is because it'll commit and .gitignore the correct files. If you don't do this, it'll mess up the whole project!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
