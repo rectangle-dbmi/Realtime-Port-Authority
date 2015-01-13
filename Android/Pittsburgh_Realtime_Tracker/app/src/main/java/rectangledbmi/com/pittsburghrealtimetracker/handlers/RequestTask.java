@@ -3,6 +3,7 @@ package rectangledbmi.com.pittsburghrealtimetracker.handlers;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -19,6 +20,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import rectangledbmi.com.pittsburghrealtimetracker.R;
 import rectangledbmi.com.pittsburghrealtimetracker.SelectTransit;
 import rectangledbmi.com.pittsburghrealtimetracker.hidden.PortAuthorityAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Bus;
@@ -95,7 +97,10 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
 
             Log.i("onPostExecute task_start", "Task starting after thread ran");
 
-            if (bl != null) {
+            if(bl == null || bl.isEmpty()) {
+                Toast.makeText(context, "Routes not found. Either there is no route information, no internet connection, or the API Call limit has been exceeded.", Toast.LENGTH_LONG).show();
+
+            } else {
 
                 ConcurrentMap<Integer, Marker> newBusMarkers = new ConcurrentHashMap<>(bl.size());
                 LatLng latlng;

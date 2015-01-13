@@ -1,9 +1,12 @@
 package rectangledbmi.com.pittsburghrealtimetracker.handlers;
 
+import android.content.Context;
 import android.location.Location;
 import android.net.http.HttpResponseCache;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -17,6 +20,8 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -68,12 +73,15 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
      */
     private int color;
 
+    private Context context;
+
     //TODO: selectedRoute and color have to go out in order to add the polylines to the map...
     public RequestLine(GoogleMap mMap, ConcurrentMap<String, List<Polyline>> patterns,
                        String selectedRoute, ConcurrentMap<Integer, Marker> busStops, int color,
                        float zoomLevel,
                        float zoomVisibility,
-                       TransitStop stopMap
+                       TransitStop stopMap,
+                       Context context
     ) {
         this.mMap = mMap;
         this.patterns = patterns;
@@ -83,6 +91,7 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
         this.zoom = zoomLevel;
         this.transitStop = stopMap;
         this.zoomVisibility = zoomVisibility;
+        this.context = context;
     }
 
     /**
@@ -97,23 +106,26 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
         XmlPullParserFactory pullParserFactory;
         try {
             points = null;
+            checkSD();
             pullParserFactory = XmlPullParserFactory.newInstance();
             XmlPullParser parser = pullParserFactory.newPullParser();
-            URL url = PortAuthorityAPI.getPatterns(selectedRoute);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(5000);
-            conn.setUseCaches(true);
-
-            conn.addRequestProperty("Cache-Control", "max-age="+(60*60*24));
+//            URL url = PortAuthorityAPI.getPatterns(selectedRoute);
+//            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+//            conn.setConnectTimeout(5000);
+//            conn.setUseCaches(true);
+//
+//            conn.addRequestProperty("Cache-Control", "max-age="+(60*60*24));
             HttpResponseCache cache = HttpResponseCache.getInstalled();
             if(cache != null) {
                 Log.i("cache_info_lines", selectedRoute + ": " + Integer.toString(cache.getHitCount()));
             } else {
                 Log.i("cache_info", selectedRoute + ": " + "cache is empty");
             }
-            InputStream in = conn.getInputStream();
+            InputStream in = new FileInputStream(context.getFilesDir() + "/lineinfo/" + selectedRoute + ".xml");
+//            InputStream in = conn.getInputStream();
             if (in != null) {
-                parser.setInput(conn.getInputStream(), null);
+                parser.setInput(in, null);
+//                parser.setInput(conn.getInputStream(), null);
                 // get the list...
                 points = parseXML(parser);
             }
@@ -127,6 +139,18 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
 
         }
         return points;
+
+    }
+
+    private void checkSD() {
+        File sd = new File(context.getFilesDir() + "/lineinfo");
+        if(!sd.exists())
+            sd.mkdirs();
+        File routeFile = new File(sd.getName() + "/" + selectedRoute + ".xml");
+        if(!routeFile.exists()) {
+            InputSave save = new InputSave(context);
+            save.saveFile(selectedRoute);
+        }
 
     }
 
@@ -339,6 +363,8 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
                     }
                 }
             }
+        } else {
+            Toast.makeText(context, selectedRoute + " " + context.getString(R.string.route_not_found), Toast.LENGTH_LONG).show();
         }
     }
 }
