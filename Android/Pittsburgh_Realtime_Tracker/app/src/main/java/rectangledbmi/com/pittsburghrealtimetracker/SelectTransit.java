@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.net.http.HttpResponseCache;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
@@ -31,6 +32,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polyline;
 
 import java.io.File;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -54,6 +56,8 @@ public class SelectTransit extends ActionBarActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
+
+    private static final String LINES_LAST_UPDATED = "lines_last_updated";
 
     private static final String BUSLIST_SIZE = "buslist_size";
     /**
@@ -171,6 +175,7 @@ public class SelectTransit extends ActionBarActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_transit);
+        checkSDCardData();
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
@@ -188,6 +193,42 @@ public class SelectTransit extends ActionBarActivity implements
         restoreInstanceState(savedInstanceState);
         isBusTaskRunning = false;
 //        zoom = 15.0f;
+    }
+
+    /**
+     * Checks if the stored polylines directory is present...
+     */
+    private void checkSDCardData() {
+        File data = getFilesDir();
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        Long lastUpdated = sp.getLong(LINES_LAST_UPDATED, -1);
+        Log.i("data_storage", data.getName());
+        if(!data.exists())
+            data.mkdirs();
+        File lineInfo = new File(data, "/lineinfo");
+        if(!data.exists())
+            data.mkdirs();
+        if(lastUpdated != -1 || ((System.currentTimeMillis() - lastUpdated) / 1000 / 60 / 60) > 24) {
+            if(lineInfo.exists()) {
+                Calendar c = Calendar.getInstance();
+                int day = c.get(Calendar.DAY_OF_WEEK);
+                Calendar o = Calendar.getInstance();
+                o.setTimeInMillis(lastUpdated);
+                int oldDay = o.get(Calendar.DAY_OF_WEEK);
+                if(day == Calendar.FRIDAY || oldDay > day) {
+                    File[] files = lineInfo.listFiles();
+                    if(files != null) {
+                        for (File file : files) {
+                            file.delete();
+                        }
+                    }
+                }
+            }
+        }
+
+        if(lineInfo.listFiles() == null || lineInfo.listFiles().length == 0) {
+           sp.edit().putLong(LINES_LAST_UPDATED, System.currentTimeMillis()).apply();
+        }
     }
 
     /**
@@ -263,6 +304,9 @@ public class SelectTransit extends ActionBarActivity implements
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
+
+//        Calendar c = Calendar.getInstance();
+//        Log.i("Date", c.get(Calendar.DATE));
 //        ArrayList<String> list = new ArrayList<String>(buses.size());
 //        list.addAll(buses);
 //        savedInstanceState.putStringArrayList(BUS_SELECT_STATE, list);
@@ -431,10 +475,8 @@ public class SelectTransit extends ActionBarActivity implements
         int color = Color.parseColor(getResources().getStringArray(R.array.buscolors)[number]);
         List<Polyline> polylines = routeLines.get(route);
 
-        if (polylines == null) {
-            new RequestLine(mMap, routeLines, route, busStops, color, zoom, Float.parseFloat(getString(R.string.zoom_level)), transitStop).execute();
-        } else if (polylines.isEmpty()) {
-            Toast.makeText(this, route + " " + getString(R.string.route_not_found), Toast.LENGTH_LONG).show();
+        if (polylines == null || polylines.isEmpty()) {
+            new RequestLine(mMap, routeLines, route, busStops, color, zoom, Float.parseFloat(getString(R.string.zoom_level)), transitStop, this).execute();
         } else if (polylines.get(0).isVisible()) {
             setVisiblePolylines(polylines, false);
             transitStop.removeRoute(route);
