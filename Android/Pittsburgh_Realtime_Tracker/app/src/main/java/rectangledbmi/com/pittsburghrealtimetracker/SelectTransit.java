@@ -196,7 +196,8 @@ public class SelectTransit extends ActionBarActivity implements
     }
 
     /**
-     * Checks if the stored polylines directory is present...
+     * Checks if the stored polylines directory is present and clears if we hit a friday or if the
+     * saved day of the week is higher than the current day of the week.
      */
     private void checkSDCardData() {
         File data = getFilesDir();
@@ -208,15 +209,18 @@ public class SelectTransit extends ActionBarActivity implements
         File lineInfo = new File(data, "/lineinfo");
         if(!data.exists())
             data.mkdirs();
-        if(lastUpdated != -1 || ((System.currentTimeMillis() - lastUpdated) / 1000 / 60 / 60) > 24) {
+        Log.d("updated time", Long.toString(lastUpdated));
+        if(lastUpdated != -1 && ((System.currentTimeMillis() - lastUpdated) / 1000 / 60 / 60) > 24) {
+//            Log.d("update time....", Long.toString((System.currentTimeMillis() - lastUpdated) / 1000 / 60 / 60));
             if(lineInfo.exists()) {
                 Calendar c = Calendar.getInstance();
                 int day = c.get(Calendar.DAY_OF_WEEK);
                 Calendar o = Calendar.getInstance();
                 o.setTimeInMillis(lastUpdated);
                 int oldDay = o.get(Calendar.DAY_OF_WEEK);
-                if(day == Calendar.FRIDAY || oldDay > day) {
+                if(day == Calendar.FRIDAY || oldDay >= day) {
                     File[] files = lineInfo.listFiles();
+                    sp.edit().putLong(LINES_LAST_UPDATED, System.currentTimeMillis()).apply();
                     if(files != null) {
                         for (File file : files) {
                             file.delete();

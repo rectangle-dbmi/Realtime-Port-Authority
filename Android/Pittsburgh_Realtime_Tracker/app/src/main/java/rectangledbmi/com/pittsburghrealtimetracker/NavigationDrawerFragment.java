@@ -422,7 +422,7 @@ public class NavigationDrawerFragment extends Fragment {
         SharedPreferences sp = PreferenceManager
                 .getDefaultSharedPreferences(getActivity());
         sp.edit().putLong("lines_last_updated", System.currentTimeMillis()).apply();
-        Toast.makeText(getActivity(), "Cleared buses.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), getString(R.string.cleared), Toast.LENGTH_SHORT).show();
 
     }
 
