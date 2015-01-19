@@ -2,6 +2,7 @@ package rectangledbmi.com.pittsburghrealtimetracker;
 
 
 import android.app.Activity;
+import android.os.Environment;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.content.SharedPreferences;
@@ -13,6 +14,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,6 +27,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -406,7 +409,20 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerListView.clearChoices();
         ((SelectTransit)getActivity()).clearAndAddToMap();
         amountSelected = 0;
-        Toast.makeText(getActivity(), "Cleared buses.", Toast.LENGTH_SHORT).show();
+        File lineInfo = new File(getActivity().getFilesDir(), "/lineinfo");
+        Log.i("clear-files", lineInfo.getAbsolutePath());
+        if(lineInfo.exists()) {
+            File[] files = lineInfo.listFiles();
+            if(files != null) {
+                for(File file : files) {
+                    file.delete();
+                }
+            }
+        }
+        SharedPreferences sp = PreferenceManager
+                .getDefaultSharedPreferences(getActivity());
+        sp.edit().putLong("lines_last_updated", System.currentTimeMillis()).apply();
+        Toast.makeText(getActivity(), getString(R.string.cleared), Toast.LENGTH_SHORT).show();
 
     }
 
