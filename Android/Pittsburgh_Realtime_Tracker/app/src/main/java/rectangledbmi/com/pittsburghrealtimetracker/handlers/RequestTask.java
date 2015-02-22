@@ -95,7 +95,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
         if (!context.isBusTaskRunning()) {
             context.setBusTaskRunning(true);
 
-            Log.i("onPostExecute task_start", "Task starting after thread ran");
+            Log.d("onPostExecute_task_st", "Task starting after thread ran");
 
             if(bl == null || bl.isEmpty()) {
                 Toast.makeText(context, "Routes not found. Either there is no route information, no internet connection, or the API Call limit has been exceeded.", Toast.LENGTH_LONG).show();
@@ -118,7 +118,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                 removeOldBuses();
                 context.setBusMarkers(newBusMarkers);
             }
-            Log.i("onPostExecute task_stop", "Task has stopped running");
+            Log.d("onPostExecute task_stop", "Task has stopped running");
             context.setBusTaskRunning(false);
         }
     }

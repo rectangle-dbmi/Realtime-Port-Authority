@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.http.HttpResponseCache;
 import android.os.Bundle;
 import android.os.Environment;
@@ -174,36 +176,53 @@ public class SelectTransit extends ActionBarActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_select_transit);
-        checkSDCardData();
-        mNavigationDrawerFragment = (NavigationDrawerFragment)
-                getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle();
+//        if(isNetworkAvailable()) {
+            setContentView(R.layout.activity_select_transit);
+            checkSDCardData();
+            mNavigationDrawerFragment = (NavigationDrawerFragment)
+                    getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
+            mTitle = getTitle();
 
-        // Set up the drawer.
-        mNavigationDrawerFragment.setUp(
-                R.id.navigation_drawer,
-                (DrawerLayout) findViewById(R.id.drawer_layout));
+            // Set up the drawer.
+            mNavigationDrawerFragment.setUp(
+                    R.id.navigation_drawer,
+                    (DrawerLayout) findViewById(R.id.drawer_layout));
 
-        setGoogleApiClient();
-        createBusList();
-        //sets up the map
-        inSavedState = false;
-        enableHttpResponseCache();
-        restoreInstanceState(savedInstanceState);
-        isBusTaskRunning = false;
-//        zoom = 15.0f;
+            setGoogleApiClient();
+            createBusList();
+            //sets up the map
+            inSavedState = false;
+            enableHttpResponseCache();
+            restoreInstanceState(savedInstanceState);
+            isBusTaskRunning = false;
+            //        zoom = 15.0f;
+//        } else {
+//
+//        }
+    }
+
+    /**
+     * Checks if the network is available
+     * TODO: incorporate this with a dialog to enable internet
+     * @return whether or not the network is available...
+     */
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     /**
      * Checks if the stored polylines directory is present and clears if we hit a friday or if the
      * saved day of the week is higher than the current day of the week.
+     * @since 32
      */
     private void checkSDCardData() {
         File data = getFilesDir();
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         Long lastUpdated = sp.getLong(LINES_LAST_UPDATED, -1);
-        Log.i("data_storage", data.getName());
+        Log.d("data_storage", data.getName());
         if(!data.exists())
             data.mkdirs();
         File lineInfo = new File(data, "/lineinfo");
@@ -268,24 +287,27 @@ public class SelectTransit extends ActionBarActivity implements
      * @param savedInstanceState the saved instances of the app
      */
     private void restoreInstanceState(Bundle savedInstanceState) {
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        if (sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
-            buses = sp.getStringSet(BUS_SELECT_STATE, new HashSet<String>(getResources().getInteger(R.integer.max_checked)));
-        } else {
-            buses = new HashSet<>(getResources().getInteger(R.integer.max_checked));
-        }
+
         if (savedInstanceState != null) {
+            Log.d("savedInstance", "instance saved");
             inSavedState = true;
             latitude = savedInstanceState.getDouble(LAST_LATITUDE);
             longitude = savedInstanceState.getDouble(LAST_LONGITUDE);
             zoom = savedInstanceState.getFloat(LAST_ZOOM);
+
+
         } else {
+            Log.d("savedInstance", "default location instead");
+
             defaultCameraLocation();
         }
-
+        Log.d("savedInstance", "saved? " + inSavedState);
+        Log.d("savedInstance", "lat="+latitude);
+        Log.d("savedInstance", "long="+longitude);
         if (transitStop == null) {
             transitStop = new TransitStop();
         }
+        restorePreferences();
 
     }
 
@@ -308,7 +330,7 @@ public class SelectTransit extends ActionBarActivity implements
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-
+        savePreferences();
 //        Calendar c = Calendar.getInstance();
 //        Log.i("Date", c.get(Calendar.DATE));
 //        ArrayList<String> list = new ArrayList<String>(buses.size());
@@ -350,6 +372,7 @@ public class SelectTransit extends ActionBarActivity implements
             if (mMap != null) {
 
                 setUpMap();
+
                 mMap.setInfoWindowAdapter(new ETAWindowAdapter(getLayoutInflater()));
                 mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
                     @Override
@@ -416,6 +439,16 @@ public class SelectTransit extends ActionBarActivity implements
             setUpMapIfNeeded();
     }
 
+    private void restorePreferences() {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        if (sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
+            buses = sp.getStringSet(BUS_SELECT_STATE, new HashSet<String>(getResources().getInteger(R.integer.max_checked)));
+            Log.d("restoring buses", buses.toString());
+        } else {
+            buses = new HashSet<>(getResources().getInteger(R.integer.max_checked));
+        }
+    }
+
     protected void onPause() {
         stopTimer();
         clearMap();
@@ -425,8 +458,6 @@ public class SelectTransit extends ActionBarActivity implements
 
     @Override
     protected void onStop() {
-        stopTimer();
-        savePreferences();
         client.disconnect();
         HttpResponseCache cache = HttpResponseCache.getInstalled();
         if (cache != null) {
@@ -439,6 +470,8 @@ public class SelectTransit extends ActionBarActivity implements
      * Place to save preferences....
      */
     private void savePreferences() {
+        Log.d("saving buses", buses.toString());
+        Log.d("saving list_size", Integer.toString(buses.size()));
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         sp.edit().putStringSet(BUS_SELECT_STATE, buses).apply();
         sp.edit().putInt(BUSLIST_SIZE, getResources().getStringArray(R.array.buses).length).apply();
@@ -446,8 +479,7 @@ public class SelectTransit extends ActionBarActivity implements
 
     @Override
     protected void onDestroy() {
-        stopTimer();
-        clearMap();
+//        clearMap();
         super.onDestroy();
 
     }
@@ -470,25 +502,71 @@ public class SelectTransit extends ActionBarActivity implements
      * @param number which bus in the list is pressed
      */
     public void onSectionAttached(int number) {
-        setPolyline(number);
-        setList(getResources().getStringArray(R.array.buses)[number]);
+        if(mNavigationDrawerFragment.getAmountSelected() >= 0 &&
+                mNavigationDrawerFragment.getAmountSelected() <= getResources().getInteger(R.integer.max_checked)) {
+            if(mNavigationDrawerFragment.isPositionSelected(number)) {
+                selectFromList(number);
+            } else {
+                deselectFromList(number);
+            }
+            Log.d("buses_attached", buses.toString());
+        }
+//        setPolyline(number);
+//        setList(getResources().getStringArray(R.array.buses)[number]);
     }
 
-    private synchronized void setPolyline(int number) {
+
+    public void selectFromList(int number) {
+        if(buses.add(getResources().getStringArray(R.array.buses)[number])) {
+            Log.d("added_bus", getResources().getStringArray(R.array.buses)[number]);
+            selectPolyline(number);
+        }
+    }
+
+    public void deselectFromList(int number) {
+        if(buses.remove(getResources().getStringArray(R.array.buses)[number])) {
+            Log.d("removed_bus", getResources().getStringArray(R.array.buses)[number]);
+            deselectPolyline(number);
+        }
+    }
+
+    private synchronized void selectPolyline(int number) {
         String route = getResources().getStringArray(R.array.buses)[number];
         int color = Color.parseColor(getResources().getStringArray(R.array.buscolors)[number]);
         List<Polyline> polylines = routeLines.get(route);
 
         if (polylines == null || polylines.isEmpty()) {
             new RequestLine(mMap, routeLines, route, busStops, color, zoom, Float.parseFloat(getString(R.string.zoom_level)), transitStop, this).execute();
-        } else if (polylines.get(0).isVisible()) {
-            setVisiblePolylines(polylines, false);
-            transitStop.removeRoute(route);
-        } else {
+        } else if(!polylines.get(0).isVisible()) {
             setVisiblePolylines(polylines, true);
             transitStop.updateAddRoutes(route, zoom, Float.parseFloat(getString(R.string.zoom_level)));
         }
     }
+
+    private synchronized void deselectPolyline(int number) {
+        String route = getResources().getStringArray(R.array.buses)[number];
+        List<Polyline> polylines = routeLines.get(route);
+        if(polylines != null && polylines.get(0).isVisible()) {
+            setVisiblePolylines(polylines, false);
+            transitStop.removeRoute(route);
+        }
+    }
+
+//    private synchronized void setPolyline(int number) {
+//        String route = getResources().getStringArray(R.array.buses)[number];
+//        int color = Color.parseColor(getResources().getStringArray(R.array.buscolors)[number]);
+//        List<Polyline> polylines = routeLines.get(route);
+//
+//        if (polylines == null || polylines.isEmpty()) {
+//            new RequestLine(mMap, routeLines, route, busStops, color, zoom, Float.parseFloat(getString(R.string.zoom_level)), transitStop, this).execute();
+//        } else if (polylines.get(0).isVisible()) {
+//            setVisiblePolylines(polylines, false);
+//            transitStop.removeRoute(route);
+//        } else {
+//            setVisiblePolylines(polylines, true);
+//            transitStop.updateAddRoutes(route, zoom, Float.parseFloat(getString(R.string.zoom_level)));
+//        }
+//    }
 
     /**
      * sets a visible or invisible polylines for a route
@@ -582,16 +660,17 @@ public class SelectTransit extends ActionBarActivity implements
                 latitude = currentLatitude;
                 longitude = currentLongitude;
                 zoom = (float) 15.0;
-
             } else {
                 zoom = 11.82f;
             }
-        } else {
+        } /*else {
             zoom = 11.82f;
-        }
+        }*/
+        Log.d("savedInstance", "saved? " + inSavedState);
+        Log.d("savedInstance", "lat="+latitude);
+        Log.d("savedInstance", "long="+longitude);
+        Log.d("savedInstance", "zoom=" + zoom);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), zoom));
-        mMap.setMyLocationEnabled(true);
-
     }
 
     /**
@@ -602,9 +681,10 @@ public class SelectTransit extends ActionBarActivity implements
     protected void setUpMap() {
 //        System.out.println("restore...");
 //        clearMap();
+        mMap.setMyLocationEnabled(true);
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         if (sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
-
+//            buses.clear();
             clearAndAddToMap();
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
@@ -617,13 +697,17 @@ public class SelectTransit extends ActionBarActivity implements
         }
     }
 
+    /**
+     * This is the method to restore polylines....
+     */
     protected void restorePolylines() {
+        Log.d("polylines restoring", "zoom= " + zoom);
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         if (sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
             Set<String> selected = sp.getStringSet(STATE_SELECTED_POSITIONS, null);
             if (selected != null) {
                 for (String select : selected) {
-                    setPolyline(Integer.parseInt(select));
+                    selectPolyline(Integer.parseInt(select));
                 }
             }
         }
@@ -633,6 +717,7 @@ public class SelectTransit extends ActionBarActivity implements
      * Stops the bus refresh, then adds buses to the map
      */
     protected synchronized void clearAndAddToMap() {
+        Log.d("stop_add_buses", buses.toString());
         stopTimer();
         addBuses();
 //        System.out.println("Added buses");
@@ -642,7 +727,7 @@ public class SelectTransit extends ActionBarActivity implements
      * adds buses to map. or else the map will be clear...
      */
     protected synchronized void addBuses() {
-
+        Log.d("adding buses", buses.toString());
         final Handler handler = new Handler();
         timer = new Timer();
         final Context context = this;
@@ -708,6 +793,7 @@ public class SelectTransit extends ActionBarActivity implements
             routeLines = new ConcurrentHashMap<>(getResources().getInteger(R.integer.max_checked));
             transitStop = new TransitStop();
             mMap.clear();
+            mNavigationDrawerFragment.getDrawerListView().clearChoices();
         }
     }
 
@@ -715,6 +801,7 @@ public class SelectTransit extends ActionBarActivity implements
      * @return The list of buses that are selected
      */
     protected void clearBuses() {
+        Log.d("clearing buses", "buses cleared");
         buses.clear();
     }
 
@@ -765,7 +852,7 @@ public class SelectTransit extends ActionBarActivity implements
      */
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.i("Google API Location Services Error", connectionResult.toString());
+        Log.d("Google API Error", connectionResult.toString());
         Toast.makeText(this, "Google connection failed, please try again later", Toast.LENGTH_LONG).show();
 //        TODO: Perhaps based on the connection result, we can close and make custom error messages.
     }
