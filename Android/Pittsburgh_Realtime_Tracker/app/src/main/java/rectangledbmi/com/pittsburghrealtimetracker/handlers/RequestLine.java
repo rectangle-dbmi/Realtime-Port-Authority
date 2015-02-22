@@ -117,9 +117,9 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
 //            conn.addRequestProperty("Cache-Control", "max-age="+(60*60*24));
             HttpResponseCache cache = HttpResponseCache.getInstalled();
             if(cache != null) {
-                Log.i("cache_info_lines", selectedRoute + ": " + Integer.toString(cache.getHitCount()));
+                Log.d("cache_info_lines", selectedRoute + ": " + Integer.toString(cache.getHitCount()));
             } else {
-                Log.i("cache_info", selectedRoute + ": " + "cache is empty");
+                Log.d("cache_info", selectedRoute + ": " + "cache is empty");
             }
             InputStream in = new FileInputStream(context.getFilesDir() + "/lineinfo/" + selectedRoute + ".xml");
 //            InputStream in = conn.getInputStream();

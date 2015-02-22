@@ -51,7 +51,7 @@ public class InputSave {
                 }
                 is.close();
                 fos.close();
-                Log.i("save_file", selectedRoute + " attempted file saved...");
+                Log.d("save_file", selectedRoute + " attempted file saved...");
             }
         } catch (MalformedURLException e) {
             e.printStackTrace();
