@@ -471,7 +471,7 @@ public class SelectTransit extends ActionBarActivity implements
      */
     private void savePreferences() {
         Log.d("saving buses", buses.toString());
-        Log.d("saving list_size", Integer.toString(buses.size()));
+        Log.d("selected size", Integer.toString(buses.size()));
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         sp.edit().putStringSet(BUS_SELECT_STATE, buses).apply();
         sp.edit().putInt(BUSLIST_SIZE, getResources().getStringArray(R.array.buses).length).apply();
@@ -707,9 +707,13 @@ public class SelectTransit extends ActionBarActivity implements
             Set<String> selected = sp.getStringSet(STATE_SELECTED_POSITIONS, null);
             if (selected != null) {
                 for (String select : selected) {
-                    selectPolyline(Integer.parseInt(select));
+                    int position = Integer.parseInt(select);
+                    selectPolyline(position);
+                    mNavigationDrawerFragment.setTrue(position);
                 }
             }
+        } else {
+            Toast.makeText(this, "New buses were added. Please re-select your buses", Toast.LENGTH_LONG).show();
         }
     }
 
