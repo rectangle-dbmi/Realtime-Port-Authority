@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -76,7 +77,6 @@ public class NavigationDrawerFragment extends Fragment {
     private View mFragmentContainerView;
 
     private boolean[] mSelected;
-    private int amountSelected;
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
     private Toolbar toolbar;
@@ -98,7 +98,6 @@ public class NavigationDrawerFragment extends Fragment {
             //TODO: learn how to use savedInstanceState to get previous buses back
             mFromSavedInstanceState = true;
         }
-        amountSelected = 0;
         // Select either the default item (0) or the last selected item.
 //        selectItem(mCurrentSelectedPosition);
 
@@ -109,7 +108,7 @@ public class NavigationDrawerFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         // Indicate that this fragment would like to influence the set of actions in the action bar.
         setHasOptionsMenu(true);
-        restoreListView();
+
     }
 
     protected ListView getDrawerListView() {
@@ -139,18 +138,18 @@ public class NavigationDrawerFragment extends Fragment {
         );
         mDrawerListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         //        mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
-/*        if(savedInstanceState != null) {
+        if(savedInstanceState != null) {
             mDrawerListView.onRestoreInstanceState(savedInstanceState.getParcelable(DRAWER_STATE));
             savedInstanceState.putBooleanArray(STATE_SELECTED_POSITIONS, mSelected);
-        }*/
+        }
+//        restoreListView();
         return mDrawerListView;
     }
 
-    private void restoreListView() {
+/*    private void restoreListView() {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
 //        System.out.println("In restore view");
 //        mSelected = new boolean[getResources().getStringArray(R.array.buses).length];
-        amountSelected = 0;
         int list_size = sp.getInt(BUSLIST_SIZE, -1);
         if(getResources().getStringArray(R.array.buses).length == list_size) {
             Set<String> listIds = sp.getStringSet(STATE_SELECTED_POSITIONS, Collections.synchronizedSet(new HashSet<String>(0)));
@@ -165,7 +164,7 @@ public class NavigationDrawerFragment extends Fragment {
                 Toast.makeText(getActivity(), "New buses were added. Please re-select your buses", Toast.LENGTH_LONG).show();
         }
 
-    }
+    }*/
 
     /**
      * Creates an arraylist of routes for the list view.
@@ -288,15 +287,24 @@ public class NavigationDrawerFragment extends Fragment {
             if (mCallbacks != null) {
                 mCallbacks.onNavigationDrawerItemSelected(position);
             }
-            if(amountSelected == getResources().getInteger(R.integer.max_checked))
-                Toast.makeText(getActivity(), "You have selected the max amount of routes (" +
-                        getResources().getInteger(R.integer.max_checked) +
-                        ").", Toast.LENGTH_LONG).show();
-
-            else if (amountSelected > getResources().getInteger(R.integer.max_checked))
-                Toast.makeText(getActivity(), "Cannot select more than " + getResources().getInteger(R.integer.max_checked) + " routes.", Toast.LENGTH_LONG).show();
         }
 
+    }
+
+    /**
+     * Makes a toast if we are at the max amount selected....
+     *
+     * @since 35
+     */
+    private void seeOverSelected() {
+        Log.d("amount_checked", Integer.toString(mDrawerListView.getCheckedItemCount()));
+        if(mDrawerListView.getCheckedItemCount() == getResources().getInteger(R.integer.max_checked))
+            Toast.makeText(getActivity(), "You have selected the max amount of routes (" +
+                    getResources().getInteger(R.integer.max_checked) +
+                    ").", Toast.LENGTH_LONG).show();
+
+        else if (mDrawerListView.getCheckedItemCount() > getResources().getInteger(R.integer.max_checked))
+            Toast.makeText(getActivity(), "Cannot select more than " + getResources().getInteger(R.integer.max_checked) + " routes.", Toast.LENGTH_LONG).show();
     }
 
     /**
@@ -315,7 +323,7 @@ public class NavigationDrawerFragment extends Fragment {
      * @return the amount of items selected on the drawer
      */
     public int getAmountSelected() {
-        return amountSelected;
+        return mDrawerListView.getCheckedItemCount();
     }
 
     /**
@@ -326,18 +334,17 @@ public class NavigationDrawerFragment extends Fragment {
 //        System.out.println(position + " is now false");
         mDrawerListView.setItemChecked(position, false);
         mSelected[position] = false;
-        if(amountSelected > 0)
-            --amountSelected;
+        seeOverSelected();
     }
     /**
      * Sets the position of the list to true
      * @param position the location of the selection in the listview
      */
-    private void setTrue(int position) {
+    protected void setTrue(int position) {
 //        System.out.println(position + " is now true");
         mDrawerListView.setItemChecked(position, true);
         mSelected[position] = true;
-        ++amountSelected;
+        seeOverSelected();
     }
     @Override
     public void onAttach(Activity activity) {
@@ -376,7 +383,7 @@ public class NavigationDrawerFragment extends Fragment {
         super.onSaveInstanceState(outState);
         savePreferences();
 //        outState.putBooleanArray(STATE_SELECTED_POSITIONS, mSelected);
-//        outState.putParcelable(DRAWER_STATE, mDrawerListView.onSaveInstanceState());
+        outState.putParcelable(DRAWER_STATE, mDrawerListView.onSaveInstanceState());
 //        outState.putInt(STATE_SELECTED_POSITION, mCurrentSelectedPosition);
     }
 
@@ -421,7 +428,6 @@ public class NavigationDrawerFragment extends Fragment {
         ((SelectTransit)getActivity()).clearBuses();
         mSelected = new boolean[getResources().getStringArray(R.array.buses).length];
         ((SelectTransit)getActivity()).clearAndAddToMap();
-        amountSelected = 0;
         File lineInfo = new File(getActivity().getFilesDir(), "/lineinfo");
         Log.d("clear-files", lineInfo.getAbsolutePath());
         if(lineInfo.exists()) {
@@ -474,6 +480,8 @@ public class NavigationDrawerFragment extends Fragment {
 //        SparseBooleanArray checked = mDrawerListView.getCheckedItemPositions();
         Set<String> listIds = Collections.synchronizedSet(new HashSet<String>(10));
         Log.d("saving_sbchecked", mDrawerListView.getCheckedItemPositions().toString());
+        Log.d("saving_sbchecked", Arrays.toString(mDrawerListView.getCheckedItemIds()));
+
 //        System.out.println("In Stop. Size of Checked...: " + checked.size());
 /*        for(long id : mDrawerListView.getCheckedItemIds()) {
             listIds.add(Long.toString(id));
