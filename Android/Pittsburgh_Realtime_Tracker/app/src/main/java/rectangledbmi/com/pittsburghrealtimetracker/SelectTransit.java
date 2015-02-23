@@ -286,10 +286,10 @@ public class SelectTransit extends ActionBarActivity implements
      *
      * @param savedInstanceState the saved instances of the app
      */
-    private void restoreInstanceState(Bundle savedInstanceState) {
-
+    protected void restoreInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
-            Log.d("savedInstance", "instance saved");
+            Log.d("savedInstance_restore", "instance saved");
+            Log.d("savedInstance_s", "lat="+savedInstanceState.getDouble(LAST_LATITUDE));
             inSavedState = true;
             latitude = savedInstanceState.getDouble(LAST_LATITUDE);
             longitude = savedInstanceState.getDouble(LAST_LONGITUDE);
@@ -301,9 +301,9 @@ public class SelectTransit extends ActionBarActivity implements
 
             defaultCameraLocation();
         }
-        Log.d("savedInstance", "saved? " + inSavedState);
-        Log.d("savedInstance", "lat="+latitude);
-        Log.d("savedInstance", "long="+longitude);
+        Log.d("savedInstance_restore", "saved? " + inSavedState);
+        Log.d("savedInstance_restore", "lat="+latitude);
+        Log.d("savedInstance_restore", "long="+longitude);
         if (transitStop == null) {
             transitStop = new TransitStop();
         }
@@ -337,9 +337,13 @@ public class SelectTransit extends ActionBarActivity implements
 //        list.addAll(buses);
 //        savedInstanceState.putStringArrayList(BUS_SELECT_STATE, list);
         if (mMap != null) {
-            savedInstanceState.putDouble(LAST_LATITUDE, mMap.getCameraPosition().target.latitude);
-            savedInstanceState.putDouble(LAST_LONGITUDE, mMap.getCameraPosition().target.longitude);
-            savedInstanceState.putFloat(LAST_ZOOM, mMap.getCameraPosition().zoom);
+            savedInstanceState.putDouble(LAST_LATITUDE, latitude);
+            savedInstanceState.putDouble(LAST_LONGITUDE,longitude);
+            savedInstanceState.putFloat(LAST_ZOOM, zoom);
+            Log.d("savedInstance_osi", "saved? " + inSavedState);
+            Log.d("savedInstance_osi", "lat="+latitude);
+            Log.d("savedInstance_osi", "long="+longitude);
+            Log.d("savedInstance_osi", "zoom=" + zoom);
         }
 
     }
@@ -377,8 +381,13 @@ public class SelectTransit extends ActionBarActivity implements
                 mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
                     @Override
                     public void onCameraChange(CameraPosition cameraPosition) {
+                        if(!inSavedState)
+                            inSavedState = true;
+                        latitude = cameraPosition.target.latitude;
+                        longitude = cameraPosition.target.longitude;
                         if (zoom != cameraPosition.zoom) {
                             zoom = cameraPosition.zoom;
+
                             transitStop.checkAllVisibility(zoom, Float.parseFloat(getString(R.string.zoom_level)));
                         }
                     }
