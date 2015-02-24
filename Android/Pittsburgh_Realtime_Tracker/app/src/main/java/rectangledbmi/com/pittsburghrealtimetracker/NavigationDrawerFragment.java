@@ -381,7 +381,6 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        savePreferences();
 //        outState.putBooleanArray(STATE_SELECTED_POSITIONS, mSelected);
         outState.putParcelable(DRAWER_STATE, mDrawerListView.onSaveInstanceState());
 //        outState.putInt(STATE_SELECTED_POSITION, mCurrentSelectedPosition);
@@ -458,6 +457,11 @@ public class NavigationDrawerFragment extends Fragment {
 
     private ActionBar getActionBar() {
         return ((SelectTransit)getActivity()).getSupportActionBar();
+    }
+
+    public void onPause() {
+        super.onPause();
+        savePreferences();
     }
 
     /**
