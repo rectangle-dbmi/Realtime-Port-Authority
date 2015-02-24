@@ -330,7 +330,6 @@ public class SelectTransit extends ActionBarActivity implements
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        savePreferences();
 //        Calendar c = Calendar.getInstance();
 //        Log.i("Date", c.get(Calendar.DATE));
 //        ArrayList<String> list = new ArrayList<String>(buses.size());
@@ -459,9 +458,10 @@ public class SelectTransit extends ActionBarActivity implements
     }
 
     protected void onPause() {
+        super.onPause();
+        savePreferences();
         stopTimer();
         clearMap();
-        super.onPause();
 
     }
 
