@@ -775,6 +775,7 @@ public class SelectTransit extends ActionBarActivity implements
             for (Marker busMarker : busMarkers.values()) {
                 busMarker.remove();
             }
+//            busMarkers.clear();
             busMarkers = null;
         }
 
