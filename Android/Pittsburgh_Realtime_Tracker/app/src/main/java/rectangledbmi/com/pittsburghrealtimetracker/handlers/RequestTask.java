@@ -1,6 +1,14 @@
 package rectangledbmi.com.pittsburghrealtimetracker.handlers;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.LightingColorFilter;
+import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
@@ -95,7 +103,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
         if (!context.isBusTaskRunning()) {
             context.setBusTaskRunning(true);
 
-            Log.i("onPostExecute task_start", "Task starting after thread ran");
+            Log.d("onPostExecute_task_st", "Task starting after thread ran");
 
             if(bl == null || bl.isEmpty()) {
                 Toast.makeText(context, "Routes not found. Either there is no route information, no internet connection, or the API Call limit has been exceeded.", Toast.LENGTH_LONG).show();
@@ -106,19 +114,18 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                 LatLng latlng;
 
                 for (Bus bus : bl) {
+//                    Log.d("bus_info", bus.toString());
                     latlng = new LatLng(bus.getLat(), bus.getLon());
-
-                    if (busMarkers != null) {
-
-                        updateMarker(bus, latlng, newBusMarkers);
-                    } else {
-                        addNewMarker(bus, latlng, newBusMarkers);
-                    }
+//                    if (busMarkers != null) {
+                    updateMarker(bus, latlng, newBusMarkers);
+//                    } else {
+//                        addNewMarker(bus, latlng, newBusMarkers);
+//                    }
                 }
                 removeOldBuses();
                 context.setBusMarkers(newBusMarkers);
             }
-            Log.i("onPostExecute task_stop", "Task has stopped running");
+            Log.d("onPostExecute task_stop", "Task has stopped running");
             context.setBusTaskRunning(false);
         }
     }
@@ -132,8 +139,12 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
      */
     private synchronized void updateMarker(Bus bus, LatLng latlng, ConcurrentMap<Integer, Marker> newBusMarkers) {
         try {
-            Marker mark = busMarkers.remove(bus.getVid());
+            Log.d("up_mark_enter", "entered_marker");
+            Marker mark = null;
+            if(busMarkers != null)
+                mark = busMarkers.remove(bus.getVid());
             if (mark != null) {
+                Log.d("marker_update", "updating_pointer");
                 mark.setTitle(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes() + (bus.isDly() ? " - Delayed" : "" ));
                 mark.setPosition(latlng);
                 mark.setRotation(bus.getHdg());
@@ -159,16 +170,31 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
      * @param newBusMarkers the new bus list
      */
     private synchronized void addNewMarker(Bus bus, LatLng latlng, ConcurrentMap<Integer, Marker> newBusMarkers) {
+//        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.bus_template);
+//        Paint paint = new Paint();
+//        ColorFilter colorFilter = new LightingColorFilter(Color.RED, 0);
+//        paint.setColorFilter(colorFilter);
+//        Canvas canvas = new Canvas();
+//        bitmap = canvas.drawBitmap(bitmap,);
+        Log.d("marker_add", "adding_marker");
         MarkerOptions marker = new MarkerOptions()
                 .position(latlng)
                 .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes() + (bus.isDly() ? " - Delayed" : ""))
                 .snippet("Speed: " + bus.getSpd())
                 .draggable(false)
                 .rotation(bus.getHdg())
-                .icon(BitmapDescriptorFactory.fromAsset(bus.getRt() + ".png"))
+                .icon(BitmapDescriptorFactory.fromResource(getDrawable(bus.getRt())))
                 .anchor((float) 0.453125, (float) 0.25)
                 .flat(true);
         try {
+            Log.d("new_bus", newBusMarkers.toString());
+            Log.d("new_markeroptions", marker.getPosition().toString());
+            Log.d("new_markeroptions", marker.getTitle());
+            Log.d("new_markeroptions", marker.getSnippet());
+            Log.d("new_markeroptions", Float.toString(marker.getRotation()));
+            Log.d("new_mMap", mMap.toString());
+//            Marker mapMarker = mMap.addMarker(marker);
+//            mapMarker.setIcon(BitmapDescriptorFactory.fromAsset(bus.getRt() + ".png"));
             newBusMarkers.put(bus.getVid(), mMap.addMarker(marker));
         } catch (NullPointerException e) {
             Log.e("null_new_bus", "mMap or marker is null");
@@ -184,6 +210,11 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
                 marker.remove();
             }
         }
+    }
+
+    private int getDrawable(String route) {
+        return context.getResources().getIdentifier("bus_" + route.toLowerCase(), "drawable", context.getPackageName());
+//        return context.getResources().getDrawable(resourceId);
     }
 
 }

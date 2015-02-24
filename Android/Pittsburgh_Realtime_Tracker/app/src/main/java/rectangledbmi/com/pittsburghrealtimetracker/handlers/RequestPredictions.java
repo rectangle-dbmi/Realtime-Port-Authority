@@ -95,21 +95,21 @@ public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
             int id = Integer.parseInt(markerTitle.substring(markerTitle.indexOf("(") + 1, markerTitle.indexOf(")")));
             int sw = 0;
             if (params[0].contains("INBOUND") || params[0].contains("OUTBOUND")) {
-                Log.i("stop_id", Integer.toString(id));
-                Log.i("selected buses", selectedBuses.toString());
+                Log.d("stop_id", Integer.toString(id));
+                Log.d("selected buses", selectedBuses.toString());
 
                 url = PortAuthorityAPI.getStopPredictions(id, selectedBuses);
-                Log.i("url", url.toString());
-                Log.i("prediction_type", "stop");
+                Log.d("url", url.toString());
+                Log.d("prediction_type", "stop");
 
                 sw = 1; //looking at a bus id
             } else {
-                Log.i("prediction_type", "bus");
+                Log.d("prediction_type", "bus");
                 url = PortAuthorityAPI.getBusPredictions(id);
 //                sw = 0; // we are looking at a bus id
             }
 //            System.out.println(url);
-//            Log.i("predictions_url", url.toString());
+//            Log.d("predictions_url", url.toString());
             if(url != null) {
                 PredictionsXMLPullParser predictionsXMLPullParser = new PredictionsXMLPullParser(url, context);
                 List<Prediction> predictions = predictionsXMLPullParser.createPredictionList();
@@ -120,7 +120,7 @@ public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
                 if(predictions != null) {
                     int i = 0;
                     for(Prediction prediction : predictions) {
-                        Log.i("time", prediction.getPrdtm().split(" ")[1]);
+                        Log.d("time", prediction.getPrdtm().split(" ")[1]);
                         SimpleDateFormat date = new SimpleDateFormat("hh:mm a");
 
                         StringBuilder addString = new StringBuilder(date.format(new SimpleDateFormat("HH:mm").parse(prediction.getPrdtm().split(" ")[1])));
@@ -136,7 +136,7 @@ public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
 //                            message = createMessage(busPredictions, sw);
 //                            System.out.println(busPredictions.get(prediction.getStpid()));
                         } else if (sw == 1) { // stop dialog that displays routes
-                            Log.i("delayed", prediction.getDly());
+                            Log.d("delayed", prediction.getDly());
                             stopPredictions.add(prediction.getRt() + " (" + prediction.getVid() + "): " + addString + (prediction.getDly().equals("true") ? " - delayed" : ""));
                         }
                         if(++i == 8)
@@ -154,7 +154,7 @@ public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
             
 
         } catch(MalformedURLException e) {
-            Log.i("HELLO", e.getMessage());
+            Log.d("HELLO", e.getMessage());
         } catch (XmlPullParserException | IOException e) {
             Log.e("XML_ERROR", e.getMessage());
             e.printStackTrace();
