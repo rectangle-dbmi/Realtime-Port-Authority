@@ -2,20 +2,17 @@ package rectangledbmi.com.pittsburghrealtimetracker;
 
 
 import android.app.Activity;
-import android.os.Environment;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,7 +20,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -92,10 +88,8 @@ public class NavigationDrawerFragment extends Fragment {
         // drawer. See PREF_USER_LEARNED_DRAWER for details.
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mUserLearnedDrawer = sp.getBoolean(PREF_USER_LEARNED_DRAWER, false);
-        //TODO need to use an xml value to get length of this list
         mSelected = new boolean[getResources().getStringArray(R.array.buses).length];
         if (savedInstanceState != null) {
-            //TODO: learn how to use savedInstanceState to get previous buses back
             mFromSavedInstanceState = true;
         }
         // Select either the default item (0) or the last selected item.
@@ -198,6 +192,7 @@ public class NavigationDrawerFragment extends Fragment {
     public void setUp(int fragmentId, DrawerLayout drawerLayout) {
         mFragmentContainerView = getActivity().findViewById(fragmentId);
         mDrawerLayout = drawerLayout;
+
         toolbar = (Toolbar) getView().findViewById(R.id.toolbar);
 
         // set a custom shadow that overlays the main content when the drawer opens
@@ -274,7 +269,7 @@ public class NavigationDrawerFragment extends Fragment {
 
     /**
      * Called with onClick. Gives the list item to SelectTransit by number starting from 0
-     * The selectItem is locked by
+     * The selectItem is locked by mSelected...
      * @param position item clicked as an int
      */
     private void selectItem(int position) {
@@ -469,8 +464,8 @@ public class NavigationDrawerFragment extends Fragment {
      */
     @Override
     public void onStop() {
-        Log.d("saving_sbchecked", mDrawerListView.getCheckedItemPositions().toString());
         super.onStop();
+        Log.d("saving_sbchecked", mDrawerListView.getCheckedItemPositions().toString());
 
 
     }
