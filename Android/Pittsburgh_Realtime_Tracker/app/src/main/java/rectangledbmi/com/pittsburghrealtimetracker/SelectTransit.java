@@ -9,7 +9,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.http.HttpResponseCache;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
@@ -51,7 +50,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdap
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 
 /**
- * This is the main activity of the
+ * This is the main activity of the Realtime Tracker...
  */
 public class SelectTransit extends ActionBarActivity implements
         NavigationDrawerFragment.NavigationDrawerCallbacks,
@@ -430,8 +429,6 @@ public class SelectTransit extends ActionBarActivity implements
         }
     }
 
-
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -447,7 +444,11 @@ public class SelectTransit extends ActionBarActivity implements
             setUpMapIfNeeded();
     }
 
+    /**
+     * Restores the the set of buses....
+     */
     private void restorePreferences() {
+        Log.d("restoring buses", "Attempting to restore buses.");
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         if (sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
             buses = sp.getStringSet(BUS_SELECT_STATE, new HashSet<String>(getResources().getInteger(R.integer.max_checked)));
@@ -459,20 +460,22 @@ public class SelectTransit extends ActionBarActivity implements
 
     protected void onPause() {
         super.onPause();
+        Log.d("main_destroy", "SelectTransit onPause");
         savePreferences();
         stopTimer();
-        clearMap();
 
     }
 
     @Override
     protected void onStop() {
+        super.onStop();
+        Log.d("main_destroy", "SelectTransit onStop");
         client.disconnect();
         HttpResponseCache cache = HttpResponseCache.getInstalled();
         if (cache != null) {
             cache.flush();
         }
-        super.onStop();
+
     }
 
     /**
@@ -488,8 +491,9 @@ public class SelectTransit extends ActionBarActivity implements
 
     @Override
     protected void onDestroy() {
-//        clearMap();
         super.onDestroy();
+        clearMap();
+
 
     }
 
@@ -560,22 +564,6 @@ public class SelectTransit extends ActionBarActivity implements
             transitStop.removeRoute(route);
         }
     }
-
-//    private synchronized void setPolyline(int number) {
-//        String route = getResources().getStringArray(R.array.buses)[number];
-//        int color = Color.parseColor(getResources().getStringArray(R.array.buscolors)[number]);
-//        List<Polyline> polylines = routeLines.get(route);
-//
-//        if (polylines == null || polylines.isEmpty()) {
-//            new RequestLine(mMap, routeLines, route, busStops, color, zoom, Float.parseFloat(getString(R.string.zoom_level)), transitStop, this).execute();
-//        } else if (polylines.get(0).isVisible()) {
-//            setVisiblePolylines(polylines, false);
-//            transitStop.removeRoute(route);
-//        } else {
-//            setVisiblePolylines(polylines, true);
-//            transitStop.updateAddRoutes(route, zoom, Float.parseFloat(getString(R.string.zoom_level)));
-//        }
-//    }
 
     /**
      * sets a visible or invisible polylines for a route
@@ -695,13 +683,13 @@ public class SelectTransit extends ActionBarActivity implements
         if (sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
 //            buses.clear();
             clearAndAddToMap();
-            final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    restorePolylines();
-                }
-            }, 100);
+//            final Handler handler = new Handler();
+//            handler.postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//                    restorePolylines();
+//                }
+//            }, 100);
 
         }
     }
@@ -802,6 +790,7 @@ public class SelectTransit extends ActionBarActivity implements
      * General method to clear the map.
      */
     protected void clearMap() {
+        Log.d("map_cleared", "map_cleared");
         busMarkers = null;
         if (mMap != null) {
             routeLines = new ConcurrentHashMap<>(getResources().getInteger(R.integer.max_checked));
@@ -847,6 +836,7 @@ public class SelectTransit extends ActionBarActivity implements
         }
 //        System.out.println("Location: " + currentLocation);
         centerMap();
+        restorePolylines();
     }
 
     /**
