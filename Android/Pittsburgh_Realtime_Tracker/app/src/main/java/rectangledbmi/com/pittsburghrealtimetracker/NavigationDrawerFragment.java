@@ -456,6 +456,7 @@ public class NavigationDrawerFragment extends Fragment {
 
     public void onPause() {
         super.onPause();
+        Log.d("onPause_navdrawer", "went into the navigation drawer fragment");
         savePreferences();
     }
 
