@@ -10,6 +10,8 @@ import com.google.android.gms.maps.model.Marker;
 import rectangledbmi.com.pittsburghrealtimetracker.R;
 
 /**
+ * <p>This is the adapter class for the marker option window.</p>
+ *
  * Created by epicstar on 12/22/14.
  */
 public class ETAWindowAdapter implements GoogleMap.InfoWindowAdapter {
