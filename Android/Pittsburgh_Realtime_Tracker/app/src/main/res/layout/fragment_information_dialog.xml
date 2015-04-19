@@ -24,7 +24,7 @@
         <Button
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/info_dismiss"
+            android:text="@string/data_dismiss"
             android:id="@+id/info_dismiss"
             android:gravity="center|center_vertical"
             android:layout_weight=".5"

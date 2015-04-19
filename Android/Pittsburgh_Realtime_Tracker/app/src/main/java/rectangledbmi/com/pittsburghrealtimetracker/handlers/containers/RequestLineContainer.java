@@ -2,6 +2,7 @@ package rectangledbmi.com.pittsburghrealtimetracker.handlers.containers;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import rectangledbmi.com.pittsburghrealtimetracker.world.LineInfo;
@@ -15,8 +16,8 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.LineInfo;
  */
 public class RequestLineContainer {
 
-    private LinkedList<LinkedList<LatLng>> polylinesInfo;
-    private LinkedList<LineInfo> busStopInfos;
+    private ArrayList<LinkedList<LatLng>> polylinesInfo;
+    private ArrayList<LineInfo> busStopInfos;
 
     /**
      * General class to set the RequestLineContainer
@@ -24,25 +25,25 @@ public class RequestLineContainer {
      * @param polylinesInfo LinkedList of a LinkedList of latlngs for the polylines
      * @param busStopInfos the bus stop info of the line
      */
-    public RequestLineContainer(LinkedList<LinkedList<LatLng>> polylinesInfo,
-                                LinkedList<LineInfo> busStopInfos) {
+    public RequestLineContainer(ArrayList<LinkedList<LatLng>> polylinesInfo,
+                                ArrayList<LineInfo> busStopInfos) {
         setPolylinesInfo(polylinesInfo);
         setBusStopInfos(busStopInfos);
     }
 
-    public void setPolylinesInfo(LinkedList<LinkedList<LatLng>> polylinesInfo) {
+    public void setPolylinesInfo(ArrayList<LinkedList<LatLng>> polylinesInfo) {
         this.polylinesInfo = polylinesInfo;
     }
 
-    public void setBusStopInfos(LinkedList<LineInfo> busStopInfos) {
+    public void setBusStopInfos(ArrayList<LineInfo> busStopInfos) {
         this.busStopInfos = busStopInfos;
     }
 
-    public LinkedList<LinkedList<LatLng>> getPolylinesInfo() {
+    public ArrayList<LinkedList<LatLng>> getPolylinesInfo() {
         return polylinesInfo;
     }
 
-    public LinkedList<LineInfo> getBusStopInfos() {
+    public ArrayList<LineInfo> getBusStopInfos() {
         return busStopInfos;
     }
 }

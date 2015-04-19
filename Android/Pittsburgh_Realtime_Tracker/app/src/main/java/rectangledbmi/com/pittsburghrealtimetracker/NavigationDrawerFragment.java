@@ -407,21 +407,28 @@ public class NavigationDrawerFragment extends Fragment {
         }
 
         if (item.getItemId() == R.id.action_clear) {
-            clearSelection();
+            clearMapAndSelection();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    protected void clearMapAndSelection() {
+        Log.d("cleared", "cleared_everything");
+        SelectTransit activity = (SelectTransit)getActivity();
+        if(activity!= null) {
+            activity.clearMap();
+        }
+        clearSelection();
+    }
+
     /**
      * If the Clear Buses button is clicked, clears the selection and the selected buses
      */
     protected void clearSelection() {
-        Log.d("cleared", "cleared_everything");
-        ((SelectTransit)getActivity()).clearBuses();
+        getDrawerListView().clearChoices();
         mSelected = new boolean[getResources().getStringArray(R.array.buses).length];
-        ((SelectTransit)getActivity()).clearAndAddToMap();
         File lineInfo = new File(getActivity().getFilesDir(), "/lineinfo");
         Log.d("clear-files", lineInfo.getAbsolutePath());
         if(lineInfo.exists()) {
@@ -432,9 +439,6 @@ public class NavigationDrawerFragment extends Fragment {
                 }
             }
         }
-        SharedPreferences sp = PreferenceManager
-                .getDefaultSharedPreferences(getActivity());
-        sp.edit().putLong("lines_last_updated", System.currentTimeMillis()).apply();
         Toast.makeText(getActivity(), getString(R.string.cleared), Toast.LENGTH_SHORT).show();
 
     }
