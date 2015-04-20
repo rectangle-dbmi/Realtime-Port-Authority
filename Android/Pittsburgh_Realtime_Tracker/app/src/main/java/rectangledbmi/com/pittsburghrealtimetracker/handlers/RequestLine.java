@@ -4,7 +4,6 @@ import android.content.Context;
 import android.location.Location;
 import android.net.http.HttpResponseCache;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -24,15 +23,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
 import rectangledbmi.com.pittsburghrealtimetracker.R;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.containers.RequestLineContainer;
-import rectangledbmi.com.pittsburghrealtimetracker.hidden.PortAuthorityAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.world.LineInfo;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 
@@ -165,8 +162,8 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
     private RequestLineContainer parseXML(XmlPullParser parser) throws XmlPullParserException, IOException {
 
         LinkedList<LatLng> points = new LinkedList<>();
-        LinkedList<LinkedList<LatLng>> allPoints = new LinkedList<>();
-        LinkedList<LineInfo> busStopInfos = new LinkedList<>();
+        ArrayList<LinkedList<LatLng>> allPoints = new ArrayList<>();
+        ArrayList<LineInfo> busStopInfos = new ArrayList<>();
         int eventType = parser.getEventType();
         double tempLat = 0.0;
         double tempLong = 0.0;
@@ -245,7 +242,7 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
     }
 
 
-    private void connectPoints(LinkedList<LinkedList<LatLng>> allPoints) {
+    private void connectPoints(ArrayList<LinkedList<LatLng>> allPoints) {
         boolean[] firstconnect = new boolean[allPoints.size()];
         boolean[] lastconnect = new boolean[allPoints.size()];
         int firstindex = 0;
@@ -333,11 +330,11 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
      */
     @Override
     protected void onPostExecute(RequestLineContainer container) {
-        if(container != null) {
-            LinkedList<LinkedList<LatLng>> latLngs = container.getPolylinesInfo();
-            LinkedList<LineInfo> busStopInfos = container.getBusStopInfos();
-            List<Polyline> polylines = new LinkedList<>();
+        if(mMap != null && container != null) {
+            ArrayList<LinkedList<LatLng>> latLngs = container.getPolylinesInfo();
+            ArrayList<LineInfo> busStopInfos = container.getBusStopInfos();
             if (latLngs != null) {
+                List<Polyline> polylines = new ArrayList<>(latLngs.size());
                 for (LinkedList<LatLng> points : latLngs) {
                     polylines.add(mMap.addPolyline(new PolylineOptions().addAll(points).color(color).geodesic(true).visible(true)));
                 }
