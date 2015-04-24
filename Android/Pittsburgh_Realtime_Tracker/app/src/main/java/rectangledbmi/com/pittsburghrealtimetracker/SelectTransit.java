@@ -46,6 +46,7 @@ import java.util.concurrent.ConcurrentMap;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestLine;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestTask;
+import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.DataRequiredDialog;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 
@@ -175,7 +176,7 @@ public class SelectTransit extends ActionBarActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        if(isNetworkAvailable()) {
+
             setContentView(R.layout.activity_select_transit);
             checkSDCardData();
             mNavigationDrawerFragment = (NavigationDrawerFragment)
@@ -209,7 +210,7 @@ public class SelectTransit extends ActionBarActivity implements
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
     }
 
     /**
@@ -438,6 +439,10 @@ public class SelectTransit extends ActionBarActivity implements
     @Override
     protected void onResume() {
         super.onResume();
+        if(!isNetworkAvailable()) {
+            DataRequiredDialog dialog = new DataRequiredDialog();
+            dialog.show(getSupportFragmentManager(), "data required");
+        }
         if (mMap != null) {
             setUpMap();
         } else
@@ -489,13 +494,13 @@ public class SelectTransit extends ActionBarActivity implements
         sp.edit().putInt(BUSLIST_SIZE, getResources().getStringArray(R.array.buses).length).apply();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        clearMap();
-
-
-    }
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        clearMap();
+//
+//
+//    }
 
     /**
      * Gets called from NavigationDrawerFragment's onclick? Supposed to...
@@ -559,9 +564,14 @@ public class SelectTransit extends ActionBarActivity implements
     private synchronized void deselectPolyline(int number) {
         String route = getResources().getStringArray(R.array.buses)[number];
         List<Polyline> polylines = routeLines.get(route);
-        if(polylines != null && polylines.get(0).isVisible()) {
-            setVisiblePolylines(polylines, false);
-            transitStop.removeRoute(route);
+        if(polylines != null) {
+            if(!polylines.isEmpty() && polylines.get(0).isVisible()) {
+                setVisiblePolylines(polylines, false);
+                transitStop.removeRoute(route);
+            } else {
+                routeLines.remove(route);
+            }
+
         }
     }
 
@@ -790,22 +800,29 @@ public class SelectTransit extends ActionBarActivity implements
      * General method to clear the map.
      */
     protected void clearMap() {
+        /*
+        I noticed this is probably not a good method to use... you clear choices... but you also must
+        clear the navigation drawer
+         */
         Log.d("map_cleared", "map_cleared");
-        busMarkers = null;
         if (mMap != null) {
+            mMap.clear();
             routeLines = new ConcurrentHashMap<>(getResources().getInteger(R.integer.max_checked));
             transitStop = new TransitStop();
-            mMap.clear();
-            mNavigationDrawerFragment.getDrawerListView().clearChoices();
+            removeBuses();
+            clearBuses();
+            mNavigationDrawerFragment.clearSelection();
+
+//            mNavigationDrawerFragment.clearSelection();
         }
     }
 
     /**
-     * @return The list of buses that are selected
+     * The list of buses that are selected
      */
     protected void clearBuses() {
-        Log.d("clearing buses", "buses cleared");
-        buses.clear();
+        if(buses != null)
+            buses.clear();
     }
 
     public void onBackPressed() {
@@ -857,7 +874,9 @@ public class SelectTransit extends ActionBarActivity implements
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Log.d("Google API Error", connectionResult.toString());
+        centerMap();
         Toast.makeText(this, "Google connection failed, please try again later", Toast.LENGTH_LONG).show();
+
 //        TODO: Perhaps based on the connection result, we can close and make custom error messages.
     }
 
