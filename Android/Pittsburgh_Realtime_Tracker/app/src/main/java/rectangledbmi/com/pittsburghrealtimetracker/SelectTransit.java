@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.http.HttpResponseCache;
 import android.os.Bundle;
 import android.os.Handler;
@@ -46,7 +44,6 @@ import java.util.concurrent.ConcurrentMap;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestLine;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestTask;
-import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.DataRequiredDialog;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 
@@ -201,17 +198,17 @@ public class SelectTransit extends ActionBarActivity implements
 //        }
     }
 
-    /**
-     * Checks if the network is available
-     * TODO: incorporate this with a dialog to enable internet
-     * @return whether or not the network is available...
-     */
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
-    }
+//    /**
+//     * Checks if the network is available
+//     * TODO: incorporate this with a dialog to enable internet
+//     * @return whether or not the network is available...
+//     */
+//    private boolean isNetworkAvailable() {
+//        ConnectivityManager connectivityManager
+//                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+//        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+//        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
+//    }
 
     /**
      * Checks if the stored polylines directory is present and clears if we hit a friday or if the
@@ -439,10 +436,10 @@ public class SelectTransit extends ActionBarActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        if(!isNetworkAvailable()) {
-            DataRequiredDialog dialog = new DataRequiredDialog();
-            dialog.show(getSupportFragmentManager(), "data required");
-        }
+//        if(!isNetworkAvailable()) {
+//            DataRequiredDialog dialog = new DataRequiredDialog();
+//            dialog.show(getSupportFragmentManager(), "data required");
+//        }
         if (mMap != null) {
             setUpMap();
         } else
@@ -833,7 +830,7 @@ public class SelectTransit extends ActionBarActivity implements
     /**
      * Part of the GoogleApiClient connection. If it is connected
      *
-     * @param bundle
+     * @param bundle the saved state of the app
      */
     @Override
     public void onConnected(Bundle bundle) {
