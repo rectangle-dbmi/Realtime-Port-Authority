@@ -1,6 +1,5 @@
 Android/Pittsburgh_Realtime_Tracker/.gradle
-Android/Pittsburgh_Realtime_Tracker/.idea/workspace.xml
-Android/Pittsburgh_Realtime_Tracker/.idea/libraries
+Android/Pittsburgh_Realtime_Tracker/.idea/*
 .DS_Store
 Android/Pittsburgh_Realtime_Tracker/app/.DS_Store
 apks/
@@ -8,5 +7,6 @@ Android/Pittsburgh_Realtime_Tracker/app/apks
 Android/Pittsburgh_Realtime_Tracker/app/src/debug/res/values/google_maps_api.xml
 Android/Pittsburgh_Realtime_Tracker/app/src/release/res/values/google_maps_api.xml
 Android/Pittsburgh_Realtime_Tracker/app/src/main/java/rectangledbmi/com/pittsburghrealtimetracker/hidden/
+Android/Pittsburgh_Realtime_Tracker/app/build/
 Android/Pittsburgh_Realtime_Tracker/build/
 Android/Pittsburgh_Realtime_Tracker/local.properties
