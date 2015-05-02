@@ -1,8 +1,0 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="rectangledbmi.com.pittsburghrealtimetracker.AboutActivity"
-    tools:ignore="MergeRootFrame" />
-<!-- From: file:/C:/Users/Ritwik/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/layout/activity_about.xml -->
