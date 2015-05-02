@@ -1,0 +1,124 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent" android:layout_height="fill_parent" android:background="@color/background_material_dark" android:fillViewport="true">
+<RelativeLayout
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="12dp"
+    >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/app_name"
+        android:id="@+id/heading_about"
+        android:layout_alignParentTop="true"
+        android:paddingLeft="12dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:textColor="#fff" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/opening"
+        android:layout_below="@+id/heading_about"
+        android:textColor="@android:color/primary_text_dark"
+        android:text="@string/remark_1"
+
+    />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="10dp"
+        android:id="@+id/source_link"
+        android:layout_below="@+id/opening"
+        android:text="@string/source_code"
+        android:autoLink="web"
+        android:textColor="@color/link_text_material_dark"
+    />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/source_link"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/created_by"
+        android:id="@+id/description_about"
+        android:paddingLeft="12dp"
+        android:paddingTop="2dp"
+        android:textColor="#c0c0c0" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/ritwik"
+        android:id="@+id/dev1_about"
+        android:layout_below="@+id/description_about"
+        android:paddingLeft="30dp"
+        android:paddingTop="10dp"
+        android:textColor="#ffed70" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/jeremy"
+        android:id="@+id/dev2_about"
+        android:layout_below="@+id/dev1_about"
+        android:paddingLeft="30dp"
+        android:paddingTop="10dp"
+        android:textColor="#ffed70" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/vincent"
+        android:id="@+id/dev3_about"
+        android:layout_below="@+id/dev2_about"
+        android:paddingLeft="30dp"
+        android:paddingTop="10dp"
+        android:textColor="#ffed70" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView"
+        android:src="@drawable/ic_launcher"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/disclaimer"
+        android:paddingBottom="12dp"
+        android:paddingRight="12dp"
+        android:contentDescription="Logo"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/imageView"
+        android:id="@+id/version"
+        android:layout_alignParentLeft="true"
+        android:text="@string/versionName"
+        android:paddingLeft="12dp"
+        android:paddingBottom="20dp"
+        android:paddingTop="20dp"
+        android:layout_below="@+id/disclaimer"
+        android:textColor="@color/secondary_text_default_material_dark"
+    />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/dev3_about"
+        android:id="@+id/disclaimer"
+        android:textColor="@color/primary_text_default_material_dark"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:paddingTop="30dp"
+        android:paddingBottom="30dp"
+        android:text="@string/disclaim"
+    />
+
+
+</RelativeLayout>
+</ScrollView><!-- From: file:/C:/Users/Ritwik/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/layout/fragment_about.xml -->

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Jeremy Jao
+
+This is supposed to be the code to make our custom list
+
+Don't exactly know how to do this though... with a list fragment...
+
+The idea is to create a custom ArrayAdapter (ColorArrayAdapter)
+
+
+-->
+<rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.CheckableRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/item"
+    android:background="@drawable/background"
+     >
+
+    <!-- description of bus route -->
+    <TextView
+        android:id="@+id/bus_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginEnd="48dp"
+        android:layout_marginRight="48dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_alignBaseline="@+id/bus_route"
+        android:textSize="18sp"
+        android:textColor="@android:color/primary_text_light"
+        android:focusable="false" />
+
+    <!-- bus route inside a box of color!!! Can change the text inside programmatically -->
+    <TextView
+        android:id="@+id/bus_route"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:textSize="14dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:gravity="center"
+        android:background="@drawable/rectangle"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:textColor="@android:color/black"
+        android:focusable="false" />
+
+</rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.CheckableRelativeLayout><!-- From: file:/C:/Users/Ritwik/Documents/GitHub/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/layout/row_list.xml -->
