@@ -91,7 +91,8 @@
         android:layout_alignParentEnd="true"
         android:layout_below="@+id/disclaimer"
         android:paddingBottom="12dp"
-        android:paddingRight="12dp" />
+        android:paddingRight="12dp"
+        android:contentDescription="Logo"/>
 
     <TextView
         android:layout_width="wrap_content"

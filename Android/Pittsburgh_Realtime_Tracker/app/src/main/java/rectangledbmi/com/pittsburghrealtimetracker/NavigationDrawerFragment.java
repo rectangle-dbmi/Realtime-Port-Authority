@@ -126,7 +126,6 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerListView.setAdapter(
                 new ColoredArrayAdapter(
                         getActionBar().getThemedContext(),
-                        R.layout.row_list,
                         createRoutes()
                 )
         );
@@ -505,7 +504,7 @@ public class NavigationDrawerFragment extends Fragment {
     /**
      * Callbacks interface that all activities using this fragment must implement.
      */
-    public static interface NavigationDrawerCallbacks {
+    public interface NavigationDrawerCallbacks {
         /**
          * Called when an item in the navigation drawer is selected.
          */
