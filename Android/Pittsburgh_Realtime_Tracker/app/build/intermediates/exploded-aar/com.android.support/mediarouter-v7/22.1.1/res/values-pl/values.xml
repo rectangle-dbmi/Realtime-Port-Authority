@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From: file:/usr/local/google/buildbot/repo_clients/https___googleplex-android.googlesource.com_a_platform_manifest.git/lmp-mr1-supportlib-release/frameworks/support/v7/mediarouter/res/values-pl/strings.xml -->
+    <eat-comment/>
+    <string msgid="4271159405637008602" name="mr_media_route_button_content_description">"Wyjście multimediów"</string>
+    <string msgid="7553005460920830010" name="mr_media_route_chooser_searching">"Szukam urządzeń…"</string>
+    <string msgid="7106830097177242655" name="mr_media_route_chooser_title">"Połącz z urządzeniem"</string>
+    <string msgid="109793632378378069" name="mr_media_route_controller_disconnect">"Rozłącz"</string>
+    <string msgid="5441529851481176817" name="mr_system_route_name">"System"</string>
+    <string msgid="7498112907524977311" name="mr_user_route_category_name">"Urządzenia"</string>
+</resources>

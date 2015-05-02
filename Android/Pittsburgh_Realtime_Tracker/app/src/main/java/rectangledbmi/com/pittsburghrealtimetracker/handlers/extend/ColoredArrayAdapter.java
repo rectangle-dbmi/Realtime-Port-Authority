@@ -1,20 +1,14 @@
 package rectangledbmi.com.pittsburghrealtimetracker.handlers.extend;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.CheckedTextView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import rectangledbmi.com.pittsburghrealtimetracker.R;
@@ -47,11 +41,10 @@ public class ColoredArrayAdapter extends ArrayAdapter<Route> {
     /**
      * Initializes the adapter
      * @param context the activity/fragment this is coming from
-     * @param resource is the xml of the row (the RelativeLayout)
      * @param objects is all the possible routes
      */
-    public ColoredArrayAdapter(Context context, int resource, List<Route> objects) {
-        super(context, resource, objects);
+    public ColoredArrayAdapter(Context context, List<Route> objects) {
+        super(context, R.layout.row_list, objects);
         this.context = context;
         this.objects = objects;
     }

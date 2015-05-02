@@ -11,6 +11,8 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatAutoCompleteTextView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -50,7 +52,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 /**
  * This is the main activity of the Realtime Tracker...
  */
-public class SelectTransit extends ActionBarActivity implements
+public class SelectTransit extends AppCompatActivity implements
         NavigationDrawerFragment.NavigationDrawerCallbacks,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -264,7 +266,7 @@ public class SelectTransit extends ActionBarActivity implements
 
     private void enableHttpResponseCache() {
         try {
-            long httpCacheSize = 10 * 1024 * 1024; // 10 MiB
+            long httpCacheSize = 10485760; // 10 MiB
             File fetch = getExternalCacheDir();
             if(fetch == null) {
                 fetch = getCacheDir();

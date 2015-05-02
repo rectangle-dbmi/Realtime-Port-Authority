@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From: file:/usr/local/google/buildbot/repo_clients/https___googleplex-android.googlesource.com_a_platform_manifest.git/lmp-mr1-supportlib-release/frameworks/support/v7/mediarouter/res/values-ne-rNP/strings.xml -->
+    <eat-comment/>
+    <string msgid="4271159405637008602" name="mr_media_route_button_content_description">"मिडियाको उत्पादन"</string>
+    <string msgid="7553005460920830010" name="mr_media_route_chooser_searching">"उपकरणहरूका लागि खोजी गरिँदै..."</string>
+    <string msgid="7106830097177242655" name="mr_media_route_chooser_title">"उपकरणसँग जडान गर्नुहोस्"</string>
+    <string msgid="109793632378378069" name="mr_media_route_controller_disconnect">"विच्छेदन गर्नुहोस्"</string>
+    <string msgid="5441529851481176817" name="mr_system_route_name">"प्रणाली"</string>
+    <string msgid="7498112907524977311" name="mr_user_route_category_name">"उपकरणहरू"</string>
+</resources>
