@@ -217,7 +217,7 @@ Apache License
    
    At this time, we are keeping this app open source and 99% functional; however,
    by contributing to the app, you must understand that we can choose at any
-   point can choose close the source code for any reason we feel the need to.
+   point to close the source code for any reason we feel the need to.
    
    The reason for being 99% functional is because we have a public API key that must not
    be visible to any person within a java package called "hidden" within the app. 
