@@ -199,3 +199,19 @@ Apache License
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+   This Apache license is for the Android application called PAT Realtime Tracker, 
+   which tracks the Port Authority buses in real-time using Pittsburgh Port Authority's
+   TrueTime API (v2) and Google Maps Android API v2.
+   
+   All contributors must obey the terms of use from Google Maps and Port Authority:
+      
+       http://www.portauthority.org/paac/CompanyInfoProjects/DeveloperResources/DeveloperLicenseAgreement.aspx
+   
+   CONDITIONS:
+   
+   At this time, we are keeping this app open source and 99% functional; however,
+   by contributing to the app, we can choose at any point to close the source code.
+   
+   The reason for being 99% functional is because we have a public API key that must not
+   be visible to any person within a java package called "hidden" within the app. In order to use
