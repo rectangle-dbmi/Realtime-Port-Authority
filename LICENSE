@@ -229,7 +229,7 @@ Apache License
    You will be given the hidden package if you abide by the following Contribution Guidelines:
    1. Must not use any of our code for profit
    2. Must contribute to the master repository
-   3. Must understand that we can close the code at any point
+   3. Must understand that we can close the code at any point but also know that all your code are yours and thus are still part of the project!
    4. Must understand that Jeremy and Ritwik are Main Code maintainers and founding contributers of the app
    5. Must have your own TrueTime API key
    6. Proper commenting and javadoc-ing of your own code
