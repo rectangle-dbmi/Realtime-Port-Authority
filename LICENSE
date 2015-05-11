@@ -211,7 +211,7 @@ Apache License
    
    ADDED CONDITIONS:
    
-   "We" (and thus, "us") is defined as Ritwik Gupta and Jeremy Jao, 
+   "We" (and thus, "us") is defined as Ritwik Gupta ( and Jeremy Jao, 
    the founding contributers of the app. "We," "us," and "Licensor" are synonymous.
    This applies to the rest of the license as well as everything in this repository. 
    
@@ -226,14 +226,13 @@ Apache License
    learning up to contributing to the app in order to kill off issues/add features. We ask you to
    professionally document your and our emails, and we will do the same.
    
-   Main reasons we will reject giving you the hidden package:
+   You will be given the hidden package if you abide by the following Contribution Guidelines:
    1. Must not use any of our code for profit
    2. Must contribute to the master repository
    3. Must understand that we can close the code at any point
    4. Must understand that Jeremy and Ritwik are Main Code maintainers and founding contributers of the app
-   5. One of Ritwik and Jeremy have not agreed with the reasons you gave us
+   5. Must have your own TrueTime API key
+   6. Proper commenting and javadoc-ing of your own code
    
-   We ask you to respect the main reasons for rejection. As long as any of the reasons 
-   above aren't violated, you are welcome to contribute to the team! However, you must make sure
-   that both of us have 
+   Thank you for reading our clause to use the application!
     
