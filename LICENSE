@@ -208,10 +208,19 @@ Apache License
       
        http://www.portauthority.org/paac/CompanyInfoProjects/DeveloperResources/DeveloperLicenseAgreement.aspx
    
-   CONDITIONS:
+   ADDED CONDITIONS:
    
    At this time, we are keeping this app open source and 99% functional; however,
    by contributing to the app, we can choose at any point to close the source code.
    
    The reason for being 99% functional is because we have a public API key that must not
-   be visible to any person within a java package called "hidden" within the app. In order to use
+   be visible to any person within a java package called "hidden" within the app. 
+   In order to contribute to the app, you must first give us (Ritwik - ritwikplus@gmail.com &
+   Jeremy - jeremy.l.jao@gmail.com) an email stating a reason for using the app. Reasons can be for
+   learning up to contributing to the app in order to kill off issues/add features.
+   
+   Reasons we will reject giving you the hidden package:
+   1. Must not use any of our code for profit
+   2. Must contribute to the overall repository
+   3. Must understand that Jeremy and Ritwik are Main Code maintainers and founding contributers of the app
+   4. One of Ritwik and Jeremy have not agreed with the reasons you gave us
