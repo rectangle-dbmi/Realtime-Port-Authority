@@ -221,16 +221,15 @@ Apache License
    
    The reason for being 99% functional is because we have a public API key that must not
    be visible to any person within a java package called "hidden" within the app. 
-   In order to contribute to the app, you must first give us (Ritwik - ritwikplus@gmail.com &
-   Jeremy - jeremy.l.jao@gmail.com) an email stating a reason for using the app. Reasons can be for
-   learning up to contributing to the app in order to kill off issues/add features. We ask you to
-   professionally document your and our emails, and we will do the same.
+   In order to contribute to the app, you must first give us an email stating a reason for using the app. 
+   Reasons can be for learning up to contributing to the app in order to kill off issues/add features.
+   We ask you to professionally document your and our emails, and we will do the same.
    
    You will be given the hidden package if you abide by the following Contribution Guidelines:
-   1. Must not use any of our code for profit
+   1. You must not use our code or your contributions for profit
    2. Must contribute to the master repository
    3. Must understand that we can close the code at any point but also know that all your code are yours and thus are still part of the project!
-   4. Must understand that Jeremy and Ritwik are Main Code maintainers and founding contributers of the app
+   4. Must understand that Jeremy and Ritwik are Main Code maintainers and founding contributors of the app
    5. Must have your own TrueTime API key
    6. Proper commenting and javadoc-ing of your own code
    7. Must abide to the rest of the license
