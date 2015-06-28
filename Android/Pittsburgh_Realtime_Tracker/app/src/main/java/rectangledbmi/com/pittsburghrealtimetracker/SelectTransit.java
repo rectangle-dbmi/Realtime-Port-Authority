@@ -56,7 +56,6 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
  * This is the main activity of the Realtime Tracker...
  */
 public class SelectTransit extends AppCompatActivity implements
-        NavigationDrawerFragment.NavigationDrawerCallbacks,
         NavigationDrawerFragment.BusListCallbacks,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -449,36 +448,36 @@ public class SelectTransit extends AppCompatActivity implements
 //
 //    }
 
-    /**
-     * Gets called from NavigationDrawerFragment's onclick? Supposed to...
-     *
-     * @param position the list selection selected starting from 0
-     */
-    @Override
-    public void onNavigationDrawerItemSelected(int position) {
-        // update the main content by replacing fragments
-        onSectionAttached(position);
-    }
-
-    /**
-     * Gets called when one of the buses is pressed. Take note routes will always have more than one
-     * polyline.
-     *
-     * @param number which bus in the list is pressed
-     */
-    public void onSectionAttached(int number) {
-        if(mNavigationDrawerFragment.getAmountSelected() >= 0 &&
-                mNavigationDrawerFragment.getAmountSelected() <= getResources().getInteger(R.integer.max_checked)) {
-            if(mNavigationDrawerFragment.isPositionSelected(number)) {
-                selectFromList(number);
-            } else {
-                deselectFromList(number);
-            }
-            Log.d("buses_attached", buses.toString());
-        }
-//        setPolyline(number);
-//        setList(getResources().getStringArray(R.array.buses)[number]);
-    }
+//    /**
+//     * Gets called from NavigationDrawerFragment's onclick? Supposed to...
+//     *
+//     * @param position the list selection selected starting from 0
+//     */
+//    @Override
+//    public void onNavigationDrawerItemSelected(int position) {
+//        // update the main content by replacing fragments
+//        onSectionAttached(position);
+//    }
+//
+//    /**
+//     * Gets called when one of the buses is pressed. Take note routes will always have more than one
+//     * polyline.
+//     *
+//     * @param number which bus in the list is pressed
+//     */
+//    public void onSectionAttached(int number) {
+//        if(mNavigationDrawerFragment.getAmountSelected() >= 0 &&
+//                mNavigationDrawerFragment.getAmountSelected() <= getResources().getInteger(R.integer.max_checked)) {
+//            if(mNavigationDrawerFragment.isPositionSelected(number)) {
+//                selectFromList(number);
+//            } else {
+//                deselectFromList(number);
+//            }
+//            Log.d("buses_attached", buses.toString());
+//        }
+////        setPolyline(number);
+////        setList(getResources().getStringArray(R.array.buses)[number]);
+//    }
 
     /**
      * Checks the state of the route on the map. If it is not on the map, the relevant info will be
@@ -554,45 +553,45 @@ public class SelectTransit extends AppCompatActivity implements
         }
     }
 
-    private void selectFromList(int number) {
-        if(buses.add(getResources().getStringArray(R.array.buses)[number])) {
-            Log.d("added_bus", getResources().getStringArray(R.array.buses)[number]);
-            selectPolyline(number);
-        }
-    }
-
-    private void deselectFromList(int number) {
-        if(buses.remove(getResources().getStringArray(R.array.buses)[number])) {
-            Log.d("removed_bus", getResources().getStringArray(R.array.buses)[number]);
-            deselectPolyline(number);
-        }
-    }
-
-    private synchronized void selectPolyline(int number) {
-        String route = getResources().getStringArray(R.array.buses)[number];
-        int color = Color.parseColor(getResources().getStringArray(R.array.buscolors)[number]);
-        List<Polyline> polylines = routeLines.get(route);
-
-        if (polylines == null || polylines.isEmpty()) {
-            new RequestLine(mMap, routeLines, route, color, zoom, Float.parseFloat(getString(R.string.zoom_level)), transitStop, this).execute();
-        } else if(!polylines.get(0).isVisible()) {
-            setVisiblePolylines(polylines, true);
-            transitStop.updateAddRoutes(route, zoom, Float.parseFloat(getString(R.string.zoom_level)));
-        }
-    }
-
-    private synchronized void deselectPolyline(int number) {
-        String route = getResources().getStringArray(R.array.buses)[number];
-        List<Polyline> polylines = routeLines.get(route);
-        if(polylines != null) {
-            if(!polylines.isEmpty() && polylines.get(0).isVisible()) {
-                setVisiblePolylines(polylines, false);
-                transitStop.removeRoute(route);
-            } else {
-                routeLines.remove(route);
-            }
-        }
-    }
+//    private void selectFromList(int number) {
+//        if(buses.add(getResources().getStringArray(R.array.buses)[number])) {
+//            Log.d("added_bus", getResources().getStringArray(R.array.buses)[number]);
+//            selectPolyline(number);
+//        }
+//    }
+//
+//    private void deselectFromList(int number) {
+//        if(buses.remove(getResources().getStringArray(R.array.buses)[number])) {
+//            Log.d("removed_bus", getResources().getStringArray(R.array.buses)[number]);
+//            deselectPolyline(number);
+//        }
+//    }
+//
+//    private synchronized void selectPolyline(int number) {
+//        String route = getResources().getStringArray(R.array.buses)[number];
+//        int color = Color.parseColor(getResources().getStringArray(R.array.buscolors)[number]);
+//        List<Polyline> polylines = routeLines.get(route);
+//
+//        if (polylines == null || polylines.isEmpty()) {
+//            new RequestLine(mMap, routeLines, route, color, zoom, Float.parseFloat(getString(R.string.zoom_level)), transitStop, this).execute();
+//        } else if(!polylines.get(0).isVisible()) {
+//            setVisiblePolylines(polylines, true);
+//            transitStop.updateAddRoutes(route, zoom, Float.parseFloat(getString(R.string.zoom_level)));
+//        }
+//    }
+//
+//    private synchronized void deselectPolyline(int number) {
+//        String route = getResources().getStringArray(R.array.buses)[number];
+//        List<Polyline> polylines = routeLines.get(route);
+//        if(polylines != null) {
+//            if(!polylines.isEmpty() && polylines.get(0).isVisible()) {
+//                setVisiblePolylines(polylines, false);
+//                transitStop.removeRoute(route);
+//            } else {
+//                routeLines.remove(route);
+//            }
+//        }
+//    }
 
     /**
      * sets a visible or invisible polylines for a route

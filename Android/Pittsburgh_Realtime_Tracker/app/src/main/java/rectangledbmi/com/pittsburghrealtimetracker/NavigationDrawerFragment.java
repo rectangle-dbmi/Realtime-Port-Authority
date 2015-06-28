@@ -54,11 +54,6 @@ public class NavigationDrawerFragment extends Fragment {
     private static final String DRAWER_STATE = "drawer_state";
 
     /**
-     * A pointer to the current callbacks instance (the Activity).
-     */
-    private NavigationDrawerCallbacks mCallbacks;
-
-    /**
      * pointer to the current selected bus for the current callbacks instance (Activity)
      *
      * @since 43
@@ -206,8 +201,7 @@ public class NavigationDrawerFragment extends Fragment {
         mFragmentContainerView = getActivity().findViewById(fragmentId);
         mDrawerLayout = drawerLayout;
 
-        toolbar = (Toolbar) getView();
-        if(toolbar != null) toolbar.findViewById(R.id.toolbar);
+        toolbar = (Toolbar) getView().findViewById(R.id.toolbar);
 
         // set a custom shadow that overlays the main content when the drawer opens
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
@@ -293,7 +287,7 @@ public class NavigationDrawerFragment extends Fragment {
             } else {
                 setTrue(position);
             }
-            if (mCallbacks != null) {
+            if (busCallbacks != null) {
                 busCallbacks.onBusRouteSelected(routes.get(position));
             }
         }
@@ -359,7 +353,6 @@ public class NavigationDrawerFragment extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            mCallbacks = (NavigationDrawerCallbacks) activity;
             busCallbacks = (BusListCallbacks) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException("Activity must implement NavigationDrawerCallbacks.");
@@ -385,7 +378,7 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mCallbacks = null;
+        busCallbacks = null;
     }
 
     @Override
@@ -498,6 +491,7 @@ public class NavigationDrawerFragment extends Fragment {
      * @param position - the position in the list
      * @return the route information by list position
      */
+    @SuppressWarnings("unused")
     public Route getSelectedRoute(int position) {
         return routes.get(position);
     }
@@ -516,16 +510,6 @@ public class NavigationDrawerFragment extends Fragment {
          * @param route - the bus route selected
          */
         void onBusRouteSelected(Route route);
-    }
-
-    /**
-     * Callbacks interface that all activities using this fragment must implement.
-     */
-    public interface NavigationDrawerCallbacks {
-        /**
-         * Called when an item in the navigation drawer is selected.
-         */
-        void onNavigationDrawerItemSelected(int position);
     }
 
 }
