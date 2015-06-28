@@ -1,15 +1,16 @@
 package rectangledbmi.com.pittsburghrealtimetracker;
 
 import android.app.Fragment;
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
+import android.widget.TextView;
 
 
 public class AboutActivity extends AppCompatActivity {
@@ -23,6 +24,7 @@ public class AboutActivity extends AppCompatActivity {
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
+
 //        try {
 ////            TextView version = (TextView)findViewById(R.id.version);
 ////            version.setText(getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
@@ -62,11 +64,17 @@ public class AboutActivity extends AppCompatActivity {
         public PlaceholderFragment() {
         }
 
-        private ListView lv;
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
-            return inflater.inflate(R.layout.fragment_about, container, false);
+            View view = inflater.inflate(R.layout.fragment_about, container, false);
+            TextView version = (TextView) view.findViewById(R.id.version);
+            try {
+                version.setText(getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0).versionName);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+            return view;
         }
     }
 }

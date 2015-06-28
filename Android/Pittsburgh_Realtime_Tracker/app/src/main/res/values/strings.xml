@@ -309,7 +309,6 @@
     <string name="vincent">Vincent Agresti (Project Manager)</string>
     <string name="remark_1">This application is open source:</string>
     <string name="source_code">https://github.com/rectangle-dbmi/Realtime-Port-Authority</string>
-    <string name="versionName">3.452</string> <!-- always change the version name here -->
     <string name="directory_in_sdcard">/Data/rectangledbmi.com.pittsburghrealtimetracker</string>
     <string name="zoom_level">15.0</string>
     <string name="cleared">Map cleared and routes reset.</string>

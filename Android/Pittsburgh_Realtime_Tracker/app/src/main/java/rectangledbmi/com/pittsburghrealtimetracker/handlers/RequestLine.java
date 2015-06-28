@@ -74,7 +74,7 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
 
     //TODO: selectedRoute and color have to go out in order to add the polylines to the map...
     public RequestLine(GoogleMap mMap, ConcurrentMap<String, List<Polyline>> patterns,
-                       String selectedRoute, ConcurrentMap<Integer, Marker> busStops, int color,
+                       String selectedRoute, int color,
                        float zoomLevel,
                        float zoomVisibility,
                        TransitStop stopMap,
@@ -299,7 +299,6 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
      * Adds points to the points list (the list of points for the PolyLine). adds if the sequence is correct
      * and the tempLat or tempLong isn't the initialized value (Africa -> 0.0, 0.0)
      *
-     * @param loop     whether or not the this is a looparound add (TODO: broken here)
      * @param points   the list of points for the Polyline
      * @param tempLat  the temporary latitude
      * @param tempLong the temporary longitude
