@@ -126,7 +126,6 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerListView.setAdapter(
                 new ColoredArrayAdapter(
                         getActionBar().getThemedContext(),
-                        R.layout.row_list,
                         createRoutes()
                 )
         );
@@ -430,7 +429,7 @@ public class NavigationDrawerFragment extends Fragment {
         getDrawerListView().clearChoices();
         mSelected = new boolean[getResources().getStringArray(R.array.buses).length];
         File lineInfo = new File(getActivity().getFilesDir(), "/lineinfo");
-        Log.d("clear-files", lineInfo.getAbsolutePath());
+        Log.d("clear-files", "cleared files: " + lineInfo.getAbsolutePath());
         if(lineInfo.exists()) {
             File[] files = lineInfo.listFiles();
             if(files != null) {
@@ -459,9 +458,9 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     public void onPause() {
-        super.onPause();
         Log.d("onPause_navdrawer", "went into the navigation drawer fragment");
         savePreferences();
+        super.onPause();
     }
 
     /**
@@ -469,8 +468,8 @@ public class NavigationDrawerFragment extends Fragment {
      */
     @Override
     public void onStop() {
-        super.onStop();
         Log.d("saving_sbchecked", mDrawerListView.getCheckedItemPositions().toString());
+        super.onStop();
 
 
     }
@@ -505,7 +504,7 @@ public class NavigationDrawerFragment extends Fragment {
     /**
      * Callbacks interface that all activities using this fragment must implement.
      */
-    public static interface NavigationDrawerCallbacks {
+    public interface NavigationDrawerCallbacks {
         /**
          * Called when an item in the navigation drawer is selected.
          */

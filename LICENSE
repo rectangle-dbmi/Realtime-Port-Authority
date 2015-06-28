@@ -199,3 +199,40 @@ Apache License
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+   This Apache license is for the Android application called PAT Realtime Tracker, 
+   which tracks the Port Authority buses in real-time using Pittsburgh Port Authority's
+   TrueTime API (v2) and Google Maps Android API v2.
+   
+   All contributors must obey the terms of use from Google Maps and Port Authority:
+      
+       http://www.portauthority.org/paac/CompanyInfoProjects/DeveloperResources/DeveloperLicenseAgreement.aspx
+       https://developers.google.com/maps/terms
+   
+   ADDED CONDITIONS:
+   
+   "We" (and thus, "us") is defined as Ritwik Gupta (ritwikg2004@live.com) and Jeremy Jao (jeremy.l.jao@gmail.com), 
+   the founding contributors of the app. "We," "us," and "Licensor" are synonymous.
+   This applies to the rest of the license as well as everything in this repository. 
+   
+   At this time, we are keeping this app open source and 99% functional; however,
+   by contributing to the app, you must understand that we can choose at any
+   point to close the source code for any reason we feel the need to.
+   
+   The reason for being 99% functional is because we have a public API key that must not
+   be visible to any person within a java package called "hidden" within the app. 
+   In order to contribute to the app, you must first give us an email stating a reason for using the app. 
+   Reasons can be for learning up to contributing to the app in order to kill off issues/add features.
+   We ask you to professionally document your and our emails, and we will do the same.
+   
+   You will be given the hidden package if you abide by the following Contribution Guidelines:
+   1. You must not use our code or your contributions for profit unless unless specified via email
+   2. Must contribute to the master repository
+   3. Must understand that we can close the code at any point but also know that all your code are yours and thus are still part of the project!
+   4. Must understand that Jeremy and Ritwik are Main Code maintainers and founding contributors of the app
+   5. Must have your own TrueTime API key
+   6. Proper commenting and javadoc-ing of your own code
+   7. Must abide to the rest of the license
+   
+   Thank you for reading our clause to contribute to the application!
+    

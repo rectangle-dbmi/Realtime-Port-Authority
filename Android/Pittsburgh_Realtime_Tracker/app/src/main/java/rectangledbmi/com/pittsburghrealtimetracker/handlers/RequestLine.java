@@ -74,7 +74,7 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
 
     //TODO: selectedRoute and color have to go out in order to add the polylines to the map...
     public RequestLine(GoogleMap mMap, ConcurrentMap<String, List<Polyline>> patterns,
-                       String selectedRoute, ConcurrentMap<Integer, Marker> busStops, int color,
+                       String selectedRoute, int color,
                        float zoomLevel,
                        float zoomVisibility,
                        TransitStop stopMap,
@@ -106,12 +106,6 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
             checkSD();
             pullParserFactory = XmlPullParserFactory.newInstance();
             XmlPullParser parser = pullParserFactory.newPullParser();
-//            URL url = PortAuthorityAPI.getPatterns(selectedRoute);
-//            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-//            conn.setConnectTimeout(5000);
-//            conn.setUseCaches(true);
-//
-//            conn.addRequestProperty("Cache-Control", "max-age="+(60*60*24));
             HttpResponseCache cache = HttpResponseCache.getInstalled();
             if(cache != null) {
                 Log.d("cache_info_lines", selectedRoute + ": " + Integer.toString(cache.getHitCount()));
@@ -119,13 +113,10 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
                 Log.d("cache_info", selectedRoute + ": " + "cache is empty");
             }
             InputStream in = new FileInputStream(context.getFilesDir() + "/lineinfo/" + selectedRoute + ".xml");
-//            InputStream in = conn.getInputStream();
-            if (in != null) {
-                parser.setInput(in, null);
-//                parser.setInput(conn.getInputStream(), null);
-                // get the list...
-                points = parseXML(parser);
-            }
+
+            parser.setInput(in, null);
+            // get the list...
+            points = parseXML(parser);
 
         } catch (XmlPullParserException e) {
             e.printStackTrace();
@@ -141,8 +132,9 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
 
     private void checkSD() {
         File sd = new File(context.getFilesDir() + "/lineinfo");
-        if(!sd.exists())
+        if(!sd.exists()) {
             sd.mkdirs();
+        }
         File routeFile = new File(sd.getName() + "/" + selectedRoute + ".xml");
         if(!routeFile.exists()) {
             InputSave save = new InputSave(context);
@@ -218,7 +210,7 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
                     case (XmlPullParser.END_TAG): {
                         name = parser.getName();
                         if ("pt".equals(name)) {
-                            seq = addPoints(points, tempLat, tempLong, seq, tempSeq, false);
+                            seq = addPoints(points, tempLat, tempLong, seq, tempSeq);
                             if (isBusStop) {
                                 busStopInfos.add(new LineInfo(stpid, stpnm, rtdir, tempLat, tempLong));
                                 isBusStop = false;
@@ -232,7 +224,7 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
                 }
 
             } catch (NullPointerException e) {
-
+                Toast.makeText(context, "The Port Authority servers are down. Sorry!", Toast.LENGTH_LONG);
             }
             eventType = parser.next();
         }
@@ -312,10 +304,9 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
      * @param tempLong the temporary longitude
      * @param seq      the sequence counter
      * @param tempSeq  What the XML says its sequence is
-     * @param loop     whether or not the this is a looparound add (TODO: broken here)
      * @return the sequence incremented if successful. else the same sequence...
      */
-    private int addPoints(LinkedList<LatLng> points, double tempLat, double tempLong, int seq, int tempSeq, boolean loop) {
+    private int addPoints(LinkedList<LatLng> points, double tempLat, double tempLong, int seq, int tempSeq) {
         if ((tempLat != 0.0 || tempLong != 0.0) && (seq == tempSeq)) {
             LatLng templatlong = new LatLng(tempLat, tempLong);
             points.add(templatlong);

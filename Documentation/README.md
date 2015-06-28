@@ -132,3 +132,7 @@ Do not open the project until you do all of these steps....
 		- mine was `/usr/lib/jvm/java-8-oracle` which will be the same if you install the real version.
 
 After this... should be good... Make sure if you're editing the files in Android Studio, use the program to commit and whatnot. This is because it'll commit and .gitignore the correct files. If you don't do this, it'll mess up the whole project!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+#Contribution Notice
+
+We ask that you read the LICENSE in the root of the repository (especially the bottom) before contributing to the code. Then, please follow the instructions for the hidden package given in the LICENSE. Thank you for contributing to the application!

@@ -91,7 +91,8 @@
         android:layout_alignParentEnd="true"
         android:layout_below="@+id/disclaimer"
         android:paddingBottom="12dp"
-        android:paddingRight="12dp" />
+        android:paddingRight="12dp"
+        android:contentDescription="Logo"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -99,7 +100,7 @@
         android:layout_toLeftOf="@+id/imageView"
         android:id="@+id/version"
         android:layout_alignParentLeft="true"
-        android:text="@string/versionName"
+        android:text="set_programmatically"
         android:paddingLeft="12dp"
         android:paddingBottom="20dp"
         android:paddingTop="20dp"

@@ -9,8 +9,10 @@ import android.net.http.HttpResponseCache;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -22,9 +24,11 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -50,11 +54,11 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 /**
  * This is the main activity of the Realtime Tracker...
  */
-public class SelectTransit extends ActionBarActivity implements
+public class SelectTransit extends AppCompatActivity implements
         NavigationDrawerFragment.NavigationDrawerCallbacks,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+        OnMapReadyCallback, LocationListener {
 
     private static final String LINES_LAST_UPDATED = "lines_last_updated";
 
@@ -165,33 +169,49 @@ public class SelectTransit extends ActionBarActivity implements
     private ConcurrentMap<String, List<Polyline>> routeLines;
 //    private ConcurrentMap<String, Polyline> routeLines;
 
-    private ConcurrentMap<Integer, Marker> busStops;
+//    private ConcurrentMap<Integer, Marker> busStops;
 
+    /**
+     * Object that does dynamic bus marker storage
+     */
     private TransitStop transitStop;
 
+    /**
+     * Boolean to identify if we are not centered
+     */
+    private boolean notCentered;
+
+    /**
+     * Google location request to give us location-based context
+     */
+    LocationRequest gLocationRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_select_transit);
+        checkSDCardData();
+        mNavigationDrawerFragment = (NavigationDrawerFragment)
+            getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
+        mTitle = getTitle();
 
-            setContentView(R.layout.activity_select_transit);
-            checkSDCardData();
-            mNavigationDrawerFragment = (NavigationDrawerFragment)
-                    getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-            mTitle = getTitle();
+        // Set up the drawer.
+        mNavigationDrawerFragment.setUp(
+                R.id.navigation_drawer,
+                (DrawerLayout) findViewById(R.id.drawer_layout));
 
-            // Set up the drawer.
-            mNavigationDrawerFragment.setUp(
-                    R.id.navigation_drawer,
-                    (DrawerLayout) findViewById(R.id.drawer_layout));
+        setGoogleApiClient();
+        createBusList();
+        MapFragment mapFragment = (MapFragment) getFragmentManager()
+            .findFragmentById(R.id.map);
 
-            setGoogleApiClient();
-            createBusList();
+        mapFragment.getMapAsync(this);
             //sets up the map
-            inSavedState = false;
-            enableHttpResponseCache();
-            restoreInstanceState(savedInstanceState);
-            isBusTaskRunning = false;
+        inSavedState = false;
+        enableHttpResponseCache();
+        restoreInstanceState(savedInstanceState);
+        isBusTaskRunning = false;
+        notCentered = false;
             //        zoom = 15.0f;
 //        } else {
 //
@@ -257,6 +277,8 @@ public class SelectTransit extends ActionBarActivity implements
     private void setGoogleApiClient() {
         client = new GoogleApiClient.Builder(getApplicationContext())
                 .addApi(LocationServices.API)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
@@ -264,7 +286,7 @@ public class SelectTransit extends ActionBarActivity implements
 
     private void enableHttpResponseCache() {
         try {
-            long httpCacheSize = 10 * 1024 * 1024; // 10 MiB
+            long httpCacheSize = 10485760; // 10 MiB
             File fetch = getExternalCacheDir();
             if(fetch == null) {
                 fetch = getCacheDir();
@@ -279,7 +301,7 @@ public class SelectTransit extends ActionBarActivity implements
     }
 
     /**
-     * Restores the instance state of the program
+     * Restores the instance state of the program including the preferences
      *
      * @param savedInstanceState the saved instances of the app
      */
@@ -344,6 +366,14 @@ public class SelectTransit extends ActionBarActivity implements
 
     }
 
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        notCentered = true;
+        setUpMap();
+        centerMap();
+        restorePolylines();
+    }
 
     /**
      * initializes the bus list
@@ -360,73 +390,6 @@ public class SelectTransit extends ActionBarActivity implements
         busMarkers = new ConcurrentHashMap<>(100);
     }
 
-
-    /**
-     * Sets up map if it is needed
-     */
-    private void setUpMapIfNeeded() {
-        // Do a null check to confirm that we have not already instantiated the map.
-        if (mMap == null) {
-            mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-            // Check if we were successful in obtaining the map.
-            if (mMap != null) {
-
-                setUpMap();
-
-                mMap.setInfoWindowAdapter(new ETAWindowAdapter(getLayoutInflater()));
-                mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
-                    @Override
-                    public void onCameraChange(CameraPosition cameraPosition) {
-                        if(!inSavedState)
-                            inSavedState = true;
-                        latitude = cameraPosition.target.latitude;
-                        longitude = cameraPosition.target.longitude;
-                        if (zoom != cameraPosition.zoom) {
-                            zoom = cameraPosition.zoom;
-
-                            transitStop.checkAllVisibility(zoom, Float.parseFloat(getString(R.string.zoom_level)));
-                        }
-                    }
-                });
-
-                /*
-                TODO:
-                a. Make an XML PullParser for getpredictions (all we need is bus route: <list of 3 times>)
-                b. update snippet with the times: marker.setSnippet
-                c. Make the snippet follow Google Maps time implementation!!!
-                d. getpredictions&stpid=marker.getTitle().<regex on \(.+\)> since this is where the stop id is to get stop id.
-                 */
-                mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                    @Override
-                    public boolean onMarkerClick(Marker marker) {
-
-                        if (marker != null) {
-//                            final Marker mark = marker;
-                            mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()), 400, null);
-//                            final Handler handler = new Handler();
-//                            handler.postDelayed(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    new RequestPredictions(mMap, mark, busMarkers.keySet(), transitStop.getStopIds(), getFragmentManager(), buses,
-//                                            getApplicationContext()).execute(mark.getTitle());
-//                                }
-//                            }, 400);
-                            new RequestPredictions(getApplicationContext(), marker, buses).execute(marker.getTitle());
-
-
-//                            String message = "Stop 1:\tPRDTM\nStop 2:\tPRDTM";
-//                            String title = "Bus";
-//                            showDialog(message, title);
-
-                            return true;
-                        }
-                        return false;
-                    }
-                });
-            }
-        }
-    }
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -440,10 +403,13 @@ public class SelectTransit extends ActionBarActivity implements
 //            DataRequiredDialog dialog = new DataRequiredDialog();
 //            dialog.show(getSupportFragmentManager(), "data required");
 //        }
-        if (mMap != null) {
-            setUpMap();
-        } else
-            setUpMapIfNeeded();
+//        if (mMap != null) {
+//            setUpMap();
+//        } else
+////            setUpMapIfNeeded();
+//        if(buses != null) {
+            clearAndAddToMap();
+//        }
     }
 
     /**
@@ -454,30 +420,30 @@ public class SelectTransit extends ActionBarActivity implements
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         if (sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
             buses = sp.getStringSet(BUS_SELECT_STATE, new HashSet<String>(getResources().getInteger(R.integer.max_checked)));
-            Log.d("restoring buses", buses.toString());
+//            Log.d("restoring buses", buses.toString());
         } else {
             buses = new HashSet<>(getResources().getInteger(R.integer.max_checked));
         }
     }
 
     protected void onPause() {
-        super.onPause();
         Log.d("main_destroy", "SelectTransit onPause");
         savePreferences();
         stopTimer();
+        super.onPause();
 
     }
 
     @Override
     protected void onStop() {
-        super.onStop();
+
         Log.d("main_destroy", "SelectTransit onStop");
         client.disconnect();
         HttpResponseCache cache = HttpResponseCache.getInstalled();
         if (cache != null) {
             cache.flush();
         }
-
+        super.onStop();
     }
 
     /**
@@ -551,7 +517,7 @@ public class SelectTransit extends ActionBarActivity implements
         List<Polyline> polylines = routeLines.get(route);
 
         if (polylines == null || polylines.isEmpty()) {
-            new RequestLine(mMap, routeLines, route, busStops, color, zoom, Float.parseFloat(getString(R.string.zoom_level)), transitStop, this).execute();
+            new RequestLine(mMap, routeLines, route, color, zoom, Float.parseFloat(getString(R.string.zoom_level)), transitStop, this).execute();
         } else if(!polylines.get(0).isVisible()) {
             setVisiblePolylines(polylines, true);
             transitStop.updateAddRoutes(route, zoom, Float.parseFloat(getString(R.string.zoom_level)));
@@ -584,38 +550,25 @@ public class SelectTransit extends ActionBarActivity implements
         }
     }
 
-    /**
-     * If the selected bus is already in the list, remove it
-     * else add it
-     * <p/>
-     * This list will then be passed onto the UI updater if it isn't empty.
-     * <p/>
-     * This is the best way codewise to pass the buses to the UI updater.
-     * <p/>
-     * Worst case is O(n) as we'd have to remove all buses here.
-     * <p/>
-     * we want to also be able to see the bus the instant it loads
-     *
-     * @param selected the bus string
-     */
-    private void setList(String selected) {
-        //TODO: perhaps look at constant time remove
-        //TODO somehow the bus isn't being selected
-        if (!buses.remove(selected)) {
-            buses.add(selected);
-        }
-    }
-
     public void restoreActionBar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
             try {
                 setSupportActionBar(toolbar);
             } catch (Throwable e) {
-                Toast.makeText(this, "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Toast.LENGTH_LONG).show();
+                Snackbar.make(findViewById(android.R.id.content),
+                "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Snackbar.LENGTH_LONG).show();
+//                Toast.makeText(this, "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Toast.LENGTH_LONG).show();
             }
         }
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        try {
+            ActionBar t = getSupportActionBar();
+            if(t != null) t.setDisplayHomeAsUpEnabled(true);
+        } catch(NullPointerException e) {
+            Snackbar.make(findViewById(android.R.id.content),
+                    "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Snackbar.LENGTH_LONG).show();
+        }
+
     }
 
     //dunno...
@@ -654,7 +607,7 @@ public class SelectTransit extends ActionBarActivity implements
      * Polls self on the map and then centers the map on Pittsburgh or you if you're in Pittsburgh..
      */
     private void centerMap() {
-        if (currentLocation != null && !inSavedState) {
+/*        if (currentLocation != null && !inSavedState) {
 
             double currentLatitude = currentLocation.getLatitude();
             double currentLongitude = currentLocation.getLongitude();
@@ -667,12 +620,18 @@ public class SelectTransit extends ActionBarActivity implements
             } else {
                 zoom = 11.82f;
             }
-        } /*else {
+        } *//*else {
             zoom = 11.82f;
         }*/
+        if(currentLocation != null) {
+            latitude = currentLocation.getLatitude();
+            longitude = currentLocation.getLongitude();
+            zoom = 15.0f;
+            Log.d("location_changed", "current location set in centerMap()");
+        }
         Log.d("savedInstance", "saved? " + inSavedState);
         Log.d("savedInstance", "lat="+latitude);
-        Log.d("savedInstance", "long="+longitude);
+        Log.d("savedInstance", "long=" + longitude);
         Log.d("savedInstance", "zoom=" + zoom);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), zoom));
     }
@@ -685,6 +644,7 @@ public class SelectTransit extends ActionBarActivity implements
     protected void setUpMap() {
 //        System.out.println("restore...");
 //        clearMap();
+        setMapListeners();
         mMap.setMyLocationEnabled(true);
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         if (sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
@@ -701,12 +661,76 @@ public class SelectTransit extends ActionBarActivity implements
         }
     }
 
+
+    /**
+     * set the map listeners
+     */
+    private void setMapListeners() {
+        // Do a null check to confirm that we have not already instantiated the map.
+//        if (mMap == null) {
+////            mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+//            // Check if we were successful in obtaining the map.
+        if (mMap != null) {
+
+            mMap.setInfoWindowAdapter(new ETAWindowAdapter(getLayoutInflater()));
+            mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+                @Override
+                public void onCameraChange(CameraPosition cameraPosition) {
+                    if (!inSavedState)
+                        inSavedState = true;
+                    latitude = cameraPosition.target.latitude;
+                    longitude = cameraPosition.target.longitude;
+                    if (zoom != cameraPosition.zoom) {
+                        zoom = cameraPosition.zoom;
+
+                        transitStop.checkAllVisibility(zoom, Float.parseFloat(getString(R.string.zoom_level)));
+                    }
+                }
+            });
+
+                /*
+                TODO:
+                a. Make an XML PullParser for getpredictions (all we need is bus route: <list of 3 times>)
+                b. update snippet with the times: marker.setSnippet
+                c. Make the snippet follow Google Maps time implementation!!!
+                d. getpredictions&stpid=marker.getTitle().<regex on \(.+\)> since this is where the stop id is to get stop id.
+                 */
+            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker) {
+
+                    if (marker != null) {
+//                            final Marker mark = marker;
+                        mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()), 400, null);
+//                            final Handler handler = new Handler();
+//                            handler.postDelayed(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    new RequestPredictions(mMap, mark, busMarkers.keySet(), transitStop.getStopIds(), getFragmentManager(), buses,
+//                                            getApplicationContext()).execute(mark.getTitle());
+//                                }
+//                            }, 400);
+                        new RequestPredictions(getApplicationContext(), marker, buses).execute(marker.getTitle());
+
+
+//                            String message = "Stop 1:\tPRDTM\nStop 2:\tPRDTM";
+//                            String title = "Bus";
+//                            showDialog(message, title);
+
+                        return true;
+                    }
+                    return false;
+                }
+            });
+        }
+    }
+
     /**
      * This is the method to restore polylines....
      */
     protected void restorePolylines() {
-        Log.d("polylines restoring", "zoom= " + zoom);
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        Log.d("polylines restoring", "restoring polylines... ");
         if (sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
             Set<String> selected = sp.getStringSet(STATE_SELECTED_POSITIONS, null);
             if (selected != null) {
@@ -717,7 +741,7 @@ public class SelectTransit extends ActionBarActivity implements
                 }
             }
         } else {
-            Toast.makeText(this, "New buses were added. Please re-select your buses", Toast.LENGTH_LONG).show();
+            Snackbar.make(findViewById(android.R.id.content), "New buses were added. Please re-select your buses", Snackbar.LENGTH_LONG).show();
         }
     }
 
@@ -725,9 +749,12 @@ public class SelectTransit extends ActionBarActivity implements
      * Stops the bus refresh, then adds buses to the map
      */
     protected synchronized void clearAndAddToMap() {
-        Log.d("stop_add_buses", buses.toString());
-        stopTimer();
-        addBuses();
+        if (mMap != null) {
+            Log.d("stop_add_buses", buses.toString());
+            stopTimer();
+            addBuses();
+        }
+
 //        System.out.println("Added buses");
     }
 
@@ -752,21 +779,20 @@ public class SelectTransit extends ActionBarActivity implements
                             req = new RequestTask(mMap, buses, busMarkers, context);
 //                            req = new RequestTask(mMap, buses, context);
                             req.execute();
-                        } else
-                            clearMap();
+                        }
                     }
                 });
             }
         };
         if (!buses.isEmpty()) {
             timer.schedule(task, 0, 10000); //it executes this every 10000ms
-        } else
-            clearMap();
+        }
     }
 
 
     private synchronized void removeBuses() {
         if (busMarkers != null) {
+            Log.d("bus_remove", "buses removed");
             for (Marker busMarker : busMarkers.values()) {
                 busMarker.remove();
             }
@@ -780,7 +806,7 @@ public class SelectTransit extends ActionBarActivity implements
      * Stops the timer task
      */
     private synchronized void stopTimer() {
-        removeBuses();
+//        removeBuses();
         // wait for the bus task to finish!
 
         if (timer != null) {
@@ -809,7 +835,6 @@ public class SelectTransit extends ActionBarActivity implements
             removeBuses();
             clearBuses();
             mNavigationDrawerFragment.clearSelection();
-
 //            mNavigationDrawerFragment.clearSelection();
         }
     }
@@ -818,8 +843,10 @@ public class SelectTransit extends ActionBarActivity implements
      * The list of buses that are selected
      */
     protected void clearBuses() {
-        if(buses != null)
+        if(buses != null) {
+            Log.d("bus_remove", "buses cleared");
             buses.clear();
+        }
     }
 
     public void onBackPressed() {
@@ -837,20 +864,36 @@ public class SelectTransit extends ActionBarActivity implements
         /*
       This is the location request using FusedLocationAPI to get the person's last known location
      */
-        LocationRequest gLocationRequest = LocationRequest.create();
+        gLocationRequest = LocationRequest.create();
         gLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         gLocationRequest.setInterval(1000);
+//        MapsInitializer.initialize(this);
         currentLocation = LocationServices.FusedLocationApi.getLastLocation(client);
+//        Log.d("location_changed", "What is going on here");
         if (currentLocation == null) {
+            Log.d("location_changed", "current location is null");
             LocationServices.FusedLocationApi.requestLocationUpdates(client, gLocationRequest, this);
             if (currentLocation != null) {
-                LocationServices.FusedLocationApi.removeLocationUpdates(client, this);
+//                LocationServices.FusedLocationApi.removeLocationUpdates(client, this);
+                if(mMap != null)
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
             }
-
+        } else if(!inSavedState) {
+//            latitude = currentLocation.getLatitude();
+//            longitude = currentLocation.getLongitude();
+//            zoom = 15.0f;
+            if(mMap != null)
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
         }
+
+        /*else {
+            MapsInitializer.initialize(this);
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
+        }*/
 //        System.out.println("Location: " + currentLocation);
-        centerMap();
-        restorePolylines();
+//        MapsInitializer.initialize(this); // makes sure the maps works...
+//        centerMap();
+//        restorePolylines();
     }
 
     /**
@@ -860,7 +903,7 @@ public class SelectTransit extends ActionBarActivity implements
      */
     @Override
     public void onConnectionSuspended(int i) {
-
+        LocationServices.FusedLocationApi.removeLocationUpdates(client, this);
     }
 
     /**
@@ -871,7 +914,7 @@ public class SelectTransit extends ActionBarActivity implements
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Log.d("Google API Error", connectionResult.toString());
-        centerMap();
+//        centerMap();
         Toast.makeText(this, "Google connection failed, please try again later", Toast.LENGTH_LONG).show();
 
 //        TODO: Perhaps based on the connection result, we can close and make custom error messages.
@@ -879,8 +922,13 @@ public class SelectTransit extends ActionBarActivity implements
 
     @Override
     public void onLocationChanged(Location location) {
-        if (location != null) {
-            currentLocation = location;
+        Log.d("location_changed", "onLocationChanged() " + location.toString());
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
+
+        currentLocation = location;
+        if(mMap != null && notCentered) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
+            notCentered = false;
         }
     }
 
@@ -895,4 +943,6 @@ public class SelectTransit extends ActionBarActivity implements
     public boolean isBusTaskRunning() {
         return isBusTaskRunning;
     }
+
+
 }
