@@ -779,16 +779,14 @@ public class SelectTransit extends AppCompatActivity implements
                             req = new RequestTask(mMap, buses, busMarkers, context);
 //                            req = new RequestTask(mMap, buses, context);
                             req.execute();
-                        } else
-                            clearMap();
+                        }
                     }
                 });
             }
         };
         if (!buses.isEmpty()) {
             timer.schedule(task, 0, 10000); //it executes this every 10000ms
-        } else
-            clearMap();
+        }
     }
 
 
