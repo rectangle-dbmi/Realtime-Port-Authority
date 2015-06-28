@@ -25,10 +25,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
 
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ColoredArrayAdapter;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
@@ -40,9 +37,6 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
  */
 public class NavigationDrawerFragment extends Fragment {
 
-    private static final String BUSLIST_SIZE = "buslist_size";
-
-    private static final String MAX_CHECKED = "max_checked";
     /**
      * Remember the position of the selected item.
      */
@@ -65,6 +59,13 @@ public class NavigationDrawerFragment extends Fragment {
     private NavigationDrawerCallbacks mCallbacks;
 
     /**
+     * pointer to the current selected bus for the current callbacks instance (Activity)
+     *
+     * @since 43
+     */
+    private BusListCallbacks busCallbacks;
+
+    /**
      * Helper component that ties the action bar to the navigation drawer.
      */
     private ActionBarDrawerToggle mDrawerToggle;
@@ -77,8 +78,15 @@ public class NavigationDrawerFragment extends Fragment {
     private boolean mUserLearnedDrawer;
     private Toolbar toolbar;
 
-    public NavigationDrawerFragment() {
-    }
+    /**
+     * Object that contains all routes made from the list of routes
+     *
+     * @since 43
+     */
+    private ArrayList<Route> routes;
+
+    private HashMap<String, Route> routeHashMap;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -120,6 +128,7 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
                 selectItem(position);
             }
         });
@@ -171,9 +180,14 @@ public class NavigationDrawerFragment extends Fragment {
         descriptions = getResources().getStringArray(R.array.bus_description);
         colors = getResources().getStringArray(R.array.buscolors);
 
-        ArrayList<Route> routes = new ArrayList<Route>(numbers.length);
+        routes = new ArrayList<Route>(numbers.length);
+        routeHashMap = new HashMap<String, Route>();
+        Route currentRoute;
         for(int i=0;i<numbers.length;++i) {
-            routes.add(new Route(numbers[i], descriptions[i], colors[i]));
+            currentRoute = new Route(numbers[i], descriptions[i], colors[i], i);
+            routes.add(currentRoute);
+            routeHashMap.put(currentRoute.getRoute(), currentRoute);
+
         }
         return routes;
     }
@@ -192,7 +206,8 @@ public class NavigationDrawerFragment extends Fragment {
         mFragmentContainerView = getActivity().findViewById(fragmentId);
         mDrawerLayout = drawerLayout;
 
-        toolbar = (Toolbar) getView().findViewById(R.id.toolbar);
+        toolbar = (Toolbar) getView();
+        if(toolbar != null) toolbar.findViewById(R.id.toolbar);
 
         // set a custom shadow that overlays the main content when the drawer opens
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
@@ -279,7 +294,7 @@ public class NavigationDrawerFragment extends Fragment {
                 setTrue(position);
             }
             if (mCallbacks != null) {
-                mCallbacks.onNavigationDrawerItemSelected(position);
+                busCallbacks.onBusRouteSelected(routes.get(position));
             }
         }
 
@@ -345,6 +360,7 @@ public class NavigationDrawerFragment extends Fragment {
         super.onAttach(activity);
         try {
             mCallbacks = (NavigationDrawerCallbacks) activity;
+            busCallbacks = (BusListCallbacks) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException("Activity must implement NavigationDrawerCallbacks.");
         }
@@ -457,12 +473,6 @@ public class NavigationDrawerFragment extends Fragment {
         return ((SelectTransit)getActivity()).getSupportActionBar();
     }
 
-    public void onPause() {
-        Log.d("onPause_navdrawer", "went into the navigation drawer fragment");
-        savePreferences();
-        super.onPause();
-    }
-
     /**
      * Attempt to save the list view...
      */
@@ -475,30 +485,37 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     /**
-     * Method to save preferences...
+     * @since 43
+     * @param rt - the route number
+     * @return the route information by rt
      */
-    private void savePreferences() {
-        SharedPreferences sp = PreferenceManager
-                .getDefaultSharedPreferences(getActivity());
-//        SparseBooleanArray checked = mDrawerListView.getCheckedItemPositions();
-        Set<String> listIds = Collections.synchronizedSet(new HashSet<String>(10));
-        Log.d("saving_sbchecked", mDrawerListView.getCheckedItemPositions().toString());
-        Log.d("saving_sbchecked", Arrays.toString(mDrawerListView.getCheckedItemIds()));
+    public Route getSelectedRoute(String rt) {
+        return routeHashMap.get(rt);
+    }
 
-//        System.out.println("In Stop. Size of Checked...: " + checked.size());
-/*        for(long id : mDrawerListView.getCheckedItemIds()) {
-            listIds.add(Long.toString(id));
-            System.out.println("Saving: " + id);
-        }*/
+    /**
+     * @since 43
+     * @param position - the position in the list
+     * @return the route information by list position
+     */
+    public Route getSelectedRoute(int position) {
+        return routes.get(position);
+    }
 
-        for(int i=0;i<mDrawerListView.getCount();++i) {
-            if(mSelected[i])
-                listIds.add(Integer.toString(i));
-        }
-        Log.d("saving positions", listIds.toString());
-        sp.edit().putStringSet(STATE_SELECTED_POSITIONS, listIds).apply();
+    /**
+     * This takes the bus route information to the main activity {@link SelectTransit}.
+     *
+     * @since 43
+     * @author Jeremy Jao
+     */
+    public interface BusListCallbacks {
 
-
+        /**
+         * This bus route has been selected
+         *
+         * @param route - the bus route selected
+         */
+        void onBusRouteSelected(Route route);
     }
 
     /**
@@ -510,6 +527,5 @@ public class NavigationDrawerFragment extends Fragment {
          */
         void onNavigationDrawerItemSelected(int position);
     }
-
 
 }
