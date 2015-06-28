@@ -758,29 +758,8 @@ public class SelectTransit extends AppCompatActivity implements
         }
     }
 
-//    /**
-//     * This is the method to restore polylines....
-//     */
-//    protected void restorePolylines() {
-//        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-//        Log.d("polylines restoring", "restoring polylines... ");
-//        if (sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
-//            Set<String> selected = sp.getStringSet(STATE_SELECTED_POSITIONS, null);
-//            if (selected != null) {
-//                for (String select : selected) {
-//                    int position = Integer.parseInt(select);
-//                    selectPolyline(position);
-//                    mNavigationDrawerFragment.setTrue(position);
-//                }
-//            }
-//        } else {
-//            Snackbar.make(findViewById(android.R.id.content), "New buses were added. Please re-select your buses", Snackbar.LENGTH_LONG).show();
-//        }
-//    }
-
     /**
-     * This is the method to restore polylines. It's an update to the previous as it uses
-     * position from the previous positions
+     * This is the method to restore polylines.
      *
      * @since 43
      */
