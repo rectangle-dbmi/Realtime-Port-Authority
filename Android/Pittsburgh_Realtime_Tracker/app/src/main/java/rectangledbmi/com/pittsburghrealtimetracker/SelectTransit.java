@@ -406,7 +406,7 @@ public class SelectTransit extends AppCompatActivity implements
     private void restorePreferences() {
         Log.d("restoring buses", "Attempting to restore buses.");
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        buses = sp.getStringSet(BUS_SELECT_STATE, Collections.synchronizedSet(new HashSet<String>(getResources().getInteger(R.integer.max_checked))));
+        buses = new HashSet<String>(sp.getStringSet(BUS_SELECT_STATE, Collections.synchronizedSet(new HashSet<String>(getResources().getInteger(R.integer.max_checked)))));
     }
 
     protected void onPause() {
@@ -436,8 +436,10 @@ public class SelectTransit extends AppCompatActivity implements
         Log.d("saving buses", buses.toString());
         Log.d("selected size", Integer.toString(buses.size()));
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        sp.edit().putStringSet(BUS_SELECT_STATE, buses).apply();
-        sp.edit().putInt(BUSLIST_SIZE, getResources().getStringArray(R.array.buses).length).apply();
+        SharedPreferences.Editor spe = sp.edit();
+        spe.putStringSet(BUS_SELECT_STATE, buses).apply();
+//        sp.edit().putInt(BUSLIST_SIZE, getResources().getStringArray(R.array.buses).length).apply();
+        spe.apply();
     }
 
 //    @Override
