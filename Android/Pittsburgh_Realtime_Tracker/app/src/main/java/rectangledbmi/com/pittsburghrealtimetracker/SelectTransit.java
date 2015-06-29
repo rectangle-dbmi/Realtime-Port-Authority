@@ -63,7 +63,7 @@ public class SelectTransit extends AppCompatActivity implements
 
     private static final String LINES_LAST_UPDATED = "lines_last_updated";
 
-    private static final String BUSLIST_SIZE = "buslist_size";
+//    private static final String BUSLIST_SIZE = "buslist_size";
 
     /**
      * Saved instance of the buses that are selected
@@ -688,10 +688,10 @@ public class SelectTransit extends AppCompatActivity implements
 //        clearMap();
         setMapListeners();
         mMap.setMyLocationEnabled(true);
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        if (sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
+//        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+//        if (sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
 //            buses.clear();
-            clearAndAddToMap();
+        clearAndAddToMap();
 //            final Handler handler = new Handler();
 //            handler.postDelayed(new Runnable() {
 //                @Override
@@ -700,7 +700,7 @@ public class SelectTransit extends AppCompatActivity implements
 //                }
 //            }, 100);
 
-        }
+//        }
     }
 
 
