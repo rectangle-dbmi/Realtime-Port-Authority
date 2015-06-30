@@ -9,10 +9,10 @@ import android.net.http.HttpResponseCache;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatAutoCompleteTextView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -24,9 +24,11 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -47,24 +49,22 @@ import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestLine;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestTask;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter;
+import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 
 /**
  * This is the main activity of the Realtime Tracker...
  */
 public class SelectTransit extends AppCompatActivity implements
-        NavigationDrawerFragment.NavigationDrawerCallbacks,
+        NavigationDrawerFragment.BusListCallbacks,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+        OnMapReadyCallback, LocationListener {
 
     private static final String LINES_LAST_UPDATED = "lines_last_updated";
 
-    private static final String BUSLIST_SIZE = "buslist_size";
-    /**
-     * saved indexes from selection
-     */
-    private static final String STATE_SELECTED_POSITIONS = "selected_navigation_drawer_positions";
+//    private static final String BUSLIST_SIZE = "buslist_size";
+
     /**
      * Saved instance of the buses that are selected
      */
@@ -94,11 +94,6 @@ public class SelectTransit extends AppCompatActivity implements
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
-
-    /**
-     * Used to store the last screen title. For use in {@link #restoreActionBar()}.
-     */
-    private CharSequence mTitle;
 
     /**
      * The Google Maps Fragment that displays literally everything
@@ -165,35 +160,49 @@ public class SelectTransit extends AppCompatActivity implements
     private boolean isBusTaskRunning;
 
     private ConcurrentMap<String, List<Polyline>> routeLines;
-//    private ConcurrentMap<String, Polyline> routeLines;
 
-    private ConcurrentMap<Integer, Marker> busStops;
-
+    /**
+     * Object that does dynamic bus marker storage
+     */
     private TransitStop transitStop;
 
+    /**
+     * Boolean to identify if we are not centered
+     * @since 42
+     */
+    private boolean notCentered;
+
+    /**
+     * Google location request to give us location-based context
+     * @since 42
+     */
+    LocationRequest gLocationRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_select_transit);
+        checkSDCardData();
+        mNavigationDrawerFragment = (NavigationDrawerFragment)
+                getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
 
-            setContentView(R.layout.activity_select_transit);
-            checkSDCardData();
-            mNavigationDrawerFragment = (NavigationDrawerFragment)
-                    getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-            mTitle = getTitle();
+        // Set up the drawer.
+        mNavigationDrawerFragment.setUp(
+                R.id.navigation_drawer,
+                (DrawerLayout) findViewById(R.id.drawer_layout));
 
-            // Set up the drawer.
-            mNavigationDrawerFragment.setUp(
-                    R.id.navigation_drawer,
-                    (DrawerLayout) findViewById(R.id.drawer_layout));
+        setGoogleApiClient();
+        createBusList();
+        MapFragment mapFragment = (MapFragment) getFragmentManager()
+            .findFragmentById(R.id.map);
 
-            setGoogleApiClient();
-            createBusList();
+        mapFragment.getMapAsync(this);
             //sets up the map
-            inSavedState = false;
-            enableHttpResponseCache();
-            restoreInstanceState(savedInstanceState);
-            isBusTaskRunning = false;
+        inSavedState = false;
+        enableHttpResponseCache();
+        restoreInstanceState(savedInstanceState);
+        isBusTaskRunning = false;
+        notCentered = false;
             //        zoom = 15.0f;
 //        } else {
 //
@@ -259,6 +268,8 @@ public class SelectTransit extends AppCompatActivity implements
     private void setGoogleApiClient() {
         client = new GoogleApiClient.Builder(getApplicationContext())
                 .addApi(LocationServices.API)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
@@ -281,7 +292,7 @@ public class SelectTransit extends AppCompatActivity implements
     }
 
     /**
-     * Restores the instance state of the program
+     * Restores the instance state of the program including the preferences
      *
      * @param savedInstanceState the saved instances of the app
      */
@@ -346,6 +357,14 @@ public class SelectTransit extends AppCompatActivity implements
 
     }
 
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        notCentered = true;
+        setUpMap();
+        centerMap();
+        restorePolylines();
+    }
 
     /**
      * initializes the bus list
@@ -355,78 +374,8 @@ public class SelectTransit extends AppCompatActivity implements
      * However, linear time worst case
      */
     private void createBusList() {
-        //This will be changed as things go
-        buses = Collections.synchronizedSet(new HashSet<String>(getResources().getInteger(R.integer.max_checked)));
-
         routeLines = new ConcurrentHashMap<>(getResources().getInteger(R.integer.max_checked));
         busMarkers = new ConcurrentHashMap<>(100);
-    }
-
-
-    /**
-     * Sets up map if it is needed
-     */
-    private void setUpMapIfNeeded() {
-        // Do a null check to confirm that we have not already instantiated the map.
-        if (mMap == null) {
-            mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-            // Check if we were successful in obtaining the map.
-            if (mMap != null) {
-
-                setUpMap();
-
-                mMap.setInfoWindowAdapter(new ETAWindowAdapter(getLayoutInflater()));
-                mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
-                    @Override
-                    public void onCameraChange(CameraPosition cameraPosition) {
-                        if(!inSavedState)
-                            inSavedState = true;
-                        latitude = cameraPosition.target.latitude;
-                        longitude = cameraPosition.target.longitude;
-                        if (zoom != cameraPosition.zoom) {
-                            zoom = cameraPosition.zoom;
-
-                            transitStop.checkAllVisibility(zoom, Float.parseFloat(getString(R.string.zoom_level)));
-                        }
-                    }
-                });
-
-                /*
-                TODO:
-                a. Make an XML PullParser for getpredictions (all we need is bus route: <list of 3 times>)
-                b. update snippet with the times: marker.setSnippet
-                c. Make the snippet follow Google Maps time implementation!!!
-                d. getpredictions&stpid=marker.getTitle().<regex on \(.+\)> since this is where the stop id is to get stop id.
-                 */
-                mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                    @Override
-                    public boolean onMarkerClick(Marker marker) {
-
-                        if (marker != null) {
-//                            final Marker mark = marker;
-                            mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()), 400, null);
-//                            final Handler handler = new Handler();
-//                            handler.postDelayed(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    new RequestPredictions(mMap, mark, busMarkers.keySet(), transitStop.getStopIds(), getFragmentManager(), buses,
-//                                            getApplicationContext()).execute(mark.getTitle());
-//                                }
-//                            }, 400);
-                            new RequestPredictions(getApplicationContext(), marker, buses).execute(marker.getTitle());
-
-
-//                            String message = "Stop 1:\tPRDTM\nStop 2:\tPRDTM";
-//                            String title = "Bus";
-//                            showDialog(message, title);
-
-                            return true;
-                        }
-                        return false;
-                    }
-                });
-            }
-        }
     }
 
     @Override
@@ -442,10 +391,13 @@ public class SelectTransit extends AppCompatActivity implements
 //            DataRequiredDialog dialog = new DataRequiredDialog();
 //            dialog.show(getSupportFragmentManager(), "data required");
 //        }
-        if (mMap != null) {
-            setUpMap();
-        } else
-            setUpMapIfNeeded();
+//        if (mMap != null) {
+//            setUpMap();
+//        } else
+////            setUpMapIfNeeded();
+//        if(buses != null) {
+            clearAndAddToMap();
+//        }
     }
 
     /**
@@ -454,32 +406,27 @@ public class SelectTransit extends AppCompatActivity implements
     private void restorePreferences() {
         Log.d("restoring buses", "Attempting to restore buses.");
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        if (sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
-            buses = sp.getStringSet(BUS_SELECT_STATE, new HashSet<String>(getResources().getInteger(R.integer.max_checked)));
-            Log.d("restoring buses", buses.toString());
-        } else {
-            buses = new HashSet<>(getResources().getInteger(R.integer.max_checked));
-        }
+        buses = new HashSet<String>(sp.getStringSet(BUS_SELECT_STATE, Collections.synchronizedSet(new HashSet<String>(getResources().getInteger(R.integer.max_checked)))));
     }
 
     protected void onPause() {
-        super.onPause();
         Log.d("main_destroy", "SelectTransit onPause");
         savePreferences();
         stopTimer();
+        super.onPause();
 
     }
 
     @Override
     protected void onStop() {
-        super.onStop();
+
         Log.d("main_destroy", "SelectTransit onStop");
         client.disconnect();
         HttpResponseCache cache = HttpResponseCache.getInstalled();
         if (cache != null) {
             cache.flush();
         }
-
+        super.onStop();
     }
 
     /**
@@ -489,8 +436,10 @@ public class SelectTransit extends AppCompatActivity implements
         Log.d("saving buses", buses.toString());
         Log.d("selected size", Integer.toString(buses.size()));
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        sp.edit().putStringSet(BUS_SELECT_STATE, buses).apply();
-        sp.edit().putInt(BUSLIST_SIZE, getResources().getStringArray(R.array.buses).length).apply();
+        SharedPreferences.Editor spe = sp.edit();
+        spe.putStringSet(BUS_SELECT_STATE, buses).apply();
+//        sp.edit().putInt(BUSLIST_SIZE, getResources().getStringArray(R.array.buses).length).apply();
+        spe.apply();
     }
 
 //    @Override
@@ -501,67 +450,100 @@ public class SelectTransit extends AppCompatActivity implements
 //
 //    }
 
+//    /**
+//     * Gets called from NavigationDrawerFragment's onclick? Supposed to...
+//     *
+//     * @param position the list selection selected starting from 0
+//     */
+//    @Override
+//    public void onNavigationDrawerItemSelected(int position) {
+//        // update the main content by replacing fragments
+//        onSectionAttached(position);
+//    }
+//
+//    /**
+//     * Gets called when one of the buses is pressed. Take note routes will always have more than one
+//     * polyline.
+//     *
+//     * @param number which bus in the list is pressed
+//     */
+//    public void onSectionAttached(int number) {
+//        if(mNavigationDrawerFragment.getAmountSelected() >= 0 &&
+//                mNavigationDrawerFragment.getAmountSelected() <= getResources().getInteger(R.integer.max_checked)) {
+//            if(mNavigationDrawerFragment.isPositionSelected(number)) {
+//                selectFromList(number);
+//            } else {
+//                deselectFromList(number);
+//            }
+//            Log.d("buses_attached", buses.toString());
+//        }
+////        setPolyline(number);
+////        setList(getResources().getStringArray(R.array.buses)[number]);
+//    }
+
     /**
-     * Gets called from NavigationDrawerFragment's onclick? Supposed to...
+     * Checks the state of the route on the map. If it is not on the map, the relevant info will be
+     * added. Otherwise, it will be unselected on the map
      *
-     * @param position the list selection selected starting from 0
+     * @since 43
+     * @param route the bus route selected
      */
     @Override
-    public void onNavigationDrawerItemSelected(int position) {
-        // update the main content by replacing fragments
-        onSectionAttached(position);
+    public void onBusRouteSelected(Route route) {
+        if (mNavigationDrawerFragment.getAmountSelected() >= 0 &&
+                mNavigationDrawerFragment.getAmountSelected() <= getResources().getInteger(R.integer.max_checked)) {
+            if (mNavigationDrawerFragment.isPositionSelected(route.getListPosition()))
+                selectFromList(route);
+            else
+                deselectFromList(route);
+        }
     }
 
     /**
-     * Gets called when one of the buses is pressed. Take note routes will always have more than one
-     * polyline.
+     * Adds the route and bus (indirectly via buses) to the map
      *
-     * @param number which bus in the list is pressed
+     * @since 43
+     * @param route - the route and its info to be added
      */
-    public void onSectionAttached(int number) {
-        if(mNavigationDrawerFragment.getAmountSelected() >= 0 &&
-                mNavigationDrawerFragment.getAmountSelected() <= getResources().getInteger(R.integer.max_checked)) {
-            if(mNavigationDrawerFragment.isPositionSelected(number)) {
-                selectFromList(number);
-            } else {
-                deselectFromList(number);
-            }
-            Log.d("buses_attached", buses.toString());
-        }
-//        setPolyline(number);
-//        setList(getResources().getStringArray(R.array.buses)[number]);
+    private void selectFromList(Route route) {
+        buses.add(route.getRoute());
+        selectPolyline(route);
     }
 
-
-    public void selectFromList(int number) {
-        if(buses.add(getResources().getStringArray(R.array.buses)[number])) {
-            Log.d("added_bus", getResources().getStringArray(R.array.buses)[number]);
-            selectPolyline(number);
-        }
-    }
-
-    public void deselectFromList(int number) {
-        if(buses.remove(getResources().getStringArray(R.array.buses)[number])) {
-            Log.d("removed_bus", getResources().getStringArray(R.array.buses)[number]);
-            deselectPolyline(number);
-        }
-    }
-
-    private synchronized void selectPolyline(int number) {
-        String route = getResources().getStringArray(R.array.buses)[number];
-        int color = Color.parseColor(getResources().getStringArray(R.array.buscolors)[number]);
+    /**
+     * Adds the bus route line to the map
+     *
+     * @since 43
+     * @param routeInfo - the route and its info to add
+     */
+    private synchronized void selectPolyline(Route routeInfo) {
+        String route = routeInfo.getRoute();
         List<Polyline> polylines = routeLines.get(route);
 
         if (polylines == null || polylines.isEmpty()) {
-            new RequestLine(mMap, routeLines, route, busStops, color, zoom, Float.parseFloat(getString(R.string.zoom_level)), transitStop, this).execute();
+            new RequestLine(mMap, routeLines, route, routeInfo.getRouteColor(), zoom, Float.parseFloat(getString(R.string.zoom_level)), transitStop, this).execute();
         } else if(!polylines.get(0).isVisible()) {
             setVisiblePolylines(polylines, true);
             transitStop.updateAddRoutes(route, zoom, Float.parseFloat(getString(R.string.zoom_level)));
         }
     }
 
-    private synchronized void deselectPolyline(int number) {
-        String route = getResources().getStringArray(R.array.buses)[number];
+    /**
+     * Removes the bus (indirectly) and the route line if it was on the map
+     * @since 43
+     * @param route - the route to remove and its info
+     */
+    private void deselectFromList(Route route) {
+        buses.remove(route.getRoute());
+        Log.d("removed_bus", route.getRoute());
+        deselectPolyline(route.getRoute());
+    }
+
+    /**
+     * Removes the route line if it was on the map
+     * @param route - the route to remove by its string
+     */
+    private synchronized void deselectPolyline(String route) {
         List<Polyline> polylines = routeLines.get(route);
         if(polylines != null) {
             if(!polylines.isEmpty() && polylines.get(0).isVisible()) {
@@ -570,9 +552,48 @@ public class SelectTransit extends AppCompatActivity implements
             } else {
                 routeLines.remove(route);
             }
-
         }
     }
+
+//    private void selectFromList(int number) {
+//        if(buses.add(getResources().getStringArray(R.array.buses)[number])) {
+//            Log.d("added_bus", getResources().getStringArray(R.array.buses)[number]);
+//            selectPolyline(number);
+//        }
+//    }
+//
+//    private void deselectFromList(int number) {
+//        if(buses.remove(getResources().getStringArray(R.array.buses)[number])) {
+//            Log.d("removed_bus", getResources().getStringArray(R.array.buses)[number]);
+//            deselectPolyline(number);
+//        }
+//    }
+//
+//    private synchronized void selectPolyline(int number) {
+//        String route = getResources().getStringArray(R.array.buses)[number];
+//        int color = Color.parseColor(getResources().getStringArray(R.array.buscolors)[number]);
+//        List<Polyline> polylines = routeLines.get(route);
+//
+//        if (polylines == null || polylines.isEmpty()) {
+//            new RequestLine(mMap, routeLines, route, color, zoom, Float.parseFloat(getString(R.string.zoom_level)), transitStop, this).execute();
+//        } else if(!polylines.get(0).isVisible()) {
+//            setVisiblePolylines(polylines, true);
+//            transitStop.updateAddRoutes(route, zoom, Float.parseFloat(getString(R.string.zoom_level)));
+//        }
+//    }
+//
+//    private synchronized void deselectPolyline(int number) {
+//        String route = getResources().getStringArray(R.array.buses)[number];
+//        List<Polyline> polylines = routeLines.get(route);
+//        if(polylines != null) {
+//            if(!polylines.isEmpty() && polylines.get(0).isVisible()) {
+//                setVisiblePolylines(polylines, false);
+//                transitStop.removeRoute(route);
+//            } else {
+//                routeLines.remove(route);
+//            }
+//        }
+//    }
 
     /**
      * sets a visible or invisible polylines for a route
@@ -586,38 +607,25 @@ public class SelectTransit extends AppCompatActivity implements
         }
     }
 
-    /**
-     * If the selected bus is already in the list, remove it
-     * else add it
-     * <p/>
-     * This list will then be passed onto the UI updater if it isn't empty.
-     * <p/>
-     * This is the best way codewise to pass the buses to the UI updater.
-     * <p/>
-     * Worst case is O(n) as we'd have to remove all buses here.
-     * <p/>
-     * we want to also be able to see the bus the instant it loads
-     *
-     * @param selected the bus string
-     */
-    private void setList(String selected) {
-        //TODO: perhaps look at constant time remove
-        //TODO somehow the bus isn't being selected
-        if (!buses.remove(selected)) {
-            buses.add(selected);
-        }
-    }
-
     public void restoreActionBar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
             try {
                 setSupportActionBar(toolbar);
             } catch (Throwable e) {
-                Toast.makeText(this, "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Toast.LENGTH_LONG).show();
+                Snackbar.make(findViewById(android.R.id.content),
+                "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Snackbar.LENGTH_LONG).show();
+//                Toast.makeText(this, "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Toast.LENGTH_LONG).show();
             }
         }
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        try {
+            ActionBar t = getSupportActionBar();
+            if(t != null) t.setDisplayHomeAsUpEnabled(true);
+        } catch(NullPointerException e) {
+            Snackbar.make(findViewById(android.R.id.content),
+                    "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Snackbar.LENGTH_LONG).show();
+        }
+
     }
 
     //dunno...
@@ -656,25 +664,16 @@ public class SelectTransit extends AppCompatActivity implements
      * Polls self on the map and then centers the map on Pittsburgh or you if you're in Pittsburgh..
      */
     private void centerMap() {
-        if (currentLocation != null && !inSavedState) {
 
-            double currentLatitude = currentLocation.getLatitude();
-            double currentLongitude = currentLocation.getLongitude();
-            // case where you are inside Pittsburgh...
-            if ((currentLatitude > 39.859673 && currentLatitude < 40.992847) &&
-                    (currentLongitude > -80.372815 && currentLongitude < -79.414258)) {
-                latitude = currentLatitude;
-                longitude = currentLongitude;
-                zoom = (float) 15.0;
-            } else {
-                zoom = 11.82f;
-            }
-        } /*else {
-            zoom = 11.82f;
-        }*/
+        if(currentLocation != null) {
+            latitude = currentLocation.getLatitude();
+            longitude = currentLocation.getLongitude();
+            zoom = 15.0f;
+            Log.d("location_changed", "current location set in centerMap()");
+        }
         Log.d("savedInstance", "saved? " + inSavedState);
         Log.d("savedInstance", "lat="+latitude);
-        Log.d("savedInstance", "long="+longitude);
+        Log.d("savedInstance", "long=" + longitude);
         Log.d("savedInstance", "zoom=" + zoom);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), zoom));
     }
@@ -687,11 +686,12 @@ public class SelectTransit extends AppCompatActivity implements
     protected void setUpMap() {
 //        System.out.println("restore...");
 //        clearMap();
+        setMapListeners();
         mMap.setMyLocationEnabled(true);
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        if (sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
+//        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+//        if (sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
 //            buses.clear();
-            clearAndAddToMap();
+        clearAndAddToMap();
 //            final Handler handler = new Handler();
 //            handler.postDelayed(new Runnable() {
 //                @Override
@@ -700,26 +700,76 @@ public class SelectTransit extends AppCompatActivity implements
 //                }
 //            }, 100);
 
+//        }
+    }
+
+
+    /**
+     * set the map listeners
+     */
+    private void setMapListeners() {
+        // Do a null check to confirm that we have not already instantiated the map.
+//        if (mMap == null) {
+////            mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+//            // Check if we were successful in obtaining the map.
+        if (mMap != null) {
+
+            mMap.setInfoWindowAdapter(new ETAWindowAdapter(getLayoutInflater()));
+            mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+                @Override
+                public void onCameraChange(CameraPosition cameraPosition) {
+                    if (!inSavedState)
+                        inSavedState = true;
+                    latitude = cameraPosition.target.latitude;
+                    longitude = cameraPosition.target.longitude;
+                    if (zoom != cameraPosition.zoom) {
+                        zoom = cameraPosition.zoom;
+
+                        transitStop.checkAllVisibility(zoom, Float.parseFloat(getString(R.string.zoom_level)));
+                    }
+                }
+            });
+
+                /*
+                TODO:
+                a. Make an XML PullParser for getpredictions (all we need is bus route: <list of 3 times>)
+                b. update snippet with the times: marker.setSnippet
+                c. Make the snippet follow Google Maps time implementation!!!
+                d. getpredictions&stpid=marker.getTitle().<regex on \(.+\)> since this is where the stop id is to get stop id.
+                 */
+            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker) {
+
+                    if (marker != null) {
+//                            final Marker mark = marker;
+                        mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()), 400, null);
+                        new RequestPredictions(getApplicationContext(), marker, buses).execute(marker.getTitle());
+
+
+//                            String message = "Stop 1:\tPRDTM\nStop 2:\tPRDTM";
+//                            String title = "Bus";
+//                            showDialog(message, title);
+
+                        return true;
+                    }
+                    return false;
+                }
+            });
         }
     }
 
     /**
-     * This is the method to restore polylines....
+     * This is the method to restore polylines.
+     *
+     * @since 43
      */
     protected void restorePolylines() {
-        Log.d("polylines restoring", "zoom= " + zoom);
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        if (sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
-            Set<String> selected = sp.getStringSet(STATE_SELECTED_POSITIONS, null);
-            if (selected != null) {
-                for (String select : selected) {
-                    int position = Integer.parseInt(select);
-                    selectPolyline(position);
-                    mNavigationDrawerFragment.setTrue(position);
-                }
-            }
-        } else {
-            Toast.makeText(this, "New buses were added. Please re-select your buses", Toast.LENGTH_LONG).show();
+        Route currentRoute;
+        for(String route : buses) {
+            currentRoute = mNavigationDrawerFragment.getSelectedRoute(route);
+            selectPolyline(currentRoute);
+            mNavigationDrawerFragment.setTrue(currentRoute.getListPosition());
         }
     }
 
@@ -727,9 +777,12 @@ public class SelectTransit extends AppCompatActivity implements
      * Stops the bus refresh, then adds buses to the map
      */
     protected synchronized void clearAndAddToMap() {
-        Log.d("stop_add_buses", buses.toString());
-        stopTimer();
-        addBuses();
+        if (mMap != null) {
+            Log.d("stop_add_buses", buses.toString());
+            stopTimer();
+            addBuses();
+        }
+
 //        System.out.println("Added buses");
     }
 
@@ -754,21 +807,20 @@ public class SelectTransit extends AppCompatActivity implements
                             req = new RequestTask(mMap, buses, busMarkers, context);
 //                            req = new RequestTask(mMap, buses, context);
                             req.execute();
-                        } else
-                            clearMap();
+                        }
                     }
                 });
             }
         };
         if (!buses.isEmpty()) {
             timer.schedule(task, 0, 10000); //it executes this every 10000ms
-        } else
-            clearMap();
+        }
     }
 
 
     private synchronized void removeBuses() {
         if (busMarkers != null) {
+            Log.d("bus_remove", "buses removed");
             for (Marker busMarker : busMarkers.values()) {
                 busMarker.remove();
             }
@@ -782,7 +834,7 @@ public class SelectTransit extends AppCompatActivity implements
      * Stops the timer task
      */
     private synchronized void stopTimer() {
-        removeBuses();
+//        removeBuses();
         // wait for the bus task to finish!
 
         if (timer != null) {
@@ -811,7 +863,6 @@ public class SelectTransit extends AppCompatActivity implements
             removeBuses();
             clearBuses();
             mNavigationDrawerFragment.clearSelection();
-
 //            mNavigationDrawerFragment.clearSelection();
         }
     }
@@ -820,8 +871,10 @@ public class SelectTransit extends AppCompatActivity implements
      * The list of buses that are selected
      */
     protected void clearBuses() {
-        if(buses != null)
+        if(buses != null) {
+            Log.d("bus_remove", "buses cleared");
             buses.clear();
+        }
     }
 
     public void onBackPressed() {
@@ -839,20 +892,38 @@ public class SelectTransit extends AppCompatActivity implements
         /*
       This is the location request using FusedLocationAPI to get the person's last known location
      */
-        LocationRequest gLocationRequest = LocationRequest.create();
+        gLocationRequest = LocationRequest.create();
         gLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         gLocationRequest.setInterval(1000);
+//        MapsInitializer.initialize(this);
         currentLocation = LocationServices.FusedLocationApi.getLastLocation(client);
+//        Log.d("location_changed", "What is going on here");
         if (currentLocation == null) {
+            Log.d("location_changed", "current location is null");
             LocationServices.FusedLocationApi.requestLocationUpdates(client, gLocationRequest, this);
             if (currentLocation != null) {
-                LocationServices.FusedLocationApi.removeLocationUpdates(client, this);
+//                LocationServices.FusedLocationApi.removeLocationUpdates(client, this);
+                if(mMap != null)
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                            new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
             }
-
+        } else if(!inSavedState) {
+//            latitude = currentLocation.getLatitude();
+//            longitude = currentLocation.getLongitude();
+//            zoom = 15.0f;
+            if(mMap != null)
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                        new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
         }
+
+        /*else {
+            MapsInitializer.initialize(this);
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
+        }*/
 //        System.out.println("Location: " + currentLocation);
-        centerMap();
-        restorePolylines();
+//        MapsInitializer.initialize(this); // makes sure the maps works...
+//        centerMap();
+//        restorePolylines();
     }
 
     /**
@@ -862,7 +933,7 @@ public class SelectTransit extends AppCompatActivity implements
      */
     @Override
     public void onConnectionSuspended(int i) {
-
+        LocationServices.FusedLocationApi.removeLocationUpdates(client, this);
     }
 
     /**
@@ -873,7 +944,7 @@ public class SelectTransit extends AppCompatActivity implements
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Log.d("Google API Error", connectionResult.toString());
-        centerMap();
+//        centerMap();
         Toast.makeText(this, "Google connection failed, please try again later", Toast.LENGTH_LONG).show();
 
 //        TODO: Perhaps based on the connection result, we can close and make custom error messages.
@@ -881,8 +952,13 @@ public class SelectTransit extends AppCompatActivity implements
 
     @Override
     public void onLocationChanged(Location location) {
-        if (location != null) {
-            currentLocation = location;
+        Log.d("location_changed", "onLocationChanged() " + location.toString());
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
+
+        currentLocation = location;
+        if(mMap != null && notCentered) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
+            notCentered = false;
         }
     }
 

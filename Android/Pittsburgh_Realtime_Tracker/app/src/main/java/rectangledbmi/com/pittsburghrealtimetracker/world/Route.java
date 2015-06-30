@@ -3,7 +3,11 @@ package rectangledbmi.com.pittsburghrealtimetracker.world;
 import android.graphics.Color;
 
 /**
+ * This is the object container that contains all information of the buses
+ *
  * Created by epicstar on 9/5/14.
+ *
+ * @author Jeremy Jao
  */
 public class Route {
 
@@ -23,15 +27,11 @@ public class Route {
     private int routeColor;
 
     /**
-     * Null constructor of the route
+     * Position of the route in the list
+     *
+     * @since 43
      */
-    public Route() {
-        this(null, null, null);
-    }
-
-    public Route(String route) {
-        this(route, null, null);
-    }
+    private int listPosition;
 
     /**
      * The non-null constructor of the route and color as a string or hex-string
@@ -39,8 +39,8 @@ public class Route {
      * @param routeInfo the route info
      * @param routeColor the color of the route as a string or string-hex
      */
-    public Route(String route, String routeInfo, String routeColor) {
-        this(route, routeInfo, Color.parseColor(routeColor));
+    public Route(String route, String routeInfo, String routeColor, int listPosition) {
+        this(route, routeInfo, Color.parseColor(routeColor), listPosition);
     }
 
     /**
@@ -49,10 +49,11 @@ public class Route {
      * @param routeInfo the route info
      * @param routeColor the color of the route as an int
      */
-    public Route(String route, String routeInfo, int routeColor) {
+    public Route(String route, String routeInfo, int routeColor, int listPosition) {
         this.route = route;
         this.routeInfo = routeInfo;
         this.routeColor = routeColor;
+        this.listPosition = listPosition;
     }
 
     /**
@@ -118,6 +119,10 @@ public class Route {
      */
     public String getColorAsString() {
         return String.format("#%06X", 0xFFFFFF & routeColor);
+    }
+
+    public int getListPosition() {
+        return listPosition;
     }
 
     /**
