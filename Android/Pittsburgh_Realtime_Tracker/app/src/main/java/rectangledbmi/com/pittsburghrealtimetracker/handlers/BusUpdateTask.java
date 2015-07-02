@@ -30,8 +30,10 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.Bus;
  * Hopefully I'm doing this correctly!
  * <p/>
  * REQUIRES PortAuthorityAPI class to get the Port Authority URLs
+ *
+ * @author Ritwik Gupta
  */
-public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
+public class BusUpdateTask extends AsyncTask<Void, Void, List<Bus>> {
 
     /**
      * The google map fragment
@@ -55,7 +57,7 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
     private SelectTransit context;
 
 
-    public RequestTask(GoogleMap map, Set<String> buses, ConcurrentMap<Integer, Marker> busMarkers, Context context) {
+    public BusUpdateTask(GoogleMap map, Set<String> buses, ConcurrentMap<Integer, Marker> busMarkers, Context context) {
         this.context = (SelectTransit) context;
         mMap = map;
         selectedBuses = buses;
@@ -206,6 +208,16 @@ public class RequestTask extends AsyncTask<Void, Void, List<Bus>> {
     private int getDrawable(String route) {
         return context.getResources().getIdentifier("bus_" + route.toLowerCase(), "drawable", context.getPackageName());
 //        return context.getResources().getDrawable(resourceId);
+    }
+
+    /**
+     *
+     *
+     * @since 44
+     * @author Jeremy Jao
+     */
+    public interface UpdateBusConnectionCallbacks {
+
     }
 
 }
