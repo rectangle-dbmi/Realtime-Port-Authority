@@ -36,6 +36,10 @@ dependencies {
     compile 'com.android.support:mediarouter-v7:22.2.0'
     compile 'com.android.support:support-v13:22.2.0'
 
-    compile 'io.reactivex:rxandroid:0.+'
-    compile 'io.reactivex:rxandroid-framework:0.+'
+    //3rd party android libraries
+    compile 'io.reactivex:rxandroid:0.24.0'
+    compile 'io.reactivex:rxandroid-framework:0.24.0'
+
+    compile 'com.squareup.retrofit:retrofit:1.9.0'
+    compile 'org.glassfish:javax.annotation:10.0-b28'
 }

@@ -66,8 +66,6 @@ public class SelectTransit extends AppCompatActivity implements
 
     private static final String LINES_LAST_UPDATED = "lines_last_updated";
 
-//    private static final String BUSLIST_SIZE = "buslist_size";
-
     /**
      * Saved instance of the buses that are selected
      */
