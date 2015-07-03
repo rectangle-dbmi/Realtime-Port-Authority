@@ -96,28 +96,13 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="play-services-location-7.5.0" level="project" />
     <orderEntry type="library" exported="" name="mediarouter-v7-22.2.0" level="project" />
+    <orderEntry type="library" exported="" name="rxandroid-0.24.0" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-22.2.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-base-7.5.0" level="project" />
-<<<<<<< Updated upstream
     <orderEntry type="library" exported="" name="support-v4-22.2.0" level="project" />
-=======
-    <orderEntry type="library" exported="" name="play-services-7.5.0" level="project" />
-    <orderEntry type="library" exported="" name="rxandroid-framework-0.24.0" level="project" />
-    <orderEntry type="library" exported="" name="play-services-gcm-7.5.0" level="project" />
-    <orderEntry type="library" exported="" name="play-services-appinvite-7.5.0" level="project" />
-    <orderEntry type="library" exported="" name="rxandroid-0.24.0" level="project" />
-    <orderEntry type="library" exported="" name="support-v4-22.2.0" level="project" />
-    <orderEntry type="library" exported="" name="rxjava-1.0.4" level="project" />
-    <orderEntry type="library" exported="" name="play-services-fitness-7.5.0" level="project" />
-    <orderEntry type="library" exported="" name="play-services-nearby-7.5.0" level="project" />
-    <orderEntry type="library" exported="" name="gridlayout-v7-22.2.0" level="project" />
-    <orderEntry type="library" exported="" name="play-services-plus-7.5.0" level="project" />
-    <orderEntry type="library" exported="" name="play-services-wearable-7.5.0" level="project" />
-    <orderEntry type="library" exported="" name="play-services-appstate-7.5.0" level="project" />
-    <orderEntry type="library" exported="" name="play-services-games-7.5.0" level="project" />
-    <orderEntry type="library" exported="" name="play-services-identity-7.5.0" level="project" />
->>>>>>> Stashed changes
     <orderEntry type="library" exported="" name="support-v13-22.2.0" level="project" />
+    <orderEntry type="library" exported="" name="rxandroid-framework-0.24.0" level="project" />
+    <orderEntry type="library" exported="" name="rxjava-1.0.4" level="project" />
     <orderEntry type="library" exported="" name="play-services-maps-7.5.0" level="project" />
     <orderEntry type="library" exported="" name="design-22.2.0" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-22.2.0" level="project" />
