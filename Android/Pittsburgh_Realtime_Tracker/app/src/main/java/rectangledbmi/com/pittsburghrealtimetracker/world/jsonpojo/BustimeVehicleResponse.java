@@ -8,6 +8,12 @@ import java.util.List;
 
 import javax.annotation.Generated;
 
+/**
+ * bus time response for the the vehicles
+ *
+ * @author Jeremy Jao
+ * @since 46
+ */
 @Generated("org.jsonschema2pojo")
 public class BustimeVehicleResponse {
 

@@ -6,6 +6,12 @@ import java.util.List;
 import javax.annotation.Generated;
 import com.google.gson.annotations.Expose;
 
+/**
+ * Retrofit POJO for errors that contains a list of errors
+ *
+ * @author Jeremy Jao
+ * @since 46
+ */
 @Generated("org.jsonschema2pojo")
 public class BustimeErrorResponse {
 

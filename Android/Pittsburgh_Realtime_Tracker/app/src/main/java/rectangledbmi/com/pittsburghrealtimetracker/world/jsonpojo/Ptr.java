@@ -6,6 +6,12 @@ import java.util.List;
 import javax.annotation.Generated;
 import com.google.gson.annotations.Expose;
 
+/**
+ * Whole pattern Retrofit POJO that contains all its points
+ *
+ * @author Jeremy Jao
+ * @since 46
+ */
 @Generated("org.jsonschema2pojo")
 public class Ptr {
 

@@ -5,8 +5,9 @@ import javax.annotation.Generated;
 import com.google.gson.annotations.Expose;
 
 /**
- * Amazingly generated POJO from
+ * Vehicle (bus) Retrofit POJO
  * @author Jeremy Jao
+ * @since 46
  */
 @Generated("org.jsonschema2pojo")
 public class Vehicle {

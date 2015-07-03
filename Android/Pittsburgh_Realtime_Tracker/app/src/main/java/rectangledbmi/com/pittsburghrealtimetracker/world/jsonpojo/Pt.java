@@ -4,6 +4,12 @@ package rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo;
 import javax.annotation.Generated;
 import com.google.gson.annotations.Expose;
 
+/**
+ * object for each point in a pattern
+ *
+ * @author Jeremy Jao
+ * @since 46
+ */
 @Generated("org.jsonschema2pojo")
 public class Pt {
 
