@@ -177,7 +177,7 @@ public class SelectTransit extends AppCompatActivity implements
      * Google location request to give us location-based context
      * @since 42
      */
-    LocationRequest gLocationRequest;
+    private LocationRequest gLocationRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
