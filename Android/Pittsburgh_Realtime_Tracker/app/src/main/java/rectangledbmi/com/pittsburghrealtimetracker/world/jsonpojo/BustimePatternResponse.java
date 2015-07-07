@@ -18,6 +18,9 @@ public class BustimePatternResponse {
     @Expose
     private List<Ptr> ptr = new ArrayList<Ptr>();
 
+    @Expose
+    private List<Error> error = new ArrayList<Error>();
+
     /**
      *
      * @return
@@ -34,6 +37,24 @@ public class BustimePatternResponse {
      */
     public void setPtr(List<Ptr> ptr) {
         this.ptr = ptr;
+    }
+
+    /**
+     *
+     * @param error
+     *     The list of errors
+     */
+    public void setError(List<Error> error) {
+        this.error = error;
+    }
+
+    /**
+     *
+     * @return
+     *     the error
+     */
+    public List<Error> gettError() {
+        return error;
     }
 
 }

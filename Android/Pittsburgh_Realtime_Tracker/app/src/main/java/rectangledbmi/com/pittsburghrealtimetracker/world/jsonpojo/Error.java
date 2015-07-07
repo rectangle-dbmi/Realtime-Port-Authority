@@ -15,6 +15,12 @@ public class Error {
 
     @Expose
     private String msg;
+    @Expose
+    private String rt;
+    @Expose
+    private int stpid;
+    @Expose
+    private int vid;
 
     /**
      *
@@ -32,6 +38,32 @@ public class Error {
      */
     public void setMsg(String msg) {
         this.msg = msg;
+    }
+
+    /**
+     *
+     * @return
+     *     the stpid
+     */
+    public int getStpid() {
+        return stpid;
+    }
+
+    /**
+     *
+     * @param stpid
+     *     the stpid
+     */
+    public void setStpid(String stpid) {
+        this.stpid = Integer.parseInt(stpid);
+    }
+
+    public void setVid(String vid) {
+        this.vid = Integer.parseInt(vid);
+    }
+
+    public int getVid() {
+        return vid;
     }
 
 }

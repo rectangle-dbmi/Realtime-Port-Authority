@@ -20,6 +20,9 @@ public class BustimeVehicleResponse {
     @Expose
     private List<Vehicle> vehicle = new ArrayList<Vehicle>();
 
+    @Expose
+    private List<Error> error = new ArrayList<Error>();
+
     /**
      *
      * @return
@@ -36,6 +39,24 @@ public class BustimeVehicleResponse {
      */
     public void setVehicle(List<Vehicle> vehicle) {
         this.vehicle = vehicle;
+    }
+
+    /**
+     *
+     * @param error
+     *     The list of errors
+     */
+    public void setError(List<Error> error) {
+        this.error = error;
+    }
+
+    /**
+     *
+     * @return
+     *     the error
+     */
+    public List<Error> gettError() {
+        return error;
     }
 
 }

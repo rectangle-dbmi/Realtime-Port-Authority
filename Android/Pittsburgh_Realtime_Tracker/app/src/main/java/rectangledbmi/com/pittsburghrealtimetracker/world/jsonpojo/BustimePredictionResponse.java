@@ -18,6 +18,9 @@ public class BustimePredictionResponse {
     @Expose
     private List<Prd> prd = new ArrayList<Prd>();
 
+    @Expose
+    private List<Error> error = new ArrayList<Error>();
+
     /**
      *
      * @return
@@ -34,6 +37,24 @@ public class BustimePredictionResponse {
      */
     public void setPrd(List<Prd> prd) {
         this.prd = prd;
+    }
+
+    /**
+     *
+     * @param error
+     *     The list of errors
+     */
+    public void setError(List<Error> error) {
+        this.error = error;
+    }
+
+    /**
+     *
+     * @return
+     *     the error
+     */
+    public List<Error> gettError() {
+        return error;
     }
 
 }
