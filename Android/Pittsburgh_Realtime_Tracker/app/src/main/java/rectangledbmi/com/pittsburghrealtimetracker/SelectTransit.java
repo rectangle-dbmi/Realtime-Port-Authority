@@ -3,7 +3,6 @@ package rectangledbmi.com.pittsburghrealtimetracker;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.location.Location;
 import android.net.http.HttpResponseCache;
 import android.os.Bundle;
@@ -29,9 +28,11 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 
 import java.io.File;
@@ -45,10 +46,11 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import rectangledbmi.com.pittsburghrealtimetracker.handlers.BusUpdateTask;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestLine;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
-import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestTask;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter;
+import rectangledbmi.com.pittsburghrealtimetracker.world.Bus;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 
@@ -59,11 +61,10 @@ public class SelectTransit extends AppCompatActivity implements
         NavigationDrawerFragment.BusListCallbacks,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        OnMapReadyCallback, LocationListener {
+        OnMapReadyCallback, LocationListener,
+        BusUpdateTask.UpdateBusConnectionCallbacks {
 
     private static final String LINES_LAST_UPDATED = "lines_last_updated";
-
-//    private static final String BUSLIST_SIZE = "buslist_size";
 
     /**
      * Saved instance of the buses that are selected
@@ -176,7 +177,7 @@ public class SelectTransit extends AppCompatActivity implements
      * Google location request to give us location-based context
      * @since 42
      */
-    LocationRequest gLocationRequest;
+    private LocationRequest gLocationRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -555,46 +556,6 @@ public class SelectTransit extends AppCompatActivity implements
         }
     }
 
-//    private void selectFromList(int number) {
-//        if(buses.add(getResources().getStringArray(R.array.buses)[number])) {
-//            Log.d("added_bus", getResources().getStringArray(R.array.buses)[number]);
-//            selectPolyline(number);
-//        }
-//    }
-//
-//    private void deselectFromList(int number) {
-//        if(buses.remove(getResources().getStringArray(R.array.buses)[number])) {
-//            Log.d("removed_bus", getResources().getStringArray(R.array.buses)[number]);
-//            deselectPolyline(number);
-//        }
-//    }
-//
-//    private synchronized void selectPolyline(int number) {
-//        String route = getResources().getStringArray(R.array.buses)[number];
-//        int color = Color.parseColor(getResources().getStringArray(R.array.buscolors)[number]);
-//        List<Polyline> polylines = routeLines.get(route);
-//
-//        if (polylines == null || polylines.isEmpty()) {
-//            new RequestLine(mMap, routeLines, route, color, zoom, Float.parseFloat(getString(R.string.zoom_level)), transitStop, this).execute();
-//        } else if(!polylines.get(0).isVisible()) {
-//            setVisiblePolylines(polylines, true);
-//            transitStop.updateAddRoutes(route, zoom, Float.parseFloat(getString(R.string.zoom_level)));
-//        }
-//    }
-//
-//    private synchronized void deselectPolyline(int number) {
-//        String route = getResources().getStringArray(R.array.buses)[number];
-//        List<Polyline> polylines = routeLines.get(route);
-//        if(polylines != null) {
-//            if(!polylines.isEmpty() && polylines.get(0).isVisible()) {
-//                setVisiblePolylines(polylines, false);
-//                transitStop.removeRoute(route);
-//            } else {
-//                routeLines.remove(route);
-//            }
-//        }
-//    }
-
     /**
      * sets a visible or invisible polylines for a route
      *
@@ -798,14 +759,14 @@ public class SelectTransit extends AppCompatActivity implements
             @Override
             public void run() {
                 handler.post(new Runnable() {
-                    RequestTask req;
+                    BusUpdateTask req;
 
                     public void run() {
                         if (!buses.isEmpty()) {
 //                            clearMap();
 
-                            req = new RequestTask(mMap, buses, busMarkers, context);
-//                            req = new RequestTask(mMap, buses, context);
+                            req = new BusUpdateTask(mMap, buses, busMarkers, context);
+//                            req = new BusUpdateTask(mMap, buses, context);
                             req.execute();
                         }
                     }
@@ -903,27 +864,18 @@ public class SelectTransit extends AppCompatActivity implements
             LocationServices.FusedLocationApi.requestLocationUpdates(client, gLocationRequest, this);
             if (currentLocation != null) {
 //                LocationServices.FusedLocationApi.removeLocationUpdates(client, this);
-                if(mMap != null)
+                if (mMap != null)
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                             new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
             }
-        } else if(!inSavedState) {
+        } else if (!inSavedState) {
 //            latitude = currentLocation.getLatitude();
 //            longitude = currentLocation.getLongitude();
 //            zoom = 15.0f;
-            if(mMap != null)
+            if (mMap != null)
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                         new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
         }
-
-        /*else {
-            MapsInitializer.initialize(this);
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
-        }*/
-//        System.out.println("Location: " + currentLocation);
-//        MapsInitializer.initialize(this); // makes sure the maps works...
-//        centerMap();
-//        restorePolylines();
     }
 
     /**
@@ -973,4 +925,120 @@ public class SelectTransit extends AppCompatActivity implements
     public boolean isBusTaskRunning() {
         return isBusTaskRunning;
     }
+
+//    @Override
+//    public void onBusInfoRetrieved(List<Bus> bl) {
+//
+//            Log.d("onPostExecute_task_st", "Task starting after thread ran");
+//
+//            if(bl == null || bl.isEmpty()) {
+//                Toast.makeText(this, "Routes not found. Either there is no route information, no internet connection, or the API Call limit has been exceeded.", Toast.LENGTH_LONG).show();
+//
+//            } else {
+//
+//                ConcurrentMap<Integer, Marker> newBusMarkers = new ConcurrentHashMap<>(bl.size());
+//                LatLng latlng;
+//
+//                for (Bus bus : bl) {
+////                    Log.d("bus_info", bus.toString());
+//                    latlng = new LatLng(bus.getLat(), bus.getLon());
+////                    if (busMarkers != null) {
+//                    updateMarker(bus, latlng, newBusMarkers);
+////                    } else {
+////                        addNewMarker(bus, latlng, newBusMarkers);
+////                    }
+//                }
+//                removeOldBuses();
+//                setBusMarkers(newBusMarkers);
+//            }
+//            Log.d("onPostExecute task_stop", "Task has stopped running");
+//            setBusTaskRunning(false);
+//    }
+//
+//    /**
+//     * Updates the marker already on the map
+//     *
+//     * @param newBusMarkers the new bus list
+//     * @param bus           the bus being updated
+//     * @param latlng        the LatLng of the bus's location
+//     */
+//    private synchronized void updateMarker(Bus bus, LatLng latlng, ConcurrentMap<Integer, Marker> newBusMarkers) {
+//        try {
+//            Log.d("up_mark_enter", "entered_marker");
+//            Marker mark = null;
+//            if(busMarkers != null)
+//                mark = busMarkers.remove(bus.getVid());
+//            if (mark != null) {
+//                Log.d("marker_update", "updating_pointer");
+//                mark.setTitle(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes() + (bus.isDly() ? " - Delayed" : "" ));
+//                mark.setPosition(latlng);
+//                mark.setRotation(bus.getHdg());
+//                mark.setSnippet("Speed: " + bus.getSpd());
+//                newBusMarkers.putIfAbsent(bus.getVid(), mark);
+//
+//            } else {
+//                addNewMarker(bus, latlng, newBusMarkers);
+//            }
+//        } catch (NullPointerException e) {
+//            Log.e("bus_nullpointer", "Something went wrong while updating...");
+//        } catch (IllegalArgumentException e) {
+//            Log.e("bus_illegalargument", "Somehow the marker is missing");
+//
+//        }
+//    }
+//
+//    /**
+//     * Add a new marker to the map
+//     *
+//     * @param bus           the bus being added
+//     * @param latlng        the location of the bus
+//     * @param newBusMarkers the new bus list
+//     */
+//    private synchronized void addNewMarker(Bus bus, LatLng latlng, ConcurrentMap<Integer, Marker> newBusMarkers) {
+////        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.bus_template);
+////        Paint paint = new Paint();
+////        ColorFilter colorFilter = new LightingColorFilter(Color.RED, 0);
+////        paint.setColorFilter(colorFilter);
+////        Canvas canvas = new Canvas();
+////        bitmap = canvas.drawBitmap(bitmap,);
+//        Log.d("marker_add", "adding_marker");
+//        MarkerOptions marker = new MarkerOptions()
+//                .position(latlng)
+//                .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes() + (bus.isDly() ? " - Delayed" : ""))
+//                .snippet("Speed: " + bus.getSpd())
+//                .draggable(false)
+//                .rotation(bus.getHdg())
+//                .icon(BitmapDescriptorFactory.fromResource(getDrawable(bus.getRt())))
+//                .anchor((float) 0.453125, (float) 0.25)
+//                .flat(true);
+//        try {
+//            Log.d("new_bus", newBusMarkers.toString());
+//            Log.d("new_markeroptions", marker.getPosition().toString());
+//            Log.d("new_markeroptions", marker.getTitle());
+//            Log.d("new_markeroptions", marker.getSnippet());
+//            Log.d("new_markeroptions", Float.toString(marker.getRotation()));
+//            Log.d("new_mMap", mMap.toString());
+////            Marker mapMarker = mMap.addMarker(marker);
+////            mapMarker.setIcon(BitmapDescriptorFactory.fromAsset(bus.getRt() + ".png"));
+//            newBusMarkers.put(bus.getVid(), mMap.addMarker(marker));
+//        } catch (NullPointerException e) {
+//            Log.e("null_new_bus", "mMap or marker is null");
+//        }
+//    }
+//
+//    /**
+//     * Removes the no longer visible buses to the list.
+//     */
+//    private synchronized void removeOldBuses() {
+//        if (busMarkers != null) {
+//            for (Marker marker : busMarkers.values()) {
+//                marker.remove();
+//            }
+//        }
+//    }
+//
+//    private int getDrawable(String route) {
+//        return getResources().getIdentifier("bus_" + route.toLowerCase(), "drawable", getPackageName());
+////        return context.getResources().getDrawable(resourceId);
+//    }
 }
