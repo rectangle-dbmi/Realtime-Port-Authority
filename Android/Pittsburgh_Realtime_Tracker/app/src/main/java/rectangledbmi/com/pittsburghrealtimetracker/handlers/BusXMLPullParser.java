@@ -19,6 +19,8 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.Bus;
 /**
  * XML PullParser version to get the buses and put it in a list after execution;
  * Created by epicstar on 11/10/14.
+ *
+ * @author Jeremy Jao
  */
 public class BusXMLPullParser {
 

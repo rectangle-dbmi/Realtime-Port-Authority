@@ -1,6 +1,22 @@
 apply plugin: 'com.android.application'
 
+
+
+
+android.buildTypes.each {
+
+
+
+}
+//must define PAT_API_KEY in gradle.properties by adding PATAPIKEY=<KEY> on the last line non-commented
+def PAT_API_KEY = patAPI;
+
+android.buildTypes.each { type ->
+    type.buildConfigField 'String', 'PAT_API_KEY', PAT_API_KEY
+}
+
 android {
+
     compileSdkVersion 22
     buildToolsVersion '22.0.1'
     defaultConfig {
@@ -11,6 +27,7 @@ android {
         versionName "3.81"
     }
     buildTypes {
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -23,9 +40,6 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    // ensures we are running the latest version of 5.0.x play services
-    // keep in mind that the latest version I have on my phone is 6.X. Google Play Store prevents me from doing anything about this...
-    // Support Libraries
 
      //google play services maps
     compile 'com.google.android.gms:play-services-maps:7.5.0'
@@ -39,4 +53,10 @@ dependencies {
     compile 'com.android.support:mediarouter-v7:22.2.0'
     compile 'com.android.support:support-v13:22.2.0'
 
+    //3rd party android libraries
+    compile 'io.reactivex:rxandroid:0.24.0'
+    compile 'io.reactivex:rxandroid-framework:0.24.0'
+
+    compile 'com.squareup.retrofit:retrofit:1.9.0'
+    compile 'org.glassfish:javax.annotation:10.0-b28'
 }
