@@ -28,11 +28,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 
 import java.io.File;
@@ -50,7 +48,6 @@ import rectangledbmi.com.pittsburghrealtimetracker.handlers.BusUpdateTask;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestLine;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter;
-import rectangledbmi.com.pittsburghrealtimetracker.world.Bus;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 
