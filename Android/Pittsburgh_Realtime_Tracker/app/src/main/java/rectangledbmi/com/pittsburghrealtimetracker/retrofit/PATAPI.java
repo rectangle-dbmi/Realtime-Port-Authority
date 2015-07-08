@@ -37,7 +37,6 @@ public interface PATAPI {
     /**
      * Generates a response to get the predictions using the stop id
      * @param stpid - the stop id
-     * @param rts - the routes
      * @param api_key - the api key
      */
     @GET("/getpredictions?format=json&stpid={stpid}&key={api_key}")
