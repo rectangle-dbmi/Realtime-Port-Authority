@@ -1,6 +1,22 @@
 apply plugin: 'com.android.application'
 
+
+
+
+android.buildTypes.each {
+
+
+
+}
+//must define PAT_API_KEY in gradle.properties by adding PATAPIKEY=<KEY> on the last line non-commented
+def PAT_API_KEY = patAPI;
+
+android.buildTypes.each { type ->
+    type.buildConfigField 'String', 'PAT_API_KEY', PAT_API_KEY
+}
+
 android {
+
     compileSdkVersion 22
     buildToolsVersion '22.0.1'
     defaultConfig {
@@ -11,6 +27,7 @@ android {
         versionName "3.81"
     }
     buildTypes {
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
