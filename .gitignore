@@ -1,5 +1,5 @@
-Android/Pittsburgh_Realtime_Tracker/.gradle
-Android/Pittsburgh_Realtime_Tracker/gradle.properties
+/Android/Pittsburgh_Realtime_Tracker/.gradle
+/Android/Pittsburgh_Realtime_Tracker/gradle.properties
 Android/Pittsburgh_Realtime_Tracker/.idea/*
 .DS_Store
 Android/Pittsburgh_Realtime_Tracker/app/.DS_Store
