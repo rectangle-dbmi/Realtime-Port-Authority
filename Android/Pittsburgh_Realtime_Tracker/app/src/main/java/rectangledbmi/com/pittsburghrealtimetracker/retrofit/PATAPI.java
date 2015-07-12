@@ -7,6 +7,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.PredictionResp
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.VehicleResponse;
 import retrofit.http.GET;
 import retrofit.http.Path;
+import retrofit.http.Query;
 import rx.Observable;
 
 /**
@@ -23,24 +24,24 @@ public interface PATAPI {
      * @param rt - the route
      * @param api_key - the api key
      */
-    @GET("/getpatterns?format=json&&rt={route}&key={api_key}" )
-    Observable<PatternResponse> getPatterns(@Path("route") String rt, @Path("api_key") String api_key);
+    @GET("/getpatterns?format=json" )
+    Observable<PatternResponse> getPatterns(@Query("rt") String rt, @Query("key") String api_key);
 
     /**
      * Generates a response to get vehicles
      * @param routes - the routes
      * @param api_key - the api key
      */
-    @GET("/getvehicles?format=json&&rt={routes}&key={api_key}")
-    Observable<VehicleResponse> getVehicles(@Path("routes") String routes, @Path("api_key") String api_key);
+    @GET("/getvehicles?format=json")
+    Observable<VehicleResponse> getVehicles(@Query("rt") String routes, @Query("key") String api_key);
 
     /**
      * Generates a response to get the predictions using the stop id
      * @param stpid - the stop id
      * @param api_key - the api key
      */
-    @GET("/getpredictions?format=json&stpid={stpid}&key={api_key}")
-    Observable<PredictionResponse> getStopPredictions(@Path("stpid") int stpid, @Path("api_key") String api_key);
+    @GET("/getpredictions?format=json")
+    Observable<PredictionResponse> getStopPredictions(@Query("stpid") int stpid, @Query("key") String api_key);
 
     /**
      * Generates a response to get the predictions using the stop id
@@ -48,8 +49,8 @@ public interface PATAPI {
      * @param rts - the routes
      * @param api_key - the api key
      */
-    @GET("/getpredictions?format=json&stpid={stpid}&rt={rts}&key={api_key}")
-    Observable<PredictionResponse> getStopPredictions(@Path("stpid") int stpid, @Path("rts") String rts, @Path("api_key") String api_key);
+    @GET("/getpredictions?format=json")
+    Observable<PredictionResponse> getStopPredictions(@Query("stpid") int stpid, @Query("rt") String rts, @Path("api_key") String api_key);
 
     /**
      * Generates a response to get the predictions using the bus id
@@ -57,7 +58,7 @@ public interface PATAPI {
      * @param api_key - the api key
      */
     @GET("/getpredictions?format=json&vid={vid}&key={api_key}")
-    Observable<PredictionResponse> getBusPrediction(@Path("vid") int vid, @Path("api_key") String api_key);
+    Observable<PredictionResponse> getBusPrediction(@Query("vid") int vid, @Path("api_key") String api_key);
 
 
 }
