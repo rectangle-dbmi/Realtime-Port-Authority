@@ -40,6 +40,14 @@ public class Error {
         this.msg = msg;
     }
 
+    public String getRt() {
+        return rt;
+    }
+
+    public void setRt() {
+        this.rt = rt;
+    }
+
     /**
      *
      * @return

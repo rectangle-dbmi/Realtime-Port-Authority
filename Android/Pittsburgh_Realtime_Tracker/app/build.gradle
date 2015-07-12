@@ -8,8 +8,8 @@ android.buildTypes.each {
 
 
 }
-//must define PAT_API_KEY in gradle.properties by adding PATAPIKEY=<KEY> on the last line non-commented
-def PAT_API_KEY = patAPI;
+//must define PAT_API_KEY in gradle.properties by adding pat_api=<KEY> on the last line non-commented
+def PAT_API_KEY = '"' + pat_api + '"' ?: '"Define Port Authority TrueTime API Key in gradle.properties"';
 
 android.buildTypes.each { type ->
     type.buildConfigField 'String', 'PAT_API_KEY', PAT_API_KEY
@@ -23,8 +23,8 @@ android {
         applicationId "rectangledbmi.com.pittsburghrealtimetracker"
         minSdkVersion 16
         targetSdkVersion 22
-        versionCode 45
-        versionName "3.81"
+        versionCode 46
+        versionName "4.0"
     }
     buildTypes {
 

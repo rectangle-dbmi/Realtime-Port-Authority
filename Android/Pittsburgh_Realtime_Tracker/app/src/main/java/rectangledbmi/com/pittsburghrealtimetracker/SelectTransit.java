@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.net.http.HttpResponseCache;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
@@ -28,25 +27,26 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.File;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 
-import rectangledbmi.com.pittsburghrealtimetracker.handlers.BusUpdateTask;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestLine;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
@@ -54,8 +54,18 @@ import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdap
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
+import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimeVehicleResponse;
+import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Error;
+import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Vehicle;
+import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.VehicleResponse;
 import retrofit.RestAdapter;
 import retrofit.converter.GsonConverter;
+import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 /**
  * This is the main activity of the Realtime Tracker...
@@ -64,8 +74,7 @@ public class SelectTransit extends AppCompatActivity implements
         NavigationDrawerFragment.BusListCallbacks,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        OnMapReadyCallback, LocationListener,
-        BusUpdateTask.UpdateBusConnectionCallbacks {
+        OnMapReadyCallback, LocationListener {
 
     private static final String LINES_LAST_UPDATED = "lines_last_updated";
 
@@ -127,16 +136,6 @@ public class SelectTransit extends AppCompatActivity implements
     private Set<String> buses;
 
     /**
-     * This is the object that updates the UI every 10 seconds
-     */
-    private Timer timer;
-
-    /**
-     * This is the object that creates the action to update the UI
-     */
-    private TimerTask task;
-
-    /**
      * This is the googleAPIClient that will center the map on the person using the app.
      */
     private GoogleApiClient googleAPIClient;
@@ -188,6 +187,13 @@ public class SelectTransit extends AppCompatActivity implements
      * @since 46
      */
     private PATAPI patApiClient;
+
+    /**
+     * Subscription service for vehicle updates
+     *
+     * @since 46
+     */
+    private Subscription vehicleSubscription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -783,60 +789,256 @@ public class SelectTransit extends AppCompatActivity implements
      */
     protected synchronized void addBuses() {
         Log.d("adding buses", buses.toString());
-        final Handler handler = new Handler();
-        timer = new Timer();
-        final Context context = this;
-        task = new TimerTask() {
-            @Override
-            public void run() {
-                handler.post(new Runnable() {
-                    BusUpdateTask req;
+        final Context appcontext = this;
+        vehicleSubscription = Observable.timer(0, 10, TimeUnit.SECONDS)
+                .flatMap(new Func1<Long, Observable<VehicleResponse>>() {
+                    @Override
+                    public Observable<VehicleResponse> call(Long aLong) {
+                        return patApiClient.getVehicles(collectionToString(buses), BuildConfig.PAT_API_KEY);
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<VehicleResponse>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d("buses_vehicle", "completed!");
+                    }
 
-                    public void run() {
-                        if (!buses.isEmpty()) {
-//                            clearMap();
+                    @Override
+                    public void onError(Throwable e) {
+                        if(e.getMessage() != null)
+                            Log.e("bus_vehicle_error", e.getMessage());
+                        Log.e("bus_vehicle_error", Log.getStackTraceString(e));
+                    }
 
-                            req = new BusUpdateTask(mMap, buses, busMarkers, context);
-//                            req = new BusUpdateTask(mMap, buses, context);
-                            req.execute();
+                    @Override
+                    public void onNext(VehicleResponse vehicleResponse) {
+                        if (vehicleResponse != null) {
+                            BustimeVehicleResponse response = vehicleResponse.getBustimeResponse();
+                            List<Vehicle> vehicles = response.getVehicle();
+                            List<Error> errors = response.getError();
+                            //update buses
+                            for (Error error : errors) {
+                                Toast.makeText(appcontext, printErrors(error), Toast.LENGTH_LONG).show();
+                                // TODO: Unselect routes that give an error! Perhaps?
+                            }
+                            if (vehicles.size() > 0) {
+                                onHandleVehicles(vehicles);
+                            }
+                            if (vehicles.size() == 0) {
+                                removeBuses();
+                                stopTimer();
+                            }
+                            //add errors
+
+                        }
+                    }
+
+                    /**
+                     * Handle vehicle updates... either...
+                     * <ul>
+                     *     <li>add marker if not on {@link SelectTransit#busMarkers}</li>
+                     *     <li>update marker if in {@link SelectTransit#busMarkers}</li>
+                     *     <li>remove marker if in @{@link SelectTransit#busMarkers} but no longer on map</li>
+                     * </ul>
+                     *
+                     * @since 46
+                     * @param vehicles - list of vehicles from API
+                     */
+
+                    private void onHandleVehicles(List<Vehicle> vehicles) {
+                        // Delete markers in here
+                        Set<Integer> routesOnMap = new HashSet<Integer>(busMarkers.keySet());
+                        for(Vehicle vehicle : vehicles) {
+                            addOrUpdateMarkers(vehicle, routesOnMap);
+                        }
+                        removeBuses(routesOnMap);
+                    }
+
+                    /**
+                     * Handle vehicle updates and adds...
+                     * <ul>
+                     *     <li>add marker if not on {@link SelectTransit#busMarkers} - {@link #addMarker(Vehicle)}</li>
+                     *     <li>update marker if in {@link SelectTransit#busMarkers} - {@link #updateMarker(Vehicle, Marker)}</li>
+                     * </ul>
+                     *
+                     * @since 46
+                     * @param vehicle - vehicle to be added
+                     * @param routesOnMap - vid already in here
+                     */
+                    private void addOrUpdateMarkers(Vehicle vehicle, Set<Integer> routesOnMap) {
+                        int vid = vehicle.getVid();
+                        Marker marker = busMarkers.get(vid);
+                        if(marker == null) {
+                            addMarker(vehicle);
+                        } else {
+                            routesOnMap.remove(vid);
+                            updateMarker(vehicle, marker);
+                        }
+
+                    }
+
+                    /**
+                     * adds marker not in {@link SelectTransit#busMarkers}
+                     * @since 46
+                     * @param vehicle - the vehicle to add
+                     */
+                    private void addMarker(Vehicle vehicle) {
+                        Log.d("marker_add", "adding_marker " + Integer.toString(vehicle.getVid()));
+                        busMarkers.put(vehicle.getVid(), mMap.addMarker(new MarkerOptions()
+                                        .position(new LatLng(vehicle.getLat(), vehicle.getLon()))
+                                        .title(vehicle.getRt() + "(" + vehicle.getVid() + ") " + vehicle.getDes() + (vehicle.isDly() ? " - Delayed" : ""))
+                                        .draggable(false)
+                                        .rotation(vehicle.getHdg())
+                                        .icon(BitmapDescriptorFactory.fromResource(getDrawable(vehicle.getRt())))
+                                        .anchor((float) 0.453125, (float) 0.25)
+                                        .flat(true)
+                        ));
+                    }
+
+                    /**
+                     * Updates marker information on map
+                     * @since 46
+                     * @param vehicle - vehicle to update
+                     * @param marker - marker to update
+                     */
+                    private void updateMarker(Vehicle vehicle, Marker marker) {
+                        Log.d("marker_update", "updating_pointer");
+                        marker.setTitle(vehicle.getRt() + "(" + vehicle.getVid() + ") " + vehicle.getDes() + (vehicle.isDly() ? " - Delayed" : ""));
+                        marker.setPosition(new LatLng(vehicle.getLat(), vehicle.getLon()));
+                        marker.setRotation(vehicle.getHdg());
+                        marker.setIcon(BitmapDescriptorFactory.fromResource(getDrawable(vehicle.getRt())));
+                        marker.setSnippet("Speed: " + vehicle.getSpd());
+                    }
+                    /**
+                     * Prints the errors
+                     *
+                     * @since 46
+                     * @param error - the Error Object
+                     * @return a stringBuilder to show errors
+                     */
+                    private StringBuilder printErrors(Error error) {
+                        if(error != null) {
+                            StringBuilder st = new StringBuilder();
+                            addMsg(st, error.getRt(), " - ");
+                            addMsg(st, error.getMsg());
+                            Log.d("vehicle_error", st.toString());
+                            return st;
+                        }
+                        return null;
+
+                    }
+
+                    /**
+                     * Creates appends to a StringBuilder
+                     *
+                     * @since 46
+                     * @param st - stringbuilder to make
+                     * @param s - strings to add
+                     */
+                    private void addMsg(StringBuilder st, String... s) {
+                        //TODO: maybe do this in another thread
+                        if(s != null) {
+                            for(String i : s) {
+                                if(i != null && i.length() > 0)
+                                    st.append(i);
+                            }
                         }
                     }
                 });
-            }
-        };
-        if (!buses.isEmpty()) {
-            timer.schedule(task, 0, 10000); //it executes this every 10000ms
-        }
     }
 
+    /**
+     * Removes bus markers from {@link #busMarkers}
+     * @param routesOnMap - markers to remove by vid
+     */
+    private void removeBuses(Set<Integer> routesOnMap) {
+        Log.d("remove_buses", "removing buses");
+        if(routesOnMap != null) {
+            for(Integer vid : routesOnMap) {
+                if(vid != null) {
+                    Marker marker = busMarkers.remove(vid);
+                    if(marker != null) {
+                        Log.d("remove_buses", Integer.toString(vid) + " removed");
+                        marker.remove();
+                    }
+                }
 
-    private synchronized void removeBuses() {
-        if (busMarkers != null) {
-            Log.d("bus_remove", "buses removed");
-            for (Marker busMarker : busMarkers.values()) {
-                busMarker.remove();
             }
-//            busMarkers.clear();
-            busMarkers = null;
         }
 
     }
 
     /**
-     * Stops the timer task
+     * Removes all buses
      */
-    private synchronized void stopTimer() {
+    private void removeBuses() {
+        if (busMarkers != null) {
+            Log.d("bus_remove", "buses removed");
+            for (Marker busMarker : busMarkers.values()) {
+                busMarker.remove();
+            }
+        }
+
+    }
+
+    /**
+     *
+     * @param data - the data in a collection to add
+     * @param <T> - Any Object that extends {@link Object}
+     * @since 46
+     * @return a comma-delim strings of data
+     */
+    private <T> String collectionToString(Collection<T> data) {
+        int size = data.size();
+        int i = 0;
+        StringBuilder buf = new StringBuilder();
+        for(T datum : data) {
+            buf.append(datum);
+            if(++i < size)
+                buf.append(',');
+        }
+        return buf.toString();
+    }
+
+    /**
+     * Gets the icon by route string
+     *
+     * @since 46
+     * @param route - the route
+     * @return - int that represents the id of the icon
+     */
+    private int getDrawable(String route) {
+        return getResources().getIdentifier("bus_" + route.toLowerCase(), "drawable", getPackageName());
+//        return context.getResources().getDrawable(resourceId);
+    }
+
+    /**
+     * General way to make a snackbar
+     *
+     * @since 46
+     * @param string - the string to add to on the
+     * @param showLength - how long to show the snackbar
+     */
+    private void makeSnackbar(String string, int showLength) {
+        if(string != null && string.length() > 0) {
+
+            Snackbar.make(findViewById(R.id.snackbar_position),
+                    string, showLength
+            ).show();
+        }
+
+    }
+
+    /**
+     * Stops the vehicle subscriptions
+     */
+    private void stopTimer() {
 //        removeBuses();
         // wait for the bus task to finish!
 
-        if (timer != null) {
-            timer.cancel();
-            timer.purge();
-        }
-
-        if (task != null) {
-            task.cancel();
-        }
+        if(vehicleSubscription != null)
+            vehicleSubscription.unsubscribe();
     }
 
     /**
@@ -936,7 +1138,7 @@ public class SelectTransit extends AppCompatActivity implements
     @Override
     public void onLocationChanged(Location location) {
         Log.d("location_changed", "onLocationChanged() " + location.toString());
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
+//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
 
         currentLocation = location;
         if(mMap != null && notCentered) {
@@ -956,120 +1158,4 @@ public class SelectTransit extends AppCompatActivity implements
     public boolean isBusTaskRunning() {
         return isBusTaskRunning;
     }
-
-//    @Override
-//    public void onBusInfoRetrieved(List<Bus> bl) {
-//
-//            Log.d("onPostExecute_task_st", "Task starting after thread ran");
-//
-//            if(bl == null || bl.isEmpty()) {
-//                Toast.makeText(this, "Routes not found. Either there is no route information, no internet connection, or the API Call limit has been exceeded.", Toast.LENGTH_LONG).show();
-//
-//            } else {
-//
-//                ConcurrentMap<Integer, Marker> newBusMarkers = new ConcurrentHashMap<>(bl.size());
-//                LatLng latlng;
-//
-//                for (Bus bus : bl) {
-////                    Log.d("bus_info", bus.toString());
-//                    latlng = new LatLng(bus.getLat(), bus.getLon());
-////                    if (busMarkers != null) {
-//                    updateMarker(bus, latlng, newBusMarkers);
-////                    } else {
-////                        addNewMarker(bus, latlng, newBusMarkers);
-////                    }
-//                }
-//                removeOldBuses();
-//                setBusMarkers(newBusMarkers);
-//            }
-//            Log.d("onPostExecute task_stop", "Task has stopped running");
-//            setBusTaskRunning(false);
-//    }
-//
-//    /**
-//     * Updates the marker already on the map
-//     *
-//     * @param newBusMarkers the new bus list
-//     * @param bus           the bus being updated
-//     * @param latlng        the LatLng of the bus's location
-//     */
-//    private synchronized void updateMarker(Bus bus, LatLng latlng, ConcurrentMap<Integer, Marker> newBusMarkers) {
-//        try {
-//            Log.d("up_mark_enter", "entered_marker");
-//            Marker mark = null;
-//            if(busMarkers != null)
-//                mark = busMarkers.remove(bus.getVid());
-//            if (mark != null) {
-//                Log.d("marker_update", "updating_pointer");
-//                mark.setTitle(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes() + (bus.isDly() ? " - Delayed" : "" ));
-//                mark.setPosition(latlng);
-//                mark.setRotation(bus.getHdg());
-//                mark.setSnippet("Speed: " + bus.getSpd());
-//                newBusMarkers.putIfAbsent(bus.getVid(), mark);
-//
-//            } else {
-//                addNewMarker(bus, latlng, newBusMarkers);
-//            }
-//        } catch (NullPointerException e) {
-//            Log.e("bus_nullpointer", "Something went wrong while updating...");
-//        } catch (IllegalArgumentException e) {
-//            Log.e("bus_illegalargument", "Somehow the marker is missing");
-//
-//        }
-//    }
-//
-//    /**
-//     * Add a new marker to the map
-//     *
-//     * @param bus           the bus being added
-//     * @param latlng        the location of the bus
-//     * @param newBusMarkers the new bus list
-//     */
-//    private synchronized void addNewMarker(Bus bus, LatLng latlng, ConcurrentMap<Integer, Marker> newBusMarkers) {
-////        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.bus_template);
-////        Paint paint = new Paint();
-////        ColorFilter colorFilter = new LightingColorFilter(Color.RED, 0);
-////        paint.setColorFilter(colorFilter);
-////        Canvas canvas = new Canvas();
-////        bitmap = canvas.drawBitmap(bitmap,);
-//        Log.d("marker_add", "adding_marker");
-//        MarkerOptions marker = new MarkerOptions()
-//                .position(latlng)
-//                .title(bus.getRt() + "(" + bus.getVid() + ") " + bus.getDes() + (bus.isDly() ? " - Delayed" : ""))
-//                .snippet("Speed: " + bus.getSpd())
-//                .draggable(false)
-//                .rotation(bus.getHdg())
-//                .icon(BitmapDescriptorFactory.fromResource(getDrawable(bus.getRt())))
-//                .anchor((float) 0.453125, (float) 0.25)
-//                .flat(true);
-//        try {
-//            Log.d("new_bus", newBusMarkers.toString());
-//            Log.d("new_markeroptions", marker.getPosition().toString());
-//            Log.d("new_markeroptions", marker.getTitle());
-//            Log.d("new_markeroptions", marker.getSnippet());
-//            Log.d("new_markeroptions", Float.toString(marker.getRotation()));
-//            Log.d("new_mMap", mMap.toString());
-////            Marker mapMarker = mMap.addMarker(marker);
-////            mapMarker.setIcon(BitmapDescriptorFactory.fromAsset(bus.getRt() + ".png"));
-//            newBusMarkers.put(bus.getVid(), mMap.addMarker(marker));
-//        } catch (NullPointerException e) {
-//            Log.e("null_new_bus", "mMap or marker is null");
-//        }
-//    }
-//
-//    /**
-//     * Removes the no longer visible buses to the list.
-//     */
-//    private synchronized void removeOldBuses() {
-//        if (busMarkers != null) {
-//            for (Marker marker : busMarkers.values()) {
-//                marker.remove();
-//            }
-//        }
-//    }
-//
-//    private int getDrawable(String route) {
-//        return getResources().getIdentifier("bus_" + route.toLowerCase(), "drawable", getPackageName());
-////        return context.getResources().getDrawable(resourceId);
-//    }
 }

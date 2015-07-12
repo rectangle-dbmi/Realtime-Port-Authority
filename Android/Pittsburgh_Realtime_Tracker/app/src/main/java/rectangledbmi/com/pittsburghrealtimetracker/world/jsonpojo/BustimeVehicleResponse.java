@@ -55,7 +55,7 @@ public class BustimeVehicleResponse {
      * @return
      *     the error
      */
-    public List<Error> gettError() {
+    public List<Error> getError() {
         return error;
     }
 
