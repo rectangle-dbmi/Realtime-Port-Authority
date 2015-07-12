@@ -32,6 +32,8 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polyline;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.File;
 import java.util.Calendar;
@@ -45,11 +47,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.BusUpdateTask;
+import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestLine;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter;
+import rectangledbmi.com.pittsburghrealtimetracker.retrofit.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
+import retrofit.RestAdapter;
+import retrofit.converter.GsonConverter;
 
 /**
  * This is the main activity of the Realtime Tracker...
@@ -131,9 +137,9 @@ public class SelectTransit extends AppCompatActivity implements
     private TimerTask task;
 
     /**
-     * This is the client that will center the map on the person using the app.
+     * This is the googleAPIClient that will center the map on the person using the app.
      */
-    private GoogleApiClient client;
+    private GoogleApiClient googleAPIClient;
 
     /**
      * This is where the person is when he first opens the app
@@ -176,6 +182,13 @@ public class SelectTransit extends AppCompatActivity implements
      */
     private LocationRequest gLocationRequest;
 
+    /**
+     * Port Authority API Client made through Retrofit
+     *
+     * @since 46
+     */
+    private PATAPI patApiClient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -190,6 +203,7 @@ public class SelectTransit extends AppCompatActivity implements
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
         setGoogleApiClient();
+        buildPATAPI();
         createBusList();
         MapFragment mapFragment = (MapFragment) getFragmentManager()
             .findFragmentById(R.id.map);
@@ -205,6 +219,26 @@ public class SelectTransit extends AppCompatActivity implements
 //        } else {
 //
 //        }
+    }
+
+    /**
+     * Builds the PAT API Client from a Rest Adapter
+     *
+     * @since 46
+     */
+    private void buildPATAPI() {
+        // use a date converter
+        Gson gson = new GsonBuilder()
+                .setDateFormat(Constants.DATE_FORMAT_PARSE)
+                .create();
+        // build the restadapter
+        RestAdapter restAdapter = new RestAdapter.Builder()
+                .setEndpoint(getString(R.string.api_url))
+                .setConverter(new GsonConverter(gson))
+                .build();
+
+        // sets the PAT API
+        patApiClient = restAdapter.create(PATAPI.class);
     }
 
 //    /**
@@ -261,10 +295,10 @@ public class SelectTransit extends AppCompatActivity implements
     }
 
     /**
-     * Sets the application google Api Location client
+     * Sets the application google Api Location googleAPIClient
      */
     private void setGoogleApiClient() {
-        client = new GoogleApiClient.Builder(getApplicationContext())
+        googleAPIClient = new GoogleApiClient.Builder(getApplicationContext())
                 .addApi(LocationServices.API)
                 .addApi(Places.GEO_DATA_API)
                 .addApi(Places.PLACE_DETECTION_API)
@@ -379,7 +413,7 @@ public class SelectTransit extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        client.connect();
+        googleAPIClient.connect();
     }
 
     @Override
@@ -419,7 +453,7 @@ public class SelectTransit extends AppCompatActivity implements
     protected void onStop() {
 
         Log.d("main_destroy", "SelectTransit onStop");
-        client.disconnect();
+        googleAPIClient.disconnect();
         HttpResponseCache cache = HttpResponseCache.getInstalled();
         if (cache != null) {
             cache.flush();
@@ -854,13 +888,13 @@ public class SelectTransit extends AppCompatActivity implements
         gLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         gLocationRequest.setInterval(1000);
 //        MapsInitializer.initialize(this);
-        currentLocation = LocationServices.FusedLocationApi.getLastLocation(client);
+        currentLocation = LocationServices.FusedLocationApi.getLastLocation(googleAPIClient);
 //        Log.d("location_changed", "What is going on here");
         if (currentLocation == null) {
             Log.d("location_changed", "current location is null");
-            LocationServices.FusedLocationApi.requestLocationUpdates(client, gLocationRequest, this);
+            LocationServices.FusedLocationApi.requestLocationUpdates(googleAPIClient, gLocationRequest, this);
             if (currentLocation != null) {
-//                LocationServices.FusedLocationApi.removeLocationUpdates(client, this);
+//                LocationServices.FusedLocationApi.removeLocationUpdates(googleAPIClient, this);
                 if (mMap != null)
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                             new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
@@ -882,7 +916,7 @@ public class SelectTransit extends AppCompatActivity implements
      */
     @Override
     public void onConnectionSuspended(int i) {
-        LocationServices.FusedLocationApi.removeLocationUpdates(client, this);
+        LocationServices.FusedLocationApi.removeLocationUpdates(googleAPIClient, this);
     }
 
     /**
