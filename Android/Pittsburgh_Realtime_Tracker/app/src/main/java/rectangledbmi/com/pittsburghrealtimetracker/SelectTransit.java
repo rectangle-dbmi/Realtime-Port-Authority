@@ -788,6 +788,8 @@ public class SelectTransit extends AppCompatActivity implements
      * adds buses to map. or else the map will be clear...
      */
     protected synchronized void addBuses() {
+        if(buses.isEmpty())
+            return;
         Log.d("adding buses", buses.toString());
         final Context appcontext = this;
         vehicleSubscription = Observable.timer(0, 10, TimeUnit.SECONDS)
