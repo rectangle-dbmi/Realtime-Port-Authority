@@ -927,7 +927,7 @@ public class SelectTransit extends AppCompatActivity implements
                             StringBuilder st = new StringBuilder();
                             if(error.getRt() != null) {
                                 addMsg(st, error.getRt(), " - ");
-                                buses.remove(error.getRt().trim());
+//                                buses.remove(error.getRt().trim()); TODO: activate this later when we figure out how to handle no route -> next day there's a route
                             }
 
                             addMsg(st, error.getMsg());
