@@ -475,49 +475,10 @@ public class SelectTransit extends AppCompatActivity implements
         Log.d("selected size", Integer.toString(buses.size()));
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor spe = sp.edit();
-        spe.putStringSet(BUS_SELECT_STATE, buses).apply();
+        spe.putStringSet(BUS_SELECT_STATE, buses);
 //        sp.edit().putInt(BUSLIST_SIZE, getResources().getStringArray(R.array.buses).length).apply();
         spe.apply();
     }
-
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        clearMap();
-//
-//
-//    }
-
-//    /**
-//     * Gets called from NavigationDrawerFragment's onclick? Supposed to...
-//     *
-//     * @param position the list selection selected starting from 0
-//     */
-//    @Override
-//    public void onNavigationDrawerItemSelected(int position) {
-//        // update the main content by replacing fragments
-//        onSectionAttached(position);
-//    }
-//
-//    /**
-//     * Gets called when one of the buses is pressed. Take note routes will always have more than one
-//     * polyline.
-//     *
-//     * @param number which bus in the list is pressed
-//     */
-//    public void onSectionAttached(int number) {
-//        if(mNavigationDrawerFragment.getAmountSelected() >= 0 &&
-//                mNavigationDrawerFragment.getAmountSelected() <= getResources().getInteger(R.integer.max_checked)) {
-//            if(mNavigationDrawerFragment.isPositionSelected(number)) {
-//                selectFromList(number);
-//            } else {
-//                deselectFromList(number);
-//            }
-//            Log.d("buses_attached", buses.toString());
-//        }
-////        setPolyline(number);
-////        setList(getResources().getStringArray(R.array.buses)[number]);
-//    }
 
     /**
      * Checks the state of the route on the map. If it is not on the map, the relevant info will be
@@ -1045,9 +1006,6 @@ public class SelectTransit extends AppCompatActivity implements
      * Stops the vehicle subscriptions
      */
     private void stopTimer() {
-//        removeBuses();
-        // wait for the bus task to finish!
-
         if(vehicleSubscription != null)
             vehicleSubscription.unsubscribe();
     }
