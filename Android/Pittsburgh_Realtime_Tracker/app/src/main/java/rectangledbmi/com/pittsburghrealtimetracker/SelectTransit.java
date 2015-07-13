@@ -808,8 +808,11 @@ public class SelectTransit extends AppCompatActivity implements
 
                     @Override
                     public void onError(Throwable e) {
-                        if(e.getMessage() != null)
+                        if(e.getMessage() != null) {
                             Log.e("bus_vehicle_error", e.getMessage());
+                            Toast.makeText(appcontext, e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+
                         Log.e("bus_vehicle_error", Log.getStackTraceString(e));
                     }
 
@@ -942,8 +945,9 @@ public class SelectTransit extends AppCompatActivity implements
                         //TODO: maybe do this in another thread
                         if(s != null) {
                             for(String i : s) {
-                                if(i != null && i.length() > 0)
+                                if(i != null && i.trim().length() > 0)
                                     st.append(i);
+                                else break;
                             }
                         }
                     }
@@ -980,6 +984,7 @@ public class SelectTransit extends AppCompatActivity implements
             for (Marker busMarker : busMarkers.values()) {
                 busMarker.remove();
             }
+            busMarkers.clear();
         }
 
     }
@@ -1053,6 +1058,7 @@ public class SelectTransit extends AppCompatActivity implements
          */
         Log.d("map_cleared", "map_cleared");
         if (mMap != null) {
+            stopTimer();
             mMap.clear();
             routeLines = new ConcurrentHashMap<>(getResources().getInteger(R.integer.max_checked));
             transitStop = new TransitStop();
@@ -1147,17 +1153,5 @@ public class SelectTransit extends AppCompatActivity implements
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
             notCentered = false;
         }
-    }
-
-    public void setBusMarkers(ConcurrentMap<Integer, Marker> busMarkers) {
-        this.busMarkers = busMarkers;
-    }
-
-    public void setBusTaskRunning(boolean isBusTaskRunning) {
-        this.isBusTaskRunning = isBusTaskRunning;
-    }
-
-    public boolean isBusTaskRunning() {
-        return isBusTaskRunning;
     }
 }
