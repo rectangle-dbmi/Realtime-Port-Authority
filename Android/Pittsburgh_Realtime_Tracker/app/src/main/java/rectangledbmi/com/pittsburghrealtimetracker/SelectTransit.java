@@ -1,6 +1,5 @@
 package rectangledbmi.com.pittsburghrealtimetracker;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
@@ -158,10 +157,8 @@ public class SelectTransit extends AppCompatActivity implements
     private ConcurrentMap<Integer, Marker> busMarkers;
 
     /**
-     * Reminds us if the bus task is running or not to update the buses (workaround for asynctask ******)
+     * Map of the route lines
      */
-    private boolean isBusTaskRunning;
-
     private ConcurrentMap<String, List<Polyline>> routeLines;
 
     /**
@@ -174,12 +171,6 @@ public class SelectTransit extends AppCompatActivity implements
      * @since 42
      */
     private boolean notCentered;
-
-    /**
-     * Google location request to give us location-based context
-     * @since 42
-     */
-    private LocationRequest gLocationRequest;
 
     /**
      * Port Authority API Client made through Retrofit
@@ -219,7 +210,6 @@ public class SelectTransit extends AppCompatActivity implements
         inSavedState = false;
         enableHttpResponseCache();
         restoreInstanceState(savedInstanceState);
-        isBusTaskRunning = false;
         notCentered = false;
             //        zoom = 15.0f;
 //        } else {
@@ -269,11 +259,11 @@ public class SelectTransit extends AppCompatActivity implements
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         Long lastUpdated = sp.getLong(LINES_LAST_UPDATED, -1);
         Log.d("data_storage", data.getName());
-        if(!data.exists())
-            data.mkdirs();
+        if(data.mkdirs())
+            Log.d("sd_card", "Created data storage");
         File lineInfo = new File(data, "/lineinfo");
-        if(!data.exists())
-            data.mkdirs();
+        if(data.mkdirs())
+            Log.d("sd_card", "created line info folder in storage");
         Log.d("updated time", Long.toString(lastUpdated));
         if(lastUpdated != -1 && ((System.currentTimeMillis() - lastUpdated) / 1000 / 60 / 60) > 24) {
 //            Log.d("update time....", Long.toString((System.currentTimeMillis() - lastUpdated) / 1000 / 60 / 60));
@@ -288,7 +278,8 @@ public class SelectTransit extends AppCompatActivity implements
                     sp.edit().putLong(LINES_LAST_UPDATED, System.currentTimeMillis()).apply();
                     if(files != null) {
                         for (File file : files) {
-                            file.delete();
+                            if(file.delete())
+                                Log.d("sd_card", file.getName() + " deleted");
                         }
                     }
                 }
@@ -752,7 +743,6 @@ public class SelectTransit extends AppCompatActivity implements
         if(buses.isEmpty())
             return;
         Log.d("adding buses", buses.toString());
-        final Context appcontext = this;
         vehicleSubscription = Observable.timer(0, 10, TimeUnit.SECONDS)
                 .flatMap(new Func1<Long, Observable<VehicleResponse>>() {
                     @Override
@@ -762,6 +752,13 @@ public class SelectTransit extends AppCompatActivity implements
                 }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<VehicleResponse>() {
+
+                    /**
+                     * Shows whether to displays or not (will only show errors once on the timer)
+                     * @since 47
+                     */
+                    private boolean showedErrors = false;
+
                     @Override
                     public void onCompleted() {
                         Log.d("buses_vehicle", "completed!");
@@ -769,9 +766,12 @@ public class SelectTransit extends AppCompatActivity implements
 
                     @Override
                     public void onError(Throwable e) {
-                        if(e.getMessage() != null) {
+                        if(e.getMessage() != null && e.getLocalizedMessage() != null && !showedErrors) {
+                            showedErrors = true;
                             Log.e("bus_vehicle_error", e.getMessage());
-                            Toast.makeText(appcontext, e.getMessage(), Toast.LENGTH_LONG).show();
+//                            makeSnackbar(e.getLocalizedMessage(), Snackbar.LENGTH_LONG);
+                            showToast(e.getLocalizedMessage(), Toast.LENGTH_LONG);
+//                            Toast.makeText(appcontext, e.getMessage(), Toast.LENGTH_LONG).show();
                         }
 
                         Log.e("bus_vehicle_error", Log.getStackTraceString(e));
@@ -784,17 +784,22 @@ public class SelectTransit extends AppCompatActivity implements
                             List<Vehicle> vehicles = response.getVehicle();
                             List<Error> errors = response.getError();
                             //update buses
-                            for (Error error : errors) {
-                                Toast.makeText(appcontext, printErrors(error), Toast.LENGTH_LONG).show();
-                                // TODO: Unselect routes that give an error! Perhaps?
+                            Log.d("bus_vehicle_error", Boolean.toString(showedErrors));
+                            if(!errors.isEmpty() && !showedErrors) {
+                                showedErrors = true;
+                                for (Error error : errors) {
+//                                    makeSnackbar(printErrors(error).toString(), Snackbar.LENGTH_LONG);
+                                    showToast(printErrors(error).toString(), Toast.LENGTH_LONG);
+                                }
+                                if (vehicles.size() > 0) {
+                                    onHandleVehicles(vehicles);
+                                }
+                                if (vehicles.size() == 0) {
+                                    removeBuses();
+                                    stopTimer();
+                                }
                             }
-                            if (vehicles.size() > 0) {
-                                onHandleVehicles(vehicles);
-                            }
-                            if (vehicles.size() == 0) {
-                                removeBuses();
-                                stopTimer();
-                            }
+
                             //add errors
 
                         }
@@ -887,11 +892,13 @@ public class SelectTransit extends AppCompatActivity implements
                         if(error != null) {
                             StringBuilder st = new StringBuilder();
                             if(error.getRt() != null) {
-                                addMsg(st, error.getRt(), " - ");
+                                addMsg(st, getString(R.string.no_vehicle_error));
+                                st.append(" ");
+                                addMsg(st, error.getRt());
 //                                buses.remove(error.getRt().trim()); TODO: activate this later when we figure out how to handle no route -> next day there's a route
                             }
-
-                            addMsg(st, error.getMsg());
+                            else
+                                addMsg(st, error.getMsg());
                             Log.d("vehicle_error", st.toString());
                             return st;
                         }
@@ -917,6 +924,16 @@ public class SelectTransit extends AppCompatActivity implements
                         }
                     }
                 });
+    }
+
+    /**
+     * Create a toast
+     * @since 47
+     * @param string - string to show
+     * @param length - length to show message
+     */
+    private void showToast(String string, int length) {
+        Toast.makeText(this, string, length).show();
     }
 
     /**
@@ -995,7 +1012,7 @@ public class SelectTransit extends AppCompatActivity implements
     private void makeSnackbar(String string, int showLength) {
         if(string != null && string.length() > 0) {
 
-            Snackbar.make(findViewById(R.id.snackbar_position),
+            Snackbar.make(findViewById(android.R.id.content),
                     string, showLength
             ).show();
         }
@@ -1056,7 +1073,10 @@ public class SelectTransit extends AppCompatActivity implements
         /*
       This is the location request using FusedLocationAPI to get the person's last known location
      */
-        gLocationRequest = LocationRequest.create();
+        /*
+      Google location request to give us location-based context
+      */
+        LocationRequest gLocationRequest = LocationRequest.create();
         gLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         gLocationRequest.setInterval(1000);
 //        MapsInitializer.initialize(this);
