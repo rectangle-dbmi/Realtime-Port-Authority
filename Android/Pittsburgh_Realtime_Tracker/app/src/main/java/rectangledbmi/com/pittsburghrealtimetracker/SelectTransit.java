@@ -925,7 +925,11 @@ public class SelectTransit extends AppCompatActivity implements
                     private StringBuilder printErrors(Error error) {
                         if(error != null) {
                             StringBuilder st = new StringBuilder();
-                            addMsg(st, error.getRt(), " - ");
+                            if(error.getRt() != null) {
+                                addMsg(st, error.getRt(), " - ");
+                                buses.remove(error.getRt().trim());
+                            }
+
                             addMsg(st, error.getMsg());
                             Log.d("vehicle_error", st.toString());
                             return st;
