@@ -1,13 +1,11 @@
 
 package rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo;
 
-import javax.annotation.Generated;
 import com.google.gson.annotations.Expose;
 
-import java.text.ParseException;
 import java.util.Date;
 
-import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
+import javax.annotation.Generated;
 
 /**
  * Prediction POJO
@@ -63,8 +61,8 @@ public class Prd {
      * @param tmstmp
      *     The tmstmp
      */
-    public void setTmstmp(String tmstmp) throws ParseException {
-        this.tmstmp = Constants.DEFAULT_DATE_PARSE_FORMAT.parse(tmstmp);
+    public void setTmstmp(Date tmstmp) {
+        this.tmstmp = tmstmp;
     }
 
     /**
@@ -225,8 +223,8 @@ public class Prd {
      * @param prdtm
      *     The prdtm
      */
-    public void setPrdtm(String prdtm) throws ParseException {
-        this.prdtm = Constants.DEFAULT_DATE_PARSE_FORMAT.parse(prdtm);
+    public void setPrdtm(Date prdtm) {
+        this.prdtm = prdtm;
     }
 
     /**

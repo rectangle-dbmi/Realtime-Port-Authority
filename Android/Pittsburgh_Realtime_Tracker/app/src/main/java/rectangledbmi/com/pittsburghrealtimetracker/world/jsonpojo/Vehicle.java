@@ -1,13 +1,12 @@
 
 package rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo;
 
-import javax.annotation.Generated;
 import com.google.gson.annotations.Expose;
 
 import java.text.ParseException;
 import java.util.Date;
 
-import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
+import javax.annotation.Generated;
 
 /**
  * Vehicle (bus) Retrofit POJO
@@ -80,8 +79,8 @@ public class Vehicle {
      * @param tmstmp
      *     The tmstmp
      */
-    public void setTmstmp(String tmstmp) throws ParseException {
-        this.tmstmp = Constants.DEFAULT_DATE_PARSE_FORMAT.parse(tmstmp);
+    public void setTmstmp(Date tmstmp) throws ParseException {
+        this.tmstmp = tmstmp;
     }
 
     /**

@@ -59,8 +59,6 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
      */
     private String selectedRoute;
 
-    private ConcurrentMap<Integer, Marker> busStops;
-
     private float zoom, zoomVisibility;
 
     TransitStop transitStop;
@@ -84,7 +82,6 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
         this.patterns = patterns;
         this.selectedRoute = selectedRoute;
         this.color = color;
-        this.busStops = busStops;
         this.zoom = zoomLevel;
         this.transitStop = stopMap;
         this.zoomVisibility = zoomVisibility;
@@ -224,7 +221,7 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
                 }
 
             } catch (NullPointerException e) {
-                Toast.makeText(context, "The Port Authority servers are down. Sorry!", Toast.LENGTH_LONG);
+                Log.e("requestline_error", e.getMessage());
             }
             eventType = parser.next();
         }
@@ -351,8 +348,6 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
                     }
                 }
             }
-        } else {
-            Toast.makeText(context, selectedRoute + " " + context.getString(R.string.route_not_found), Toast.LENGTH_LONG).show();
         }
     }
 }
