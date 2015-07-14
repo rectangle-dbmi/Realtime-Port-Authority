@@ -317,5 +317,7 @@
     <string name="predictions_not_available">No predictions found.</string>
     <!--Extra-->
     <string name="title_of_bus">Title of Bus</string>
+    <!-- Errors -->
+    <string name="no_vehicle_error">Port Authority currently not tracking</string>
 
 </resources>
