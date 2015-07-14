@@ -318,6 +318,9 @@
     <!--Extra-->
     <string name="title_of_bus">Title of Bus</string>
     <!-- Errors -->
-    <string name="no_vehicle_error">Port Authority currently not tracking</string>
-
+    <string name="no_vehicle_error">Port Authority currently not tracking route</string>
+    <string name="retrofit_network_error">Please check your data connection.</string>
+    <string name="retrofit_conversion_error">Cannot translate information from Port Authority.</string>
+    <string name="retrofit_http_error">The Port Authority website seems to be down.</string>
+    <string name="retrofit_unexpected_error">An unexpected error occurred. Please contact the developers.</string>
 </resources>

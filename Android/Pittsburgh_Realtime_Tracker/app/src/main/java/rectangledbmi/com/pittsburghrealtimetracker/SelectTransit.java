@@ -58,6 +58,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Error;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Vehicle;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.VehicleResponse;
 import retrofit.RestAdapter;
+import retrofit.RetrofitError;
 import retrofit.converter.GsonConverter;
 import rx.Observable;
 import rx.Observer;
@@ -768,12 +769,15 @@ public class SelectTransit extends AppCompatActivity implements
                     public void onError(Throwable e) {
                         if(e.getMessage() != null && e.getLocalizedMessage() != null && !showedErrors) {
                             showedErrors = true;
-                            Log.e("bus_vehicle_error", e.getMessage());
+                            if(e instanceof RetrofitError) {
+                                printRetrofitError((RetrofitError)e);
+                            }
 //                            makeSnackbar(e.getLocalizedMessage(), Snackbar.LENGTH_LONG);
-                            showToast(e.getLocalizedMessage(), Toast.LENGTH_LONG);
+
 //                            Toast.makeText(appcontext, e.getMessage(), Toast.LENGTH_LONG).show();
                         }
-
+                        Log.e("bus_vehicle_error", e.getClass().getName());
+                        Log.e("bus_vehicle_error", e.getMessage());
                         Log.e("bus_vehicle_error", Log.getStackTraceString(e));
                     }
 
@@ -791,13 +795,13 @@ public class SelectTransit extends AppCompatActivity implements
 //                                    makeSnackbar(printErrors(error).toString(), Snackbar.LENGTH_LONG);
                                     showToast(printErrors(error).toString(), Toast.LENGTH_LONG);
                                 }
-                                if (vehicles.size() > 0) {
-                                    onHandleVehicles(vehicles);
-                                }
-                                if (vehicles.size() == 0) {
-                                    removeBuses();
-                                    stopTimer();
-                                }
+                            }
+                            if (vehicles.size() > 0) {
+                                onHandleVehicles(vehicles);
+                            }
+                            if (vehicles.size() == 0) {
+                                removeBuses();
+                                stopTimer();
                             }
 
                             //add errors
@@ -1134,6 +1138,27 @@ public class SelectTransit extends AppCompatActivity implements
         if(mMap != null && notCentered) {
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
             notCentered = false;
+        }
+    }
+
+    public void printRetrofitError (RetrofitError error) {
+        switch (error.getKind()) {
+
+            case NETWORK:
+                showToast(getString(R.string.retrofit_network_error), Toast.LENGTH_LONG);
+                break;
+            case CONVERSION:
+                showToast(getString(R.string.retrofit_conversion_error), Toast.LENGTH_LONG);
+                break;
+            case HTTP:
+                showToast("HTTP Status " + error.getResponse().getStatus() + ": "
+                        + getString(R.string.retrofit_http_error), Toast.LENGTH_LONG);
+                break;
+            case UNEXPECTED:
+                showToast(getString(R.string.retrofit_unexpected_error), Toast.LENGTH_LONG);
+                break;
+            default:
+                showToast(error.getLocalizedMessage(), Toast.LENGTH_LONG);
         }
     }
 }
