@@ -1141,7 +1141,13 @@ public class SelectTransit extends AppCompatActivity implements
         }
     }
 
+    /**
+     * Puts a print on the retrofit errors....
+     * @since 47
+     * @param error - retrofit error
+     */
     public void printRetrofitError (RetrofitError error) {
+        //TODO: make a more general way to get these errors...
         switch (error.getKind()) {
 
             case NETWORK:
