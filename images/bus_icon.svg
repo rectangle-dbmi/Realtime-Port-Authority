@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="42"
+   height="72"
+   id="svg3524"
+   version="1.1"
+   inkscape:version="0.91 r"
+   viewBox="0 0 42 72"
+   sodipodi:docname="bus_icon.svg">
+  <defs
+     id="defs3526" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.4142136"
+     inkscape:cx="8.9755298"
+     inkscape:cy="-7.8658025"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:document-units="px"
+     inkscape:grid-bbox="true"
+     inkscape:snap-grids="true"
+     inkscape:snap-page="true"
+     inkscape:snap-to-guides="true"
+     fit-margin-right="-0.1"
+     showguides="false"
+     inkscape:window-width="959"
+     inkscape:window-height="1028"
+     inkscape:window-x="960"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     showborder="false">
+    <inkscape:grid
+       type="xygrid"
+       id="grid3546"
+       spacingx="0.7"
+       spacingy="0.6"
+       enabled="false" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata3529">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+        <cc:license
+           rdf:resource="http://scripts.sil.org/OFL" />
+      </cc:Work>
+      <cc:License
+         rdf:about="http://scripts.sil.org/OFL">
+        <cc:permits
+           rdf:resource="http://scripts.sil.org/pub/OFL/Reproduction" />
+        <cc:permits
+           rdf:resource="http://scripts.sil.org/pub/OFL/Distribution" />
+        <cc:permits
+           rdf:resource="http://scripts.sil.org/pub/OFL/Embedding" />
+        <cc:permits
+           rdf:resource="http://scripts.sil.org/pub/OFL/DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://scripts.sil.org/pub/OFL/Notice" />
+        <cc:requires
+           rdf:resource="http://scripts.sil.org/pub/OFL/Attribution" />
+        <cc:requires
+           rdf:resource="http://scripts.sil.org/pub/OFL/ShareAlike" />
+        <cc:requires
+           rdf:resource="http://scripts.sil.org/pub/OFL/DerivativeRenaming" />
+        <cc:requires
+           rdf:resource="http://scripts.sil.org/pub/OFL/BundlingWhenSelling" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     transform="translate(0,8)">
+    <rect
+       style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.89910758px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       id="rect3548"
+       width="41.113205"
+       height="44.594891"
+       x="0.559834"
+       y="19.665033"
+       ry="8.3349667"
+       inkscape:transform-center-x="0.49222749"
+       inkscape:transform-center-y="20.253971"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       sodipodi:type="star"
+       style="fill:#000000;fill-opacity:1"
+       id="path4392"
+       sodipodi:sides="3"
+       sodipodi:cx="21"
+       sodipodi:cy="4"
+       sodipodi:r1="11.4"
+       sodipodi:r2="5.6999998"
+       sodipodi:arg1="-1.5707963"
+       sodipodi:arg2="-0.52359878"
+       inkscape:flatsided="false"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 21,-7.3999996 4.936345,8.5499997 4.936344,8.55 -9.872689,-3e-7 -9.872689,-3e-7 4.936344,-8.5499994 z"
+       inkscape:transform-center-y="-17.497989"
+       transform="matrix(2.1270993,0,0,1.4028033,-23.560421,2.5972946)"
+       inkscape:transform-center-x="0.5"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+  </g>
+</svg>
