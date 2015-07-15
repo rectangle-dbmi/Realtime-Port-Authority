@@ -544,7 +544,7 @@ public class SelectTransit extends AppCompatActivity implements
                         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
                         paint.setColorFilter(new PorterDuffColorFilter(route.getRouteColor(), PorterDuff.Mode.MULTIPLY));
                         canvas.drawBitmap(bus_icon, 0f, 0f, paint);
-//                        drawText(canvas, paint, bus_icon, getResources().getDisplayMetrics().density, route.getRoute(), route.getColorAsString());
+                        drawText(canvas, bus_icon, getResources().getDisplayMetrics().density, route.getRoute(), route.getColorAsString());
 
                         return new BusIconContainer(route.getRoute(), busicon);
                     }
@@ -552,8 +552,10 @@ public class SelectTransit extends AppCompatActivity implements
                     /**
                      * Draws text into the canvas...
                      */
-                    private void drawText(Canvas canvas, Paint paint, Bitmap bus_icon, float fontScale, String routeNumber, String routeColor) {
-                        paint.setColor(Color.BLACK);
+                    private void drawText(Canvas canvas, Bitmap bus_icon, float fontScale, String routeNumber, String routeColor) {
+                        int currentColor = Color.parseColor(routeColor);
+                        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                        paint.setColor(isLight(currentColor) ? Color.BLACK : Color.WHITE);
                         paint.setTextSize(8 * fontScale);
                         Rect fontBounds = new Rect();
                         paint.getTextBounds(routeNumber, 0, routeNumber.length(), fontBounds);
@@ -565,20 +567,19 @@ public class SelectTransit extends AppCompatActivity implements
                         paint.setTextAlign(Paint.Align.CENTER);
                         canvas.drawText(routeNumber, x, y, paint);
                     }
-
-//                    /**
-//                     * Decides whether or not the color (background color) is light or not.
-//                     *
-//                     * Formula was taken from here:
-//                     * http://stackoverflow.com/questions/24260853/check-if-color-is-dark-or-light-in-android
-//                     *
-//                     * @since 47
-//                     * @param color the background color being fed
-//                     * @return whether or not the background color is light or not (.345 is the current threshold)
-//                     */
-//                    private boolean isLight(int color) {
-//                        return 1.0-(0.299*Color.red(color) + 0.587*Color.green(color) + 0.114*Color.blue(color))/255 < .5;
-//                    }
+                    /**
+                     * Decides whether or not the color (background color) is light or not.
+                     *
+                     * Formula was taken from here:
+                     * http://stackoverflow.com/questions/24260853/check-if-color-is-dark-or-light-in-android
+                     *
+                     * @since 47
+                     * @param color the background color being fed
+                     * @return whether or not the background color is light or not (.345 is the current threshold)
+                     */
+                    private boolean isLight(int color) {
+                        return 1.0-(0.299*Color.red(color) + 0.587*Color.green(color) + 0.114*Color.blue(color))/255 < .5;
+                    }
                 }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<BusIconContainer>() {
@@ -1104,18 +1105,6 @@ public class SelectTransit extends AppCompatActivity implements
                 buf.append(',');
         }
         return buf.toString();
-    }
-
-    /**
-     * Gets the icon by route string
-     *
-     * @since 46
-     * @param route - the route
-     * @return - int that represents the id of the icon
-     */
-    private int getDrawable(String route) {
-        return getResources().getIdentifier("bus_" + route.toLowerCase(), "drawable", getPackageName());
-//        return context.getResources().getDrawable(resourceId);
     }
 
     /**
