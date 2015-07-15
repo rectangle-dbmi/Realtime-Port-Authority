@@ -2,10 +2,19 @@ package rectangledbmi.com.pittsburghrealtimetracker;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.http.HttpResponseCache;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.MainThread;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -51,6 +60,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestLine;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.PATAPI;
+import rectangledbmi.com.pittsburghrealtimetracker.world.BusIconContainer;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimeVehicleResponse;
@@ -186,6 +196,15 @@ public class SelectTransit extends AppCompatActivity implements
      * @since 46
      */
     private Subscription vehicleSubscription;
+
+    /**
+     * Bus icons created from drawable/bus_icon.png
+     *
+     * @since 47
+     */
+    private ConcurrentHashMap<String, Bitmap> busIcons;
+
+    private Subscription busIconGeneration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -406,6 +425,7 @@ public class SelectTransit extends AppCompatActivity implements
     private void createBusList() {
         routeLines = new ConcurrentHashMap<>(getResources().getInteger(R.integer.max_checked));
         busMarkers = new ConcurrentHashMap<>(100);
+        busIcons = new ConcurrentHashMap<>(getResources().getInteger(R.integer.max_checked));
     }
 
     @Override
@@ -459,6 +479,11 @@ public class SelectTransit extends AppCompatActivity implements
         super.onStop();
     }
 
+    @Override
+    protected void onDestroy() {
+        completeBusIconGeneration();
+        super.onDestroy();
+    }
     /**
      * Place to save preferences....
      */
@@ -498,7 +523,69 @@ public class SelectTransit extends AppCompatActivity implements
      */
     private void selectFromList(Route route) {
         buses.add(route.getRoute());
+        getBusIcon(route);
         selectPolyline(route);
+    }
+
+    /**
+     * Creates icon if not made
+     *
+     * @since 47
+     * @param route - the route information
+     */
+    private void getBusIcon(Route route) {
+        busIconGeneration = Observable.just(route)
+                .map(new Func1<Route, BusIconContainer>() {
+                    @Override
+                    public BusIconContainer call(Route route) {
+                        if(busIcons.get(route.getRoute()) != null) return null;
+                        Resources r = getResources();
+                        Drawable busicon = null;
+                        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                            busicon = r.getDrawable(R.drawable.bus_icon, null);
+                        else
+                            busicon = r.getDrawable(R.drawable.bus_icon);
+                        if(busicon != null) {
+                            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                busicon.setTint(route.getRouteColor());
+                            } else
+                                busicon.setColorFilter(route.getRouteColor(), PorterDuff.Mode.SRC_IN);
+                            return new BusIconContainer(route.getRoute(), ((BitmapDrawable)busicon).getBitmap());
+
+                        }
+
+
+                        return null;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<BusIconContainer>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d("bus_icon", "complete");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e("bus_icon_error", e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(BusIconContainer busIconContainer) {
+                        if(busIconContainer != null) {
+                            busIcons.put(busIconContainer.getRoute(), busIconContainer.getBitmap());
+                        }
+                    }
+                });
+    }
+
+    /**
+     * unsubscribes the bus icon generator
+     *
+     * @since 47
+     */
+    private void completeBusIconGeneration() {
+        busIconGeneration.unsubscribe();
     }
 
     /**
@@ -865,7 +952,7 @@ public class SelectTransit extends AppCompatActivity implements
                                         .title(vehicle.getRt() + "(" + vehicle.getVid() + ") " + vehicle.getDes() + (vehicle.isDly() ? " - Delayed" : ""))
                                         .draggable(false)
                                         .rotation(vehicle.getHdg())
-                                        .icon(BitmapDescriptorFactory.fromResource(getDrawable(vehicle.getRt())))
+                                        .icon(BitmapDescriptorFactory.fromBitmap(busIcons.get(vehicle.getRt())))
                                         .anchor((float) 0.453125, (float) 0.25)
                                         .flat(true)
                         ));
@@ -882,7 +969,7 @@ public class SelectTransit extends AppCompatActivity implements
                         marker.setTitle(vehicle.getRt() + "(" + vehicle.getVid() + ") " + vehicle.getDes() + (vehicle.isDly() ? " - Delayed" : ""));
                         marker.setPosition(new LatLng(vehicle.getLat(), vehicle.getLon()));
                         marker.setRotation(vehicle.getHdg());
-                        marker.setIcon(BitmapDescriptorFactory.fromResource(getDrawable(vehicle.getRt())));
+                        marker.setIcon(BitmapDescriptorFactory.fromBitmap(busIcons.get(vehicle.getRt())));
                         marker.setSnippet("Speed: " + vehicle.getSpd());
                     }
                     /**

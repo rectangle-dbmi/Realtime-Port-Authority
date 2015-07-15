@@ -13,7 +13,7 @@
    height="72"
    id="svg3524"
    version="1.1"
-   inkscape:version="0.91 r"
+   inkscape:version="0.91 r13725"
    viewBox="0 0 42 72"
    sodipodi:docname="bus_icon.svg">
   <defs
@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4142136"
-     inkscape:cx="8.9755298"
-     inkscape:cy="-7.8658025"
+     inkscape:zoom="11.313709"
+     inkscape:cx="40.543581"
+     inkscape:cy="43.407716"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:document-units="px"
@@ -36,19 +36,19 @@
      inkscape:snap-page="true"
      inkscape:snap-to-guides="true"
      fit-margin-right="-0.1"
-     showguides="false"
-     inkscape:window-width="959"
-     inkscape:window-height="1028"
-     inkscape:window-x="960"
-     inkscape:window-y="0"
-     inkscape:window-maximized="0"
+     showguides="true"
+     inkscape:window-width="1920"
+     inkscape:window-height="1056"
+     inkscape:window-x="0"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1"
      showborder="false">
     <inkscape:grid
        type="xygrid"
        id="grid3546"
        spacingx="0.7"
        spacingy="0.6"
-       enabled="false" />
+       enabled="true" />
   </sodipodi:namedview>
   <metadata
      id="metadata3529">
@@ -91,15 +91,15 @@
      inkscape:groupmode="layer"
      transform="translate(0,8)">
     <rect
-       style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.89910758px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.91709161px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        id="rect3548"
-       width="41.113205"
-       height="44.594891"
-       x="0.559834"
-       y="19.665033"
-       ry="8.3349667"
-       inkscape:transform-center-x="0.49222749"
-       inkscape:transform-center-y="20.253971"
+       width="41.110992"
+       height="46.399212"
+       x="0.47255236"
+       y="17.932026"
+       ry="8.6722012"
+       inkscape:transform-center-x="0.49220051"
+       inkscape:transform-center-y="21.073453"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <path
@@ -117,9 +117,9 @@
        inkscape:rounded="0"
        inkscape:randomized="0"
        d="m 21,-7.3999996 4.936345,8.5499997 4.936344,8.55 -9.872689,-3e-7 -9.872689,-3e-7 4.936344,-8.5499994 z"
-       inkscape:transform-center-y="-17.497989"
-       transform="matrix(2.1270993,0,0,1.4028033,-23.560421,2.5972946)"
-       inkscape:transform-center-x="0.5"
+       inkscape:transform-center-y="-21.826757"
+       transform="matrix(2.1270289,0,0,1.749838,-23.647332,-2.6356343)"
+       inkscape:transform-center-x="0.49998508"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
   </g>
