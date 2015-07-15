@@ -2,23 +2,24 @@ package rectangledbmi.com.pittsburghrealtimetracker;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.location.Location;
 import android.net.http.HttpResponseCache;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.MainThread;
-import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.media.MediaRouteProvider;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -538,25 +539,48 @@ public class SelectTransit extends AppCompatActivity implements
                 .map(new Func1<Route, BusIconContainer>() {
                     @Override
                     public BusIconContainer call(Route route) {
-                        if(busIcons.get(route.getRoute()) != null) return null;
-                        Resources r = getResources();
-                        Drawable busicon = null;
-                        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                            busicon = r.getDrawable(R.drawable.bus_icon, null);
-                        else
-                            busicon = r.getDrawable(R.drawable.bus_icon);
-                        if(busicon != null) {
-                            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                busicon.setTint(route.getRouteColor());
-                            } else
-                                busicon.setColorFilter(route.getRouteColor(), PorterDuff.Mode.SRC_IN);
-                            return new BusIconContainer(route.getRoute(), ((BitmapDrawable)busicon).getBitmap());
+                        if (busIcons.get(route.getRoute()) != null) return null;
+                        Bitmap bus_icon = BitmapFactory.decodeResource(getResources(), R.drawable.bus_icon);
+                        Bitmap busicon = Bitmap.createBitmap(bus_icon.getWidth(), bus_icon.getHeight(), bus_icon.getConfig());
+                        Canvas canvas = new Canvas(busicon);
+                        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                        paint.setColorFilter(new PorterDuffColorFilter(route.getRouteColor(), PorterDuff.Mode.MULTIPLY));
+                        canvas.drawBitmap(bus_icon, 0f, 0f, paint);
+                        drawText(canvas, paint, bus_icon, getResources().getDisplayMetrics().density, route.getRoute(), route.getColorAsString());
 
-                        }
-
-
-                        return null;
+                        return new BusIconContainer(route.getRoute(), busicon);
                     }
+
+                    /**
+                     * Draws text into the canvas...
+                     */
+                    private void drawText(Canvas canvas, Paint paint, Bitmap bus_icon, float fontScale, String routeNumber, String routeColor) {
+                        paint.setColor(Color.BLACK);
+                        paint.setTextSize(8 * fontScale);
+                        Rect fontBounds = new Rect();
+                        paint.getTextBounds(routeNumber, 0, routeNumber.length(), fontBounds);
+                        int x =  bus_icon.getWidth()/2;
+                        Log.d("bus_icon_text", "x: " + Integer.toString(x));
+
+                        int y = (int)((double)bus_icon.getHeight()/1.25);
+                        Log.d("bus_icon_text", "y: " + Integer.toString(y));
+                        paint.setTextAlign(Paint.Align.CENTER);
+                        canvas.drawText(routeNumber, x, y, paint);
+                    }
+
+//                    /**
+//                     * Decides whether or not the color (background color) is light or not.
+//                     *
+//                     * Formula was taken from here:
+//                     * http://stackoverflow.com/questions/24260853/check-if-color-is-dark-or-light-in-android
+//                     *
+//                     * @since 47
+//                     * @param color the background color being fed
+//                     * @return whether or not the background color is light or not (.345 is the current threshold)
+//                     */
+//                    private boolean isLight(int color) {
+//                        return 1.0-(0.299*Color.red(color) + 0.587*Color.green(color) + 0.114*Color.blue(color))/255 < .5;
+//                    }
                 }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<BusIconContainer>() {
@@ -572,7 +596,7 @@ public class SelectTransit extends AppCompatActivity implements
 
                     @Override
                     public void onNext(BusIconContainer busIconContainer) {
-                        if(busIconContainer != null) {
+                        if (busIconContainer != null) {
                             busIcons.put(busIconContainer.getRoute(), busIconContainer.getBitmap());
                         }
                     }
@@ -585,7 +609,8 @@ public class SelectTransit extends AppCompatActivity implements
      * @since 47
      */
     private void completeBusIconGeneration() {
-        busIconGeneration.unsubscribe();
+        if(busIconGeneration != null)
+            busIconGeneration.unsubscribe();
     }
 
     /**
@@ -806,6 +831,7 @@ public class SelectTransit extends AppCompatActivity implements
         Route currentRoute;
         for(String route : buses) {
             currentRoute = mNavigationDrawerFragment.getSelectedRoute(route);
+            getBusIcon(currentRoute);
             selectPolyline(currentRoute);
             mNavigationDrawerFragment.setTrue(currentRoute.getListPosition());
         }
@@ -947,13 +973,14 @@ public class SelectTransit extends AppCompatActivity implements
                      */
                     private void addMarker(Vehicle vehicle) {
                         Log.d("marker_add", "adding_marker " + Integer.toString(vehicle.getVid()));
+                        Log.d("marker_add", busIcons.get(vehicle.getRt()).toString());
                         busMarkers.put(vehicle.getVid(), mMap.addMarker(new MarkerOptions()
                                         .position(new LatLng(vehicle.getLat(), vehicle.getLon()))
                                         .title(vehicle.getRt() + "(" + vehicle.getVid() + ") " + vehicle.getDes() + (vehicle.isDly() ? " - Delayed" : ""))
                                         .draggable(false)
                                         .rotation(vehicle.getHdg())
                                         .icon(BitmapDescriptorFactory.fromBitmap(busIcons.get(vehicle.getRt())))
-                                        .anchor((float) 0.453125, (float) 0.25)
+                                        .anchor((float) .5, (float) 0.5)
                                         .flat(true)
                         ));
                     }

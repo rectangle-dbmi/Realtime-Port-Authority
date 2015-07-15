@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.313709"
-     inkscape:cx="40.543581"
-     inkscape:cy="43.407716"
+     inkscape:zoom="4"
+     inkscape:cx="93.149943"
+     inkscape:cy="66.488728"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:document-units="px"
@@ -58,7 +58,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
         <cc:license
            rdf:resource="http://scripts.sil.org/OFL" />
       </cc:Work>
@@ -91,7 +91,7 @@
      inkscape:groupmode="layer"
      transform="translate(0,8)">
     <rect
-       style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.91709161px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.917;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
        id="rect3548"
        width="41.110992"
        height="46.399212"
@@ -100,8 +100,9 @@
        ry="8.6722012"
        inkscape:transform-center-x="0.49220051"
        inkscape:transform-center-y="21.073453"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90" />
+       inkscape:export-xdpi="154.18295"
+       inkscape:export-ydpi="154.18295"
+       inkscape:export-filename="/home/epicstar/git/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/drawable-xxxhdpi/bus_icon.png" />
     <path
        sodipodi:type="star"
        style="fill:#000000;fill-opacity:1"
@@ -120,7 +121,8 @@
        inkscape:transform-center-y="-21.826757"
        transform="matrix(2.1270289,0,0,1.749838,-23.647332,-2.6356343)"
        inkscape:transform-center-x="0.49998508"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90" />
+       inkscape:export-xdpi="154.18295"
+       inkscape:export-ydpi="154.18295"
+       inkscape:export-filename="/home/epicstar/git/Realtime-Port-Authority/Android/Pittsburgh_Realtime_Tracker/app/src/main/res/drawable-xxxhdpi/bus_icon.png" />
   </g>
 </svg>
