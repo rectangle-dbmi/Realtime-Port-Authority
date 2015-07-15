@@ -9,7 +9,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
-import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.location.Location;
 import android.net.http.HttpResponseCache;
@@ -19,7 +18,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.media.MediaRouteProvider;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -546,7 +544,7 @@ public class SelectTransit extends AppCompatActivity implements
                         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
                         paint.setColorFilter(new PorterDuffColorFilter(route.getRouteColor(), PorterDuff.Mode.MULTIPLY));
                         canvas.drawBitmap(bus_icon, 0f, 0f, paint);
-                        drawText(canvas, paint, bus_icon, getResources().getDisplayMetrics().density, route.getRoute(), route.getColorAsString());
+//                        drawText(canvas, paint, bus_icon, getResources().getDisplayMetrics().density, route.getRoute(), route.getColorAsString());
 
                         return new BusIconContainer(route.getRoute(), busicon);
                     }
