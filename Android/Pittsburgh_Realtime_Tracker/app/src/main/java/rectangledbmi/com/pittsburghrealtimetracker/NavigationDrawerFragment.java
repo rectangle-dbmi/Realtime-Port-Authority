@@ -179,7 +179,7 @@ public class NavigationDrawerFragment extends Fragment {
         colors = getResources().getStringArray(R.array.buscolors);
 
         routes = new ArrayList<Route>(numbers.length);
-        routeHashMap = new HashMap<String, Route>();
+        routeHashMap = new HashMap<String, Route>(numbers.length);
         Route currentRoute;
         for(int i=0;i<numbers.length;++i) {
             currentRoute = new Route(numbers[i], descriptions[i], colors[i], i);
@@ -233,7 +233,7 @@ public class NavigationDrawerFragment extends Fragment {
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
-                ((SelectTransit)getActivity()).clearAndAddToMap();
+                ((SelectTransit)getActivity()).restoreBuses();
                 if (!isAdded()) {
                     return;
                 }
@@ -486,6 +486,7 @@ public class NavigationDrawerFragment extends Fragment {
      * @return the route information by rt
      */
     public Route getSelectedRoute(String rt) {
+        Log.d("bus_icon", Integer.toString(routeHashMap.size()));
         return routeHashMap.get(rt);
     }
 
