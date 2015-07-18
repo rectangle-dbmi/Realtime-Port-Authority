@@ -44,6 +44,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -73,6 +74,8 @@ import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
+import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
@@ -522,8 +525,89 @@ public class SelectTransit extends AppCompatActivity implements
      */
     private void selectFromList(Route route) {
         buses.add(route.getRoute());
-        getBusIcon(route);
+//        getBusIcons(route.getRoute());
         selectPolyline(route);
+    }
+
+    /**
+     * Creates icon if not made
+     *
+     * @since 48
+     * @param busRoutes - the string of routes to add as icons
+     */
+    private void getBusIcons(String... busRoutes) {
+        List<String> routeList = Arrays.asList(busRoutes);
+        Observable<String> iconObservable = Observable.from(routeList)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(Schedulers.io());
+        busIconGeneration = iconObservable.subscribe(
+                new Action1<String>() {
+                    @Override
+                    public void call(String routeName) {
+                        if (!busIcons.containsKey(routeName)) {
+                            Log.d("bus_icon_get", routeName);
+                            Log.d("bus_icon_get", routeName + ": " + mNavigationDrawerFragment.getSelectedRoute(routeName).toString());
+                            makeBitmap(mNavigationDrawerFragment.getSelectedRoute(routeName));
+                        }
+                    }
+
+                    private void makeBitmap(Route route) {
+                        Bitmap bus_icon = BitmapFactory.decodeResource(getResources(), R.drawable.bus_icon);
+                        Bitmap busicon = Bitmap.createBitmap(bus_icon.getWidth(), bus_icon.getHeight(), bus_icon.getConfig());
+                        Canvas canvas = new Canvas(busicon);
+                        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                        paint.setColorFilter(new PorterDuffColorFilter(route.getRouteColor(), PorterDuff.Mode.MULTIPLY));
+                        canvas.drawBitmap(bus_icon, 0f, 0f, paint);
+                        drawText(canvas, bus_icon, getResources().getDisplayMetrics().density, route.getRoute(), route.getColorAsString());
+                        busIcons.put(route.getRoute(), busicon);
+                    }
+
+                    private void drawText(Canvas canvas, Bitmap bus_icon, float fontScale, String routeNumber, String routeColor) {
+                        int currentColor = Color.parseColor(routeColor);
+                        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                        paint.setColor(isLight(currentColor) ? Color.BLACK : Color.WHITE);
+                        paint.setTextSize(8 * fontScale);
+                        Rect fontBounds = new Rect();
+                        paint.getTextBounds(routeNumber, 0, routeNumber.length(), fontBounds);
+                         int x = bus_icon.getWidth() / 2;
+                        Log.d("bus_icon_text", "x: " + Integer.toString(x));
+
+                        int y = (int) ((double) bus_icon.getHeight() / 1.25);
+                        Log.d("bus_icon_text", "y: " + Integer.toString(y));
+                        paint.setTextAlign(Paint.Align.CENTER);
+                        canvas.drawText(routeNumber, x, y, paint);
+                    }
+
+                    /**
+                     * Decides whether or not the color (background color) is light or not.
+                     * <p>
+                     * Formula was taken from here:
+                     * http://stackoverflow.com/questions/24260853/check-if-color-is-dark-or-light-in-android
+                     *
+                     * @param color the background color being fed
+                     * @return whether or not the background color is light or not (.345 is the current threshold)
+                     * @since 47
+                     */
+                    private boolean isLight(int color) {
+                        return 1.0 - (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255 < .5;
+                    }
+                },
+                new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        if (throwable.getMessage() != null) {
+                            Log.e("bus_icon_error", throwable.getMessage());
+                        }
+                        Log.e("bus_icon_error", Log.getStackTraceString(throwable));
+                    }
+                },
+                new Action0() {
+                    @Override
+                    public void call() {
+                        clearAndAddToMap();
+                    }
+                }
+        );
     }
 
     /**
@@ -559,26 +643,27 @@ public class SelectTransit extends AppCompatActivity implements
                         paint.setTextSize(8 * fontScale);
                         Rect fontBounds = new Rect();
                         paint.getTextBounds(routeNumber, 0, routeNumber.length(), fontBounds);
-                        int x =  bus_icon.getWidth()/2;
+                        int x = bus_icon.getWidth() / 2;
                         Log.d("bus_icon_text", "x: " + Integer.toString(x));
 
-                        int y = (int)((double)bus_icon.getHeight()/1.25);
+                        int y = (int) ((double) bus_icon.getHeight() / 1.25);
                         Log.d("bus_icon_text", "y: " + Integer.toString(y));
                         paint.setTextAlign(Paint.Align.CENTER);
                         canvas.drawText(routeNumber, x, y, paint);
                     }
+
                     /**
                      * Decides whether or not the color (background color) is light or not.
-                     *
+                     * <p>
                      * Formula was taken from here:
                      * http://stackoverflow.com/questions/24260853/check-if-color-is-dark-or-light-in-android
                      *
-                     * @since 47
                      * @param color the background color being fed
                      * @return whether or not the background color is light or not (.345 is the current threshold)
+                     * @since 47
                      */
                     private boolean isLight(int color) {
-                        return 1.0-(0.299*Color.red(color) + 0.587*Color.green(color) + 0.114*Color.blue(color))/255 < .5;
+                        return 1.0 - (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255 < .5;
                     }
                 }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -637,6 +722,7 @@ public class SelectTransit extends AppCompatActivity implements
      */
     private void deselectFromList(Route route) {
         buses.remove(route.getRoute());
+        busIcons.remove(route.getRoute());
         Log.d("removed_bus", route.getRoute());
         deselectPolyline(route.getRoute());
     }
@@ -750,10 +836,11 @@ public class SelectTransit extends AppCompatActivity implements
 //        clearMap();
         setMapListeners();
         mMap.setMyLocationEnabled(true);
+        restoreBuses();
 //        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
 //        if (sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
 //            buses.clear();
-        clearAndAddToMap();
+//        clearAndAddToMap();
 //            final Handler handler = new Handler();
 //            handler.postDelayed(new Runnable() {
 //                @Override
@@ -763,6 +850,10 @@ public class SelectTransit extends AppCompatActivity implements
 //            }, 100);
 
 //        }
+    }
+
+    public void restoreBuses() {
+        getBusIcons(buses.toArray(new String[buses.size()]));
     }
 
 
@@ -830,7 +921,6 @@ public class SelectTransit extends AppCompatActivity implements
         Route currentRoute;
         for(String route : buses) {
             currentRoute = mNavigationDrawerFragment.getSelectedRoute(route);
-            getBusIcon(currentRoute);
             selectPolyline(currentRoute);
             mNavigationDrawerFragment.setTrue(currentRoute.getListPosition());
         }
@@ -850,11 +940,23 @@ public class SelectTransit extends AppCompatActivity implements
     }
 
     /**
+     * Create a toast
+     * @since 47
+     * @param string - string to show
+     * @param length - length to show message
+     */
+    private void showToast(String string, int length) {
+        Toast.makeText(this, string, length).show();
+    }
+
+    /**
      * adds buses to map. or else the map will be clear...
      */
+
     protected synchronized void addBuses() {
         if(buses.isEmpty())
             return;
+        if(busIconGeneration != null) busIconGeneration.unsubscribe();
         Log.d("adding buses", buses.toString());
         vehicleSubscription = Observable.timer(0, 10, TimeUnit.SECONDS)
                 .flatMap(new Func1<Long, Observable<VehicleResponse>>() {
@@ -865,6 +967,7 @@ public class SelectTransit extends AppCompatActivity implements
                 }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<VehicleResponse>() {
+
 
                     /**
                      * Shows whether to displays or not (will only show errors once on the timer)
@@ -921,7 +1024,7 @@ public class SelectTransit extends AppCompatActivity implements
                         }
                     }
 
-                    /**
+/**
                      * Handle vehicle updates... either...
                      * <ul>
                      *     <li>add marker if not on {@link SelectTransit#busMarkers}</li>
@@ -933,6 +1036,7 @@ public class SelectTransit extends AppCompatActivity implements
                      * @param vehicles - list of vehicles from API
                      */
 
+
                     private void onHandleVehicles(List<Vehicle> vehicles) {
                         // Delete markers in here
                         Set<Integer> routesOnMap = new HashSet<Integer>(busMarkers.keySet());
@@ -942,7 +1046,7 @@ public class SelectTransit extends AppCompatActivity implements
                         removeBuses(routesOnMap);
                     }
 
-                    /**
+/**
                      * Handle vehicle updates and adds...
                      * <ul>
                      *     <li>add marker if not on {@link SelectTransit#busMarkers} - {@link #addMarker(Vehicle)}</li>
@@ -953,6 +1057,7 @@ public class SelectTransit extends AppCompatActivity implements
                      * @param vehicle - vehicle to be added
                      * @param routesOnMap - vid already in here
                      */
+
                     private void addOrUpdateMarkers(Vehicle vehicle, Set<Integer> routesOnMap) {
                         int vid = vehicle.getVid();
                         Marker marker = busMarkers.get(vid);
@@ -965,11 +1070,12 @@ public class SelectTransit extends AppCompatActivity implements
 
                     }
 
-                    /**
+/**
                      * adds marker not in {@link SelectTransit#busMarkers}
                      * @since 46
                      * @param vehicle - the vehicle to add
                      */
+
                     private void addMarker(Vehicle vehicle) {
                         Log.d("marker_add", "adding_marker " + Integer.toString(vehicle.getVid()));
                         Log.d("marker_add", busIcons.get(vehicle.getRt()).toString());
@@ -984,12 +1090,13 @@ public class SelectTransit extends AppCompatActivity implements
                         ));
                     }
 
-                    /**
+/**
                      * Updates marker information on map
                      * @since 46
                      * @param vehicle - vehicle to update
                      * @param marker - marker to update
                      */
+
                     private void updateMarker(Vehicle vehicle, Marker marker) {
                         Log.d("marker_update", "updating_pointer");
                         marker.setTitle(vehicle.getRt() + "(" + vehicle.getVid() + ") " + vehicle.getDes() + (vehicle.isDly() ? " - Delayed" : ""));
@@ -998,13 +1105,14 @@ public class SelectTransit extends AppCompatActivity implements
                         marker.setIcon(BitmapDescriptorFactory.fromBitmap(busIcons.get(vehicle.getRt())));
                         marker.setSnippet("Speed: " + vehicle.getSpd());
                     }
-                    /**
+/**
                      * Prints the errors
                      *
                      * @since 46
                      * @param error - the Error Object
                      * @return a stringBuilder to show errors
                      */
+
                     private StringBuilder printErrors(Error error) {
                         if(error != null) {
                             StringBuilder st = new StringBuilder();
@@ -1023,13 +1131,14 @@ public class SelectTransit extends AppCompatActivity implements
 
                     }
 
-                    /**
+/**
                      * Creates appends to a StringBuilder
                      *
                      * @since 46
                      * @param st - stringbuilder to make
                      * @param s - strings to add
                      */
+
                     private void addMsg(StringBuilder st, String... s) {
                         //TODO: maybe do this in another thread
                         if(s != null) {
@@ -1041,16 +1150,6 @@ public class SelectTransit extends AppCompatActivity implements
                         }
                     }
                 });
-    }
-
-    /**
-     * Create a toast
-     * @since 47
-     * @param string - string to show
-     * @param length - length to show message
-     */
-    private void showToast(String string, int length) {
-        Toast.makeText(this, string, length).show();
     }
 
     /**

@@ -23,8 +23,8 @@ android {
         applicationId "rectangledbmi.com.pittsburghrealtimetracker"
         minSdkVersion 16
         targetSdkVersion 22
-        versionCode 48
-        versionName "4.5"
+        versionCode 49
+        versionName "4.51"
     }
     buildTypes {
 
