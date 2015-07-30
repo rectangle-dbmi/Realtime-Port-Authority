@@ -653,6 +653,7 @@ public class SelectTransit extends AppCompatActivity implements
     private void deselectFromList(Route route) {
         buses.remove(route.getRoute());
         busIcons.remove(route.getRoute());
+        removeBuses();
         Log.d("removed_bus", route.getRoute());
         deselectPolyline(route.getRoute());
     }
@@ -951,11 +952,11 @@ public class SelectTransit extends AppCompatActivity implements
 
                     private void onHandleVehicles(List<Vehicle> vehicles) {
                         // Delete markers in here
-                        Set<Integer> routesOnMap = new HashSet<Integer>(busMarkers.keySet());
+//                        Set<Integer> routesOnMap = new HashSet<Integer>(busMarkers.keySet());
                         for(Vehicle vehicle : vehicles) {
-                            addOrUpdateMarkers(vehicle, routesOnMap);
+                            addOrUpdateMarkers(vehicle);
                         }
-                        removeBuses(routesOnMap);
+//                        removeBuses(routesOnMap);
                     }
 
 /**
@@ -967,16 +968,14 @@ public class SelectTransit extends AppCompatActivity implements
                      *
                      * @since 46
                      * @param vehicle - vehicle to be added
-                     * @param routesOnMap - vid already in here
                      */
 
-                    private void addOrUpdateMarkers(Vehicle vehicle, Set<Integer> routesOnMap) {
+                    private void addOrUpdateMarkers(Vehicle vehicle) {
                         int vid = vehicle.getVid();
                         Marker marker = busMarkers.get(vid);
                         if(marker == null) {
                             addMarker(vehicle);
                         } else {
-                            routesOnMap.remove(vid);
                             updateMarker(vehicle, marker);
                         }
 
