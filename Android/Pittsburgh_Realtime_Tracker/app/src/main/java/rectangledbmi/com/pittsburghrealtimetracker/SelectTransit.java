@@ -60,7 +60,6 @@ import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestLine;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.PATAPI;
-import rectangledbmi.com.pittsburghrealtimetracker.world.BusIconContainer;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimeVehicleResponse;
@@ -448,7 +447,11 @@ public class SelectTransit extends AppCompatActivity implements
 //        } else
 ////            setUpMapIfNeeded();
 //        if(buses != null) {
-            clearAndAddToMap();
+        if(mMap != null) {
+
+            restoreBuses();
+        }
+
 //        }
     }
 
@@ -464,6 +467,7 @@ public class SelectTransit extends AppCompatActivity implements
     protected void onPause() {
         Log.d("main_destroy", "SelectTransit onPause");
         savePreferences();
+        removeBuses();
         stopTimer();
         super.onPause();
 
@@ -536,6 +540,8 @@ public class SelectTransit extends AppCompatActivity implements
      * @param busRoutes - the string of routes to add as icons
      */
     private void getBusIcons(String... busRoutes) {
+        if(busIconGeneration != null)
+            busIconGeneration.unsubscribe();
         List<String> routeList = Arrays.asList(busRoutes);
         Observable<String> iconObservable = Observable.from(routeList)
                 .subscribeOn(Schedulers.newThread())
@@ -569,7 +575,7 @@ public class SelectTransit extends AppCompatActivity implements
                         paint.setTextSize(8 * fontScale);
                         Rect fontBounds = new Rect();
                         paint.getTextBounds(routeNumber, 0, routeNumber.length(), fontBounds);
-                         int x = bus_icon.getWidth() / 2;
+                        int x = bus_icon.getWidth() / 2;
                         Log.d("bus_icon_text", "x: " + Integer.toString(x));
 
                         int y = (int) ((double) bus_icon.getHeight() / 1.25);
@@ -610,82 +616,6 @@ public class SelectTransit extends AppCompatActivity implements
         );
     }
 
-    /**
-     * Creates icon if not made
-     *
-     * @since 47
-     * @param route - the route information
-     */
-    private void getBusIcon(Route route) {
-        busIconGeneration = Observable.just(route)
-                .map(new Func1<Route, BusIconContainer>() {
-                    @Override
-                    public BusIconContainer call(Route route) {
-                        if (busIcons.get(route.getRoute()) != null) return null;
-                        Bitmap bus_icon = BitmapFactory.decodeResource(getResources(), R.drawable.bus_icon);
-                        Bitmap busicon = Bitmap.createBitmap(bus_icon.getWidth(), bus_icon.getHeight(), bus_icon.getConfig());
-                        Canvas canvas = new Canvas(busicon);
-                        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-                        paint.setColorFilter(new PorterDuffColorFilter(route.getRouteColor(), PorterDuff.Mode.MULTIPLY));
-                        canvas.drawBitmap(bus_icon, 0f, 0f, paint);
-                        drawText(canvas, bus_icon, getResources().getDisplayMetrics().density, route.getRoute(), route.getColorAsString());
-
-                        return new BusIconContainer(route.getRoute(), busicon);
-                    }
-
-                    /**
-                     * Draws text into the canvas...
-                     */
-                    private void drawText(Canvas canvas, Bitmap bus_icon, float fontScale, String routeNumber, String routeColor) {
-                        int currentColor = Color.parseColor(routeColor);
-                        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-                        paint.setColor(isLight(currentColor) ? Color.BLACK : Color.WHITE);
-                        paint.setTextSize(8 * fontScale);
-                        Rect fontBounds = new Rect();
-                        paint.getTextBounds(routeNumber, 0, routeNumber.length(), fontBounds);
-                        int x = bus_icon.getWidth() / 2;
-                        Log.d("bus_icon_text", "x: " + Integer.toString(x));
-
-                        int y = (int) ((double) bus_icon.getHeight() / 1.25);
-                        Log.d("bus_icon_text", "y: " + Integer.toString(y));
-                        paint.setTextAlign(Paint.Align.CENTER);
-                        canvas.drawText(routeNumber, x, y, paint);
-                    }
-
-                    /**
-                     * Decides whether or not the color (background color) is light or not.
-                     * <p>
-                     * Formula was taken from here:
-                     * http://stackoverflow.com/questions/24260853/check-if-color-is-dark-or-light-in-android
-                     *
-                     * @param color the background color being fed
-                     * @return whether or not the background color is light or not (.345 is the current threshold)
-                     * @since 47
-                     */
-                    private boolean isLight(int color) {
-                        return 1.0 - (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255 < .5;
-                    }
-                }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<BusIconContainer>() {
-                    @Override
-                    public void onCompleted() {
-                        Log.d("bus_icon", "complete");
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.e("bus_icon_error", e.getMessage());
-                    }
-
-                    @Override
-                    public void onNext(BusIconContainer busIconContainer) {
-                        if (busIconContainer != null) {
-                            busIcons.put(busIconContainer.getRoute(), busIconContainer.getBitmap());
-                        }
-                    }
-                });
-    }
 
     /**
      * unsubscribes the bus icon generator
@@ -723,6 +653,7 @@ public class SelectTransit extends AppCompatActivity implements
     private void deselectFromList(Route route) {
         buses.remove(route.getRoute());
         busIcons.remove(route.getRoute());
+        removeBuses();
         Log.d("removed_bus", route.getRoute());
         deselectPolyline(route.getRoute());
     }
@@ -832,26 +763,15 @@ public class SelectTransit extends AppCompatActivity implements
      * This is done in a thread.
      */
     protected void setUpMap() {
-//        System.out.println("restore...");
-//        clearMap();
         setMapListeners();
         mMap.setMyLocationEnabled(true);
         restoreBuses();
-//        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-//        if (sp.getInt(BUSLIST_SIZE, -1) == getResources().getStringArray(R.array.buses).length) {
-//            buses.clear();
-//        clearAndAddToMap();
-//            final Handler handler = new Handler();
-//            handler.postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    restorePolylines();
-//                }
-//            }, 100);
-
-//        }
     }
 
+    /**
+     * Restore buses by checking icons then adding them to map
+     * @since 50
+     */
     public void restoreBuses() {
         getBusIcons(buses.toArray(new String[buses.size()]));
     }
@@ -929,7 +849,7 @@ public class SelectTransit extends AppCompatActivity implements
     /**
      * Stops the bus refresh, then adds buses to the map
      */
-    protected synchronized void clearAndAddToMap() {
+    private synchronized void clearAndAddToMap() {
         if (mMap != null) {
             Log.d("stop_add_buses", buses.toString());
             stopTimer();
@@ -953,10 +873,7 @@ public class SelectTransit extends AppCompatActivity implements
      * adds buses to map. or else the map will be clear...
      */
 
-    protected synchronized void addBuses() {
-        if(buses.isEmpty())
-            return;
-        if(busIconGeneration != null) busIconGeneration.unsubscribe();
+    private synchronized void addBuses() {
         Log.d("adding buses", buses.toString());
         vehicleSubscription = Observable.timer(0, 10, TimeUnit.SECONDS)
                 .flatMap(new Func1<Long, Observable<VehicleResponse>>() {
@@ -988,11 +905,11 @@ public class SelectTransit extends AppCompatActivity implements
                                 printRetrofitError((RetrofitError)e);
                             }
 //                            makeSnackbar(e.getLocalizedMessage(), Snackbar.LENGTH_LONG);
-
+                            Log.e("bus_vehicle_error", e.getMessage());
 //                            Toast.makeText(appcontext, e.getMessage(), Toast.LENGTH_LONG).show();
                         }
                         Log.e("bus_vehicle_error", e.getClass().getName());
-                        Log.e("bus_vehicle_error", e.getMessage());
+
                         Log.e("bus_vehicle_error", Log.getStackTraceString(e));
                     }
 
@@ -1003,7 +920,7 @@ public class SelectTransit extends AppCompatActivity implements
                             List<Vehicle> vehicles = response.getVehicle();
                             List<Error> errors = response.getError();
                             //update buses
-                            Log.d("bus_vehicle_error", Boolean.toString(showedErrors));
+                            Log.d("bus_vehicle_err_pres", Boolean.toString(showedErrors));
                             if(!errors.isEmpty() && !showedErrors) {
                                 showedErrors = true;
                                 for (Error error : errors) {
@@ -1013,14 +930,10 @@ public class SelectTransit extends AppCompatActivity implements
                             }
                             if (vehicles.size() > 0) {
                                 onHandleVehicles(vehicles);
-                            }
-                            if (vehicles.size() == 0) {
+                            } else if (vehicles.size() == 0) {
                                 removeBuses();
                                 stopTimer();
                             }
-
-                            //add errors
-
                         }
                     }
 
@@ -1039,11 +952,11 @@ public class SelectTransit extends AppCompatActivity implements
 
                     private void onHandleVehicles(List<Vehicle> vehicles) {
                         // Delete markers in here
-                        Set<Integer> routesOnMap = new HashSet<Integer>(busMarkers.keySet());
+//                        Set<Integer> routesOnMap = new HashSet<Integer>(busMarkers.keySet());
                         for(Vehicle vehicle : vehicles) {
-                            addOrUpdateMarkers(vehicle, routesOnMap);
+                            addOrUpdateMarkers(vehicle);
                         }
-                        removeBuses(routesOnMap);
+//                        removeBuses(routesOnMap);
                     }
 
 /**
@@ -1055,16 +968,14 @@ public class SelectTransit extends AppCompatActivity implements
                      *
                      * @since 46
                      * @param vehicle - vehicle to be added
-                     * @param routesOnMap - vid already in here
                      */
 
-                    private void addOrUpdateMarkers(Vehicle vehicle, Set<Integer> routesOnMap) {
+                    private void addOrUpdateMarkers(Vehicle vehicle) {
                         int vid = vehicle.getVid();
                         Marker marker = busMarkers.get(vid);
                         if(marker == null) {
                             addMarker(vehicle);
                         } else {
-                            routesOnMap.remove(vid);
                             updateMarker(vehicle, marker);
                         }
 
@@ -1102,8 +1013,6 @@ public class SelectTransit extends AppCompatActivity implements
                         marker.setTitle(vehicle.getRt() + "(" + vehicle.getVid() + ") " + vehicle.getDes() + (vehicle.isDly() ? " - Delayed" : ""));
                         marker.setPosition(new LatLng(vehicle.getLat(), vehicle.getLon()));
                         marker.setRotation(vehicle.getHdg());
-                        marker.setIcon(BitmapDescriptorFactory.fromBitmap(busIcons.get(vehicle.getRt())));
-                        marker.setSnippet("Speed: " + vehicle.getSpd());
                     }
 /**
                      * Prints the errors
@@ -1121,6 +1030,8 @@ public class SelectTransit extends AppCompatActivity implements
                                 st.append(" ");
                                 addMsg(st, error.getRt());
 //                                buses.remove(error.getRt().trim()); TODO: activate this later when we figure out how to handle no route -> next day there's a route
+                            } else if(error.getMsg().contains("specified") && error.getMsg().contains("rt")) {
+                                addMsg(st, getString(R.string.cleared));
                             }
                             else
                                 addMsg(st, error.getMsg());
@@ -1336,7 +1247,9 @@ public class SelectTransit extends AppCompatActivity implements
 
         currentLocation = location;
         if(mMap != null && notCentered) {
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
+            if ((currentLocation.getLatitude() > 39.859673 && currentLocation.getLatitude() < 40.992847) &&
+                    (currentLocation.getLongitude() > -80.372815 && currentLocation.getLongitude() < -79.414258))
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
             notCentered = false;
         }
     }
