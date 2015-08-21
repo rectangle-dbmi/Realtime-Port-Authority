@@ -1,13 +1,5 @@
 apply plugin: 'com.android.application'
 
-
-
-
-android.buildTypes.each {
-
-
-
-}
 //must define PAT_API_KEY in gradle.properties by adding pat_api=<KEY> on the last line non-commented
 def PAT_API_KEY = '"' + pat_api + '"' ?: '"Define Port Authority TrueTime API Key in gradle.properties"';
 
