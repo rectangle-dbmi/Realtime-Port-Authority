@@ -1,7 +1,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent" android:layout_height="fill_parent" android:background="@color/background_material_dark" android:fillViewport="true">
 <RelativeLayout
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_height="wrap_content"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:padding="12dp"
     >
@@ -36,7 +36,6 @@
         android:layout_below="@+id/opening"
         android:text="@string/source_code"
         android:autoLink="web"
-        android:textColor="@color/link_text_material_dark"
     />
     <TextView
         android:layout_width="wrap_content"

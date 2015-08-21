@@ -42,6 +42,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.squareup.leakcanary.LeakCanary;
 
 import java.io.File;
 import java.util.Arrays;
@@ -210,6 +211,7 @@ public class SelectTransit extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        LeakCanary.install(getApplication());
         setContentView(R.layout.activity_select_transit);
         checkSDCardData();
         mNavigationDrawerFragment = (NavigationDrawerFragment)
