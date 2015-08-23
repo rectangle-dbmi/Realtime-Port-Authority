@@ -214,6 +214,7 @@ public class SelectTransit extends AppCompatActivity implements
         LeakCanary.install(getApplication());
         setContentView(R.layout.activity_select_transit);
         checkSDCardData();
+        restoreActionBar();
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
 
@@ -717,7 +718,7 @@ public class SelectTransit extends AppCompatActivity implements
             // if the drawer is not showing. Otherwise, let the drawer
             // decide what to show in the action bar.
             getMenuInflater().inflate(R.menu.select_transit, menu);
-            restoreActionBar();
+//            restoreActionBar();
             return true;
         }
         return super.onCreateOptionsMenu(menu);
