@@ -11,7 +11,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -73,7 +72,6 @@ public class NavigationDrawerFragment extends Fragment {
     private boolean[] mSelected;
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
-    private Toolbar toolbar;
 
     /**
      * Object that contains all routes made from the list of routes
@@ -204,8 +202,6 @@ public class NavigationDrawerFragment extends Fragment {
         mFragmentContainerView = getActivity().findViewById(fragmentId);
         mDrawerLayout = drawerLayout;
 
-        toolbar = (Toolbar) getView().findViewById(R.id.toolbar);
-
         // set a custom shadow that overlays the main content when the drawer opens
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         // set up the drawer's list view with items and click listener
@@ -220,16 +216,9 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerToggle = new ActionBarDrawerToggle(
                 getActivity(),                    /* host Activity */
                 mDrawerLayout,                    /* DrawerLayout object */
-                toolbar,             /* toolbar to put the navigationdrawer toggle on... */
                 R.string.navigation_drawer_open,  /* "open drawer" description for accessibility */
                 R.string.navigation_drawer_close  /* "close drawer" description for accessibility */
-        )/*        mDrawerToggle = new ActionBarDrawerToggle(
-                getActivity(),                    *//* host Activity *//*
-                mDrawerLayout,                    *//* DrawerLayout object *//*
-                R.drawable.ic_drawer,             *//* nav drawer image to replace 'Up' caret *//*
-                R.string.navigation_drawer_open,  *//* "open drawer" description for accessibility *//*
-                R.string.navigation_drawer_close  *//* "close drawer" description for accessibility *//*
-        )*/ {
+        ) {
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
@@ -247,7 +236,6 @@ public class NavigationDrawerFragment extends Fragment {
                 if (!isAdded()) {
                     return;
                 }
-
                 if (!mUserLearnedDrawer) {
                     // The user manually opened the drawer; store this flag to prevent auto-showing
                     // the navigation drawer automatically in the future.
