@@ -299,7 +299,9 @@
     <string name="hello_world">Hello world!</string>
     <!-- No Data Dialog -->
     <string name="data_not_available_title">No Data Available</string>
-    <string name="data_not_available">Your cell phone data seems to be off or unavailable. Please close the app and enable your data or wait for the signal to be found.</string>
+    <string name="data_not_available">Your cell phone data seems to be off or unavailable. Please
+        close the app and enable your data or wait for the signal to be found.
+    </string>
     <string name="data_close_app">Close App</string>
     <string name="data_dismiss">Cancel</string>
     <!-- About Strings -->
@@ -312,8 +314,15 @@
     <string name="directory_in_sdcard">/Data/rectangledbmi.com.pittsburghrealtimetracker</string>
     <string name="zoom_level">15.0</string>
     <string name="cleared">Map cleared and routes reset.</string>
-    <string name="disclaim">DISCLAMER: We are not responsible for which buses and routes are being tracked as we are only getting the information from Port Authority. If a certain route or bus is not on our app, this is most likely not our fault but of Port Authority. If the map is empty, please report this to our Play Store email or create an issue on our Github above immediately.</string>
-    <string name="route_not_found">is not found. Either there is no route information, no internet connection, or the API Call limit has been exceeded.</string>
+    <string name="disclaim">DISCLAMER: We are not responsible for which buses and routes are being
+        tracked as we are only getting the information from Port Authority. If a certain route or
+        bus is not on our app, this is most likely not our fault but of Port Authority. If the map
+        is empty, please report this to our Play Store email or create an issue on our Github above
+        immediately.
+    </string>
+    <string name="route_not_found">is not found. Either there is no route information, no internet
+        connection, or the API Call limit has been exceeded.
+    </string>
     <string name="predictions_not_available">No predictions found.</string>
     <!--Extra-->
     <string name="title_of_bus">Title of Bus</string>
@@ -322,5 +331,11 @@
     <string name="retrofit_network_error">Please check your data connection.</string>
     <string name="retrofit_conversion_error">Cannot translate information from Port Authority.</string>
     <string name="retrofit_http_error">The Port Authority website seems to be down.</string>
-    <string name="retrofit_unexpected_error">An unexpected error occurred. Please contact the developers.</string>
+    <string name="retrofit_unexpected_error">An unexpected error occurred. Please contact the
+        developers.
+    </string>
+    
+    <string name="location_permission_message">Do you want the app to access your location to center
+        the map on you?
+    </string>
 </resources>

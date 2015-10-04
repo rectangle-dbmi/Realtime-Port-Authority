@@ -1,7 +1,11 @@
 package rectangledbmi.com.pittsburghrealtimetracker;
 
+import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -15,6 +19,8 @@ import android.net.http.HttpResponseCache;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -208,6 +214,17 @@ public class SelectTransit extends AppCompatActivity implements
 
     private Subscription busIconGeneration;
 
+    private GoogleMap.OnCameraChangeListener mMapCameraListener;
+
+    private GoogleMap.OnMarkerClickListener mMapMarkerClickListener;
+
+
+    /**
+     * Location Request Code
+     * @since 48
+     */
+    private static int LOCATION_REQUEST_CODE = 123;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -227,18 +244,14 @@ public class SelectTransit extends AppCompatActivity implements
         buildPATAPI();
         createBusList();
         MapFragment mapFragment = (MapFragment) getFragmentManager()
-            .findFragmentById(R.id.map);
+                .findFragmentById(R.id.map);
 
         mapFragment.getMapAsync(this);
-            //sets up the map
+        //sets up the map
         inSavedState = false;
         enableHttpResponseCache();
         restoreInstanceState(savedInstanceState);
         notCentered = false;
-            //        zoom = 15.0f;
-//        } else {
-//
-//        }
     }
 
     /**
@@ -366,7 +379,7 @@ public class SelectTransit extends AppCompatActivity implements
         }
         Log.d("savedInstance_restore", "saved? " + inSavedState);
         Log.d("savedInstance_restore", "lat="+latitude);
-        Log.d("savedInstance_restore", "long="+longitude);
+        Log.d("savedInstance_restore", "long=" + longitude);
         if (transitStop == null) {
             transitStop = new TransitStop();
         }
@@ -451,7 +464,6 @@ public class SelectTransit extends AppCompatActivity implements
 ////            setUpMapIfNeeded();
 //        if(buses != null) {
         if(mMap != null) {
-
             restoreBuses();
         }
 
@@ -464,7 +476,9 @@ public class SelectTransit extends AppCompatActivity implements
     private void restorePreferences() {
         Log.d("restoring buses", "Attempting to restore buses.");
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        buses = new HashSet<String>(sp.getStringSet(BUS_SELECT_STATE, Collections.synchronizedSet(new HashSet<String>(getResources().getInteger(R.integer.max_checked)))));
+        buses = new HashSet<String>(sp.getStringSet(BUS_SELECT_STATE,
+                Collections.synchronizedSet(
+                        new HashSet<String>(getResources().getInteger(R.integer.max_checked)))));
     }
 
     protected void onPause() {
@@ -491,6 +505,12 @@ public class SelectTransit extends AppCompatActivity implements
     @Override
     protected void onDestroy() {
         completeBusIconGeneration();
+        transitStop = null;
+        mMapCameraListener = null;
+        mMapMarkerClickListener = null;
+        if(mMap != null) {
+            mMap.setMyLocationEnabled(false);
+        }
         super.onDestroy();
     }
     /**
@@ -641,7 +661,13 @@ public class SelectTransit extends AppCompatActivity implements
         List<Polyline> polylines = routeLines.get(route);
 
         if (polylines == null || polylines.isEmpty()) {
-            new RequestLine(mMap, routeLines, route, routeInfo.getRouteColor(), zoom, Float.parseFloat(getString(R.string.zoom_level)), transitStop, this).execute();
+            new RequestLine(mMap,
+                    routeLines,
+                    route,
+                    routeInfo.getRouteColor(),
+                    zoom,
+                    Float.parseFloat(getString(R.string.zoom_level)),
+                    transitStop, this).execute();
         } else if(!polylines.get(0).isVisible()) {
             setVisiblePolylines(polylines, true);
             transitStop.updateAddRoutes(route, zoom, Float.parseFloat(getString(R.string.zoom_level)));
@@ -746,7 +772,7 @@ public class SelectTransit extends AppCompatActivity implements
      * Polls self on the map and then centers the map on Pittsburgh or you if you're in Pittsburgh..
      */
     private void centerMap() {
-
+        Log.d("location_changed", "centering map in centerMap()");
         if(currentLocation != null) {
             latitude = currentLocation.getLatitude();
             longitude = currentLocation.getLongitude();
@@ -767,7 +793,10 @@ public class SelectTransit extends AppCompatActivity implements
      */
     protected void setUpMap() {
         setMapListeners();
-        mMap.setMyLocationEnabled(true);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            mMap.setMyLocationEnabled(true);
+        }
         restoreBuses();
     }
 
@@ -779,6 +808,41 @@ public class SelectTransit extends AppCompatActivity implements
         getBusIcons(buses.toArray(new String[buses.size()]));
     }
 
+    /**
+     * Creates
+     */
+    private void createListeners() {
+        if(mMapCameraListener == null) {
+            mMapCameraListener = new GoogleMap.OnCameraChangeListener() {
+
+                @Override
+                public void onCameraChange(CameraPosition cameraPosition) {
+                    if (!inSavedState)
+                        inSavedState = true;
+                    latitude = cameraPosition.target.latitude;
+                    longitude = cameraPosition.target.longitude;
+                    if (zoom != cameraPosition.zoom) {
+                        zoom = cameraPosition.zoom;
+                        transitStop.checkAllVisibility(zoom, Float.parseFloat(getString(R.string.zoom_level)));
+                    }
+                }
+            };
+        }
+        if(mMapMarkerClickListener == null) {
+            mMapMarkerClickListener = new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker) {
+
+                    if (marker != null) {
+                        mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()), 400, null);
+                        new RequestPredictions(getApplicationContext(), marker, buses).execute(marker.getTitle());
+                        return true;
+                    }
+                    return false;
+                }
+            };
+        }
+    }
 
     /**
      * set the map listeners
@@ -789,22 +853,9 @@ public class SelectTransit extends AppCompatActivity implements
 ////            mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 //            // Check if we were successful in obtaining the map.
         if (mMap != null) {
-
+            createListeners();
             mMap.setInfoWindowAdapter(new ETAWindowAdapter(getLayoutInflater()));
-            mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
-                @Override
-                public void onCameraChange(CameraPosition cameraPosition) {
-                    if (!inSavedState)
-                        inSavedState = true;
-                    latitude = cameraPosition.target.latitude;
-                    longitude = cameraPosition.target.longitude;
-                    if (zoom != cameraPosition.zoom) {
-                        zoom = cameraPosition.zoom;
-
-                        transitStop.checkAllVisibility(zoom, Float.parseFloat(getString(R.string.zoom_level)));
-                    }
-                }
-            });
+            mMap.setOnCameraChangeListener(mMapCameraListener);
 
                 /*
                 TODO:
@@ -813,25 +864,7 @@ public class SelectTransit extends AppCompatActivity implements
                 c. Make the snippet follow Google Maps time implementation!!!
                 d. getpredictions&stpid=marker.getTitle().<regex on \(.+\)> since this is where the stop id is to get stop id.
                  */
-            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                @Override
-                public boolean onMarkerClick(Marker marker) {
-
-                    if (marker != null) {
-//                            final Marker mark = marker;
-                        mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()), 400, null);
-                        new RequestPredictions(getApplicationContext(), marker, buses).execute(marker.getTitle());
-
-
-//                            String message = "Stop 1:\tPRDTM\nStop 2:\tPRDTM";
-//                            String title = "Bus";
-//                            showDialog(message, title);
-
-                        return true;
-                    }
-                    return false;
-                }
-            });
+            mMap.setOnMarkerClickListener(mMapMarkerClickListener);
         }
     }
 
@@ -1181,6 +1214,97 @@ public class SelectTransit extends AppCompatActivity implements
             super.onBackPressed();
     }
 
+    private void showOkCancelDialog(String message, DialogInterface.OnClickListener okListener) {
+        new AlertDialog.Builder(SelectTransit.this)
+                .setMessage(message)
+                .setPositiveButton("OK", okListener)
+                .setNegativeButton("Cancel", null)
+                .create()
+                .show();
+    }
+
+    private void requestLocation() {
+        LocationRequest gLocationRequest = LocationRequest.create();
+        gLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        gLocationRequest.setInterval(1000);
+        //        MapsInitializer.initialize(this);
+        currentLocation = LocationServices.FusedLocationApi.getLastLocation(googleAPIClient);
+        //        Log.d("location_changed", "What is going on here");
+        if (currentLocation == null) {
+            Log.d("location_changed", "current location is null");
+            LocationServices.FusedLocationApi.requestLocationUpdates(googleAPIClient, gLocationRequest, this);
+            if (currentLocation != null) {
+                //                LocationServices.FusedLocationApi.removeLocationUpdates(googleAPIClient, this);
+                if (mMap != null && isInPittsburgh(currentLocation))
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                            new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
+            }
+        } else if (!inSavedState) {
+            if (mMap != null) {
+                Log.d("location_changed", "current location is not null");
+                if(isInPittsburgh(currentLocation)) {
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                            new LatLng(
+                                    currentLocation.getLatitude(),
+                                    currentLocation.getLongitude()),
+                                    15.0f));
+                }
+
+            }
+
+        }
+    }
+
+    /**
+     * Checks if the current location is in the immediate vicinity
+     * @param currentLocation The current location.
+     * @return whether or not your device is in Pittsburgh
+     */
+    private boolean isInPittsburgh(Location currentLocation) {
+        if(currentLocation == null) return false;
+        return ((currentLocation.getLatitude() > 39.859673 && currentLocation.getLatitude() < 40.992847) &&
+                (currentLocation.getLongitude() > -80.372815 && currentLocation.getLongitude() < -79.414258));
+    }
+
+    private void requestLocationPermissions() {
+        int hasLocationPermissions = ContextCompat.checkSelfPermission(SelectTransit.this,
+                Manifest.permission.ACCESS_FINE_LOCATION);
+        if(hasLocationPermissions != PackageManager.PERMISSION_GRANTED) {
+            if(!ActivityCompat.shouldShowRequestPermissionRationale(SelectTransit.this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+//                showOkCancelDialog(getString(R.string.location_permission_message),
+//                        new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                ActivityCompat.requestPermissions(SelectTransit.this,
+//                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+//                                        LOCATION_REQUEST_CODE);
+//                            }
+//                        });
+                ActivityCompat.requestPermissions(SelectTransit.this,
+                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                        LOCATION_REQUEST_CODE);
+            }
+            ActivityCompat.requestPermissions(SelectTransit.this,
+                    new String[]{Manifest.permission_group.LOCATION},
+                    LOCATION_REQUEST_CODE);
+            return;
+        }
+        requestLocation();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == LOCATION_REQUEST_CODE) {
+            if (permissions.length == 1 &&
+                    permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION) &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                    mMap != null) {
+                mMap.setMyLocationEnabled(true);
+            }
+        }
+    }
+
     /**
      * Part of the GoogleApiClient connection. If it is connected
      *
@@ -1188,35 +1312,7 @@ public class SelectTransit extends AppCompatActivity implements
      */
     @Override
     public void onConnected(Bundle bundle) {
-        /*
-      This is the location request using FusedLocationAPI to get the person's last known location
-     */
-        /*
-      Google location request to give us location-based context
-      */
-        LocationRequest gLocationRequest = LocationRequest.create();
-        gLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        gLocationRequest.setInterval(1000);
-//        MapsInitializer.initialize(this);
-        currentLocation = LocationServices.FusedLocationApi.getLastLocation(googleAPIClient);
-//        Log.d("location_changed", "What is going on here");
-        if (currentLocation == null) {
-            Log.d("location_changed", "current location is null");
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleAPIClient, gLocationRequest, this);
-            if (currentLocation != null) {
-//                LocationServices.FusedLocationApi.removeLocationUpdates(googleAPIClient, this);
-                if (mMap != null)
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                            new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
-            }
-        } else if (!inSavedState) {
-//            latitude = currentLocation.getLatitude();
-//            longitude = currentLocation.getLongitude();
-//            zoom = 15.0f;
-            if (mMap != null)
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                        new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
-        }
+        requestLocationPermissions();
     }
 
     /**
@@ -1250,8 +1346,7 @@ public class SelectTransit extends AppCompatActivity implements
 
         currentLocation = location;
         if(mMap != null && notCentered) {
-            if ((currentLocation.getLatitude() > 39.859673 && currentLocation.getLatitude() < 40.992847) &&
-                    (currentLocation.getLongitude() > -80.372815 && currentLocation.getLongitude() < -79.414258))
+            if(isInPittsburgh(currentLocation))
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
             notCentered = false;
         }
