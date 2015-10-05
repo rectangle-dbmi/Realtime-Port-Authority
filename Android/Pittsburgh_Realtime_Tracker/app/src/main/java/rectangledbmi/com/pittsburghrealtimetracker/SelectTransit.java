@@ -1214,15 +1214,31 @@ public class SelectTransit extends AppCompatActivity implements
             super.onBackPressed();
     }
 
-    private void showOkCancelDialog(String message, DialogInterface.OnClickListener okListener) {
+    private void showOkDialog(String message, DialogInterface.OnClickListener okListener) {
         new AlertDialog.Builder(SelectTransit.this)
                 .setMessage(message)
                 .setPositiveButton("OK", okListener)
-                .setNegativeButton("Cancel", null)
                 .create()
                 .show();
     }
 
+    /**
+     * Checks if the current location is in the immediate vicinity
+     * @param currentLocation The current location.
+     * @return whether or not your device is in Pittsburgh
+     */
+    private boolean isInPittsburgh(Location currentLocation) {
+        if(currentLocation == null) return false;
+        return ((currentLocation.getLatitude() > 39.859673 && currentLocation.getLatitude() < 40.992847) &&
+                (currentLocation.getLongitude() > -80.372815 && currentLocation.getLongitude() < -79.414258));
+    }
+
+    /**
+     * Give a request to find the location of the user using the ACCESS_FINE_LOCATION permission
+     * and Google Play Service's Location APIs.
+     *
+     * @since 48
+     */
     private void requestLocation() {
         LocationRequest gLocationRequest = LocationRequest.create();
         gLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -1256,34 +1272,26 @@ public class SelectTransit extends AppCompatActivity implements
     }
 
     /**
-     * Checks if the current location is in the immediate vicinity
-     * @param currentLocation The current location.
-     * @return whether or not your device is in Pittsburgh
+     * Requests the ACCESS_FINE_LOCATION permission to enable centering Google Maps on the user. If
+     * granted, it will request location updates.
+     *
+     * @since 48
      */
-    private boolean isInPittsburgh(Location currentLocation) {
-        if(currentLocation == null) return false;
-        return ((currentLocation.getLatitude() > 39.859673 && currentLocation.getLatitude() < 40.992847) &&
-                (currentLocation.getLongitude() > -80.372815 && currentLocation.getLongitude() < -79.414258));
-    }
-
     private void requestLocationPermissions() {
         int hasLocationPermissions = ContextCompat.checkSelfPermission(SelectTransit.this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
         if(hasLocationPermissions != PackageManager.PERMISSION_GRANTED) {
             if(!ActivityCompat.shouldShowRequestPermissionRationale(SelectTransit.this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
-//                showOkCancelDialog(getString(R.string.location_permission_message),
-//                        new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialog, int which) {
-//                                ActivityCompat.requestPermissions(SelectTransit.this,
-//                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-//                                        LOCATION_REQUEST_CODE);
-//                            }
-//                        });
-                ActivityCompat.requestPermissions(SelectTransit.this,
+                showOkDialog(getString(R.string.location_permission_message),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ActivityCompat.requestPermissions(SelectTransit.this,
                                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                                         LOCATION_REQUEST_CODE);
+                            }
+                        });
             }
             ActivityCompat.requestPermissions(SelectTransit.this,
                     new String[]{Manifest.permission_group.LOCATION},

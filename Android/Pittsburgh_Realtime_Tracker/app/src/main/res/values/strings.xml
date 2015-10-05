@@ -335,7 +335,9 @@
         developers.
     </string>
     
-    <string name="location_permission_message">Do you want the app to access your location to center
-        the map on you?
+    <string name="location_permission_message">In order to center the map on your current location,
+        please Allow the following prompt.\n\nYou can always change
+        this by going into Settings ->\nApps ->\nPAT Realtime
+        Tracker ->\nPermissions and toggle Location.
     </string>
 </resources>
