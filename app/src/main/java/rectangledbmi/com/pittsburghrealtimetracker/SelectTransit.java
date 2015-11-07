@@ -41,7 +41,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -51,12 +50,14 @@ import com.google.gson.GsonBuilder;
 import com.squareup.leakcanary.LeakCanary;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -70,7 +71,6 @@ import rectangledbmi.com.pittsburghrealtimetracker.retrofit.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimeVehicleResponse;
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Error;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Vehicle;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.VehicleResponse;
 import retrofit.RestAdapter;
@@ -78,11 +78,10 @@ import retrofit.RetrofitError;
 import retrofit.converter.GsonConverter;
 import rx.Observable;
 import rx.Observer;
+import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
 import rx.functions.Action1;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -476,9 +475,9 @@ public class SelectTransit extends AppCompatActivity implements
     private void restorePreferences() {
         Log.d("restoring buses", "Attempting to restore buses.");
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        buses = new HashSet<String>(sp.getStringSet(BUS_SELECT_STATE,
+        buses = new HashSet<>(sp.getStringSet(BUS_SELECT_STATE,
                 Collections.synchronizedSet(
-                        new HashSet<String>(getResources().getInteger(R.integer.max_checked)))));
+                        new HashSet<>(getResources().getInteger(R.integer.max_checked)))));
     }
 
     protected void onPause() {
@@ -621,21 +620,13 @@ public class SelectTransit extends AppCompatActivity implements
                         return 1.0 - (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255 < .5;
                     }
                 },
-                new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        if (throwable.getMessage() != null) {
-                            Log.e("bus_icon_error", throwable.getMessage());
-                        }
-                        Log.e("bus_icon_error", Log.getStackTraceString(throwable));
+                throwable -> {
+                    if (throwable.getMessage() != null) {
+                        Log.e("bus_icon_error", throwable.getMessage());
                     }
+                    Log.e("bus_icon_error", Log.getStackTraceString(throwable));
                 },
-                new Action0() {
-                    @Override
-                    public void call() {
-                        clearAndAddToMap();
-                    }
-                }
+                this::clearAndAddToMap
         );
     }
 
@@ -813,33 +804,26 @@ public class SelectTransit extends AppCompatActivity implements
      */
     private void createListeners() {
         if(mMapCameraListener == null) {
-            mMapCameraListener = new GoogleMap.OnCameraChangeListener() {
-
-                @Override
-                public void onCameraChange(CameraPosition cameraPosition) {
-                    if (!inSavedState)
-                        inSavedState = true;
-                    latitude = cameraPosition.target.latitude;
-                    longitude = cameraPosition.target.longitude;
-                    if (zoom != cameraPosition.zoom) {
-                        zoom = cameraPosition.zoom;
-                        transitStop.checkAllVisibility(zoom, Float.parseFloat(getString(R.string.zoom_level)));
-                    }
+            mMapCameraListener = cameraPosition -> {
+                if (!inSavedState)
+                    inSavedState = true;
+                latitude = cameraPosition.target.latitude;
+                longitude = cameraPosition.target.longitude;
+                if (zoom != cameraPosition.zoom) {
+                    zoom = cameraPosition.zoom;
+                    transitStop.checkAllVisibility(zoom, Float.parseFloat(getString(R.string.zoom_level)));
                 }
             };
         }
         if(mMapMarkerClickListener == null) {
-            mMapMarkerClickListener = new GoogleMap.OnMarkerClickListener() {
-                @Override
-                public boolean onMarkerClick(Marker marker) {
+            mMapMarkerClickListener = marker -> {
 
-                    if (marker != null) {
-                        mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()), 400, null);
-                        new RequestPredictions(getApplicationContext(), marker, buses).execute(marker.getTitle());
-                        return true;
-                    }
-                    return false;
+                if (marker != null) {
+                    mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()), 400, null);
+                    new RequestPredictions(getApplicationContext(), marker, buses).execute(marker.getTitle());
+                    return true;
                 }
+                return false;
             };
         }
     }
@@ -885,7 +869,7 @@ public class SelectTransit extends AppCompatActivity implements
     /**
      * Stops the bus refresh, then adds buses to the map
      */
-    private synchronized void clearAndAddToMap() {
+    private void clearAndAddToMap() {
         if (mMap != null) {
             Log.d("stop_add_buses", buses.toString());
             stopTimer();
@@ -909,28 +893,24 @@ public class SelectTransit extends AppCompatActivity implements
      * adds buses to map. or else the map will be clear...
      */
 
-    private synchronized void addBuses() {
+    private void addBuses() {
         Log.d("adding buses", buses.toString());
-        vehicleSubscription = Observable.timer(0, 10, TimeUnit.SECONDS)
-                .flatMap(new Func1<Long, Observable<VehicleResponse>>() {
-                    @Override
-                    public Observable<VehicleResponse> call(Long aLong) {
-                        return patApiClient.getVehicles(collectionToString(buses), BuildConfig.PAT_API_KEY);
-                    }
-                }).subscribeOn(Schedulers.io())
+        Observable<VehicleResponse> le = Observable.interval(0, 10, TimeUnit.SECONDS)
+                .flatMap(aLong -> patApiClient.getVehicles(collectionToString(buses), BuildConfig.PAT_API_KEY))
+                .subscribeOn(Schedulers.io());
+        Observable<BustimeVehicleResponse> poop = le.map(VehicleResponse::getBustimeResponse);
+        Observable<Vehicle> veh = poop.flatMap(bustimeVehicleResponse -> Observable.from(bustimeVehicleResponse.getVehicle()));
+
+        vehicleSubscription = veh
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<VehicleResponse>() {
+                .subscribe(new Observer<Vehicle>() {
 
-
-                    /**
-                     * Shows whether to displays or not (will only show errors once on the timer)
-                     * @since 47
-                     */
                     private boolean showedErrors = false;
 
                     @Override
                     public void onCompleted() {
-                        Log.d("buses_vehicle", "completed!");
+
                     }
 
                     @Override
@@ -940,9 +920,7 @@ public class SelectTransit extends AppCompatActivity implements
                             if(e instanceof RetrofitError) {
                                 printRetrofitError((RetrofitError)e);
                             }
-//                            makeSnackbar(e.getLocalizedMessage(), Snackbar.LENGTH_LONG);
                             Log.e("bus_vehicle_error", e.getMessage());
-//                            Toast.makeText(appcontext, e.getMessage(), Toast.LENGTH_LONG).show();
                         }
                         Log.e("bus_vehicle_error", e.getClass().getName());
 
@@ -950,52 +928,11 @@ public class SelectTransit extends AppCompatActivity implements
                     }
 
                     @Override
-                    public void onNext(VehicleResponse vehicleResponse) {
-                        if (vehicleResponse != null) {
-                            BustimeVehicleResponse response = vehicleResponse.getBustimeResponse();
-                            List<Vehicle> vehicles = response.getVehicle();
-                            List<Error> errors = response.getError();
-                            //update buses
-                            Log.d("bus_vehicle_err_pres", Boolean.toString(showedErrors));
-                            if(!errors.isEmpty() && !showedErrors) {
-                                showedErrors = true;
-                                for (Error error : errors) {
-//                                    makeSnackbar(printErrors(error).toString(), Snackbar.LENGTH_LONG);
-                                    showToast(printErrors(error).toString(), Toast.LENGTH_LONG);
-                                }
-                            }
-                            if (vehicles.size() > 0) {
-                                onHandleVehicles(vehicles);
-                            } else if (vehicles.size() == 0) {
-                                removeBuses();
-                                stopTimer();
-                            }
-                        }
+                    public void onNext(Vehicle vehicle) {
+                        addOrUpdateMarkers(vehicle);
                     }
 
-/**
-                     * Handle vehicle updates... either...
-                     * <ul>
-                     *     <li>add marker if not on {@link SelectTransit#busMarkers}</li>
-                     *     <li>update marker if in {@link SelectTransit#busMarkers}</li>
-                     *     <li>remove marker if in @{@link SelectTransit#busMarkers} but no longer on map</li>
-                     * </ul>
-                     *
-                     * @since 46
-                     * @param vehicles - list of vehicles from API
-                     */
-
-
-                    private void onHandleVehicles(List<Vehicle> vehicles) {
-                        // Delete markers in here
-//                        Set<Integer> routesOnMap = new HashSet<Integer>(busMarkers.keySet());
-                        for(Vehicle vehicle : vehicles) {
-                            addOrUpdateMarkers(vehicle);
-                        }
-//                        removeBuses(routesOnMap);
-                    }
-
-/**
+                    /**
                      * Handle vehicle updates and adds...
                      * <ul>
                      *     <li>add marker if not on {@link SelectTransit#busMarkers} - {@link #addMarker(Vehicle)}</li>
@@ -1017,7 +954,7 @@ public class SelectTransit extends AppCompatActivity implements
 
                     }
 
-/**
+                    /**
                      * adds marker not in {@link SelectTransit#busMarkers}
                      * @since 46
                      * @param vehicle - the vehicle to add
@@ -1037,7 +974,7 @@ public class SelectTransit extends AppCompatActivity implements
                         ));
                     }
 
-/**
+                    /**
                      * Updates marker information on map
                      * @since 46
                      * @param vehicle - vehicle to update
@@ -1050,53 +987,8 @@ public class SelectTransit extends AppCompatActivity implements
                         marker.setPosition(new LatLng(vehicle.getLat(), vehicle.getLon()));
                         marker.setRotation(vehicle.getHdg());
                     }
-/**
-                     * Prints the errors
-                     *
-                     * @since 46
-                     * @param error - the Error Object
-                     * @return a stringBuilder to show errors
-                     */
-
-                    private StringBuilder printErrors(Error error) {
-                        if(error != null) {
-                            StringBuilder st = new StringBuilder();
-                            if(error.getRt() != null) {
-                                addMsg(st, getString(R.string.no_vehicle_error));
-                                st.append(" ");
-                                addMsg(st, error.getRt());
-//                                buses.remove(error.getRt().trim()); TODO: activate this later when we figure out how to handle no route -> next day there's a route
-                            } else if(error.getMsg().contains("specified") && error.getMsg().contains("rt")) {
-                                addMsg(st, getString(R.string.cleared));
-                            }
-                            else
-                                addMsg(st, error.getMsg());
-                            Log.d("vehicle_error", st.toString());
-                            return st;
-                        }
-                        return null;
-
-                    }
-
-/**
-                     * Creates appends to a StringBuilder
-                     *
-                     * @since 46
-                     * @param st - stringbuilder to make
-                     * @param s - strings to add
-                     */
-
-                    private void addMsg(StringBuilder st, String... s) {
-                        //TODO: maybe do this in another thread
-                        if(s != null) {
-                            for(String i : s) {
-                                if(i != null && i.trim().length() > 0)
-                                    st.append(i);
-                                else break;
-                            }
-                        }
-                    }
                 });
+
     }
 
     /**
@@ -1250,7 +1142,6 @@ public class SelectTransit extends AppCompatActivity implements
             Log.d("location_changed", "current location is null");
             LocationServices.FusedLocationApi.requestLocationUpdates(googleAPIClient, gLocationRequest, this);
             if (currentLocation != null) {
-                //                LocationServices.FusedLocationApi.removeLocationUpdates(googleAPIClient, this);
                 if (mMap != null && isInPittsburgh(currentLocation))
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                             new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
@@ -1284,14 +1175,9 @@ public class SelectTransit extends AppCompatActivity implements
             if(!ActivityCompat.shouldShowRequestPermissionRationale(SelectTransit.this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
                 showOkDialog(getString(R.string.location_permission_message),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                ActivityCompat.requestPermissions(SelectTransit.this,
-                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                        LOCATION_REQUEST_CODE);
-                            }
-                        });
+                        (dialog, which) -> ActivityCompat.requestPermissions(SelectTransit.this,
+                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                LOCATION_REQUEST_CODE));
             }
             ActivityCompat.requestPermissions(SelectTransit.this,
                     new String[]{Manifest.permission_group.LOCATION},

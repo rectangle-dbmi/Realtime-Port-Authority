@@ -42,12 +42,7 @@ public class BusInformationDialog extends DialogFragment {
         Button negBut = (Button) view.findViewById(R.id.info_dismiss);
         negBut.setBackgroundColor(getResources().getColor(R.color.blue_500_trans));
         negBut.setTextColor(Color.WHITE);
-        negBut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
-            }
-        });
+        negBut.setOnClickListener(v -> dismiss());
 
         //Set title
         builder.setTitle(title);
