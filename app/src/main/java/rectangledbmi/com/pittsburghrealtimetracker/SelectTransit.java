@@ -50,14 +50,15 @@ import com.google.gson.GsonBuilder;
 import com.squareup.leakcanary.LeakCanary;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -78,7 +79,6 @@ import retrofit.RetrofitError;
 import retrofit.converter.GsonConverter;
 import rx.Observable;
 import rx.Observer;
-import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -895,13 +895,15 @@ public class SelectTransit extends AppCompatActivity implements
 
     private void addBuses() {
         Log.d("adding buses", buses.toString());
-        Observable<VehicleResponse> le = Observable.interval(0, 10, TimeUnit.SECONDS)
+        Observable<BustimeVehicleResponse> bustimeVehicleResponseObservable = Observable.interval(0, 10, TimeUnit.SECONDS)
                 .flatMap(aLong -> patApiClient.getVehicles(collectionToString(buses), BuildConfig.PAT_API_KEY))
+                .subscribeOn(Schedulers.io())
+                .map(VehicleResponse::getBustimeResponse)
                 .subscribeOn(Schedulers.io());
-        Observable<BustimeVehicleResponse> poop = le.map(VehicleResponse::getBustimeResponse);
-        Observable<Vehicle> veh = poop.flatMap(bustimeVehicleResponse -> Observable.from(bustimeVehicleResponse.getVehicle()));
 
-        vehicleSubscription = veh
+        Observable<Vehicle> vehicleObservable = bustimeVehicleResponseObservable.flatMap(bustimeVehicleResponse -> Observable.from(bustimeVehicleResponse.getVehicle()));
+
+        vehicleSubscription = vehicleObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Vehicle>() {
@@ -910,7 +912,9 @@ public class SelectTransit extends AppCompatActivity implements
 
                     @Override
                     public void onCompleted() {
-
+                        SimpleDateFormat dateFormat= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZZZ", Locale.ENGLISH);
+                        String cDateTime = dateFormat.format(new Date());
+                        Log.d("bus_vehicle update", "Bus map updates finished updates at " + cDateTime);
                     }
 
                     @Override
@@ -923,7 +927,6 @@ public class SelectTransit extends AppCompatActivity implements
                             Log.e("bus_vehicle_error", e.getMessage());
                         }
                         Log.e("bus_vehicle_error", e.getClass().getName());
-
                         Log.e("bus_vehicle_error", Log.getStackTraceString(e));
                     }
 
