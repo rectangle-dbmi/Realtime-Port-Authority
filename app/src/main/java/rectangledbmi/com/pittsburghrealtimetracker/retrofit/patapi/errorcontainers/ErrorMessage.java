@@ -58,7 +58,7 @@ public class ErrorMessage {
      * @return the parameters in string form.
      */
     private String commaDelimitParams(List<String> parameters) {
-        if(parameters == null || parameters.isEmpty()) return null;
+        if(parameters == null || parameters.isEmpty() || parameters.get(0) == null) return null;
         parameters = new ArrayList<>(parameters);
         Collections.sort(parameters, new NaturalOrderComparator<>());
         StringBuilder paramBuffer = new StringBuilder();
