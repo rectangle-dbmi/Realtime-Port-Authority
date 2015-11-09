@@ -1,6 +1,5 @@
-package rectangledbmi.com.pittsburghrealtimetracker.retrofit;
+package rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi;
 
-import rectangledbmi.com.pittsburghrealtimetracker.BuildConfig;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.PatternResponse;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.PredictionResponse;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.VehicleResponse;
@@ -17,7 +16,6 @@ import rx.Observable;
  * @since 46
  */
 public interface PATAPI {
-    String key = BuildConfig.PAT_API_KEY;
     /**
      * generates a response for patters
      * @param rt - the route

@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import rectangledbmi.com.pittsburghrealtimetracker.R;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.containers.ETAContainer;
-import rectangledbmi.com.pittsburghrealtimetracker.hidden.PortAuthorityAPI;
+import rectangledbmi.com.pittsburghrealtimetracker.patapi.PortAuthorityAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Prediction;
 
 /**
