@@ -18,6 +18,7 @@ import android.location.Location;
 import android.net.http.HttpResponseCache;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -51,11 +52,13 @@ import com.squareup.leakcanary.LeakCanary;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -68,7 +71,8 @@ import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestLine;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter;
-import rectangledbmi.com.pittsburghrealtimetracker.retrofit.PATAPI;
+import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
+import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.errorcontainers.ErrorMessage;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimeVehicleResponse;
@@ -205,17 +209,31 @@ public class SelectTransit extends AppCompatActivity implements
     private Subscription vehicleSubscription;
 
     /**
+     * Subscription for broadcasting vehicle update errors
+     *
+     * @since 49
+     */
+    private Subscription vehicleErrorSubscription;
+
+    /**
      * Bus icons created from drawable/bus_icon.png
      *
      * @since 47
      */
     private ConcurrentHashMap<String, Bitmap> busIcons;
 
+    /**
+     * Subscription for
+     *
+     * @since 48
+     */
     private Subscription busIconGeneration;
 
     private GoogleMap.OnCameraChangeListener mMapCameraListener;
 
     private GoogleMap.OnMarkerClickListener mMapMarkerClickListener;
+
+    private DrawerLayout mainLayout;
 
 
     /**
@@ -233,6 +251,8 @@ public class SelectTransit extends AppCompatActivity implements
         restoreActionBar();
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
+
+        mainLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
@@ -377,7 +397,7 @@ public class SelectTransit extends AppCompatActivity implements
             defaultCameraLocation();
         }
         Log.d("savedInstance_restore", "saved? " + inSavedState);
-        Log.d("savedInstance_restore", "lat="+latitude);
+        Log.d("savedInstance_restore", "lat=" + latitude);
         Log.d("savedInstance_restore", "long=" + longitude);
         if (transitStop == null) {
             transitStop = new TransitStop();
@@ -712,7 +732,7 @@ public class SelectTransit extends AppCompatActivity implements
             try {
                 setSupportActionBar(toolbar);
             } catch (Throwable e) {
-                Snackbar.make(findViewById(android.R.id.content),
+                Snackbar.make(mainLayout,
                 "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Snackbar.LENGTH_LONG).show();
 //                Toast.makeText(this, "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Toast.LENGTH_LONG).show();
             }
@@ -721,7 +741,7 @@ public class SelectTransit extends AppCompatActivity implements
             ActionBar t = getSupportActionBar();
             if(t != null) t.setDisplayHomeAsUpEnabled(true);
         } catch(NullPointerException e) {
-            Snackbar.make(findViewById(android.R.id.content),
+            Snackbar.make(mainLayout,
                     "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Snackbar.LENGTH_LONG).show();
         }
 
@@ -889,6 +909,139 @@ public class SelectTransit extends AppCompatActivity implements
         Toast.makeText(this, string, length).show();
     }
 
+    private Observer<Vehicle> vehicleBusUpdate() {
+        return new Observer<Vehicle>() {
+
+            private boolean showedErrors = false;
+
+            @Override
+            public void onCompleted() {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZZZ", Locale.ENGLISH);
+                String cDateTime = dateFormat.format(new Date());
+                Log.d("bus_vehicle update", "Bus map updates finished updates at " + cDateTime);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                if (e.getMessage() != null && e.getLocalizedMessage() != null && !showedErrors) {
+                    showedErrors = true;
+                    if (e instanceof RetrofitError) {
+                        printRetrofitError((RetrofitError) e);
+                    }
+                    Log.e("bus_vehicle_error", e.getMessage());
+                }
+                Log.e("bus_vehicle_error", e.getClass().getName());
+                Log.e("bus_vehicle_error", Log.getStackTraceString(e));
+            }
+
+            @Override
+            public void onNext(Vehicle vehicle) {
+                addOrUpdateMarkers(vehicle);
+            }
+
+            /**
+             * Handle vehicle updates and adds...
+             * <ul>
+             *     <li>add marker if not on {@link SelectTransit#busMarkers} - {@link #addMarker(Vehicle)}</li>
+             *     <li>update marker if in {@link SelectTransit#busMarkers} - {@link #updateMarker(Vehicle, Marker)}</li>
+             * </ul>
+             *
+             * @since 46
+             * @param vehicle - vehicle to be added
+             */
+
+            private void addOrUpdateMarkers(Vehicle vehicle) {
+                int vid = vehicle.getVid();
+                Marker marker = busMarkers.get(vid);
+                if (marker == null) {
+                    addMarker(vehicle);
+                } else {
+                    updateMarker(vehicle, marker);
+                }
+
+            }
+
+            /**
+             * adds marker not in {@link SelectTransit#busMarkers}
+             * @since 46
+             * @param vehicle - the vehicle to add
+             */
+
+            private void addMarker(Vehicle vehicle) {
+                Log.d("marker_add", "adding_marker " + Integer.toString(vehicle.getVid()));
+                Log.d("marker_add", busIcons.get(vehicle.getRt()).toString());
+                busMarkers.put(vehicle.getVid(), mMap.addMarker(new MarkerOptions()
+                                .position(new LatLng(vehicle.getLat(), vehicle.getLon()))
+                                .title(vehicle.getRt() + "(" + vehicle.getVid() + ") " + vehicle.getDes() + (vehicle.isDly() ? " - Delayed" : ""))
+                                .draggable(false)
+                                .rotation(vehicle.getHdg())
+                                .icon(BitmapDescriptorFactory.fromBitmap(busIcons.get(vehicle.getRt())))
+                                .anchor((float) .5, (float) 0.5)
+                                .flat(true)
+                ));
+            }
+
+            /**
+             * Updates marker information on map
+             * @since 46
+             * @param vehicle - vehicle to update
+             * @param marker - marker to update
+             */
+
+            private void updateMarker(Vehicle vehicle, Marker marker) {
+                Log.d("marker_update", "updating_pointer");
+                marker.setTitle(vehicle.getRt() + "(" + vehicle.getVid() + ") " + vehicle.getDes() + (vehicle.isDly() ? " - Delayed" : ""));
+                marker.setPosition(new LatLng(vehicle.getLat(), vehicle.getLon()));
+                marker.setRotation(vehicle.getHdg());
+            }
+        };
+    }
+
+    private Observer<ErrorMessage> vehicleErrorObserver() {
+        Log.d("vehicle_error_observer", "restarting the vehicle error observer");
+        return new Observer<ErrorMessage>() {
+
+            private String transformMessage(ErrorMessage errorMessage) {
+                if(errorMessage != null) {
+                    if (errorMessage.getParameters() != null) {
+                        return getString(R.string.no_vehicle_error);
+
+                    } else if (errorMessage.getMessage().contains("specified") && errorMessage.getMessage().contains("rt")) {
+                        return getString(R.string.cleared);
+                    } else
+                        return errorMessage.getMessage();
+                }
+                return null;
+
+            }
+
+            @Override
+            public void onCompleted() {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZZZ", Locale.ENGLISH);
+                String cDateTime = dateFormat.format(new Date());
+                Log.d("vehicle_error_complete", "Bus map updates finished updates at " + cDateTime);
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                if(e.getLocalizedMessage() != null)
+                    Log.e("vehicle_error_errs", e.getLocalizedMessage());
+                Log.e("vehicle_error_errs", Log.getStackTraceString(e));
+            }
+
+            @Override
+            public void onNext(ErrorMessage errorMessage) {
+                if(errorMessage != null && errorMessage.getMessage() != null) {
+                    showToast(transformMessage(errorMessage) +
+                                    (errorMessage.getParameters() != null ? ": " + errorMessage.getParameters() : ""),
+                            Toast.LENGTH_LONG);
+                }
+
+            }
+        };
+    }
+
     /**
      * adds buses to map. or else the map will be clear...
      */
@@ -901,96 +1054,24 @@ public class SelectTransit extends AppCompatActivity implements
                 .map(VehicleResponse::getBustimeResponse)
                 .subscribeOn(Schedulers.io());
 
-        Observable<Vehicle> vehicleObservable = bustimeVehicleResponseObservable.flatMap(bustimeVehicleResponse -> Observable.from(bustimeVehicleResponse.getVehicle()));
+        Observable<Vehicle> vehicleObservable = bustimeVehicleResponseObservable.flatMap(
+                bustimeVehicleResponse -> Observable.from(bustimeVehicleResponse.getVehicle()));
 
         vehicleSubscription = vehicleObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Vehicle>() {
+                .subscribe(vehicleBusUpdate());
 
-                    private boolean showedErrors = false;
+        Observable<HashMap<String, ArrayList<String>>> vehicleErrorObservable = bustimeVehicleResponseObservable
+                .map(BustimeVehicleResponse::getProcessedErrors);
 
-                    @Override
-                    public void onCompleted() {
-                        SimpleDateFormat dateFormat= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZZZ", Locale.ENGLISH);
-                        String cDateTime = dateFormat.format(new Date());
-                        Log.d("bus_vehicle update", "Bus map updates finished updates at " + cDateTime);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        if(e.getMessage() != null && e.getLocalizedMessage() != null && !showedErrors) {
-                            showedErrors = true;
-                            if(e instanceof RetrofitError) {
-                                printRetrofitError((RetrofitError)e);
-                            }
-                            Log.e("bus_vehicle_error", e.getMessage());
-                        }
-                        Log.e("bus_vehicle_error", e.getClass().getName());
-                        Log.e("bus_vehicle_error", Log.getStackTraceString(e));
-                    }
-
-                    @Override
-                    public void onNext(Vehicle vehicle) {
-                        addOrUpdateMarkers(vehicle);
-                    }
-
-                    /**
-                     * Handle vehicle updates and adds...
-                     * <ul>
-                     *     <li>add marker if not on {@link SelectTransit#busMarkers} - {@link #addMarker(Vehicle)}</li>
-                     *     <li>update marker if in {@link SelectTransit#busMarkers} - {@link #updateMarker(Vehicle, Marker)}</li>
-                     * </ul>
-                     *
-                     * @since 46
-                     * @param vehicle - vehicle to be added
-                     */
-
-                    private void addOrUpdateMarkers(Vehicle vehicle) {
-                        int vid = vehicle.getVid();
-                        Marker marker = busMarkers.get(vid);
-                        if(marker == null) {
-                            addMarker(vehicle);
-                        } else {
-                            updateMarker(vehicle, marker);
-                        }
-
-                    }
-
-                    /**
-                     * adds marker not in {@link SelectTransit#busMarkers}
-                     * @since 46
-                     * @param vehicle - the vehicle to add
-                     */
-
-                    private void addMarker(Vehicle vehicle) {
-                        Log.d("marker_add", "adding_marker " + Integer.toString(vehicle.getVid()));
-                        Log.d("marker_add", busIcons.get(vehicle.getRt()).toString());
-                        busMarkers.put(vehicle.getVid(), mMap.addMarker(new MarkerOptions()
-                                        .position(new LatLng(vehicle.getLat(), vehicle.getLon()))
-                                        .title(vehicle.getRt() + "(" + vehicle.getVid() + ") " + vehicle.getDes() + (vehicle.isDly() ? " - Delayed" : ""))
-                                        .draggable(false)
-                                        .rotation(vehicle.getHdg())
-                                        .icon(BitmapDescriptorFactory.fromBitmap(busIcons.get(vehicle.getRt())))
-                                        .anchor((float) .5, (float) 0.5)
-                                        .flat(true)
-                        ));
-                    }
-
-                    /**
-                     * Updates marker information on map
-                     * @since 46
-                     * @param vehicle - vehicle to update
-                     * @param marker - marker to update
-                     */
-
-                    private void updateMarker(Vehicle vehicle, Marker marker) {
-                        Log.d("marker_update", "updating_pointer");
-                        marker.setTitle(vehicle.getRt() + "(" + vehicle.getVid() + ") " + vehicle.getDes() + (vehicle.isDly() ? " - Delayed" : ""));
-                        marker.setPosition(new LatLng(vehicle.getLat(), vehicle.getLon()));
-                        marker.setRotation(vehicle.getHdg());
-                    }
-                });
+        vehicleErrorSubscription = vehicleErrorObservable
+                .distinctUntilChanged()
+                .flatMap(errorMap -> Observable.from(errorMap.entrySet()))
+                .map(processedError -> new ErrorMessage(processedError.getKey(), processedError.getValue()))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(vehicleErrorObserver());
 
     }
 
@@ -1058,7 +1139,7 @@ public class SelectTransit extends AppCompatActivity implements
     private void makeSnackbar(String string, int showLength) {
         if(string != null && string.length() > 0) {
 
-            Snackbar.make(findViewById(android.R.id.content),
+            Snackbar.make(mainLayout,
                     string, showLength
             ).show();
         }
@@ -1071,6 +1152,8 @@ public class SelectTransit extends AppCompatActivity implements
     private void stopTimer() {
         if(vehicleSubscription != null)
             vehicleSubscription.unsubscribe();
+        if(vehicleErrorSubscription != null)
+            vehicleErrorSubscription.unsubscribe();
     }
 
     /**
@@ -1191,7 +1274,7 @@ public class SelectTransit extends AppCompatActivity implements
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == LOCATION_REQUEST_CODE) {
             if (permissions.length == 1 &&
                     permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION) &&

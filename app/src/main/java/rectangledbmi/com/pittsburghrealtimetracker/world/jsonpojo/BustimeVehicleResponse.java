@@ -1,6 +1,8 @@
 
 package rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo;
 
+import android.util.Log;
+
 import com.google.gson.annotations.Expose;
 
 import java.util.ArrayList;
@@ -23,8 +25,6 @@ public class BustimeVehicleResponse {
 
     @Expose
     private List<Error> error = new ArrayList<Error>();
-
-    private HashMap<String, ArrayList<String>> processedErrors = new HashMap<String, ArrayList<String>>();
 
     /**
      *
@@ -51,10 +51,13 @@ public class BustimeVehicleResponse {
      */
     public void setError(List<Error> error) {
         this.error = error;
-        processErrors();
+        Log.d("vehicle_error", "set errors....");
+
     }
 
-    private void processErrors() {
+    private HashMap<String, ArrayList<String>> processErrors() {
+        HashMap<String, ArrayList<String>> processedErrors =
+                new HashMap<String, ArrayList<String>>(error.size());
         for(Error err : error) {
             ArrayList<String> listOfParams = processedErrors.get(err.getMsg());
             if(listOfParams == null) {
@@ -62,12 +65,13 @@ public class BustimeVehicleResponse {
                 processedErrors.put(err.getMsg(), listOfParams);
             }
             listOfParams.add(err.getRt());
-
         }
+        return processedErrors;
     }
 
     public HashMap<String, ArrayList<String>> getProcessedErrors() {
-        return processedErrors;
+        Log.d("vehicle_error", getError().toString());
+        return processErrors();
     }
 
     /**
