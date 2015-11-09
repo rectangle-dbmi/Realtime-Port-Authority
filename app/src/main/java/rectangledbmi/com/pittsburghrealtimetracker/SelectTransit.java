@@ -18,6 +18,7 @@ import android.location.Location;
 import android.net.http.HttpResponseCache;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -41,7 +42,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -51,12 +51,19 @@ import com.google.gson.GsonBuilder;
 import com.squareup.leakcanary.LeakCanary;
 
 import java.io.File;
+import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -66,11 +73,11 @@ import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestLine;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter;
-import rectangledbmi.com.pittsburghrealtimetracker.retrofit.PATAPI;
+import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
+import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.errorcontainers.ErrorMessage;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimeVehicleResponse;
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Error;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Vehicle;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.VehicleResponse;
 import retrofit.RestAdapter;
@@ -80,7 +87,6 @@ import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
@@ -206,17 +212,46 @@ public class SelectTransit extends AppCompatActivity implements
     private Subscription vehicleSubscription;
 
     /**
+     * Subscription for broadcasting vehicle update errors
+     *
+     * @since 55
+     */
+    private Subscription vehicleErrorSubscription;
+
+    /**
      * Bus icons created from drawable/bus_icon.png
      *
      * @since 47
      */
     private ConcurrentHashMap<String, Bitmap> busIcons;
 
+    /**
+     * Subscription for bus icon generation
+     *
+     * @since 48
+     */
     private Subscription busIconGeneration;
 
+    /**
+     * Camera listener reference for Google Maps
+     *
+     * @since 54
+     */
     private GoogleMap.OnCameraChangeListener mMapCameraListener;
 
+    /**
+     * Click listener reference for Google Maps
+     *
+     * @since 54
+     */
     private GoogleMap.OnMarkerClickListener mMapMarkerClickListener;
+
+    /**
+     * Reference to the main activity's Layout.
+     *
+     * @since 55
+     */
+    private DrawerLayout mainLayout;
 
 
     /**
@@ -234,6 +269,8 @@ public class SelectTransit extends AppCompatActivity implements
         restoreActionBar();
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
+
+        mainLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
@@ -378,7 +415,7 @@ public class SelectTransit extends AppCompatActivity implements
             defaultCameraLocation();
         }
         Log.d("savedInstance_restore", "saved? " + inSavedState);
-        Log.d("savedInstance_restore", "lat="+latitude);
+        Log.d("savedInstance_restore", "lat=" + latitude);
         Log.d("savedInstance_restore", "long=" + longitude);
         if (transitStop == null) {
             transitStop = new TransitStop();
@@ -454,20 +491,9 @@ public class SelectTransit extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-//        if(!isNetworkAvailable()) {
-//            DataRequiredDialog dialog = new DataRequiredDialog();
-//            dialog.show(getSupportFragmentManager(), "data required");
-//        }
-//        if (mMap != null) {
-//            setUpMap();
-//        } else
-////            setUpMapIfNeeded();
-//        if(buses != null) {
         if(mMap != null) {
             restoreBuses();
         }
-
-//        }
     }
 
     /**
@@ -476,9 +502,9 @@ public class SelectTransit extends AppCompatActivity implements
     private void restorePreferences() {
         Log.d("restoring buses", "Attempting to restore buses.");
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        buses = new HashSet<String>(sp.getStringSet(BUS_SELECT_STATE,
+        buses = new HashSet<>(sp.getStringSet(BUS_SELECT_STATE,
                 Collections.synchronizedSet(
-                        new HashSet<String>(getResources().getInteger(R.integer.max_checked)))));
+                        new HashSet<>(getResources().getInteger(R.integer.max_checked)))));
     }
 
     protected void onPause() {
@@ -621,21 +647,13 @@ public class SelectTransit extends AppCompatActivity implements
                         return 1.0 - (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255 < .5;
                     }
                 },
-                new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        if (throwable.getMessage() != null) {
-                            Log.e("bus_icon_error", throwable.getMessage());
-                        }
-                        Log.e("bus_icon_error", Log.getStackTraceString(throwable));
+                throwable -> {
+                    if (throwable.getMessage() != null) {
+                        Log.e("bus_icon_error", throwable.getMessage());
                     }
+                    Log.e("bus_icon_error", Log.getStackTraceString(throwable));
                 },
-                new Action0() {
-                    @Override
-                    public void call() {
-                        clearAndAddToMap();
-                    }
-                }
+                this::clearAndAddToMap
         );
     }
 
@@ -721,7 +739,7 @@ public class SelectTransit extends AppCompatActivity implements
             try {
                 setSupportActionBar(toolbar);
             } catch (Throwable e) {
-                Snackbar.make(findViewById(android.R.id.content),
+                Snackbar.make(mainLayout,
                 "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Snackbar.LENGTH_LONG).show();
 //                Toast.makeText(this, "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Toast.LENGTH_LONG).show();
             }
@@ -730,7 +748,7 @@ public class SelectTransit extends AppCompatActivity implements
             ActionBar t = getSupportActionBar();
             if(t != null) t.setDisplayHomeAsUpEnabled(true);
         } catch(NullPointerException e) {
-            Snackbar.make(findViewById(android.R.id.content),
+            Snackbar.make(mainLayout,
                     "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Snackbar.LENGTH_LONG).show();
         }
 
@@ -813,33 +831,26 @@ public class SelectTransit extends AppCompatActivity implements
      */
     private void createListeners() {
         if(mMapCameraListener == null) {
-            mMapCameraListener = new GoogleMap.OnCameraChangeListener() {
-
-                @Override
-                public void onCameraChange(CameraPosition cameraPosition) {
-                    if (!inSavedState)
-                        inSavedState = true;
-                    latitude = cameraPosition.target.latitude;
-                    longitude = cameraPosition.target.longitude;
-                    if (zoom != cameraPosition.zoom) {
-                        zoom = cameraPosition.zoom;
-                        transitStop.checkAllVisibility(zoom, Float.parseFloat(getString(R.string.zoom_level)));
-                    }
+            mMapCameraListener = cameraPosition -> {
+                if (!inSavedState)
+                    inSavedState = true;
+                latitude = cameraPosition.target.latitude;
+                longitude = cameraPosition.target.longitude;
+                if (zoom != cameraPosition.zoom) {
+                    zoom = cameraPosition.zoom;
+                    transitStop.checkAllVisibility(zoom, Float.parseFloat(getString(R.string.zoom_level)));
                 }
             };
         }
         if(mMapMarkerClickListener == null) {
-            mMapMarkerClickListener = new GoogleMap.OnMarkerClickListener() {
-                @Override
-                public boolean onMarkerClick(Marker marker) {
+            mMapMarkerClickListener = marker -> {
 
-                    if (marker != null) {
-                        mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()), 400, null);
-                        new RequestPredictions(getApplicationContext(), marker, buses).execute(marker.getTitle());
-                        return true;
-                    }
-                    return false;
+                if (marker != null) {
+                    mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()), 400, null);
+                    new RequestPredictions(getApplicationContext(), marker, buses).execute(marker.getTitle());
+                    return true;
                 }
+                return false;
             };
         }
     }
@@ -848,10 +859,6 @@ public class SelectTransit extends AppCompatActivity implements
      * set the map listeners
      */
     private void setMapListeners() {
-        // Do a null check to confirm that we have not already instantiated the map.
-//        if (mMap == null) {
-////            mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-//            // Check if we were successful in obtaining the map.
         if (mMap != null) {
             createListeners();
             mMap.setInfoWindowAdapter(new ETAWindowAdapter(getLayoutInflater()));
@@ -885,7 +892,7 @@ public class SelectTransit extends AppCompatActivity implements
     /**
      * Stops the bus refresh, then adds buses to the map
      */
-    private synchronized void clearAndAddToMap() {
+    private void clearAndAddToMap() {
         if (mMap != null) {
             Log.d("stop_add_buses", buses.toString());
             stopTimer();
@@ -906,197 +913,205 @@ public class SelectTransit extends AppCompatActivity implements
     }
 
     /**
-     * adds buses to map. or else the map will be clear...
+     * This creates an observer to either update or add the buses to the map.
+     * @return the vehicle update observer
+     * @since 55
      */
+    private Observer<Vehicle> vehicleBusUpdate() {
+        return new Observer<Vehicle>() {
 
-    private synchronized void addBuses() {
+            private boolean showedErrors = false;
+
+            @Override
+            public void onCompleted() {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZZZ", Locale.ENGLISH);
+                String cDateTime = dateFormat.format(new Date());
+                Log.d("bus_vehicle update", "Bus map updates finished updates at " + cDateTime);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                if (e.getMessage() != null && e.getLocalizedMessage() != null && !showedErrors) {
+                    showedErrors = true;
+                    if (e instanceof RetrofitError) {
+                        printRetrofitError((RetrofitError) e);
+                    }
+                    Log.e("bus_vehicle_error", e.getMessage());
+                }
+                Log.e("bus_vehicle_error", e.getClass().getName());
+                Log.e("bus_vehicle_error", Log.getStackTraceString(e));
+            }
+
+            @Override
+            public void onNext(Vehicle vehicle) {
+                addOrUpdateMarkers(vehicle);
+            }
+
+            /**
+             * Handle vehicle updates and adds...
+             * <ul>
+             *     <li>add marker if not on {@link SelectTransit#busMarkers} - {@link #addMarker(Vehicle)}</li>
+             *     <li>update marker if in {@link SelectTransit#busMarkers} - {@link #updateMarker(Vehicle, Marker)}</li>
+             * </ul>
+             *
+             * @since 46
+             * @param vehicle - vehicle to be added
+             */
+
+            private void addOrUpdateMarkers(Vehicle vehicle) {
+                int vid = vehicle.getVid();
+                Marker marker = busMarkers.get(vid);
+                if (marker == null) {
+                    addMarker(vehicle);
+                } else {
+                    updateMarker(vehicle, marker);
+                }
+
+            }
+
+            /**
+             * adds marker not in {@link SelectTransit#busMarkers}
+             * @since 46
+             * @param vehicle - the vehicle to add
+             */
+            private void addMarker(Vehicle vehicle) {
+                Log.d("marker_add", "adding_marker " + Integer.toString(vehicle.getVid()));
+                Log.d("marker_add", busIcons.get(vehicle.getRt()).toString());
+                busMarkers.put(vehicle.getVid(), mMap.addMarker(new MarkerOptions()
+                                .position(new LatLng(vehicle.getLat(), vehicle.getLon()))
+                                .title(vehicle.getRt() + "(" + vehicle.getVid() + ") " + vehicle.getDes() + (vehicle.isDly() ? " - Delayed" : ""))
+                                .draggable(false)
+                                .rotation(vehicle.getHdg())
+                                .icon(BitmapDescriptorFactory.fromBitmap(busIcons.get(vehicle.getRt())))
+                                .anchor((float) .5, (float) 0.5)
+                                .flat(true)
+                ));
+            }
+
+            /**
+             * Updates marker information on map
+             * @since 46
+             * @param vehicle - vehicle to update
+             * @param marker - marker to update
+             */
+            private void updateMarker(Vehicle vehicle, Marker marker) {
+                Log.d("marker_update", "updating_pointer");
+                marker.setTitle(vehicle.getRt() + "(" + vehicle.getVid() + ") " + vehicle.getDes() + (vehicle.isDly() ? " - Delayed" : ""));
+                marker.setPosition(new LatLng(vehicle.getLat(), vehicle.getLon()));
+                marker.setRotation(vehicle.getHdg());
+            }
+        };
+    }
+
+    /**
+     * This is the vehicle update/add Port Authority API observer that will print each processed error
+     * into a Toast.
+     * @return the vehicle update observer
+     * @since 55
+     */
+    private Observer<ErrorMessage> vehicleErrorObserver() {
+        Log.d("vehicle_error_observer", "restarting the vehicle error observer");
+        return new Observer<ErrorMessage>() {
+
+            @Override
+            public void onCompleted() {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZZZ", Locale.ENGLISH);
+                String cDateTime = dateFormat.format(new Date());
+                Log.d("vehicle_error_complete", "Bus map error updates finished updates at " + cDateTime);
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                if(e.getLocalizedMessage() != null)
+                    Log.e("vehicle_error_errs", e.getLocalizedMessage());
+                Log.e("vehicle_error_errs", Log.getStackTraceString(e));
+            }
+
+            @Override
+            public void onNext(ErrorMessage errorMessage) {
+                if(errorMessage != null && errorMessage.getMessage() != null) {
+                    showToast(errorMessage.getMessage() +
+                                    (errorMessage.getParameters() != null ? ": " + errorMessage.getParameters() : ""),
+                            Toast.LENGTH_LONG);
+                }
+
+            }
+        };
+    }
+
+    /**
+     * Creates an anonymous class to make messages more human-readable.
+     * @return a closure to create a human-readable {@link ErrorMessage}
+     * @since 55
+     */
+    private Func1<Map.Entry<String, ArrayList<String>>, ErrorMessage> transformSingleMessage() {
+        return new Func1<Map.Entry<String,ArrayList<String>>, ErrorMessage>() {
+
+            /**
+             * Transforms the original message to a user-readable message.
+             * @param originalMessage The original Port Authority API message
+             * @return a user-readable message from the original API message
+             */
+            private String transformMessage(String originalMessage) {
+                if(originalMessage != null) {
+                    if (originalMessage.contains("No data found for parameter")) {
+                        return getString(R.string.no_vehicle_error);
+                    } else if (originalMessage.contains("specified") && originalMessage.contains("rt")) {
+                        return getString(R.string.cleared);
+                    } else
+                        return originalMessage;
+                }
+                return null;
+
+            }
+
+            @Override
+            public ErrorMessage call(Map.Entry<String, ArrayList<String>> processedMessage) {
+                return new ErrorMessage(transformMessage(processedMessage.getKey()), processedMessage.getValue());
+            }
+        };
+    }
+
+    /**
+     * adds buses to map... or else the map will be clear.
+     *
+     * It updates the map every 10 seconds and makes sure that on the other threads, it will
+     * process the Port Authority API call to Reactive way.
+     */
+    private void addBuses() {
         Log.d("adding buses", buses.toString());
-        vehicleSubscription = Observable.timer(0, 10, TimeUnit.SECONDS)
-                .flatMap(new Func1<Long, Observable<VehicleResponse>>() {
-                    @Override
-                    public Observable<VehicleResponse> call(Long aLong) {
-                        return patApiClient.getVehicles(collectionToString(buses), BuildConfig.PAT_API_KEY);
-                    }
-                }).subscribeOn(Schedulers.io())
+
+        // get the JSON object and put it in an observable
+        Observable<BustimeVehicleResponse> bustimeVehicleResponseObservable = Observable.interval(0, 10, TimeUnit.SECONDS)
+                .flatMap(aLong -> patApiClient.getVehicles(collectionToString(buses), BuildConfig.PAT_API_KEY))
+                .subscribeOn(Schedulers.io())
+                .map(VehicleResponse::getBustimeResponse)
+                .subscribeOn(Schedulers.io());
+
+        // get the vehicles observer
+        Observable<Vehicle> vehicleObservable = bustimeVehicleResponseObservable.flatMap(
+                bustimeVehicleResponse -> Observable.from(bustimeVehicleResponse.getVehicle()));
+
+        // run the vehicle updater
+        vehicleSubscription = vehicleObservable
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<VehicleResponse>() {
+                .subscribe(vehicleBusUpdate());
 
+        // get the vehicle errors observer
+        Observable<HashMap<String, ArrayList<String>>> vehicleErrorObservable = bustimeVehicleResponseObservable
+                .map(BustimeVehicleResponse::getProcessedErrors);
 
-                    /**
-                     * Shows whether to displays or not (will only show errors once on the timer)
-                     * @since 47
-                     */
-                    private boolean showedErrors = false;
+        // run the vehicle update observer and print it when the error message object changes
+        vehicleErrorSubscription = vehicleErrorObservable
+                .distinctUntilChanged()
+                .flatMap(errorMap -> Observable.from(errorMap.entrySet()))
+                .map(transformSingleMessage())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(vehicleErrorObserver());
 
-                    @Override
-                    public void onCompleted() {
-                        Log.d("buses_vehicle", "completed!");
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        if(e.getMessage() != null && e.getLocalizedMessage() != null && !showedErrors) {
-                            showedErrors = true;
-                            if(e instanceof RetrofitError) {
-                                printRetrofitError((RetrofitError)e);
-                            }
-//                            makeSnackbar(e.getLocalizedMessage(), Snackbar.LENGTH_LONG);
-                            Log.e("bus_vehicle_error", e.getMessage());
-//                            Toast.makeText(appcontext, e.getMessage(), Toast.LENGTH_LONG).show();
-                        }
-                        Log.e("bus_vehicle_error", e.getClass().getName());
-
-                        Log.e("bus_vehicle_error", Log.getStackTraceString(e));
-                    }
-
-                    @Override
-                    public void onNext(VehicleResponse vehicleResponse) {
-                        if (vehicleResponse != null) {
-                            BustimeVehicleResponse response = vehicleResponse.getBustimeResponse();
-                            List<Vehicle> vehicles = response.getVehicle();
-                            List<Error> errors = response.getError();
-                            //update buses
-                            Log.d("bus_vehicle_err_pres", Boolean.toString(showedErrors));
-                            if(!errors.isEmpty() && !showedErrors) {
-                                showedErrors = true;
-                                for (Error error : errors) {
-//                                    makeSnackbar(printErrors(error).toString(), Snackbar.LENGTH_LONG);
-                                    showToast(printErrors(error).toString(), Toast.LENGTH_LONG);
-                                }
-                            }
-                            if (vehicles.size() > 0) {
-                                onHandleVehicles(vehicles);
-                            } else if (vehicles.size() == 0) {
-                                removeBuses();
-                                stopTimer();
-                            }
-                        }
-                    }
-
-/**
-                     * Handle vehicle updates... either...
-                     * <ul>
-                     *     <li>add marker if not on {@link SelectTransit#busMarkers}</li>
-                     *     <li>update marker if in {@link SelectTransit#busMarkers}</li>
-                     *     <li>remove marker if in @{@link SelectTransit#busMarkers} but no longer on map</li>
-                     * </ul>
-                     *
-                     * @since 46
-                     * @param vehicles - list of vehicles from API
-                     */
-
-
-                    private void onHandleVehicles(List<Vehicle> vehicles) {
-                        // Delete markers in here
-//                        Set<Integer> routesOnMap = new HashSet<Integer>(busMarkers.keySet());
-                        for(Vehicle vehicle : vehicles) {
-                            addOrUpdateMarkers(vehicle);
-                        }
-//                        removeBuses(routesOnMap);
-                    }
-
-/**
-                     * Handle vehicle updates and adds...
-                     * <ul>
-                     *     <li>add marker if not on {@link SelectTransit#busMarkers} - {@link #addMarker(Vehicle)}</li>
-                     *     <li>update marker if in {@link SelectTransit#busMarkers} - {@link #updateMarker(Vehicle, Marker)}</li>
-                     * </ul>
-                     *
-                     * @since 46
-                     * @param vehicle - vehicle to be added
-                     */
-
-                    private void addOrUpdateMarkers(Vehicle vehicle) {
-                        int vid = vehicle.getVid();
-                        Marker marker = busMarkers.get(vid);
-                        if(marker == null) {
-                            addMarker(vehicle);
-                        } else {
-                            updateMarker(vehicle, marker);
-                        }
-
-                    }
-
-/**
-                     * adds marker not in {@link SelectTransit#busMarkers}
-                     * @since 46
-                     * @param vehicle - the vehicle to add
-                     */
-
-                    private void addMarker(Vehicle vehicle) {
-                        Log.d("marker_add", "adding_marker " + Integer.toString(vehicle.getVid()));
-                        Log.d("marker_add", busIcons.get(vehicle.getRt()).toString());
-                        busMarkers.put(vehicle.getVid(), mMap.addMarker(new MarkerOptions()
-                                        .position(new LatLng(vehicle.getLat(), vehicle.getLon()))
-                                        .title(vehicle.getRt() + "(" + vehicle.getVid() + ") " + vehicle.getDes() + (vehicle.isDly() ? " - Delayed" : ""))
-                                        .draggable(false)
-                                        .rotation(vehicle.getHdg())
-                                        .icon(BitmapDescriptorFactory.fromBitmap(busIcons.get(vehicle.getRt())))
-                                        .anchor((float) .5, (float) 0.5)
-                                        .flat(true)
-                        ));
-                    }
-
-/**
-                     * Updates marker information on map
-                     * @since 46
-                     * @param vehicle - vehicle to update
-                     * @param marker - marker to update
-                     */
-
-                    private void updateMarker(Vehicle vehicle, Marker marker) {
-                        Log.d("marker_update", "updating_pointer");
-                        marker.setTitle(vehicle.getRt() + "(" + vehicle.getVid() + ") " + vehicle.getDes() + (vehicle.isDly() ? " - Delayed" : ""));
-                        marker.setPosition(new LatLng(vehicle.getLat(), vehicle.getLon()));
-                        marker.setRotation(vehicle.getHdg());
-                    }
-/**
-                     * Prints the errors
-                     *
-                     * @since 46
-                     * @param error - the Error Object
-                     * @return a stringBuilder to show errors
-                     */
-
-                    private StringBuilder printErrors(Error error) {
-                        if(error != null) {
-                            StringBuilder st = new StringBuilder();
-                            if(error.getRt() != null) {
-                                addMsg(st, getString(R.string.no_vehicle_error));
-                                st.append(" ");
-                                addMsg(st, error.getRt());
-//                                buses.remove(error.getRt().trim()); TODO: activate this later when we figure out how to handle no route -> next day there's a route
-                            } else if(error.getMsg().contains("specified") && error.getMsg().contains("rt")) {
-                                addMsg(st, getString(R.string.cleared));
-                            }
-                            else
-                                addMsg(st, error.getMsg());
-                            Log.d("vehicle_error", st.toString());
-                            return st;
-                        }
-                        return null;
-
-                    }
-
-/**
-                     * Creates appends to a StringBuilder
-                     *
-                     * @since 46
-                     * @param st - stringbuilder to make
-                     * @param s - strings to add
-                     */
-
-                    private void addMsg(StringBuilder st, String... s) {
-                        //TODO: maybe do this in another thread
-                        if(s != null) {
-                            for(String i : s) {
-                                if(i != null && i.trim().length() > 0)
-                                    st.append(i);
-                                else break;
-                            }
-                        }
-                    }
-                });
     }
 
     /**
@@ -1163,7 +1178,7 @@ public class SelectTransit extends AppCompatActivity implements
     private void makeSnackbar(String string, int showLength) {
         if(string != null && string.length() > 0) {
 
-            Snackbar.make(findViewById(android.R.id.content),
+            Snackbar.make(mainLayout,
                     string, showLength
             ).show();
         }
@@ -1176,6 +1191,8 @@ public class SelectTransit extends AppCompatActivity implements
     private void stopTimer() {
         if(vehicleSubscription != null)
             vehicleSubscription.unsubscribe();
+        if(vehicleErrorSubscription != null)
+            vehicleErrorSubscription.unsubscribe();
     }
 
     /**
@@ -1228,9 +1245,11 @@ public class SelectTransit extends AppCompatActivity implements
      * @return whether or not your device is in Pittsburgh
      */
     private boolean isInPittsburgh(Location currentLocation) {
-        if(currentLocation == null) return false;
-        return ((currentLocation.getLatitude() > 39.859673 && currentLocation.getLatitude() < 40.992847) &&
-                (currentLocation.getLongitude() > -80.372815 && currentLocation.getLongitude() < -79.414258));
+        return currentLocation != null &&
+                (
+                        (currentLocation.getLatitude() > 39.859673 && currentLocation.getLatitude() < 40.992847) &&
+                                (currentLocation.getLongitude() > -80.372815 && currentLocation.getLongitude() < -79.414258)
+                );
     }
 
     /**
@@ -1250,7 +1269,6 @@ public class SelectTransit extends AppCompatActivity implements
             Log.d("location_changed", "current location is null");
             LocationServices.FusedLocationApi.requestLocationUpdates(googleAPIClient, gLocationRequest, this);
             if (currentLocation != null) {
-                //                LocationServices.FusedLocationApi.removeLocationUpdates(googleAPIClient, this);
                 if (mMap != null && isInPittsburgh(currentLocation))
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                             new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
@@ -1284,14 +1302,9 @@ public class SelectTransit extends AppCompatActivity implements
             if(!ActivityCompat.shouldShowRequestPermissionRationale(SelectTransit.this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
                 showOkDialog(getString(R.string.location_permission_message),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                ActivityCompat.requestPermissions(SelectTransit.this,
-                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                        LOCATION_REQUEST_CODE);
-                            }
-                        });
+                        (dialog, which) -> ActivityCompat.requestPermissions(SelectTransit.this,
+                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                LOCATION_REQUEST_CODE));
             }
             ActivityCompat.requestPermissions(SelectTransit.this,
                     new String[]{Manifest.permission_group.LOCATION},
@@ -1302,7 +1315,7 @@ public class SelectTransit extends AppCompatActivity implements
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == LOCATION_REQUEST_CODE) {
             if (permissions.length == 1 &&
                     permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION) &&

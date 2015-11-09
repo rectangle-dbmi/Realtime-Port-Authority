@@ -12,7 +12,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import rectangledbmi.com.pittsburghrealtimetracker.hidden.PortAuthorityAPI;
+import rectangledbmi.com.pittsburghrealtimetracker.patapi.PortAuthorityAPI;
 
 /**
  * Inspired by http://stackoverflow.com/questions/8986376/how-to-download-xml-file-from-server-and-save-it-in-sd-card
