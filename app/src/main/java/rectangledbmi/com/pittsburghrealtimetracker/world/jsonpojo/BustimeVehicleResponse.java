@@ -58,6 +58,7 @@ public class BustimeVehicleResponse {
     /**
      * Processes the errors into a hashmap since like messages can be transient
      * @return the hashmap of processed errors
+     * @since 55
      */
     private HashMap<String, ArrayList<String>> processErrors() {
         HashMap<String, ArrayList<String>> processedErrors =
@@ -76,6 +77,7 @@ public class BustimeVehicleResponse {
     /**
      * Gets the processed errors into a HashMap.
      * @return a hashmap of messages as keys and the parameters for the messages as the value.
+     * @since 55
      */
     public HashMap<String, ArrayList<String>> getProcessedErrors() {
         Log.d("vehicle_error", getError().toString());

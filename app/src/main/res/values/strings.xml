@@ -5,6 +5,9 @@
 
     <string-array name="buses">
         <item color="#3300cc">1</item>
+        <item color="#ff33cc">2</item>
+        <item color="#ffcc33">6</item>
+        <item color="#98fb98">8</item>
         <item color="#cc00cc">12</item>
         <item color="#ff6666">13</item>
         <item color="#f4a460">14</item>
@@ -13,7 +16,6 @@
         <item color="#ff3300">17</item>
         <item color="#bc8f8f">18</item>
         <item color="#00ff66">19L</item>
-        <item color="#ff33cc">2</item>
         <item color="#00cc00">20</item>
         <item color="#99cc00">21</item>
         <item color="#00ff00">22</item>
@@ -39,7 +41,6 @@
         <item color="#cc0066">57</item>
         <item color="#00ff99">58</item>
         <item color="#99ff00">59</item>
-        <item color="#ffcc33">6</item>
         <item color="#999900">60</item>
         <item color="#e0ffff">61A</item>
         <item color="#afeeee">61B</item>
@@ -60,7 +61,6 @@
         <item color="#0099ff">77</item>
         <item color="#993366">78</item>
         <item color="#ff9933">79</item>
-        <item color="#98fb98">8</item>
         <item color="#ff66cc">81</item>
         <item color="#ffd700">82</item>
         <item color="#00ff33">83</item>
@@ -74,20 +74,20 @@
         <item color="#7cfc00">G3</item>
         <item color="#32cd32">G31</item>
         <item color="#ff6600">O1</item>
-        <item color="#ff8c00">O12</item>
         <item color="#ff7f50">O5</item>
+        <item color="#ff8c00">O12</item>
         <item color="#9900ff">P1</item>
+        <item color="#9933cc">P2</item>
+        <item color="#cc00ff">P3</item>
+        <item color="#9933ff">P7</item>
         <item color="#9932cc">P10</item>
         <item color="#ff00ff">P12</item>
         <item color="#cc33cc">P13</item>
         <item color="#cc0000">P16</item>
         <item color="#990033">P17</item>
-        <item color="#9933cc">P2</item>
-        <item color="#cc00ff">P3</item>
         <item color="#993399">P67</item>
         <item color="#ff0099">P68</item>
         <item color="#ff66ff">P69</item>
-        <item color="#9933ff">P7</item>
         <item color="#6666ff">P71</item>
         <item color="#6600ff">P76</item>
         <item color="#6633ff">P78</item>
@@ -99,6 +99,9 @@
     </string-array>
     <string-array name="buscolors">
         <item name="1">#3300cc</item>
+        <item name="2">#ff33cc</item>
+        <item name="6">#ffcc33</item>
+        <item name="8">#98fb98</item>
         <item name="12">#cc00cc</item>
         <item name="13">#ff6666</item>
         <item name="14">#f4a460</item>
@@ -107,7 +110,6 @@
         <item name="17">#ff3300</item>
         <item name="18">#bc8f8f</item>
         <item name="19L">#00ff66</item>
-        <item name="2">#ff33cc</item>
         <item name="20">#00cc00</item>
         <item name="21">#99cc00</item>
         <item name="22">#00ff00</item>
@@ -133,7 +135,6 @@
         <item name="57">#cc0066</item>
         <item name="58">#00ff99</item>
         <item name="59">#99ff00</item>
-        <item name="6">#ffcc33</item>
         <item name="60">#999900</item>
         <item name="61A">#e0ffff</item>
         <item name="61B">#afeeee</item>
@@ -154,7 +155,6 @@
         <item name="77">#0099ff</item>
         <item name="78">#993366</item>
         <item name="79">#ff9933</item>
-        <item name="8">#98fb98</item>
         <item name="81">#ff66cc</item>
         <item name="82">#ffd700</item>
         <item name="83">#00ff33</item>
@@ -168,20 +168,20 @@
         <item name="G3">#7cfc00</item>
         <item name="G31">#32cd32</item>
         <item name="O1">#ff6600</item>
-        <item name="O12">#ff8c00</item>
         <item name="O5">#ff7f50</item>
+        <item name="O12">#ff8c00</item>
         <item name="P1">#9900ff</item>
+        <item name="P2">#9933cc</item>
+        <item name="P3">#cc00ff</item>
+        <item name="P7">#9933ff</item>
         <item name="P10">#9932cc</item>
         <item name="P12">#ff00ff</item>
         <item name="P13">#cc33cc</item>
         <item name="P16">#cc0000</item>
         <item name="P17">#990033</item>
-        <item name="P2">#9933cc</item>
-        <item name="P3">#cc00ff</item>
         <item name="P67">#993399</item>
         <item name="P68">#ff0099</item>
         <item name="P69">#ff66ff</item>
-        <item name="P7">#9933ff</item>
         <item name="P71">#6666ff</item>
         <item name="P76">#6600ff</item>
         <item name="P78">#6633ff</item>
@@ -193,6 +193,9 @@
     </string-array>
     <string-array name="bus_description">
         <item name="1">Freeport Road</item>
+        <item name="2">Mount Royal</item>
+        <item name="6">Spring Hill</item>
+        <item name="8">Perrysville</item>
         <item name="12">McKnight</item>
         <item name="13">Bellevue</item>
         <item name="14">Ohio Valley</item>
@@ -201,7 +204,6 @@
         <item name="17">Shadeland</item>
         <item name="18">Manchester</item>
         <item name="19L">Emsworth Limited</item>
-        <item name="2">Mount Royal</item>
         <item name="20">Kennedy</item>
         <item name="21">Coraopolis</item>
         <item name="22">McCoy</item>
@@ -227,7 +229,6 @@
         <item name="57">Hazelwood</item>
         <item name="58">Greenfield</item>
         <item name="59">Mon Valley</item>
-        <item name="6">Spring Hill</item>
         <item name="60">Walnut-Crawford Village</item>
         <item name="61A">North Braddock</item>
         <item name="61B">Braddock-Swissvale</item>
@@ -248,7 +249,6 @@
         <item name="77">Penn Hills</item>
         <item name="78">Oakmont</item>
         <item name="79">East Hills</item>
-        <item name="8">Perrysville</item>
         <item name="81">Oak Hill</item>
         <item name="82">Lincoln</item>
         <item name="83">Bedford Hill</item>
@@ -262,20 +262,20 @@
         <item name="G3">Moon Flyer</item>
         <item name="G31">Bridgeville Flyer</item>
         <item name="O1">Ross Flyer</item>
-        <item name="O12">McKnight Flyer</item>
         <item name="O5">Thompson Run Flyer</item>
+        <item name="O12">McKnight Flyer</item>
         <item name="P1">East Busway-All Stops</item>
+        <item name="P2">East Busway Short</item>
+        <item name="P3">East Busway-Oakland</item>
+        <item name="P7">McKeesport Flyer</item>
         <item name="P10">Allegheny Valley Flyer</item>
         <item name="P12">Holiday Park Flyer</item>
         <item name="P13">Mount Royal Flyer</item>
         <item name="P16">Penn Hills Flyer</item>
         <item name="P17">Lincoln Park Flyer</item>
-        <item name="P2">East Busway Short</item>
-        <item name="P3">East Busway-Oakland</item>
         <item name="P67">Monroeville Flyer</item>
         <item name="P68">Braddock Hills Flyer</item>
         <item name="P69">Trafford Flyer</item>
-        <item name="P7">McKeesport Flyer</item>
         <item name="P71">Swissvale Flyer</item>
         <item name="P76">Lincoln Highway Flyer</item>
         <item name="P78">Oakmont Flyer</item>
@@ -327,7 +327,7 @@
     <!--Extra-->
     <string name="title_of_bus">Title of Bus</string>
     <!-- Errors -->
-    <string name="no_vehicle_error">Port Authority is currently not tracking</string>
+    <string name="no_vehicle_error">No tracking data available for routes</string>
     <string name="retrofit_network_error">Please check your data connection.</string>
     <string name="retrofit_conversion_error">Cannot translate information from Port Authority.</string>
     <string name="retrofit_http_error">The Port Authority website seems to be down.</string>

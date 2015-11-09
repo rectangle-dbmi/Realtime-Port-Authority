@@ -915,6 +915,7 @@ public class SelectTransit extends AppCompatActivity implements
     /**
      * This creates an observer to either update or add the buses to the map.
      * @return the vehicle update observer
+     * @since 55
      */
     private Observer<Vehicle> vehicleBusUpdate() {
         return new Observer<Vehicle>() {
@@ -1006,6 +1007,7 @@ public class SelectTransit extends AppCompatActivity implements
      * This is the vehicle update/add Port Authority API observer that will print each processed error
      * into a Toast.
      * @return the vehicle update observer
+     * @since 55
      */
     private Observer<ErrorMessage> vehicleErrorObserver() {
         Log.d("vehicle_error_observer", "restarting the vehicle error observer");
@@ -1041,6 +1043,7 @@ public class SelectTransit extends AppCompatActivity implements
     /**
      * Creates an anonymous class to make messages more human-readable.
      * @return a closure to create a human-readable {@link ErrorMessage}
+     * @since 55
      */
     private Func1<Map.Entry<String, ArrayList<String>>, ErrorMessage> transformSingleMessage() {
         return new Func1<Map.Entry<String,ArrayList<String>>, ErrorMessage>() {
