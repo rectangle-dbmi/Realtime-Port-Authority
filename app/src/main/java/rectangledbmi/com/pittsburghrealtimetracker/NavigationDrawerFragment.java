@@ -136,33 +136,12 @@ public class NavigationDrawerFragment extends Fragment {
         );
         mDrawerListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         //        mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
-        if(savedInstanceState != null) {
+        if (savedInstanceState != null) {
             mDrawerListView.onRestoreInstanceState(savedInstanceState.getParcelable(DRAWER_STATE));
             savedInstanceState.putBooleanArray(STATE_SELECTED_POSITIONS, mSelected);
         }
-//        restoreListView();
         return mDrawerListView;
     }
-
-/*    private void restoreListView() {
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//        System.out.println("In restore view");
-//        mSelected = new boolean[getResources().getStringArray(R.array.buses).length];
-        int list_size = sp.getInt(BUSLIST_SIZE, -1);
-        if(getResources().getStringArray(R.array.buses).length == list_size) {
-            Set<String> listIds = sp.getStringSet(STATE_SELECTED_POSITIONS, Collections.synchronizedSet(new HashSet<String>(0)));
-            Log.d("restoring listview", listIds.toString());
-            for (String selected : listIds) {
-                setTrue(Integer.parseInt(selected));
-//            System.out.println("Restoring: " + selected);
-            }
-        } else {
-            //Something should be here...
-            if(list_size != -1)
-                Toast.makeText(getActivity(), "New buses were added. Please re-select your buses", Toast.LENGTH_LONG).show();
-        }
-
-    }*/
 
     /**
      * Creates an arraylist of routes for the list view.
@@ -433,9 +412,8 @@ public class NavigationDrawerFragment extends Fragment {
         if(lineInfo.exists()) {
             File[] files = lineInfo.listFiles();
             if(files != null) {
-                for(File file : files) {
+                for(File file : files)
                     file.delete();
-                }
             }
         }
         Toast.makeText(getActivity(), getString(R.string.cleared), Toast.LENGTH_SHORT).show();
