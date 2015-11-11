@@ -328,6 +328,7 @@
     <string name="title_of_bus">Title of Bus</string>
     <!-- Errors -->
     <string name="no_vehicle_error">No tracking data available for routes</string>
+    <string name="pat_api_exceeded">Port Authority server unavailable. Please try again after midnight.</string>
     <string name="retrofit_network_error">Please check your data connection.</string>
     <string name="retrofit_conversion_error">Cannot translate information from Port Authority.</string>
     <string name="retrofit_http_error">The Port Authority website seems to be down.</string>
