@@ -16,4 +16,11 @@
 # This option should only be used with decoupled projects. More details, visit
 # http://www.gradle.org/docs/current/userguide/multi_project_builds.html#sec:decoupled_projects
 # org.gradle.parallel=true
-pat_api=
+# 
+########################################################################################
+#
+# Please copy this file first to `gradle.properties`
+# Then replace YOUR_API_KEY_HERE with a Port Authority API Key.
+# This can be retrieved by going to
+# http://www.portauthority.org/paac/CompanyInfoProjects/DeveloperResources.aspx
+pat_api=YOUR_API_KEY_HERE

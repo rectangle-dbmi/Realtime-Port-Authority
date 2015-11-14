@@ -1,4 +1,4 @@
-package rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.errorcontainers;
+package rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.errors;
 
 import java.util.ArrayList;
 import java.util.Collections;
