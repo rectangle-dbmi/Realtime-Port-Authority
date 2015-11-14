@@ -121,13 +121,7 @@ public class NavigationDrawerFragment extends Fragment {
 
         mDrawerListView = (ListView) inflater.inflate(
                 R.layout.fragment_navigation_drawer, container, false);
-        mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                selectItem(position);
-            }
-        });
+        mDrawerListView.setOnItemClickListener((parent, view, position, id) -> selectItem(position));
         mDrawerListView.setAdapter(
                 new ColoredArrayAdapter(
                         getActionBar().getThemedContext(),
