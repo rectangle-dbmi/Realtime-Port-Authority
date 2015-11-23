@@ -586,24 +586,26 @@ public class NavigationDrawerFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-                if(mRoute != null) {
-
-                    if(mRoute.isSelected()) { // always deselect route if already selected
-                        mRoute.setSelected(false);
-                        selectedRoutes.remove(mRoute.getRoute());
-                        busCallbacks.onDeselectBusRoute(mRoute);
-                        notifyItemChanged(getAdapterPosition());
-                    } else { // select route if not over max_checked
-                        if(selectedRoutes.size() < getResources().getInteger(R.integer.max_checked)) {
-                            mRoute.setSelected(true);
-                            selectedRoutes.add(mRoute.getRoute());
-                            busCallbacks.onSelectBusRoute(mRoute);
-                            notifyItemChanged(getAdapterPosition());
-                        } else {
-                            Toast.makeText(getActivity(), getString(R.string.max_selected_routes), Toast.LENGTH_LONG).show();
-                        }
-                    }
+                if(mRoute == null) { // do nothing if null
+                    return;
                 }
+
+                if(!mRoute.isSelected() && selectedRoutes.size() == getResources().getInteger(R.integer.max_checked)) {
+                    // print toast then do nothing if we are trying to select more than max
+                    Toast.makeText(getActivity(), getString(R.string.max_selected_routes), Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                // else, toggle selection
+                boolean selected = mRoute.toggleSelection();
+                if(selected) {
+                    selectedRoutes.add(mRoute.getRoute());
+                    busCallbacks.onSelectBusRoute(mRoute);
+                } else {
+                    selectedRoutes.remove(mRoute.getRoute());
+                    busCallbacks.onDeselectBusRoute(mRoute);
+                }
+                notifyItemChanged(getAdapterPosition());
             }
 
             /**
