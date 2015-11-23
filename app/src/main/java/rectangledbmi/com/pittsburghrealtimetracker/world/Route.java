@@ -34,13 +34,18 @@ public class Route {
     private int listPosition;
 
     /**
+     * Whether or not the route is selected
+     */
+    private boolean isSelected;
+
+    /**
      * The non-null constructor of the route and color as a string or hex-string
      * @param route the route number
      * @param routeInfo the route info
      * @param routeColor the color of the route as a string or string-hex
      */
-    public Route(String route, String routeInfo, String routeColor, int listPosition) {
-        this(route, routeInfo, Color.parseColor(routeColor), listPosition);
+    public Route(String route, String routeInfo, String routeColor, int listPosition, boolean isSelected) {
+        this(route, routeInfo, Color.parseColor(routeColor), listPosition, isSelected);
     }
 
     /**
@@ -49,11 +54,12 @@ public class Route {
      * @param routeInfo the route info
      * @param routeColor the color of the route as an int
      */
-    public Route(String route, String routeInfo, int routeColor, int listPosition) {
+    public Route(String route, String routeInfo, int routeColor, int listPosition, boolean isSelected) {
         this.route = route;
         this.routeInfo = routeInfo;
         this.routeColor = routeColor;
         this.listPosition = listPosition;
+        this.isSelected = isSelected;
     }
 
     /**
@@ -123,6 +129,65 @@ public class Route {
 
     public int getListPosition() {
         return listPosition;
+    }
+
+    /**
+     *
+     * @return true if state is changed to selected
+     * @since 58
+     */
+    public boolean selectRoute() {
+        if(!isSelected) {
+            setSelected(true);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     *
+     * @return true if state is changed to deselected
+     * @since 58
+     */
+    public boolean deselectRoute() {
+        if(isSelected) {
+            setSelected(false);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     *
+     * @return true if state is selected
+     * @since 58
+     */
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    /**
+     *
+     * @param sel the state to set
+     */
+    public void setSelected(boolean sel) {
+        isSelected = sel;
+    }
+
+    /**
+     * Toggles the selection to change the state of the route's selection.
+     *
+     * @return true if the route becomes selected; false if it becomes unselected
+     * @since 58
+     */
+    public boolean toggleSelection() {
+        if(isSelected) {
+            deselectRoute();
+            return false;
+        } else {
+            selectRoute();
+            return true;
+        }
     }
 
     /**
