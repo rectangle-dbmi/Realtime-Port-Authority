@@ -55,10 +55,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -99,11 +97,6 @@ public class SelectTransit extends AppCompatActivity implements
         OnMapReadyCallback, LocationListener {
 
     private static final String LINES_LAST_UPDATED = "lines_last_updated";
-
-    /**
-     * Saved instance of the buses that are selected
-     */
-    private final static String BUS_SELECT_STATE = "busesSelected";
 
     /**
      * Saved instance key for the latitude
@@ -149,13 +142,6 @@ public class SelectTransit extends AppCompatActivity implements
      * longitude of the map
      */
     private float zoom;
-
-    /**
-     * list of buses
-     * <p/>
-     * public because we want to clear this list...
-     */
-    private Set<String> buses;
 
     /**
      * This is the googleAPIClient that will center the map on the person using the app.
@@ -258,22 +244,21 @@ public class SelectTransit extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         LeakCanary.install(getApplication());
-        setContentView(R.layout.activity_select_transit);
-        checkSDCardData();
         restoreActionBar();
+        setContentView(R.layout.activity_select_transit);
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-
-        mainLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-
+        checkSDCardData();
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
+        mainLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
         setGoogleApiClient();
         buildPATAPI();
-        createBusList();
+        instantiateMapReferences();
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map);
 
@@ -414,7 +399,6 @@ public class SelectTransit extends AppCompatActivity implements
         if (transitStop == null) {
             transitStop = new TransitStop();
         }
-        restorePreferences();
 
     }
 
@@ -470,7 +454,7 @@ public class SelectTransit extends AppCompatActivity implements
      * <p/>
      * However, linear time worst case
      */
-    private void createBusList() {
+    private void instantiateMapReferences() {
         routeLines = new ConcurrentHashMap<>(getResources().getInteger(R.integer.max_checked));
         busMarkers = new ConcurrentHashMap<>(100);
     }
@@ -489,20 +473,8 @@ public class SelectTransit extends AppCompatActivity implements
         }
     }
 
-    /**
-     * Restores the the set of buses....
-     */
-    private void restorePreferences() {
-        Log.d("restoring buses", "Attempting to restore buses.");
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        buses = new HashSet<>(sp.getStringSet(BUS_SELECT_STATE,
-                Collections.synchronizedSet(
-                        new HashSet<>(getResources().getInteger(R.integer.max_checked)))));
-    }
-
     protected void onPause() {
         Log.d("main_destroy", "SelectTransit onPause");
-        savePreferences();
         removeBuses();
         stopTimer();
         super.onPause();
@@ -523,25 +495,14 @@ public class SelectTransit extends AppCompatActivity implements
 
     @Override
     protected void onDestroy() {
+        transitStop.destroyStops();
         transitStop = null;
         mMapCameraListener = null;
         mMapMarkerClickListener = null;
-        if(mMap != null) {
+        if (mMap != null) {
             mMap.setMyLocationEnabled(false);
         }
         super.onDestroy();
-    }
-    /**
-     * Place to save preferences....
-     */
-    private void savePreferences() {
-        Log.d("saving buses", buses.toString());
-        Log.d("selected size", Integer.toString(buses.size()));
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor spe = sp.edit();
-        spe.putStringSet(BUS_SELECT_STATE, buses);
-//        sp.edit().putInt(BUSLIST_SIZE, getResources().getStringArray(R.array.buses).length).apply();
-        spe.apply();
     }
 
     /**
@@ -552,14 +513,13 @@ public class SelectTransit extends AppCompatActivity implements
      * @param route the bus route selected
      */
     @Override
-    public void onBusRouteSelected(Route route) {
-        if (mNavigationDrawerFragment.getAmountSelected() >= 0 &&
-                mNavigationDrawerFragment.getAmountSelected() <= getResources().getInteger(R.integer.max_checked)) {
-            if (mNavigationDrawerFragment.isPositionSelected(route.getListPosition()))
-                selectFromList(route);
-            else
-                deselectFromList(route);
-        }
+    public void onSelectBusRoute(Route route) {
+        selectFromList(route);
+    }
+
+    @Override
+    public void onDeselectBusRoute(Route route) {
+        deselectFromList(route);
     }
 
     /**
@@ -569,7 +529,6 @@ public class SelectTransit extends AppCompatActivity implements
      * @param route - the route and its info to be added
      */
     private void selectFromList(Route route) {
-        buses.add(route.getRoute());
         selectPolyline(route);
     }
 
@@ -604,7 +563,6 @@ public class SelectTransit extends AppCompatActivity implements
      * @param route - the route to remove and its info
      */
     private void deselectFromList(Route route) {
-        buses.remove(route.getRoute());
         removeBuses();
         Log.d("removed_bus", route.getRoute());
         deselectPolyline(route.getRoute());
@@ -720,9 +678,10 @@ public class SelectTransit extends AppCompatActivity implements
 
         Observable<BustimeVehicleResponse> vehicleIntervalObservable = Observable
                 .interval(0, 10, TimeUnit.SECONDS)
+                .filter((aLong) -> mMap != null)
                 .flatMap(aLong -> {
                     Log.d("vehicle_observable", "This ran " + Long.toString(aLong) + " times");
-                    return patApiClient.getVehicles(collectionToString(buses), BuildConfig.PAT_API_KEY);
+                    return patApiClient.getVehicles(collectionToString(mNavigationDrawerFragment.getSelectedRoutes()), BuildConfig.PAT_API_KEY);
                 })
                 .map(VehicleResponse::getBustimeResponse)
                 .subscribeOn(Schedulers.io())
@@ -793,7 +752,7 @@ public class SelectTransit extends AppCompatActivity implements
 
                 if (marker != null) {
                     mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()), 400, null);
-                    new RequestPredictions(getApplicationContext(), marker, buses).execute(marker.getTitle());
+                    new RequestPredictions(getApplicationContext(), marker, mNavigationDrawerFragment.getSelectedRoutes()).execute(marker.getTitle());
                     return true;
                 }
                 return false;
@@ -828,10 +787,10 @@ public class SelectTransit extends AppCompatActivity implements
      */
     protected void restorePolylines() {
         Route currentRoute;
-        for(String route : buses) {
+        for(String route : mNavigationDrawerFragment.getSelectedRoutes()) {
             currentRoute = mNavigationDrawerFragment.getSelectedRoute(route);
             selectPolyline(currentRoute);
-            mNavigationDrawerFragment.setTrue(currentRoute.getListPosition());
+//            mNavigationDrawerFragment.setTrue(currentRoute.getListPosition());
         }
     }
 
@@ -840,7 +799,7 @@ public class SelectTransit extends AppCompatActivity implements
      */
     private void clearAndAddToMap() {
         if (mMap != null) {
-            Log.d("stop_add_buses", buses.toString());
+            Log.d("stop_add_buses", mNavigationDrawerFragment.getSelectedRoutes().toString());
             stopTimer();
             addBuses();
         }
@@ -1023,7 +982,7 @@ public class SelectTransit extends AppCompatActivity implements
     private Func1<Vehicle, VehicleBitmap> makeBitmaps() {
         return new Func1<Vehicle, VehicleBitmap>() {
 
-            private HashMap<String, Bitmap> busIconCache = new HashMap<>(buses.size());
+            private HashMap<String, Bitmap> busIconCache = new HashMap<>(mNavigationDrawerFragment.getAmountSelected());
 
             @Override
             public VehicleBitmap call(Vehicle vehicle) {
@@ -1084,7 +1043,7 @@ public class SelectTransit extends AppCompatActivity implements
      * process the Port Authority API call the Reactive way.
      */
     private void addBuses() {
-        Log.d("adding buses", buses.toString());
+        Log.d("adding buses", mNavigationDrawerFragment.getSelectedRoutes().toString());
 
         // run the vehicle updater
         vehicleSubscription = vehicleUpdateObservable
@@ -1191,19 +1150,8 @@ public class SelectTransit extends AppCompatActivity implements
             routeLines = new ConcurrentHashMap<>(getResources().getInteger(R.integer.max_checked));
             transitStop = new TransitStop();
             removeBuses();
-            clearBuses();
             mNavigationDrawerFragment.clearSelection();
 //            mNavigationDrawerFragment.clearSelection();
-        }
-    }
-
-    /**
-     * The list of buses that are selected
-     */
-    protected void clearBuses() {
-        if(buses != null) {
-            Log.d("bus_remove", "buses cleared");
-            buses.clear();
         }
     }
 
