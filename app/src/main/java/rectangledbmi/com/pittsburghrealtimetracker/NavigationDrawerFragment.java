@@ -1,7 +1,6 @@
 package rectangledbmi.com.pittsburghrealtimetracker;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -22,21 +21,18 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
 import java.io.File;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.TimeZone;
 
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
-import rx.Observable;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -69,28 +65,21 @@ public class NavigationDrawerFragment extends Fragment {
     private BusListCallbacks busCallbacks;
 
     /**
+     * Saved instance of the buses that are selected
+     */
+    private final static String BUS_SELECT_STATE = "busesSelected";
+
+    /**
      * Helper component that ties the action bar to the navigation drawer.
      */
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
     private View mFragmentContainerView;
 
-    private RecyclerView busListRecyclerView;
-    private RecyclerView.LayoutManager busListLayoutManager;
+    private BusRouteAdapter busListAdapter;
 
-
-    private boolean[] mSelected;
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
-
-    /**
-     * Object that contains all routes made from the list of routes
-     *
-     * @since 43
-     */
-    private ArrayList<Route> routes;
-
-    private HashMap<String, Route> routeHashMap;
 
 
     @Override
@@ -102,7 +91,6 @@ public class NavigationDrawerFragment extends Fragment {
         Constants.DEFAULT_DATE_PARSE_FORMAT.setTimeZone(TimeZone.getTimeZone("EST"));
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mUserLearnedDrawer = sp.getBoolean(PREF_USER_LEARNED_DRAWER, false);
-        mSelected = new boolean[getResources().getStringArray(R.array.buses).length];
         if (savedInstanceState != null) {
             mFromSavedInstanceState = true;
         }
@@ -119,20 +107,20 @@ public class NavigationDrawerFragment extends Fragment {
 
     }
 
-    protected RecyclerView getDrawerListView() {
-        return busListRecyclerView;
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        createRoutes();
-        View v = inflater.inflate(R.layout.navigation_drawer_layout, container, false);
 
-        busListRecyclerView = (RecyclerView) v.findViewById(R.id.bus_list_recyclerview);
+        View v = inflater.inflate(R.layout.navigation_drawer_layout, container, false);
+        busListAdapter = new BusRouteAdapter();
+        RecyclerView busListRecyclerView = (RecyclerView) v.findViewById(R.id.bus_list_recyclerview);
         busListRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        busListRecyclerView.setAdapter(new BusRouteAdapter());
+        busListAdapter.setHasStableIds(true);
+        busListRecyclerView.setHasFixedSize(true);
+        busListRecyclerView.setAdapter(busListAdapter);
+
+
 
         return v;
 
@@ -154,30 +142,6 @@ public class NavigationDrawerFragment extends Fragment {
 //        }
 //        return mDrawerListView;
 
-    }
-
-    /**
-     * Creates an arraylist of routes for the list view.
-     *
-     * TODO: This is rather slow and takes up some time according to the Android Studio crap debugger
-     * @return the routes to be made for the listview
-     */
-    private ArrayList<Route> createRoutes() {
-        String[] numbers, descriptions, colors;
-        numbers = getResources().getStringArray(R.array.buses);
-        descriptions = getResources().getStringArray(R.array.bus_description);
-        colors = getResources().getStringArray(R.array.buscolors);
-
-        routes = new ArrayList<>(numbers.length);
-        routeHashMap = new HashMap<>(numbers.length);
-        Route currentRoute;
-        for(int i=0;i<numbers.length;++i) {
-            currentRoute = new Route(numbers[i], descriptions[i], colors[i], i);
-            routes.add(currentRoute);
-            routeHashMap.put(currentRoute.getRoute(), currentRoute);
-
-        }
-        return routes;
     }
 
     public boolean isDrawerOpen() {
@@ -353,6 +317,7 @@ public class NavigationDrawerFragment extends Fragment {
             activity.clearMap();
         }
         clearSelection();
+
     }
 
     /**
@@ -360,7 +325,6 @@ public class NavigationDrawerFragment extends Fragment {
      */
     protected void clearSelection() {
 //        getDrawerListView().clearChoices();
-        mSelected = new boolean[getResources().getStringArray(R.array.buses).length];
         File lineInfo = new File(getActivity().getFilesDir(), "/lineinfo");
         Log.d("clear-files", "cleared files: " + lineInfo.getAbsolutePath());
         if(lineInfo.exists()) {
@@ -370,6 +334,7 @@ public class NavigationDrawerFragment extends Fragment {
                     file.delete();
             }
         }
+        busListAdapter.clearSelection();
         Toast.makeText(getActivity(), getString(R.string.cleared), Toast.LENGTH_SHORT).show();
 
     }
@@ -390,6 +355,25 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     /**
+     * Place to save preferences....
+     */
+    private void savePreferences() {
+        if(getActivity() != null && busListAdapter != null) {
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            SharedPreferences.Editor spe = sp.edit();
+            spe.putStringSet(BUS_SELECT_STATE, busListAdapter.getSelectedRoutes());
+//        sp.edit().putInt(BUSLIST_SIZE, getResources().getStringArray(R.array.buses).length).apply();
+            spe.apply();
+        }
+
+    }
+
+    @Override
+    public void onPause() {
+        savePreferences();
+        super.onPause();
+    }
+    /**
      * Attempt to save the list view...
      */
     @Override
@@ -406,8 +390,13 @@ public class NavigationDrawerFragment extends Fragment {
      * @return the route information by rt
      */
     public Route getSelectedRoute(String rt) {
-        Log.d("bus_icon", Integer.toString(routeHashMap.size()));
-        return routeHashMap.get(rt);
+        if(busListAdapter != null)
+            return busListAdapter.getRouteMap().get(rt);
+        return null;
+    }
+
+    public int getAmountSelected() {
+        return busListAdapter.getAmountSelected();
     }
 
     /**
@@ -417,7 +406,13 @@ public class NavigationDrawerFragment extends Fragment {
      */
     @SuppressWarnings("unused")
     public Route getSelectedRoute(int position) {
-        return routes.get(position);
+        return busListAdapter.getRouteAtPosition(position);
+    }
+
+    public Set<String> getSelectedRoutes() {
+        if(busListAdapter != null)
+            return busListAdapter.getSelectedRoutes();
+        return null;
     }
 
     /**
@@ -431,84 +426,201 @@ public class NavigationDrawerFragment extends Fragment {
         /**
          * This bus route has been selected
          *
-         * @param route - the bus route selected
+         * @param route the bus route selected
          */
-        void onBusRouteSelected(Route route);
+        void onSelectBusRoute(Route route);
+
+        /**
+         * Do when the bus route has been deselected
+         *
+         * @param route the bus route deselected
+         */
+        void onDeselectBusRoute(Route route);
         //TODO: Fix this to use observables or designate callback function for selection or deselection
     }
 
-    private class BusRouteHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    private class BusRouteAdapter extends RecyclerView.Adapter<BusRouteAdapter.BusRouteHolder> {
 
-        private Route mRoute;
+        /**
+         * State of selected routes
+         * <p/>
+         * public because we want to clear this list...
+         */
+        private Set<String> selectedRoutes;
 
-        private TextView routeIcon;
+        /**
+         * Routes dataset
+         */
+        private Route[] routes;
 
-        private TextView routeDescription;
+        /**
+         * Map of routes by hashmap
+         */
+        private HashMap<String, Route> routeHashMap;
 
-        public BusRouteHolder(View itemView) {
-            super(itemView);
-            itemView.setOnClickListener(this);
-            routeDescription = (TextView) itemView.findViewById(R.id.bus_route_text);
-            routeIcon = (TextView) itemView.findViewById(R.id.bus_route_icon);
-        }
+        public BusRouteAdapter() {
+            super();
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        private void generateIcon() {
-            routeIcon.setBackgroundColor(mRoute.getRouteColor());
-            routeIcon.setText(mRoute.getRoute());
-            routeIcon.setTextColor(isLight(mRoute.getRouteColor())
-                    ? Color.BLACK
-                    : Color.WHITE);
-
-        }
-
-        public void bindBusRoute(Route busRoute) {
-            mRoute = busRoute;
-            routeDescription.setText(busRoute.getRouteInfo());
-            generateIcon();
-        }
-
-        @Override
-        public void onClick(View v) {
-            if(mRoute != null) {
-                boolean selectionState = mRoute.toggleSelection();
-                busCallbacks.onBusRouteSelected(mRoute);
-                v.setActivated(selectionState);
-            }
+            selectedRoutes = new HashSet<>(sp.getStringSet(BUS_SELECT_STATE,
+                    Collections.synchronizedSet(
+                            new HashSet<>(getResources().getInteger(R.integer.max_checked)))));
+            createRoutes();
         }
 
         /**
-         * Decides whether or not the color (background color) is light or not.
-         * <p>
-         * Formula was taken from here:
-         * http://stackoverflow.com/questions/24260853/check-if-color-is-dark-or-light-in-android
+         * Creates an array of routes for the recycler view and a reverse mapping
          *
-         * @param color the background color being fed
-         * @return whether or not the background color is light or not (.345 is the current threshold)
-         * @since 47
+         * TODO: This is rather slow and takes up some time according to the Android Studio debugger
+         * @return the routes to be made for the recycler view
          */
-        private boolean isLight(int color) {
-            return 1.0 - (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255 < .5;
-        }
-    }
+        private Route[] createRoutes() {
+            String[] numbers, descriptions, colors;
+            numbers = getResources().getStringArray(R.array.buses);
+            descriptions = getResources().getStringArray(R.array.bus_description);
+            colors = getResources().getStringArray(R.array.buscolors);
+            routes = new Route[numbers.length];
+            routeHashMap = new HashMap<>(numbers.length);
+            Route currentRoute;
 
-    private class BusRouteAdapter extends RecyclerView.Adapter<BusRouteHolder> {
+            for(int i=0;i<numbers.length;++i) {
+                currentRoute = new Route(numbers[i], descriptions[i], colors[i], i, selectedRoutes.contains(numbers[i]));
+                routes[i] = currentRoute;
+                routeHashMap.put(currentRoute.getRoute(), currentRoute);
+
+            }
+            return routes;
+        }
+
+        /**
+         *
+         * @return a set of currently selected routes from the recycler view
+         */
+        public Set<String> getSelectedRoutes() {
+            return selectedRoutes;
+        }
+
+        /**
+         *
+         * @param position The route on the recycler view to peek at
+         * @return the route at the certain position of the recycler view
+         */
+        public Route getRouteAtPosition(int position) {
+            if(position >= 0 && position < routes.length) {
+                return routes[position];
+            }
+            return null;
+        }
+
+        public HashMap<String, Route> getRouteMap() {
+            return routeHashMap;
+        }
 
         @Override
         public BusRouteHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View row = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.bus_route_recycler_item, parent, false);
+
             return new BusRouteHolder(row);
         }
 
         @Override
         public void onBindViewHolder(BusRouteHolder holder, int position) {
-            holder.bindBusRoute(routes.get(position));
+            holder.bindBusRoute(routes[position]);
         }
 
         @Override
         public int getItemCount() {
-            return routes.size();
+            return routes.length;
         }
+
+        public void clearSelection() {
+            for(String s : selectedRoutes) {
+                routeHashMap.get(s).setSelected(false);
+            }
+            selectedRoutes.clear();
+            notifyDataSetChanged();
+        }
+
+        public int getAmountSelected() {
+            return selectedRoutes.size();
+        }
+
+        public long getItemId(int position) {
+            return routes[position].getRoute().hashCode();
+        }
+
+        public class BusRouteHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+            private Route mRoute;
+
+            private TextView routeIcon;
+
+            private TextView routeDescription;
+
+            private View itemView;
+
+            public BusRouteHolder(View itemView) {
+                super(itemView);
+                this.itemView = itemView;
+                itemView.setOnClickListener(this);
+                routeDescription = (TextView) itemView.findViewById(R.id.bus_route_text);
+                routeIcon = (TextView) itemView.findViewById(R.id.bus_route_icon);
+            }
+
+            private void generateIcon() {
+                routeIcon.setBackgroundColor(mRoute.getRouteColor());
+                routeIcon.setText(mRoute.getRoute());
+                routeIcon.setTextColor(isLight(mRoute.getRouteColor())
+                        ? Color.BLACK
+                        : Color.WHITE);
+
+            }
+
+            public void bindBusRoute(Route busRoute) {
+                mRoute = busRoute;
+                routeDescription.setText(busRoute.getRouteInfo());
+                generateIcon();
+                itemView.setActivated(mRoute.isSelected());
+            }
+
+            @Override
+            public void onClick(View v) {
+                if(mRoute != null) {
+
+                    if(mRoute.isSelected()) { // always deselect route if already selected
+                        mRoute.setSelected(false);
+                        selectedRoutes.remove(mRoute.getRoute());
+                        busCallbacks.onDeselectBusRoute(mRoute);
+                        notifyItemChanged(getAdapterPosition());
+                    } else { // select route if not over max_checked
+                        if(selectedRoutes.size() < getResources().getInteger(R.integer.max_checked)) {
+                            mRoute.setSelected(true);
+                            selectedRoutes.add(mRoute.getRoute());
+                            busCallbacks.onSelectBusRoute(mRoute);
+                            notifyItemChanged(getAdapterPosition());
+                        } else {
+                            Toast.makeText(getActivity(), getString(R.string.max_selected_routes), Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }
+            }
+
+            /**
+             * Decides whether or not the color (background color) is light or not.
+             * <p>
+             * Formula was taken from here:
+             * http://stackoverflow.com/questions/24260853/check-if-color-is-dark-or-light-in-android
+             *
+             * @param color the background color being fed
+             * @return whether or not the background color is light or not (.345 is the current threshold)
+             * @since 47
+             */
+            private boolean isLight(int color) {
+                return 1.0 - (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255 < .5;
+            }
+        }
+
     }
 
 }

@@ -286,7 +286,7 @@
         <item name="Y49">Prospect Flyer</item>
     </string-array>
 
-     <string name="api_url">http://truetime.portauthority.org/bustime/api/v2/</string>
+    <string name="api_url">http://truetime.portauthority.org/bustime/api/v2/</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <!-- <string name="action_example">Select Location</string> -->
@@ -297,6 +297,7 @@
     <string name="action_about">About</string>
     <string name="title_activity_about">About</string>
     <string name="hello_world">Hello world!</string>
+    <string name="max_selected_routes">Cannot select more than 10 routes.</string>
     <!-- No Data Dialog -->
     <string name="data_not_available_title">No Data Available</string>
     <string name="data_not_available">Your cell phone data seems to be off or unavailable. Please

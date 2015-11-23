@@ -44,8 +44,8 @@ public class Route {
      * @param routeInfo the route info
      * @param routeColor the color of the route as a string or string-hex
      */
-    public Route(String route, String routeInfo, String routeColor, int listPosition) {
-        this(route, routeInfo, Color.parseColor(routeColor), listPosition);
+    public Route(String route, String routeInfo, String routeColor, int listPosition, boolean isSelected) {
+        this(route, routeInfo, Color.parseColor(routeColor), listPosition, isSelected);
     }
 
     /**
@@ -54,11 +54,12 @@ public class Route {
      * @param routeInfo the route info
      * @param routeColor the color of the route as an int
      */
-    public Route(String route, String routeInfo, int routeColor, int listPosition) {
+    public Route(String route, String routeInfo, int routeColor, int listPosition, boolean isSelected) {
         this.route = route;
         this.routeInfo = routeInfo;
         this.routeColor = routeColor;
         this.listPosition = listPosition;
+        this.isSelected = isSelected;
     }
 
     /**
