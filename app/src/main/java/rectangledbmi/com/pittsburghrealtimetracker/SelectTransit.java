@@ -77,9 +77,10 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimeVehicleResponse;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Vehicle;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.VehicleResponse;
-import retrofit.RestAdapter;
-import retrofit.RetrofitError;
-import retrofit.converter.GsonConverter;
+import retrofit.Retrofit;
+//import retrofit.RetrofitError;
+import retrofit.GsonConverterFactory;
+import retrofit.RxJavaCallAdapterFactory;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
@@ -281,9 +282,10 @@ public class SelectTransit extends AppCompatActivity implements
                 .setDateFormat(Constants.DATE_FORMAT_PARSE)
                 .create();
         // build the restadapter
-        RestAdapter restAdapter = new RestAdapter.Builder()
-                .setEndpoint(getString(R.string.api_url))
-                .setConverter(new GsonConverter(gson))
+        Retrofit restAdapter = new Retrofit.Builder()
+                .baseUrl(getString(R.string.api_url))
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
 
         // sets the PAT API
@@ -838,9 +840,9 @@ public class SelectTransit extends AppCompatActivity implements
             public void onError(Throwable e) {
                 if (e.getMessage() != null && e.getLocalizedMessage() != null && !showedErrors) {
                     showedErrors = true;
-                    if (e instanceof RetrofitError) {
-                        printRetrofitError((RetrofitError) e);
-                    }
+//                    if (e instanceof RetrofitError) {
+//                        printRetrofitError((RetrofitError) e);
+//                    }
                     Log.e("bus_vehicle_error", e.getMessage());
                 }
                 Log.e("bus_vehicle_error", e.getClass().getName());
@@ -1307,25 +1309,25 @@ public class SelectTransit extends AppCompatActivity implements
      * @since 47
      * @param error - retrofit error
      */
-    public void printRetrofitError (RetrofitError error) {
-        //TODO: make a more general way to get these errors...
-        switch (error.getKind()) {
-
-            case NETWORK:
-                showToast(getString(R.string.retrofit_network_error), Toast.LENGTH_LONG);
-                break;
-            case CONVERSION:
-                showToast(getString(R.string.retrofit_conversion_error), Toast.LENGTH_LONG);
-                break;
-            case HTTP:
-                showToast("HTTP Status " + error.getResponse().getStatus() + ": "
-                        + getString(R.string.retrofit_http_error), Toast.LENGTH_LONG);
-                break;
-            case UNEXPECTED:
-                showToast(getString(R.string.retrofit_unexpected_error), Toast.LENGTH_LONG);
-                break;
-            default:
-                showToast(error.getLocalizedMessage(), Toast.LENGTH_LONG);
-        }
-    }
+//    public void printRetrofitError (RetrofitError error) {
+//        //TODO: make a more general way to get these errors...
+//        switch (error.getKind()) {
+//
+//            case NETWORK:
+//                showToast(getString(R.string.retrofit_network_error), Toast.LENGTH_LONG);
+//                break;
+//            case CONVERSION:
+//                showToast(getString(R.string.retrofit_conversion_error), Toast.LENGTH_LONG);
+//                break;
+//            case HTTP:
+//                showToast("HTTP Status " + error.getResponse().getStatus() + ": "
+//                        + getString(R.string.retrofit_http_error), Toast.LENGTH_LONG);
+//                break;
+//            case UNEXPECTED:
+//                showToast(getString(R.string.retrofit_unexpected_error), Toast.LENGTH_LONG);
+//                break;
+//            default:
+//                showToast(error.getLocalizedMessage(), Toast.LENGTH_LONG);
+//        }
+//    }
 }
