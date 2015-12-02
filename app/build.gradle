@@ -56,7 +56,7 @@ dependencies {
 
     //3rd party android libraries
     compile 'io.reactivex:rxandroid:1.0.1'
-    compile 'io.reactivex:rxjava:1.0.15'
+    compile 'io.reactivex:rxjava:1.0.16'
 
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'org.glassfish:javax.annotation:10.0-b28'
