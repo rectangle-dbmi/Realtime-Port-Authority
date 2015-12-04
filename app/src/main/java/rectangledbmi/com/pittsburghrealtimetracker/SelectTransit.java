@@ -51,6 +51,7 @@ import com.google.gson.GsonBuilder;
 import com.squareup.leakcanary.LeakCanary;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -77,8 +78,8 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimeVehicleResponse;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Vehicle;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.VehicleResponse;
+import retrofit.HttpException;
 import retrofit.Retrofit;
-//import retrofit.RetrofitError;
 import retrofit.GsonConverterFactory;
 import retrofit.RxJavaCallAdapterFactory;
 import rx.Observable;
@@ -282,14 +283,14 @@ public class SelectTransit extends AppCompatActivity implements
                 .setDateFormat(Constants.DATE_FORMAT_PARSE)
                 .create();
         // build the restadapter
-        Retrofit restAdapter = new Retrofit.Builder()
+        Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(getString(R.string.api_url))
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
 
         // sets the PAT API
-        patApiClient = restAdapter.create(PATAPI.class);
+        patApiClient = retrofit.create(PATAPI.class);
     }
 
 //    /**
@@ -840,9 +841,17 @@ public class SelectTransit extends AppCompatActivity implements
             public void onError(Throwable e) {
                 if (e.getMessage() != null && e.getLocalizedMessage() != null && !showedErrors) {
                     showedErrors = true;
-//                    if (e instanceof RetrofitError) {
-//                        printRetrofitError((RetrofitError) e);
-//                    }
+                    if (e instanceof IOException) {
+                        showToast(getString(R.string.retrofit_network_error), Toast.LENGTH_SHORT);
+                    }
+                    else if (e instanceof retrofit.HttpException) {
+                        retrofit.HttpException http = (HttpException) e;
+                        showToast(http.code() + " " + http.message() + ": "
+                                + getString(R.string.retrofit_http_error), Toast.LENGTH_SHORT);
+                    }
+                    else {
+                        showToast(e.getLocalizedMessage(), Toast.LENGTH_LONG);
+                    }
                     Log.e("bus_vehicle_error", e.getMessage());
                 }
                 Log.e("bus_vehicle_error", e.getClass().getName());
@@ -1303,31 +1312,4 @@ public class SelectTransit extends AppCompatActivity implements
             notCentered = false;
         }
     }
-
-    /**
-     * Puts a print on the retrofit errors....
-     * @since 47
-     * @param error - retrofit error
-     */
-//    public void printRetrofitError (RetrofitError error) {
-//        //TODO: make a more general way to get these errors...
-//        switch (error.getKind()) {
-//
-//            case NETWORK:
-//                showToast(getString(R.string.retrofit_network_error), Toast.LENGTH_LONG);
-//                break;
-//            case CONVERSION:
-//                showToast(getString(R.string.retrofit_conversion_error), Toast.LENGTH_LONG);
-//                break;
-//            case HTTP:
-//                showToast("HTTP Status " + error.getResponse().getStatus() + ": "
-//                        + getString(R.string.retrofit_http_error), Toast.LENGTH_LONG);
-//                break;
-//            case UNEXPECTED:
-//                showToast(getString(R.string.retrofit_unexpected_error), Toast.LENGTH_LONG);
-//                break;
-//            default:
-//                showToast(error.getLocalizedMessage(), Toast.LENGTH_LONG);
-//        }
-//    }
 }
