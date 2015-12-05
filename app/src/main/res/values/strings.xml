@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">PAT Realtime Tracker</string>
+    <string name="app_name">PAT Track</string>
 
     <string-array name="buses">
         <item color="#3300cc">1</item>
@@ -324,10 +324,6 @@
     <string name="data_close_app">Close App</string>
     <string name="data_dismiss">Cancel</string>
     <!-- About Strings -->
-    <string name="created_by">This app was created with love by:</string>
-    <string name="ritwik">Ritwik Gupta (Developer)</string>
-    <string name="jeremy">Jeremy Jao (Developer)</string>
-    <string name="vincent">Vincent Agresti (Project Manager)</string>
     <string name="remark_1">This application is open source:</string>
     <string name="source_code">https://github.com/rectangle-dbmi/Realtime-Port-Authority</string>
     <string name="directory_in_sdcard">/Data/rectangledbmi.com.pittsburghrealtimetracker</string>
