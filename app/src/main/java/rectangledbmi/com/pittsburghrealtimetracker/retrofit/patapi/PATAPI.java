@@ -21,7 +21,7 @@ public interface PATAPI {
      * @param rt - the route
      * @param api_key - the api key
      */
-    @GET("/getpatterns?format=json" )
+    @GET("getpatterns?format=json" )
     Observable<PatternResponse> getPatterns(@Query("rt") String rt, @Query("key") String api_key);
 
     /**
@@ -29,7 +29,7 @@ public interface PATAPI {
      * @param routes - the routes
      * @param api_key - the api key
      */
-    @GET("/getvehicles?format=json")
+    @GET("getvehicles?format=json")
     Observable<VehicleResponse> getVehicles(@Query("rt") String routes, @Query("key") String api_key);
 
     /**
@@ -37,7 +37,7 @@ public interface PATAPI {
      * @param stpid - the stop id
      * @param api_key - the api key
      */
-    @GET("/getpredictions?format=json")
+    @GET("getpredictions?format=json")
     Observable<PredictionResponse> getStopPredictions(@Query("stpid") int stpid, @Query("key") String api_key);
 
     /**
@@ -46,7 +46,7 @@ public interface PATAPI {
      * @param rts - the routes
      * @param api_key - the api key
      */
-    @GET("/getpredictions?format=json")
+    @GET("getpredictions?format=json")
     Observable<PredictionResponse> getStopPredictions(@Query("stpid") int stpid, @Query("rt") String rts, @Path("api_key") String api_key);
 
     /**
@@ -54,7 +54,7 @@ public interface PATAPI {
      * @param vid - the bus id
      * @param api_key - the api key
      */
-    @GET("/getpredictions?format=json")
+    @GET("getpredictions?format=json")
     Observable<PredictionResponse> getBusPrediction(@Query("vid") int vid, @Query("api_key") String api_key);
 
 
