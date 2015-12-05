@@ -31,6 +31,8 @@
             android:text="programmatically_assign_text"
             android:textSize="14sp"
             android:paddingLeft="8dp"
+            android:singleLine="true"
+            android:ellipsize="end"
             android:id="@+id/bus_route_text"
             />
 

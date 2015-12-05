@@ -51,6 +51,7 @@ import com.google.gson.GsonBuilder;
 import com.squareup.leakcanary.LeakCanary;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -77,9 +78,10 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimeVehicleResponse;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Vehicle;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.VehicleResponse;
-import retrofit.RestAdapter;
-import retrofit.RetrofitError;
-import retrofit.converter.GsonConverter;
+import retrofit.HttpException;
+import retrofit.Retrofit;
+import retrofit.GsonConverterFactory;
+import retrofit.RxJavaCallAdapterFactory;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
@@ -281,13 +283,14 @@ public class SelectTransit extends AppCompatActivity implements
                 .setDateFormat(Constants.DATE_FORMAT_PARSE)
                 .create();
         // build the restadapter
-        RestAdapter restAdapter = new RestAdapter.Builder()
-                .setEndpoint(getString(R.string.api_url))
-                .setConverter(new GsonConverter(gson))
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(getString(R.string.api_url))
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
 
         // sets the PAT API
-        patApiClient = restAdapter.create(PATAPI.class);
+        patApiClient = retrofit.create(PATAPI.class);
     }
 
 //    /**
@@ -539,7 +542,7 @@ public class SelectTransit extends AppCompatActivity implements
      * @since 43
      * @param routeInfo - the route and its info to add
      */
-    private synchronized void selectPolyline(Route routeInfo) {
+    private void selectPolyline(Route routeInfo) {
         String route = routeInfo.getRoute();
         List<Polyline> polylines = routeLines.get(route);
 
@@ -573,7 +576,7 @@ public class SelectTransit extends AppCompatActivity implements
      * Removes the route line if it was on the map
      * @param route - the route to remove by its string
      */
-    private synchronized void deselectPolyline(String route) {
+    private void deselectPolyline(String route) {
         List<Polyline> polylines = routeLines.get(route);
         if(polylines != null) {
             if(!polylines.isEmpty() && polylines.get(0).isVisible()) {
@@ -604,8 +607,8 @@ public class SelectTransit extends AppCompatActivity implements
                 setSupportActionBar(toolbar);
             } catch (Throwable e) {
                 Snackbar.make(mainLayout,
-                "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Snackbar.LENGTH_LONG).show();
-//                Toast.makeText(this, "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Toast.LENGTH_LONG).show();
+                "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Snackbar.LENGTH_SHORT).show();
+//                Toast.makeText(this, "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Toast.LENGTH_SHORT).show();
             }
         }
         try {
@@ -613,7 +616,7 @@ public class SelectTransit extends AppCompatActivity implements
             if(t != null) t.setDisplayHomeAsUpEnabled(true);
         } catch(NullPointerException e) {
             Snackbar.make(mainLayout,
-                    "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Snackbar.LENGTH_LONG).show();
+                    "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Snackbar.LENGTH_SHORT).show();
         }
 
     }
@@ -838,8 +841,16 @@ public class SelectTransit extends AppCompatActivity implements
             public void onError(Throwable e) {
                 if (e.getMessage() != null && e.getLocalizedMessage() != null && !showedErrors) {
                     showedErrors = true;
-                    if (e instanceof RetrofitError) {
-                        printRetrofitError((RetrofitError) e);
+                    if (e instanceof IOException) {
+                        showToast(getString(R.string.retrofit_network_error), Toast.LENGTH_SHORT);
+                    }
+                    else if (e instanceof retrofit.HttpException) {
+                        retrofit.HttpException http = (HttpException) e;
+                        showToast(http.code() + " " + http.message() + ": "
+                                + getString(R.string.retrofit_http_error), Toast.LENGTH_SHORT);
+                    }
+                    else {
+                        showToast(getString(R.string.retrofit_conversion_error), Toast.LENGTH_SHORT);
                     }
                     Log.e("bus_vehicle_error", e.getMessage());
                 }
@@ -937,7 +948,7 @@ public class SelectTransit extends AppCompatActivity implements
                 if(errorMessage != null && errorMessage.getMessage() != null) {
                     showToast(errorMessage.getMessage() +
                                     (errorMessage.getParameters() != null ? ": " + errorMessage.getParameters() : ""),
-                            Toast.LENGTH_LONG);
+                            Toast.LENGTH_SHORT);
                 }
 
             }
@@ -962,7 +973,7 @@ public class SelectTransit extends AppCompatActivity implements
                     if (originalMessage.contains("No data found for parameter")) {
                         return getString(R.string.no_vehicle_error);
                     } else if (originalMessage.contains("specified") && originalMessage.contains("rt")) {
-                        return getString(R.string.cleared);
+                        return getString(R.string.no_routes_selected);
                     } else if(originalMessage.contains("Transaction limit for current day has been exceeded")) {
                         return getString(R.string.pat_api_exceeded);
                     } else
@@ -1284,7 +1295,7 @@ public class SelectTransit extends AppCompatActivity implements
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Log.d("Google API Error", connectionResult.toString());
 //        centerMap();
-        Toast.makeText(this, "Google connection failed, please try again later", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Google connection failed, please try again later", Toast.LENGTH_SHORT).show();
 
 //        TODO: Perhaps based on the connection result, we can close and make custom error messages.
     }
@@ -1299,33 +1310,6 @@ public class SelectTransit extends AppCompatActivity implements
             if(isInPittsburgh(currentLocation))
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
             notCentered = false;
-        }
-    }
-
-    /**
-     * Puts a print on the retrofit errors....
-     * @since 47
-     * @param error - retrofit error
-     */
-    public void printRetrofitError (RetrofitError error) {
-        //TODO: make a more general way to get these errors...
-        switch (error.getKind()) {
-
-            case NETWORK:
-                showToast(getString(R.string.retrofit_network_error), Toast.LENGTH_LONG);
-                break;
-            case CONVERSION:
-                showToast(getString(R.string.retrofit_conversion_error), Toast.LENGTH_LONG);
-                break;
-            case HTTP:
-                showToast("HTTP Status " + error.getResponse().getStatus() + ": "
-                        + getString(R.string.retrofit_http_error), Toast.LENGTH_LONG);
-                break;
-            case UNEXPECTED:
-                showToast(getString(R.string.retrofit_unexpected_error), Toast.LENGTH_LONG);
-                break;
-            default:
-                showToast(error.getLocalizedMessage(), Toast.LENGTH_LONG);
         }
     }
 }

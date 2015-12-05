@@ -42,20 +42,10 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 public class NavigationDrawerFragment extends Fragment {
 
     /**
-     * Remember the position of the selected item.
-     */
-    private static final String STATE_SELECTED_POSITIONS = "selected_navigation_drawer_positions";
-
-    /**
      * Per the design guidelines, you should show the drawer on launch until the user manually
      * expands it. This shared preference tracks this.
      */
     private static final String PREF_USER_LEARNED_DRAWER = "navigation_drawer_learned";
-
-    /**
-     * Key value for the selected buses
-     */
-    private static final String DRAWER_STATE = "drawer_state";
 
     /**
      * pointer to the current selected bus for the current callbacks instance (Activity)
@@ -123,24 +113,6 @@ public class NavigationDrawerFragment extends Fragment {
 
 
         return v;
-
-
-//        mDrawerListView = (ListView) inflater.inflate(
-//                R.layout.fragment_navigation_drawer, container, false);
-//        mDrawerListView.setOnItemClickListener((parent, view, position, id) -> selectItem(position));
-//        mDrawerListView.setAdapter(
-//                new ColoredArrayAdapter(
-//                        getActionBar().getThemedContext(),
-//                        createRoutes()
-//                )
-//        );
-//        mDrawerListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-//        //        mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
-//        if (savedInstanceState != null) {
-//            mDrawerListView.onRestoreInstanceState(savedInstanceState.getParcelable(DRAWER_STATE));
-//            savedInstanceState.putBooleanArray(STATE_SELECTED_POSITIONS, mSelected);
-//        }
-//        return mDrawerListView;
 
     }
 
@@ -216,25 +188,6 @@ public class NavigationDrawerFragment extends Fragment {
 
         mDrawerLayout.setDrawerListener(mDrawerToggle);
     }
-
-//    /**
-//     * Called with onClick. Gives the list item to SelectTransit by number starting from 0
-//     * The selectItem is locked by mSelected...
-//     * @param position item clicked as an int
-//     */
-//    private void selectItem(int position) {
-//        if (busListRecyclerView != null) {
-//            if (mSelected[position]) {
-//                setFalse(position);
-//            } else {
-//                setTrue(position);
-//            }
-//            if (busCallbacks != null) {
-//                busCallbacks.onBusRouteSelected(routes.get(position));
-//            }
-//        }
-//
-//    }
 
     @Override
     public void onAttach(Context context) {
@@ -324,7 +277,6 @@ public class NavigationDrawerFragment extends Fragment {
      * If the Clear Buses button is clicked, clears the selection and the selected buses
      */
     protected void clearSelection() {
-//        getDrawerListView().clearChoices();
         File lineInfo = new File(getActivity().getFilesDir(), "/lineinfo");
         Log.d("clear-files", "cleared files: " + lineInfo.getAbsolutePath());
         if(lineInfo.exists()) {
@@ -592,7 +544,7 @@ public class NavigationDrawerFragment extends Fragment {
 
                 if(!mRoute.isSelected() && selectedRoutes.size() == getResources().getInteger(R.integer.max_checked)) {
                     // print toast then do nothing if we are trying to select more than max
-                    Toast.makeText(getActivity(), getString(R.string.max_selected_routes), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), getString(R.string.max_selected_routes), Toast.LENGTH_SHORT).show();
                     return;
                 }
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">PAT Realtime Tracker</string>
+    <string name="app_name">PAT Track</string>
 
     <string-array name="buses">
         <item color="#3300cc">1</item>
@@ -316,6 +316,7 @@
     <string name="title_activity_about">About</string>
     <string name="hello_world">Hello world!</string>
     <string name="max_selected_routes">Cannot select more than 10 routes.</string>
+    <string name="no_routes_selected">No routes selected.</string>
     <!-- No Data Dialog -->
     <string name="data_not_available_title">No Data Available</string>
     <string name="data_not_available">Your cell phone data seems to be off or unavailable. Please
@@ -324,16 +325,16 @@
     <string name="data_close_app">Close App</string>
     <string name="data_dismiss">Cancel</string>
     <!-- About Strings -->
-    <string name="created_by">This app was created with love by:</string>
-    <string name="ritwik">Ritwik Gupta (Developer)</string>
-    <string name="jeremy">Jeremy Jao (Developer)</string>
-    <string name="vincent">Vincent Agresti (Project Manager)</string>
-    <string name="remark_1">This application is open source:</string>
-    <string name="source_code">https://github.com/rectangle-dbmi/Realtime-Port-Authority</string>
+    <string name="version_prefix">Version </string>
+    <string name="fb_link"><a href='https://www.facebook.com/PATRealtimeTracker'>Visit us on Facebook</a></string>
+    <string name="git_link"><a href='https://github.com/rectangle-dbmi/Realtime-Port-Authority'>Visit us on Github</a></string>
+    <string name="contact_email"><a href='mailto:pat.realtime.tracker@gmail.com'>Send us an email</a></string>
     <string name="directory_in_sdcard">/Data/rectangledbmi.com.pittsburghrealtimetracker</string>
     <string name="zoom_level">15.0</string>
     <string name="cleared">Map cleared and routes reset.</string>
-    <string name="disclaim">DISCLAMER: We are not responsible for which buses and routes are being
+    <string name="disclaimerTitle">Disclaimer</string>
+    <string name="linksTitle">Links</string>
+    <string name="disclaimerBody">We are not responsible for which buses and routes are being
         tracked as we are only getting the information from Port Authority. If a certain route or
         bus is not on our app, this is most likely not our fault but of Port Authority. If the map
         is empty, please report this to our Play Store email or create an issue on our Github above
