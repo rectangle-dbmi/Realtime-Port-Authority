@@ -973,7 +973,7 @@ public class SelectTransit extends AppCompatActivity implements
                     if (originalMessage.contains("No data found for parameter")) {
                         return getString(R.string.no_vehicle_error);
                     } else if (originalMessage.contains("specified") && originalMessage.contains("rt")) {
-                        return getString(R.string.cleared);
+                        return getString(R.string.no_routes_selected);
                     } else if(originalMessage.contains("Transaction limit for current day has been exceeded")) {
                         return getString(R.string.pat_api_exceeded);
                     } else
