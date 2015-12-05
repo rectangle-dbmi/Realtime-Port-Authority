@@ -51,16 +51,12 @@ import com.google.gson.GsonBuilder;
 import com.squareup.leakcanary.LeakCanary;
 
 import java.io.File;
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -74,7 +70,8 @@ import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestLine;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
-import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.errorcontainers.ErrorMessage;
+import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.errors.ErrorMessage;
+import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.vehicles.VehicleBitmap;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimeVehicleResponse;
@@ -84,10 +81,9 @@ import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.converter.GsonConverter;
 import rx.Observable;
-import rx.Observer;
+import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
@@ -101,11 +97,6 @@ public class SelectTransit extends AppCompatActivity implements
         OnMapReadyCallback, LocationListener {
 
     private static final String LINES_LAST_UPDATED = "lines_last_updated";
-
-    /**
-     * Saved instance of the buses that are selected
-     */
-    private final static String BUS_SELECT_STATE = "busesSelected";
 
     /**
      * Saved instance key for the latitude
@@ -151,13 +142,6 @@ public class SelectTransit extends AppCompatActivity implements
      * longitude of the map
      */
     private float zoom;
-
-    /**
-     * list of buses
-     * <p/>
-     * public because we want to clear this list...
-     */
-    private Set<String> buses;
 
     /**
      * This is the googleAPIClient that will center the map on the person using the app.
@@ -219,20 +203,6 @@ public class SelectTransit extends AppCompatActivity implements
     private Subscription vehicleErrorSubscription;
 
     /**
-     * Bus icons created from drawable/bus_icon.png
-     *
-     * @since 47
-     */
-    private ConcurrentHashMap<String, Bitmap> busIcons;
-
-    /**
-     * Subscription for bus icon generation
-     *
-     * @since 48
-     */
-    private Subscription busIconGeneration;
-
-    /**
      * Camera listener reference for Google Maps
      *
      * @since 54
@@ -260,26 +230,35 @@ public class SelectTransit extends AppCompatActivity implements
      */
     private static int LOCATION_REQUEST_CODE = 123;
 
+    /**
+     * Observable to update bus vehicles on map every 10 seconds.
+     */
+    private Observable<VehicleBitmap> vehicleUpdateObservable;
+
+    /**
+     * Observable to update bus vehicle error messages every 10 seconds.
+     */
+    private Observable<ErrorMessage> vehicleErrorObservable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         LeakCanary.install(getApplication());
-        setContentView(R.layout.activity_select_transit);
-        checkSDCardData();
         restoreActionBar();
+        setContentView(R.layout.activity_select_transit);
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-
-        mainLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-
+        checkSDCardData();
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
+        mainLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
         setGoogleApiClient();
         buildPATAPI();
-        createBusList();
+        instantiateMapReferences();
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map);
 
@@ -420,7 +399,6 @@ public class SelectTransit extends AppCompatActivity implements
         if (transitStop == null) {
             transitStop = new TransitStop();
         }
-        restorePreferences();
 
     }
 
@@ -476,10 +454,9 @@ public class SelectTransit extends AppCompatActivity implements
      * <p/>
      * However, linear time worst case
      */
-    private void createBusList() {
+    private void instantiateMapReferences() {
         routeLines = new ConcurrentHashMap<>(getResources().getInteger(R.integer.max_checked));
         busMarkers = new ConcurrentHashMap<>(100);
-        busIcons = new ConcurrentHashMap<>(getResources().getInteger(R.integer.max_checked));
     }
 
     @Override
@@ -496,20 +473,8 @@ public class SelectTransit extends AppCompatActivity implements
         }
     }
 
-    /**
-     * Restores the the set of buses....
-     */
-    private void restorePreferences() {
-        Log.d("restoring buses", "Attempting to restore buses.");
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        buses = new HashSet<>(sp.getStringSet(BUS_SELECT_STATE,
-                Collections.synchronizedSet(
-                        new HashSet<>(getResources().getInteger(R.integer.max_checked)))));
-    }
-
     protected void onPause() {
         Log.d("main_destroy", "SelectTransit onPause");
-        savePreferences();
         removeBuses();
         stopTimer();
         super.onPause();
@@ -530,26 +495,14 @@ public class SelectTransit extends AppCompatActivity implements
 
     @Override
     protected void onDestroy() {
-        completeBusIconGeneration();
+        transitStop.destroyStops();
         transitStop = null;
         mMapCameraListener = null;
         mMapMarkerClickListener = null;
-        if(mMap != null) {
+        if (mMap != null) {
             mMap.setMyLocationEnabled(false);
         }
         super.onDestroy();
-    }
-    /**
-     * Place to save preferences....
-     */
-    private void savePreferences() {
-        Log.d("saving buses", buses.toString());
-        Log.d("selected size", Integer.toString(buses.size()));
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor spe = sp.edit();
-        spe.putStringSet(BUS_SELECT_STATE, buses);
-//        sp.edit().putInt(BUSLIST_SIZE, getResources().getStringArray(R.array.buses).length).apply();
-        spe.apply();
     }
 
     /**
@@ -560,14 +513,13 @@ public class SelectTransit extends AppCompatActivity implements
      * @param route the bus route selected
      */
     @Override
-    public void onBusRouteSelected(Route route) {
-        if (mNavigationDrawerFragment.getAmountSelected() >= 0 &&
-                mNavigationDrawerFragment.getAmountSelected() <= getResources().getInteger(R.integer.max_checked)) {
-            if (mNavigationDrawerFragment.isPositionSelected(route.getListPosition()))
-                selectFromList(route);
-            else
-                deselectFromList(route);
-        }
+    public void onSelectBusRoute(Route route) {
+        selectFromList(route);
+    }
+
+    @Override
+    public void onDeselectBusRoute(Route route) {
+        deselectFromList(route);
     }
 
     /**
@@ -577,96 +529,9 @@ public class SelectTransit extends AppCompatActivity implements
      * @param route - the route and its info to be added
      */
     private void selectFromList(Route route) {
-        buses.add(route.getRoute());
-//        getBusIcons(route.getRoute());
         selectPolyline(route);
     }
 
-    /**
-     * Creates icon if not made
-     *
-     * @since 48
-     * @param busRoutes - the string of routes to add as icons
-     */
-    private void getBusIcons(String... busRoutes) {
-        if(busIconGeneration != null)
-            busIconGeneration.unsubscribe();
-        List<String> routeList = Arrays.asList(busRoutes);
-        Observable<String> iconObservable = Observable.from(routeList)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(Schedulers.io());
-        busIconGeneration = iconObservable.subscribe(
-                new Action1<String>() {
-                    @Override
-                    public void call(String routeName) {
-                        if (!busIcons.containsKey(routeName)) {
-                            Log.d("bus_icon_get", routeName);
-                            Log.d("bus_icon_get", routeName + ": " + mNavigationDrawerFragment.getSelectedRoute(routeName).toString());
-                            makeBitmap(mNavigationDrawerFragment.getSelectedRoute(routeName));
-                        }
-                    }
-
-                    private void makeBitmap(Route route) {
-                        Bitmap bus_icon = BitmapFactory.decodeResource(getResources(), R.drawable.bus_icon);
-                        Bitmap busicon = Bitmap.createBitmap(bus_icon.getWidth(), bus_icon.getHeight(), bus_icon.getConfig());
-                        Canvas canvas = new Canvas(busicon);
-                        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-                        paint.setColorFilter(new PorterDuffColorFilter(route.getRouteColor(), PorterDuff.Mode.MULTIPLY));
-                        canvas.drawBitmap(bus_icon, 0f, 0f, paint);
-                        drawText(canvas, bus_icon, getResources().getDisplayMetrics().density, route.getRoute(), route.getColorAsString());
-                        busIcons.put(route.getRoute(), busicon);
-                    }
-
-                    private void drawText(Canvas canvas, Bitmap bus_icon, float fontScale, String routeNumber, String routeColor) {
-                        int currentColor = Color.parseColor(routeColor);
-                        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-                        paint.setColor(isLight(currentColor) ? Color.BLACK : Color.WHITE);
-                        paint.setTextSize(8 * fontScale);
-                        Rect fontBounds = new Rect();
-                        paint.getTextBounds(routeNumber, 0, routeNumber.length(), fontBounds);
-                        int x = bus_icon.getWidth() / 2;
-                        Log.d("bus_icon_text", "x: " + Integer.toString(x));
-
-                        int y = (int) ((double) bus_icon.getHeight() / 1.25);
-                        Log.d("bus_icon_text", "y: " + Integer.toString(y));
-                        paint.setTextAlign(Paint.Align.CENTER);
-                        canvas.drawText(routeNumber, x, y, paint);
-                    }
-
-                    /**
-                     * Decides whether or not the color (background color) is light or not.
-                     * <p>
-                     * Formula was taken from here:
-                     * http://stackoverflow.com/questions/24260853/check-if-color-is-dark-or-light-in-android
-                     *
-                     * @param color the background color being fed
-                     * @return whether or not the background color is light or not (.345 is the current threshold)
-                     * @since 47
-                     */
-                    private boolean isLight(int color) {
-                        return 1.0 - (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255 < .5;
-                    }
-                },
-                throwable -> {
-                    if (throwable.getMessage() != null) {
-                        Log.e("bus_icon_error", throwable.getMessage());
-                    }
-                    Log.e("bus_icon_error", Log.getStackTraceString(throwable));
-                },
-                this::clearAndAddToMap
-        );
-    }
-
-
-    /**
-     * unsubscribes the bus icon generator
-     *
-     * @since 47
-     */
-    private void completeBusIconGeneration() {
-        if(busIconGeneration != null)
-            busIconGeneration.unsubscribe();
-    }
 
     /**
      * Adds the bus route line to the map
@@ -698,11 +563,10 @@ public class SelectTransit extends AppCompatActivity implements
      * @param route - the route to remove and its info
      */
     private void deselectFromList(Route route) {
-        buses.remove(route.getRoute());
-        busIcons.remove(route.getRoute());
         removeBuses();
         Log.d("removed_bus", route.getRoute());
         deselectPolyline(route.getRoute());
+        stopTimer();
     }
 
     /**
@@ -805,16 +669,57 @@ public class SelectTransit extends AppCompatActivity implements
     }
 
     /**
+     * Set up observables for updating Google Maps. The call tree starts from
+     * {@link #onMapReady}.
+     *
+     * @since 57
+     */
+    private void setupMapObservables() {
+
+        Observable<BustimeVehicleResponse> vehicleIntervalObservable = Observable
+                .interval(0, 10, TimeUnit.SECONDS)
+                .filter((aLong) -> mMap != null)
+                .flatMap(aLong -> {
+                    Log.d("vehicle_observable", "This ran " + Long.toString(aLong) + " times");
+                    return patApiClient.getVehicles(collectionToString(mNavigationDrawerFragment.getSelectedRoutes()), BuildConfig.PAT_API_KEY);
+                })
+                .map(VehicleResponse::getBustimeResponse)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .share();
+
+
+        vehicleUpdateObservable = vehicleIntervalObservable.flatMap(
+                bustimeVehicleResponse -> {
+                    Log.d("vehicle_observable_update", "getting vehicles");
+                    return Observable.from(bustimeVehicleResponse.getVehicle());
+                })
+                .map(makeBitmaps());
+
+        vehicleErrorObservable = vehicleIntervalObservable
+                .map(BustimeVehicleResponse::getProcessedErrors)
+                .distinctUntilChanged()
+                .flatMap(errorMap -> {
+                    Log.d("vehicle_observable_error", "getting vehicle errors");
+                    return Observable.from(errorMap.entrySet());
+                })
+                .map(transformSingleMessage());
+    }
+
+    /**
      * Adds markers to map.
      * This is only called when we resume the map
      * This is done in a thread.
+     * This will also create the bus update observables.
      */
     protected void setUpMap() {
+        Log.d("setup_map", "If this runs 2+ in activity cycle, this is a problem");
         setMapListeners();
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
         }
+        setupMapObservables();
         restoreBuses();
     }
 
@@ -823,7 +728,7 @@ public class SelectTransit extends AppCompatActivity implements
      * @since 50
      */
     public void restoreBuses() {
-        getBusIcons(buses.toArray(new String[buses.size()]));
+        clearAndAddToMap();
     }
 
     /**
@@ -847,7 +752,7 @@ public class SelectTransit extends AppCompatActivity implements
 
                 if (marker != null) {
                     mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()), 400, null);
-                    new RequestPredictions(getApplicationContext(), marker, buses).execute(marker.getTitle());
+                    new RequestPredictions(getApplicationContext(), marker, mNavigationDrawerFragment.getSelectedRoutes()).execute(marker.getTitle());
                     return true;
                 }
                 return false;
@@ -882,10 +787,10 @@ public class SelectTransit extends AppCompatActivity implements
      */
     protected void restorePolylines() {
         Route currentRoute;
-        for(String route : buses) {
+        for(String route : mNavigationDrawerFragment.getSelectedRoutes()) {
             currentRoute = mNavigationDrawerFragment.getSelectedRoute(route);
             selectPolyline(currentRoute);
-            mNavigationDrawerFragment.setTrue(currentRoute.getListPosition());
+//            mNavigationDrawerFragment.setTrue(currentRoute.getListPosition());
         }
     }
 
@@ -894,7 +799,7 @@ public class SelectTransit extends AppCompatActivity implements
      */
     private void clearAndAddToMap() {
         if (mMap != null) {
-            Log.d("stop_add_buses", buses.toString());
+            Log.d("stop_add_buses", mNavigationDrawerFragment.getSelectedRoutes().toString());
             stopTimer();
             addBuses();
         }
@@ -917,8 +822,8 @@ public class SelectTransit extends AppCompatActivity implements
      * @return the vehicle update observer
      * @since 55
      */
-    private Observer<Vehicle> vehicleBusUpdate() {
-        return new Observer<Vehicle>() {
+    private Subscriber<VehicleBitmap> vehicleBusUpdateObservable() {
+        return new Subscriber<VehicleBitmap>() {
 
             private boolean showedErrors = false;
 
@@ -943,28 +848,27 @@ public class SelectTransit extends AppCompatActivity implements
             }
 
             @Override
-            public void onNext(Vehicle vehicle) {
-                addOrUpdateMarkers(vehicle);
+            public void onNext(VehicleBitmap vehicleBitmap) {
+                addOrUpdateMarkers(vehicleBitmap);
             }
 
             /**
              * Handle vehicle updates and adds...
              * <ul>
-             *     <li>add marker if not on {@link SelectTransit#busMarkers} - {@link #addMarker(Vehicle)}</li>
+             *     <li>add marker if not on {@link SelectTransit#busMarkers} - {@link #addMarker(VehicleBitmap)}</li>
              *     <li>update marker if in {@link SelectTransit#busMarkers} - {@link #updateMarker(Vehicle, Marker)}</li>
              * </ul>
              *
              * @since 46
-             * @param vehicle - vehicle to be added
+             * @param vehicleBitmap - vehicle to be added
              */
-
-            private void addOrUpdateMarkers(Vehicle vehicle) {
-                int vid = vehicle.getVid();
+            private void addOrUpdateMarkers(VehicleBitmap vehicleBitmap) {
+                int vid = vehicleBitmap.getVehicle().getVid();
                 Marker marker = busMarkers.get(vid);
                 if (marker == null) {
-                    addMarker(vehicle);
+                    addMarker(vehicleBitmap);
                 } else {
-                    updateMarker(vehicle, marker);
+                    updateMarker(vehicleBitmap.getVehicle(), marker);
                 }
 
             }
@@ -972,18 +876,18 @@ public class SelectTransit extends AppCompatActivity implements
             /**
              * adds marker not in {@link SelectTransit#busMarkers}
              * @since 46
-             * @param vehicle - the vehicle to add
+             * @param vehicleBitmap - the vehicle to add
              */
-            private void addMarker(Vehicle vehicle) {
+            private void addMarker(VehicleBitmap vehicleBitmap) {
+                Vehicle vehicle = vehicleBitmap.getVehicle();
                 Log.d("marker_add", "adding_marker " + Integer.toString(vehicle.getVid()));
-                Log.d("marker_add", busIcons.get(vehicle.getRt()).toString());
                 busMarkers.put(vehicle.getVid(), mMap.addMarker(new MarkerOptions()
                                 .position(new LatLng(vehicle.getLat(), vehicle.getLon()))
                                 .title(vehicle.getRt() + "(" + vehicle.getVid() + ") " + vehicle.getDes() + (vehicle.isDly() ? " - Delayed" : ""))
                                 .draggable(false)
                                 .rotation(vehicle.getHdg())
-                                .icon(BitmapDescriptorFactory.fromBitmap(busIcons.get(vehicle.getRt())))
-                                .anchor((float) .5, (float) 0.5)
+                                .icon(BitmapDescriptorFactory.fromBitmap(vehicleBitmap.getBitmap()))
+                                .anchor((float) 0.5, (float) 0.5)
                                 .flat(true)
                 ));
             }
@@ -1009,9 +913,9 @@ public class SelectTransit extends AppCompatActivity implements
      * @return the vehicle update observer
      * @since 55
      */
-    private Observer<ErrorMessage> vehicleErrorObserver() {
+    private Subscriber<ErrorMessage> vehicleErrorObserver() {
         Log.d("vehicle_error_observer", "restarting the vehicle error observer");
-        return new Observer<ErrorMessage>() {
+        return new Subscriber<ErrorMessage>() {
 
             @Override
             public void onCompleted() {
@@ -1075,44 +979,78 @@ public class SelectTransit extends AppCompatActivity implements
         };
     }
 
+    private Func1<Vehicle, VehicleBitmap> makeBitmaps() {
+        return new Func1<Vehicle, VehicleBitmap>() {
+
+            private HashMap<String, Bitmap> busIconCache = new HashMap<>(mNavigationDrawerFragment.getAmountSelected());
+
+            @Override
+            public VehicleBitmap call(Vehicle vehicle) {
+                String routeName = vehicle.getRt();
+                if(busIconCache.containsKey(routeName)) {
+                    return new VehicleBitmap(vehicle, busIconCache.get(routeName));
+                } else {
+                    Bitmap icon = makeBitmap(mNavigationDrawerFragment.getSelectedRoute(routeName));
+                    busIconCache.put(routeName, icon);
+                    return new VehicleBitmap(vehicle, icon);
+                }
+            }
+
+            private Bitmap makeBitmap(Route route) {
+                Bitmap bus_icon = BitmapFactory.decodeResource(getResources(), R.drawable.bus_icon);
+                Bitmap busicon = Bitmap.createBitmap(bus_icon.getWidth(), bus_icon.getHeight(), bus_icon.getConfig());
+                Canvas canvas = new Canvas(busicon);
+                Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                paint.setColorFilter(new PorterDuffColorFilter(route.getRouteColor(), PorterDuff.Mode.MULTIPLY));
+                canvas.drawBitmap(bus_icon, 0f, 0f, paint);
+                drawText(canvas, bus_icon, getResources().getDisplayMetrics().density, route.getRoute(), route.getColorAsString());
+                return busicon;
+            }
+
+            private void drawText(Canvas canvas, Bitmap bus_icon, float fontScale, String routeNumber, String routeColor) {
+                int currentColor = Color.parseColor(routeColor);
+                Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                paint.setColor(isLight(currentColor) ? Color.BLACK : Color.WHITE);
+                paint.setTextSize(8 * fontScale);
+                Rect fontBounds = new Rect();
+                paint.getTextBounds(routeNumber, 0, routeNumber.length(), fontBounds);
+                int x = bus_icon.getWidth() / 2;
+                int y = (int) ((double) bus_icon.getHeight() / 1.25);
+                paint.setTextAlign(Paint.Align.CENTER);
+                canvas.drawText(routeNumber, x, y, paint);
+            }
+
+            /**
+             * Decides whether or not the color (background color) is light or not.
+             * <p>
+             * Formula was taken from here:
+             * http://stackoverflow.com/questions/24260853/check-if-color-is-dark-or-light-in-android
+             *
+             * @param color the background color being fed
+             * @return whether or not the background color is light or not (.345 is the current threshold)
+             * @since 47
+             */
+            private boolean isLight(int color) {
+                return 1.0 - (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255 < .5;
+            }
+        };
+    }
+
     /**
      * adds buses to map... or else the map will be clear.
      *
      * It updates the map every 10 seconds and makes sure that on the other threads, it will
-     * process the Port Authority API call to Reactive way.
+     * process the Port Authority API call the Reactive way.
      */
     private void addBuses() {
-        Log.d("adding buses", buses.toString());
-
-        // get the JSON object and put it in an observable
-        Observable<BustimeVehicleResponse> bustimeVehicleResponseObservable = Observable.interval(0, 10, TimeUnit.SECONDS)
-                .flatMap(aLong -> patApiClient.getVehicles(collectionToString(buses), BuildConfig.PAT_API_KEY))
-                .subscribeOn(Schedulers.io())
-                .map(VehicleResponse::getBustimeResponse)
-                .subscribeOn(Schedulers.io());
-
-        // get the vehicles observer
-        Observable<Vehicle> vehicleObservable = bustimeVehicleResponseObservable.flatMap(
-                bustimeVehicleResponse -> Observable.from(bustimeVehicleResponse.getVehicle()));
+        Log.d("adding buses", mNavigationDrawerFragment.getSelectedRoutes().toString());
 
         // run the vehicle updater
-        vehicleSubscription = vehicleObservable
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(vehicleBusUpdate());
-
-        // get the vehicle errors observer
-        Observable<HashMap<String, ArrayList<String>>> vehicleErrorObservable = bustimeVehicleResponseObservable
-                .map(BustimeVehicleResponse::getProcessedErrors);
+        vehicleSubscription = vehicleUpdateObservable
+                .subscribe(vehicleBusUpdateObservable());
 
         // run the vehicle update observer and print it when the error message object changes
-        vehicleErrorSubscription = vehicleErrorObservable
-                .distinctUntilChanged()
-                .flatMap(errorMap -> Observable.from(errorMap.entrySet()))
-                .map(transformSingleMessage())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(vehicleErrorObserver());
+        vehicleErrorSubscription = vehicleErrorObservable.subscribe(vehicleErrorObserver());
 
     }
 
@@ -1212,19 +1150,8 @@ public class SelectTransit extends AppCompatActivity implements
             routeLines = new ConcurrentHashMap<>(getResources().getInteger(R.integer.max_checked));
             transitStop = new TransitStop();
             removeBuses();
-            clearBuses();
             mNavigationDrawerFragment.clearSelection();
 //            mNavigationDrawerFragment.clearSelection();
-        }
-    }
-
-    /**
-     * The list of buses that are selected
-     */
-    protected void clearBuses() {
-        if(buses != null) {
-            Log.d("bus_remove", "buses cleared");
-            buses.clear();
         }
     }
 

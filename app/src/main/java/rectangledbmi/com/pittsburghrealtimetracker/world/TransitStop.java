@@ -128,6 +128,11 @@ public class TransitStop {
         }
     }
 
+    public void destroyStops() {
+        stops.clear();
+        routeStops.clear();
+    }
+
     /**
      * Gets the container by stop id
      *

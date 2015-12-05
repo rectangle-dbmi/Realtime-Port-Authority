@@ -16,8 +16,8 @@ android {
         applicationId "rectangledbmi.com.pittsburghrealtimetracker"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 56
-        versionName "5.01"
+        versionCode 59
+        versionName "6.1b"
     }
     buildTypes {
 
@@ -48,15 +48,15 @@ dependencies {
     //google play services location and places
     compile 'com.google.android.gms:play-services-location:8.3.0'
 
-    compile 'com.android.support:support-v4:23.1.0'
-    compile 'com.android.support:design:23.1.0';
-    compile 'com.android.support:appcompat-v7:23.1.0'
+    compile 'com.android.support:support-v4:23.1.1'
+    compile 'com.android.support:design:23.1.1';
+    compile 'com.android.support:appcompat-v7:23.1.1'
 
-    compile 'com.android.support:mediarouter-v7:23.1.0'
+    compile 'com.android.support:mediarouter-v7:23.1.1'
 
     //3rd party android libraries
     compile 'io.reactivex:rxandroid:1.0.1'
-    compile 'io.reactivex:rxjava:1.0.15'
+    compile 'io.reactivex:rxjava:1.0.16'
 
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'org.glassfish:javax.annotation:10.0-b28'
