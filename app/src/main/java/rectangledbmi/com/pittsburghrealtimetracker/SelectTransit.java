@@ -539,7 +539,7 @@ public class SelectTransit extends AppCompatActivity implements
      * @since 43
      * @param routeInfo - the route and its info to add
      */
-    private synchronized void selectPolyline(Route routeInfo) {
+    private void selectPolyline(Route routeInfo) {
         String route = routeInfo.getRoute();
         List<Polyline> polylines = routeLines.get(route);
 
@@ -573,7 +573,7 @@ public class SelectTransit extends AppCompatActivity implements
      * Removes the route line if it was on the map
      * @param route - the route to remove by its string
      */
-    private synchronized void deselectPolyline(String route) {
+    private void deselectPolyline(String route) {
         List<Polyline> polylines = routeLines.get(route);
         if(polylines != null) {
             if(!polylines.isEmpty() && polylines.get(0).isVisible()) {
