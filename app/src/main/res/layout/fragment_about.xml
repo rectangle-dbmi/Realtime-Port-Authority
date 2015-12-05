@@ -5,42 +5,87 @@
     android:layout_height="fill_parent"
     android:padding="12dp">
 
-    <TextView
-        android:id="@+id/opening"
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/remark_1"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@android:color/black" />
+        android:paddingBottom="10dp">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_launcher"
+            android:contentDescription="Logo"
+            android:paddingRight="10dp"/>
+
+        <TextView
+            android:id="@+id/version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="set_programmatically"
+            android:textColor="@android:color/black"
+            android:paddingBottom="10dp"/>
+    </LinearLayout>
+
+    <View style="@style/Divider"/>
 
     <TextView
-        android:id="@+id/source_link"
+        android:id="@+id/linksTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/source_code"
+        android:text="@string/linksTitle"
         android:textColor="@android:color/black"
-        android:autoLink="web" />
-
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_launcher"
-        android:contentDescription="Logo" />
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:paddingTop="10dp"
+        style = "@style/AboutHeader"/>
 
     <TextView
-        android:id="@+id/version"
+        android:id="@+id/fb_link"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="set_programmatically"
-        android:textColor="@android:color/black" />
-
-    <TextView
-        android:id="@+id/disclaimer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/disclaim"
+        android:text="@string/fb_link"
         android:textColor="@android:color/black"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"/>
+
+    <TextView
+        android:id="@+id/git_link"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/git_link"
+        android:textColor="@android:color/black"
+        android:paddingBottom="10dp"/>
+
+    <TextView
+        android:id="@+id/email_link"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/contact_email"
+        android:textColor="@android:color/black"
+        android:paddingBottom="10dp"/>
+
+    <View style="@style/Divider"/>
+
+    <TextView
+        android:id="@+id/disclaimerTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/disclaimerTitle"
+        android:textColor="@android:color/black"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        style = "@style/AboutHeader"/>
+
+    <TextView
+        android:id="@+id/disclaimerBody"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/disclaimerBody"
+        android:textColor="@android:color/black"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:paddingBottom="10dp"/>
 
 </LinearLayout>

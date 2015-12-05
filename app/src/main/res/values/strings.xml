@@ -324,12 +324,16 @@
     <string name="data_close_app">Close App</string>
     <string name="data_dismiss">Cancel</string>
     <!-- About Strings -->
-    <string name="remark_1">This application is open source:</string>
-    <string name="source_code">https://github.com/rectangle-dbmi/Realtime-Port-Authority</string>
+    <string name="version_prefix">Version </string>
+    <string name="fb_link"><a href='https://www.facebook.com/PATRealtimeTracker'>Visit us on Facebook</a></string>
+    <string name="git_link"><a href='https://github.com/rectangle-dbmi/Realtime-Port-Authority'>Visit us on Github</a></string>
+    <string name="contact_email"><a href='mailto:pat.realtime.tracker@gmail.com'>Send us an email</a></string>
     <string name="directory_in_sdcard">/Data/rectangledbmi.com.pittsburghrealtimetracker</string>
     <string name="zoom_level">15.0</string>
     <string name="cleared">Map cleared and routes reset.</string>
-    <string name="disclaim">DISCLAMER: We are not responsible for which buses and routes are being
+    <string name="disclaimerTitle">Disclaimer</string>
+    <string name="linksTitle">Links</string>
+    <string name="disclaimerBody">We are not responsible for which buses and routes are being
         tracked as we are only getting the information from Port Authority. If a certain route or
         bus is not on our app, this is most likely not our fault but of Port Authority. If the map
         is empty, please report this to our Play Store email or create an issue on our Github above
