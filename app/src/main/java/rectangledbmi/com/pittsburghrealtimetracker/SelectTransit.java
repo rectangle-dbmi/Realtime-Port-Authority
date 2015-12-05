@@ -607,8 +607,8 @@ public class SelectTransit extends AppCompatActivity implements
                 setSupportActionBar(toolbar);
             } catch (Throwable e) {
                 Snackbar.make(mainLayout,
-                "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Snackbar.LENGTH_LONG).show();
-//                Toast.makeText(this, "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Toast.LENGTH_LONG).show();
+                "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Snackbar.LENGTH_SHORT).show();
+//                Toast.makeText(this, "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Toast.LENGTH_SHORT).show();
             }
         }
         try {
@@ -616,7 +616,7 @@ public class SelectTransit extends AppCompatActivity implements
             if(t != null) t.setDisplayHomeAsUpEnabled(true);
         } catch(NullPointerException e) {
             Snackbar.make(mainLayout,
-                    "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Snackbar.LENGTH_LONG).show();
+                    "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Snackbar.LENGTH_SHORT).show();
         }
 
     }
@@ -948,7 +948,7 @@ public class SelectTransit extends AppCompatActivity implements
                 if(errorMessage != null && errorMessage.getMessage() != null) {
                     showToast(errorMessage.getMessage() +
                                     (errorMessage.getParameters() != null ? ": " + errorMessage.getParameters() : ""),
-                            Toast.LENGTH_LONG);
+                            Toast.LENGTH_SHORT);
                 }
 
             }
@@ -1295,7 +1295,7 @@ public class SelectTransit extends AppCompatActivity implements
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Log.d("Google API Error", connectionResult.toString());
 //        centerMap();
-        Toast.makeText(this, "Google connection failed, please try again later", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Google connection failed, please try again later", Toast.LENGTH_SHORT).show();
 
 //        TODO: Perhaps based on the connection result, we can close and make custom error messages.
     }

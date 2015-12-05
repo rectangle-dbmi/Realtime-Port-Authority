@@ -54,7 +54,7 @@ public class PredictionsXMLPullParser {
             parser.setInput(conn.getInputStream(), null);
             parseXML();
         } else {
-            Toast.makeText(context, "Connection Timeout, Internet problem", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Connection Timeout, Internet problem", Toast.LENGTH_SHORT).show();
         }
         return getPredictionList();
     }

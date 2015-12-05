@@ -544,7 +544,7 @@ public class NavigationDrawerFragment extends Fragment {
 
                 if(!mRoute.isSelected() && selectedRoutes.size() == getResources().getInteger(R.integer.max_checked)) {
                     // print toast then do nothing if we are trying to select more than max
-                    Toast.makeText(getActivity(), getString(R.string.max_selected_routes), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), getString(R.string.max_selected_routes), Toast.LENGTH_SHORT).show();
                     return;
                 }
 
