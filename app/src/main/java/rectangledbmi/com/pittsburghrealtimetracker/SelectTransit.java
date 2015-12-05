@@ -850,7 +850,6 @@ public class SelectTransit extends AppCompatActivity implements
                                 + getString(R.string.retrofit_http_error), Toast.LENGTH_SHORT);
                     }
                     else {
-                        Log.e("vehicleBusUbdate", e.getLocalizedMessage());
                         showToast(getString(R.string.retrofit_conversion_error), Toast.LENGTH_SHORT);
                     }
                     Log.e("bus_vehicle_error", e.getMessage());
