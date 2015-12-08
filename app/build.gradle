@@ -16,8 +16,8 @@ android {
         applicationId "rectangledbmi.com.pittsburghrealtimetracker"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 58
-        versionName "6.0"
+        versionCode 62
+        versionName "6.4"
     }
     buildTypes {
 
@@ -56,9 +56,11 @@ dependencies {
 
     //3rd party android libraries
     compile 'io.reactivex:rxandroid:1.0.1'
-    compile 'io.reactivex:rxjava:1.0.15'
+    compile 'io.reactivex:rxjava:1.0.16'
 
-    compile 'com.squareup.retrofit:retrofit:1.9.0'
+    compile 'com.squareup.retrofit:retrofit:2.0.0-beta2'
+    compile 'com.squareup.retrofit:converter-gson:2.0.0-beta2'
+    compile 'com.squareup.retrofit:adapter-rxjava:2.0.0-beta2'
     compile 'org.glassfish:javax.annotation:10.0-b28'
 
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.3.1'
@@ -72,7 +74,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'me.tatarka:gradle-retrolambda:3.2.3' // use some java 8 syntax in the project
+        classpath 'me.tatarka:gradle-retrolambda:3.2.4' // use some java 8 syntax in the project
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.11.3' // check for updates of 3rd party libs
     }
 }
