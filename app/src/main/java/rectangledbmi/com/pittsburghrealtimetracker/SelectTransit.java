@@ -78,10 +78,10 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimeVehicleResponse;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Vehicle;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.VehicleResponse;
-import retrofit.HttpException;
-import retrofit.Retrofit;
-import retrofit.GsonConverterFactory;
-import retrofit.RxJavaCallAdapterFactory;
+import retrofit2.GsonConverterFactory;
+import retrofit2.HttpException;
+import retrofit2.Retrofit;
+import retrofit2.RxJavaCallAdapterFactory;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
@@ -96,7 +96,9 @@ public class SelectTransit extends AppCompatActivity implements
         NavigationDrawerFragment.BusListCallbacks,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        OnMapReadyCallback, LocationListener {
+        OnMapReadyCallback, LocationListener,
+        SelectionFragment.BusSelectionInteraction
+{
 
     private static final String LINES_LAST_UPDATED = "lines_last_updated";
 
@@ -315,26 +317,26 @@ public class SelectTransit extends AppCompatActivity implements
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         Long lastUpdated = sp.getLong(LINES_LAST_UPDATED, -1);
         Log.d("data_storage", data.getName());
-        if(data.mkdirs())
+        if (data.mkdirs())
             Log.d("sd_card", "Created data storage");
         File lineInfo = new File(data, "/lineinfo");
-        if(data.mkdirs())
+        if (data.mkdirs())
             Log.d("sd_card", "created line info folder in storage");
         Log.d("updated time", Long.toString(lastUpdated));
-        if(lastUpdated != -1 && ((System.currentTimeMillis() - lastUpdated) / 1000 / 60 / 60) > 24) {
+        if (lastUpdated != -1 && ((System.currentTimeMillis() - lastUpdated) / 1000 / 60 / 60) > 24) {
 //            Log.d("update time....", Long.toString((System.currentTimeMillis() - lastUpdated) / 1000 / 60 / 60));
-            if(lineInfo.exists()) {
+            if (lineInfo.exists()) {
                 Calendar c = Calendar.getInstance();
                 int day = c.get(Calendar.DAY_OF_WEEK);
                 Calendar o = Calendar.getInstance();
                 o.setTimeInMillis(lastUpdated);
                 int oldDay = o.get(Calendar.DAY_OF_WEEK);
-                if(day == Calendar.FRIDAY || oldDay >= day) {
+                if (day == Calendar.FRIDAY || oldDay >= day) {
                     File[] files = lineInfo.listFiles();
                     sp.edit().putLong(LINES_LAST_UPDATED, System.currentTimeMillis()).apply();
-                    if(files != null) {
+                    if (files != null) {
                         for (File file : files) {
-                            if(file.delete())
+                            if (file.delete())
                                 Log.d("sd_card", file.getName() + " deleted");
                         }
                     }
@@ -342,8 +344,8 @@ public class SelectTransit extends AppCompatActivity implements
             }
         }
 
-        if(lineInfo.listFiles() == null || lineInfo.listFiles().length == 0) {
-           sp.edit().putLong(LINES_LAST_UPDATED, System.currentTimeMillis()).apply();
+        if (lineInfo.listFiles() == null || lineInfo.listFiles().length == 0) {
+            sp.edit().putLong(LINES_LAST_UPDATED, System.currentTimeMillis()).apply();
         }
     }
 
@@ -364,7 +366,7 @@ public class SelectTransit extends AppCompatActivity implements
         try {
             long httpCacheSize = 10485760; // 10 MiB
             File fetch = getExternalCacheDir();
-            if(fetch == null) {
+            if (fetch == null) {
                 fetch = getCacheDir();
             }
             File httpCacheDir = new File(fetch, "http");
@@ -384,7 +386,7 @@ public class SelectTransit extends AppCompatActivity implements
     protected void restoreInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             Log.d("savedInstance_restore", "instance saved");
-            Log.d("savedInstance_s", "lat="+savedInstanceState.getDouble(LAST_LATITUDE));
+            Log.d("savedInstance_s", "lat=" + savedInstanceState.getDouble(LAST_LATITUDE));
             inSavedState = true;
             latitude = savedInstanceState.getDouble(LAST_LATITUDE);
             longitude = savedInstanceState.getDouble(LAST_LONGITUDE);
@@ -431,11 +433,11 @@ public class SelectTransit extends AppCompatActivity implements
 //        savedInstanceState.putStringArrayList(BUS_SELECT_STATE, list);
         if (mMap != null) {
             savedInstanceState.putDouble(LAST_LATITUDE, latitude);
-            savedInstanceState.putDouble(LAST_LONGITUDE,longitude);
+            savedInstanceState.putDouble(LAST_LONGITUDE, longitude);
             savedInstanceState.putFloat(LAST_ZOOM, zoom);
             Log.d("savedInstance_osi", "saved? " + inSavedState);
-            Log.d("savedInstance_osi", "lat="+latitude);
-            Log.d("savedInstance_osi", "long="+longitude);
+            Log.d("savedInstance_osi", "lat=" + latitude);
+            Log.d("savedInstance_osi", "long=" + longitude);
             Log.d("savedInstance_osi", "zoom=" + zoom);
         }
 
@@ -471,7 +473,7 @@ public class SelectTransit extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        if(mMap != null) {
+        if (mMap != null) {
             restoreBuses();
         }
     }
@@ -503,6 +505,16 @@ public class SelectTransit extends AppCompatActivity implements
         mMapCameraListener = null;
         mMapMarkerClickListener = null;
         if (mMap != null) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
             mMap.setMyLocationEnabled(false);
         }
         super.onDestroy();
@@ -1292,7 +1304,7 @@ public class SelectTransit extends AppCompatActivity implements
      * @param connectionResult The specified code if the GoogleApiClient fails to connect!
      */
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.d("Google API Error", connectionResult.toString());
 //        centerMap();
         Toast.makeText(this, "Google connection failed, please try again later", Toast.LENGTH_SHORT).show();
@@ -1311,5 +1323,10 @@ public class SelectTransit extends AppCompatActivity implements
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
             notCentered = false;
         }
+    }
+
+    @Override
+    public Set<String> getSelectedRoutes() {
+        return mNavigationDrawerFragment.getSelectedRoutes();
     }
 }
