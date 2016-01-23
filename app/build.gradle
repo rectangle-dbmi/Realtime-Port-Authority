@@ -1,5 +1,7 @@
 apply plugin: 'com.android.application'
-
+apply plugin: 'kotlin-android'
+apply plugin: 'me.tatarka.retrolambda'
+apply plugin: 'com.github.ben-manes.versions'
 
 //must define PAT_API_KEY in gradle.properties by adding pat_api=<KEY> on the last line non-commented
 def PAT_API_KEY = '"' + pat_api + '"' ?: '"Define Port Authority TrueTime API Key in gradle.properties"';
@@ -29,6 +31,9 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
     }
 
 }
@@ -63,11 +68,15 @@ dependencies {
     compile 'com.squareup.retrofit2:adapter-rxjava:2.0.0-beta3'
     compile 'org.glassfish:javax.annotation:10.0-b28'
 
+    compile 'com.jakewharton.timber:timber:4.1.0'
+
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.3.1'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.3.1'
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
 buildscript {
+    ext.kotlin_version = '1.0.0-beta-4584'
     repositories {
         mavenCentral()
         jcenter()
@@ -75,7 +84,9 @@ buildscript {
 
     dependencies {
         classpath 'me.tatarka:gradle-retrolambda:3.2.4' // use some java 8 syntax in the project
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.11.3' // check for updates of 3rd party libs
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.11.3'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        // check for updates of 3rd party libs
     }
 }
 
@@ -84,6 +95,3 @@ repositories {
     jcenter()
     mavenCentral()
 }
-
-apply plugin: 'me.tatarka.retrolambda'
-apply plugin: 'com.github.ben-manes.versions'

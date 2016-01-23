@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+Jeremy Jao
+This is a
+
+-->
+<resources>
+    <item name="zoom_level" type="integer" format="float">15.0</item>
+</resources>

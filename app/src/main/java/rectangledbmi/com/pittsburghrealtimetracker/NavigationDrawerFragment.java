@@ -14,7 +14,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -33,6 +32,7 @@ import java.util.TimeZone;
 
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
+import timber.log.Timber;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -264,7 +264,7 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     protected void clearMapAndSelection() {
-        Log.d("cleared", "cleared_everything");
+        Timber.d("cleared", "cleared_everything");
         SelectTransit activity = (SelectTransit)getActivity();
         if(activity!= null) {
             activity.clearMap();
@@ -278,7 +278,7 @@ public class NavigationDrawerFragment extends Fragment {
      */
     protected void clearSelection() {
         File lineInfo = new File(getActivity().getFilesDir(), "/lineinfo");
-        Log.d("clear-files", "cleared files: " + lineInfo.getAbsolutePath());
+        Timber.d("clear-files", "cleared files: " + lineInfo.getAbsolutePath());
         if(lineInfo.exists()) {
             File[] files = lineInfo.listFiles();
             if(files != null) {
@@ -330,7 +330,7 @@ public class NavigationDrawerFragment extends Fragment {
      */
     @Override
     public void onStop() {
-//        Log.d("saving_sbchecked", mDrawerListView.getCheckedItemPositions().toString());
+//        Timber.d("saving_sbchecked", mDrawerListView.getCheckedItemPositions().toString());
         super.onStop();
 
 
