@@ -297,6 +297,10 @@ public class SelectTransit extends AppCompatActivity implements
         patApiClient = retrofit.create(PATAPI.class);
     }
 
+    public PATAPI getPatApiClient() {
+        return patApiClient;
+    }
+
 //    /**
 //     * Checks if the network is available
 //     * TODO: incorporate this with a dialog to enable internet
@@ -830,7 +834,8 @@ public class SelectTransit extends AppCompatActivity implements
      * @param string - string to show
      * @param length - length to show message
      */
-    private void showToast(String string, int length) {
+    @Override
+    public void showToast(String string, int length) {
         Toast.makeText(this, string, length).show();
     }
 
@@ -848,7 +853,7 @@ public class SelectTransit extends AppCompatActivity implements
             public void onCompleted() {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZZZ", Locale.ENGLISH);
                 String cDateTime = dateFormat.format(new Date());
-                Timber.d("bus_vehicle update", "Bus map updates finished updates at " + cDateTime);
+                Timber.d("Bus map updates finished updates at %s", cDateTime);
             }
 
             @Override
@@ -868,8 +873,11 @@ public class SelectTransit extends AppCompatActivity implements
                     }
                     Timber.e("bus_vehicle_error", e.getMessage());
                 }
-                Timber.e("bus_vehicle_error", e.getClass().getName());
-                Timber.e("bus_vehicle_error", Log.getStackTraceString(e));
+                Timber.e(e.getClass().getName());
+                Timber.e("Vehicle Observable error. %s\n%s",
+                        e.getClass().getName(),
+                        Log.getStackTraceString(e)
+                );
             }
 
             @Override
@@ -1327,8 +1335,12 @@ public class SelectTransit extends AppCompatActivity implements
         }
     }
 
-    @Override
-    public Set<String> getSelectedRoutes() {
+
+    @Override @NonNull public Set<String> getSelectedRoutes() {
         return mNavigationDrawerFragment.getSelectedRoutes();
+    }
+
+    @Override public Route getSelectedRoute(@NonNull String routeName) {
+        return mNavigationDrawerFragment.getSelectedRoute(routeName);
     }
 }

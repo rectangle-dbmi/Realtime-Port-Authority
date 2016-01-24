@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.util.Log
 import android.util.TypedValue
+import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI
+import rectangledbmi.com.pittsburghrealtimetracker.world.Route
 import timber.log.Timber
 
 /**
@@ -63,5 +65,11 @@ abstract class SelectionFragment : Fragment(), NavigationDrawerFragment.BusListC
          * @return the selected buses
          */
         val selectedRoutes: Set<String>
+
+        val patApiClient: PATAPI
+
+        fun getSelectedRoute(routeName: String): Route?
+
+        fun showToast(message: String, length: Int)
     }
 }
