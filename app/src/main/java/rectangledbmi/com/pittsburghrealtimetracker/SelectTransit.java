@@ -98,8 +98,7 @@ public class SelectTransit extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         OnMapReadyCallback, LocationListener,
-        SelectionFragment.BusSelectionInteraction
-{
+        SelectionFragment.BusSelectionInteraction {
 
     private static final String LINES_LAST_UPDATED = "lines_last_updated";
 
@@ -570,11 +569,11 @@ public class SelectTransit extends AppCompatActivity implements
                     route,
                     routeInfo.getRouteColor(),
                     zoom,
-                    Float.parseFloat(getString(R.string.zoom_level)),
+                    R.integer.zoom_level,
                     transitStop, this).execute();
-        } else if(!polylines.get(0).isVisible()) {
+        } else if (!polylines.get(0).isVisible()) {
             setVisiblePolylines(polylines, true);
-            transitStop.updateAddRoutes(route, zoom, Float.parseFloat(getString(R.string.zoom_level)));
+            transitStop.updateAddRoutes(route, zoom, R.integer.zoom_level);
         }
     }
 
@@ -596,8 +595,8 @@ public class SelectTransit extends AppCompatActivity implements
      */
     private void deselectPolyline(String route) {
         List<Polyline> polylines = routeLines.get(route);
-        if(polylines != null) {
-            if(!polylines.isEmpty() && polylines.get(0).isVisible()) {
+        if (polylines != null) {
+            if (!polylines.isEmpty() && polylines.get(0).isVisible()) {
                 setVisiblePolylines(polylines, false);
                 transitStop.removeRoute(route);
             } else {
@@ -625,14 +624,14 @@ public class SelectTransit extends AppCompatActivity implements
                 setSupportActionBar(toolbar);
             } catch (Throwable e) {
                 Snackbar.make(mainLayout,
-                "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Snackbar.LENGTH_SHORT).show();
+                        "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Snackbar.LENGTH_SHORT).show();
 //                Toast.makeText(this, "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Toast.LENGTH_SHORT).show();
             }
         }
         try {
             ActionBar t = getSupportActionBar();
-            if(t != null) t.setDisplayHomeAsUpEnabled(true);
-        } catch(NullPointerException e) {
+            if (t != null) t.setDisplayHomeAsUpEnabled(true);
+        } catch (NullPointerException e) {
             Snackbar.make(mainLayout,
                     "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Snackbar.LENGTH_SHORT).show();
         }
@@ -676,14 +675,14 @@ public class SelectTransit extends AppCompatActivity implements
      */
     private void centerMap() {
         Timber.d("location_changed", "centering map in centerMap()");
-        if(currentLocation != null) {
+        if (currentLocation != null) {
             latitude = currentLocation.getLatitude();
             longitude = currentLocation.getLongitude();
             zoom = 15.0f;
             Timber.d("location_changed", "current location set in centerMap()");
         }
         Timber.d("savedInstance", "saved? " + inSavedState);
-        Timber.d("savedInstance", "lat="+latitude);
+        Timber.d("savedInstance", "lat=" + latitude);
         Timber.d("savedInstance", "long=" + longitude);
         Timber.d("savedInstance", "zoom=" + zoom);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), zoom));
@@ -756,7 +755,7 @@ public class SelectTransit extends AppCompatActivity implements
      * Creates
      */
     private void createListeners() {
-        if(mMapCameraListener == null) {
+        if (mMapCameraListener == null) {
             mMapCameraListener = cameraPosition -> {
                 if (!inSavedState)
                     inSavedState = true;
@@ -764,11 +763,11 @@ public class SelectTransit extends AppCompatActivity implements
                 longitude = cameraPosition.target.longitude;
                 if (zoom != cameraPosition.zoom) {
                     zoom = cameraPosition.zoom;
-                    transitStop.checkAllVisibility(zoom, Float.parseFloat(getString(R.string.zoom_level)));
+                    transitStop.checkAllVisibility(zoom, R.integer.zoom_level);
                 }
             };
         }
-        if(mMapMarkerClickListener == null) {
+        if (mMapMarkerClickListener == null) {
             mMapMarkerClickListener = marker -> {
 
                 if (marker != null) {
@@ -808,7 +807,7 @@ public class SelectTransit extends AppCompatActivity implements
      */
     protected void restorePolylines() {
         Route currentRoute;
-        for(String route : mNavigationDrawerFragment.getSelectedRoutes()) {
+        for (String route : mNavigationDrawerFragment.getSelectedRoutes()) {
             currentRoute = mNavigationDrawerFragment.getSelectedRoute(route);
             selectPolyline(currentRoute);
 //            mNavigationDrawerFragment.setTrue(currentRoute.getListPosition());
@@ -862,13 +861,11 @@ public class SelectTransit extends AppCompatActivity implements
                     showedErrors = true;
                     if (e instanceof IOException) {
                         showToast(getString(R.string.retrofit_network_error), Toast.LENGTH_SHORT);
-                    }
-                    else if (e instanceof HttpException) {
+                    } else if (e instanceof HttpException) {
                         HttpException http = (HttpException) e;
                         showToast(http.code() + " " + http.message() + ": "
                                 + getString(R.string.retrofit_http_error), Toast.LENGTH_SHORT);
-                    }
-                    else {
+                    } else {
                         showToast(getString(R.string.retrofit_conversion_error), Toast.LENGTH_SHORT);
                     }
                     Timber.e("bus_vehicle_error", e.getMessage());
@@ -960,14 +957,14 @@ public class SelectTransit extends AppCompatActivity implements
 
             @Override
             public void onError(Throwable e) {
-                if(e.getLocalizedMessage() != null)
+                if (e.getLocalizedMessage() != null)
                     Timber.e("vehicle_error_errs", e.getLocalizedMessage());
                 Timber.e("vehicle_error_errs", Log.getStackTraceString(e));
             }
 
             @Override
             public void onNext(ErrorMessage errorMessage) {
-                if(errorMessage != null && errorMessage.getMessage() != null) {
+                if (errorMessage != null && errorMessage.getMessage() != null) {
                     showToast(errorMessage.getMessage() +
                                     (errorMessage.getParameters() != null ? ": " + errorMessage.getParameters() : ""),
                             Toast.LENGTH_SHORT);
@@ -983,7 +980,7 @@ public class SelectTransit extends AppCompatActivity implements
      * @since 55
      */
     private Func1<Map.Entry<String, ArrayList<String>>, ErrorMessage> transformSingleMessage() {
-        return new Func1<Map.Entry<String,ArrayList<String>>, ErrorMessage>() {
+        return new Func1<Map.Entry<String, ArrayList<String>>, ErrorMessage>() {
 
             /**
              * Transforms the original message to a user-readable message.
@@ -991,12 +988,12 @@ public class SelectTransit extends AppCompatActivity implements
              * @return a user-readable message from the original API message
              */
             private String transformMessage(String originalMessage) {
-                if(originalMessage != null) {
+                if (originalMessage != null) {
                     if (originalMessage.contains("No data found for parameter")) {
                         return getString(R.string.no_vehicle_error);
                     } else if (originalMessage.contains("specified") && originalMessage.contains("rt")) {
                         return getString(R.string.no_routes_selected);
-                    } else if(originalMessage.contains("Transaction limit for current day has been exceeded")) {
+                    } else if (originalMessage.contains("Transaction limit for current day has been exceeded")) {
                         return getString(R.string.pat_api_exceeded);
                     } else
                         return originalMessage;
@@ -1020,7 +1017,7 @@ public class SelectTransit extends AppCompatActivity implements
             @Override
             public VehicleBitmap call(Vehicle vehicle) {
                 String routeName = vehicle.getRt();
-                if(busIconCache.containsKey(routeName)) {
+                if (busIconCache.containsKey(routeName)) {
                     return new VehicleBitmap(vehicle, busIconCache.get(routeName));
                 } else {
                     Bitmap icon = makeBitmap(mNavigationDrawerFragment.getSelectedRoute(routeName));
@@ -1093,11 +1090,11 @@ public class SelectTransit extends AppCompatActivity implements
      */
     private void removeBuses(Set<Integer> routesOnMap) {
         Timber.d("remove_buses", "removing buses");
-        if(routesOnMap != null) {
-            for(Integer vid : routesOnMap) {
-                if(vid != null) {
+        if (routesOnMap != null) {
+            for (Integer vid : routesOnMap) {
+                if (vid != null) {
                     Marker marker = busMarkers.remove(vid);
-                    if(marker != null) {
+                    if (marker != null) {
                         Timber.d("remove_buses", Integer.toString(vid) + " removed");
                         marker.remove();
                     }
@@ -1133,9 +1130,9 @@ public class SelectTransit extends AppCompatActivity implements
         int size = data.size();
         int i = 0;
         StringBuilder buf = new StringBuilder();
-        for(T datum : data) {
+        for (T datum : data) {
             buf.append(datum);
-            if(++i < size)
+            if (++i < size)
                 buf.append(',');
         }
         return buf.toString();
@@ -1149,7 +1146,7 @@ public class SelectTransit extends AppCompatActivity implements
      * @param showLength - how long to show the snackbar
      */
     private void makeSnackbar(String string, int showLength) {
-        if(string != null && string.length() > 0) {
+        if (string != null && string.length() > 0) {
 
             Snackbar.make(mainLayout,
                     string, showLength
@@ -1162,9 +1159,9 @@ public class SelectTransit extends AppCompatActivity implements
      * Stops the vehicle subscriptions
      */
     private void stopTimer() {
-        if(vehicleSubscription != null)
+        if (vehicleSubscription != null)
             vehicleSubscription.unsubscribe();
-        if(vehicleErrorSubscription != null)
+        if (vehicleErrorSubscription != null)
             vehicleErrorSubscription.unsubscribe();
     }
 
@@ -1225,6 +1222,16 @@ public class SelectTransit extends AppCompatActivity implements
         gLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         gLocationRequest.setInterval(1000);
         //        MapsInitializer.initialize(this);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         currentLocation = LocationServices.FusedLocationApi.getLastLocation(googleAPIClient);
         //        Timber.d("location_changed", "What is going on here");
         if (currentLocation == null) {
@@ -1238,12 +1245,12 @@ public class SelectTransit extends AppCompatActivity implements
         } else if (!inSavedState) {
             if (mMap != null) {
                 Timber.d("location_changed", "current location is not null");
-                if(isInPittsburgh(currentLocation)) {
+                if (isInPittsburgh(currentLocation)) {
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                             new LatLng(
                                     currentLocation.getLatitude(),
                                     currentLocation.getLongitude()),
-                                    15.0f));
+                            15.0f));
                 }
 
             }
@@ -1260,8 +1267,8 @@ public class SelectTransit extends AppCompatActivity implements
     private void requestLocationPermissions() {
         int hasLocationPermissions = ContextCompat.checkSelfPermission(SelectTransit.this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
-        if(hasLocationPermissions != PackageManager.PERMISSION_GRANTED) {
-            if(!ActivityCompat.shouldShowRequestPermissionRationale(SelectTransit.this,
+        if (hasLocationPermissions != PackageManager.PERMISSION_GRANTED) {
+            if (!ActivityCompat.shouldShowRequestPermissionRationale(SelectTransit.this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
                 showOkDialog(getString(R.string.location_permission_message),
                         (dialog, which) -> ActivityCompat.requestPermissions(SelectTransit.this,
@@ -1283,6 +1290,16 @@ public class SelectTransit extends AppCompatActivity implements
                     permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION) &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED &&
                     mMap != null) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
                 mMap.setMyLocationEnabled(true);
             }
         }

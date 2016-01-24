@@ -20,6 +20,7 @@ import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.*
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter
+import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.errors.ErrorMessage
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.vehicles.VehicleBitmap
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop
@@ -281,6 +282,10 @@ class BusMapFragment :
             }.map(makeBitmaps())
     }
 
+    /**
+     * Creates a closure for bitmaps for the map.
+     * @return [Func1<Vehicle, VehicleBitmap>] The anonymous "function" to make the bitmaps
+     */
     private fun makeBitmaps(): Func1<Vehicle, VehicleBitmap> {
         return object : Func1<Vehicle, VehicleBitmap> {
 
@@ -340,7 +345,7 @@ class BusMapFragment :
         }
     }
 
-    private fun vehicleUpdateSubscriber(): Subscriber<VehicleBitmap> {
+    private fun vehicleUpdateObserver(): Subscriber<VehicleBitmap> {
         return object : Subscriber<VehicleBitmap>() {
 
             private var showedErrors: Boolean = false;
@@ -429,5 +434,57 @@ class BusMapFragment :
         }
     }
 
+    /**
+     * Transforms PAT API messages to something more readable.
+     */
+    private fun transformSingleMessage(): Func1<Map.Entry<String, ArrayList<String>>, ErrorMessage> {
+        return object : Func1<Map.Entry<String, ArrayList<String>>, ErrorMessage> {
+
+            private fun transformMessage(originalMessage: String?): String? {
+                if(originalMessage != null) {
+                    if (originalMessage.contains("No data found for parameter")) {
+                        return getString(R.string.no_vehicle_error)
+                    } else if (originalMessage.contains("specified") && originalMessage.contains("rt")) {
+                        return getString(R.string.no_routes_selected)
+                    } else if (originalMessage.contains("Transaction limit for current day has been exceeded")) {
+                        return getString(R.string.pat_api_exceeded)
+                    }
+                }
+                return null
+            }
+
+            override fun call(processedMessage: Map.Entry<String, ArrayList<String>>?): ErrorMessage? {
+                return ErrorMessage(transformMessage(processedMessage?.key), processedMessage?.value)
+            }
+
+        }
+    }
+
+    /**
+     * THis is the vehicle observer to update the UI for error messages from PAT's system.
+     */
+    private fun vehicleErrorObserver(): Subscriber<ErrorMessage> {
+        return object : Subscriber<ErrorMessage>() {
+            override fun onCompleted() {
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZZZ", Locale.ENGLISH)
+                val cDateTime = dateFormat.format(Date())
+                Timber.d("vehicle_error_complete", "Bus map error updates finished updates at " + cDateTime)
+            }
+
+            override fun onNext(errorMessage: ErrorMessage?) {
+                if (errorMessage != null && errorMessage.message != null) {
+                    busDrawerInteractor.showToast(errorMessage.message + if (errorMessage.message != null) ": " + errorMessage.message else "",
+                            Toast.LENGTH_SHORT)
+                }
+            }
+
+            override fun onError(e: Throwable?) {
+                if (e?.message != null)
+                    Timber.e(e?.message)
+                Timber.e(Log.getStackTraceString(e))
+            }
+
+        }
+    }
 
 }
