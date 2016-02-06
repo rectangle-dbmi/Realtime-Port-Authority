@@ -6,7 +6,10 @@ import android.support.v4.app.Fragment
 import android.util.Log
 import android.util.TypedValue
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI
+import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route
+import rx.Observable
+import rx.subjects.PublishSubject
 import timber.log.Timber
 
 /**
@@ -71,5 +74,7 @@ abstract class SelectionFragment : Fragment(), NavigationDrawerFragment.BusListC
         fun getSelectedRoute(routeName: String): Route?
 
         fun showToast(message: String, length: Int)
+
+        fun getSelectionPublishSubject(): Observable<RouteSelection>
     }
 }

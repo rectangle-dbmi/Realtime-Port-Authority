@@ -73,6 +73,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdap
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.errors.ErrorMessage;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.vehicles.VehicleBitmap;
+import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimeVehicleResponse;
@@ -88,6 +89,7 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 import timber.log.Timber;
 
 /**
@@ -484,7 +486,7 @@ public class SelectTransit extends AppCompatActivity implements
     }
 
     protected void onPause() {
-        Timber.d("main_destroy", "SelectTransit onPause");
+        Timber.d("SelectTransit onPause");
         removeBuses();
         stopTimer();
         super.onPause();
@@ -494,7 +496,7 @@ public class SelectTransit extends AppCompatActivity implements
     @Override
     protected void onStop() {
 
-        Timber.d("main_destroy", "SelectTransit onStop");
+        Timber.d("SelectTransit onStop");
         googleAPIClient.disconnect();
         HttpResponseCache cache = HttpResponseCache.getInstalled();
         if (cache != null) {
@@ -1359,5 +1361,19 @@ public class SelectTransit extends AppCompatActivity implements
 
     @Override public Route getSelectedRoute(@NonNull String routeName) {
         return mNavigationDrawerFragment.getSelectedRoute(routeName);
+    }
+
+    @Override
+    public void onSelectBusRouteObservable(@NonNull Observable<RouteSelection> routeSelectionObservable) {
+
+    }
+
+    @Override
+    public void onUnselectBusRouteObservable(@NonNull Observable<RouteSelection> routeSelectionObservable) {
+
+    }
+
+    public Observable<RouteSelection> getSelectionPublishSubject() {
+        return mNavigationDrawerFragment.getListSelectionSubject();
     }
 }

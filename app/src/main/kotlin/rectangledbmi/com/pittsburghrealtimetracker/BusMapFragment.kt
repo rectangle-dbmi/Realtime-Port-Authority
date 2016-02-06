@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.*
 import android.location.Location
 import android.os.Bundle
+import android.support.annotation.Nullable
 import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -22,6 +23,7 @@ import com.google.android.gms.maps.model.*
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.errors.ErrorMessage
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.vehicles.VehicleBitmap
+import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimeVehicleResponse
@@ -30,10 +32,10 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.VehicleRespons
 import retrofit2.HttpException
 import rx.Observable
 import rx.Subscriber
-import rx.Subscription
 import rx.android.schedulers.AndroidSchedulers
 import rx.functions.Func1
 import rx.schedulers.Schedulers
+import rx.subscriptions.CompositeSubscription
 import timber.log.Timber
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -55,6 +57,18 @@ class BusMapFragment :
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
+
+    override fun onConnectionFailed(p0: ConnectionResult) {
+        throw UnsupportedOperationException()
+    }
+
+    override fun onSelectBusRoute(route: Route?) {
+        throw UnsupportedOperationException()
+    }
+
+    override fun onDeselectBusRoute(route: Route?) {
+        throw UnsupportedOperationException()
+    }
 
     companion object DefaultMapProperties {
         private var PITTSBURGH: LatLng = LatLng(40.441, -79.981)
@@ -93,19 +107,17 @@ class BusMapFragment :
 
     private var zoomStopVisibility: Float = 15.0f
 
-    /**
-     * Subscription for bus vehicle update errors
-     */
-    private var vehicleSubscription: Subscription? = null
-
-    private var vehicleErrorSubscription: Subscription? = null
-
     private var busMarkers: ConcurrentMap<Int, Marker>? = null
 
-    /**
-     *
-     */
     private var routeLines: ConcurrentMap<String, List<Polyline>>? = null
+
+    private var selectionObservable : Observable<RouteSelection>? = null
+
+    private var vehicleSubscriptions : CompositeSubscription? = null
+
+    private var vehicleUpdateObservable : Observable<VehicleBitmap>? = null
+
+    private var vehicleErrorObservable : Observable<ErrorMessage>? = null
 
     /**
      * This is the object that decides the visibility of bus stop markers.
@@ -127,16 +139,22 @@ class BusMapFragment :
         setGoogleApiClient()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup,
-                              savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_bus_map, container, false)
-        val mapView = view.findViewById(R.id.map) as MapView
+    override fun onCreateView(inflater: LayoutInflater?, @Nullable container: ViewGroup?, @Nullable savedInstanceState: Bundle?): View? {
+        val view = inflater?.inflate(R.layout.fragment_bus_map, container, false)
+        val mapView = view?.findViewById(R.id.map) as MapView
         mapView.getMapAsync(this)
         return view
     }
 
+    override fun onResume() {
+        if(mMap != null) {
+            vehicleSubscriptions!!.add(vehicleUpdateObservable?.subscribe(vehicleUpdateObserver()))
+            vehicleSubscriptions!!.add(vehicleErrorObservable?.subscribe(vehicleErrorObserver()))
+        }
+    }
+
     override fun onPause() {
-        stopVehicleSubsciptions()
+        vehicleSubscriptions?.unsubscribe()
         super.onPause()
     }
 
@@ -148,9 +166,6 @@ class BusMapFragment :
 
     override fun onDetach() {
         super.onDetach()
-    }
-    override fun onConnectionFailed(p0: ConnectionResult?) {
-        throw UnsupportedOperationException()
     }
 
     override fun onConnectionSuspended(p0: Int) {
@@ -173,7 +188,59 @@ class BusMapFragment :
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+
         setupMap()
+        setupObservables()
+    }
+
+    /**
+     * Sets up observable instance variables for the bus map.
+     */
+    private fun setupObservables() {
+        selectionObservable = busDrawerInteractor.getSelectionPublishSubject()
+
+        // gets the shared observable want
+        var vehicleIntervalObservable: Observable<BustimeVehicleResponse>? = selectionObservable
+                ?.switchMap { routeSelection ->
+                Observable.interval(10, TimeUnit.SECONDS)
+                        .map { aLong ->
+                            if (BuildConfig.DEBUG)
+                                busDrawerInteractor.showToast("updating vehicles ${aLong}x", Toast.LENGTH_SHORT)
+                            routeSelection
+                        }
+                }?.flatMap { routeSelection ->
+                    if (BuildConfig.DEBUG) {
+                        busDrawerInteractor.showToast("getting buses ${routeSelection.selectedRoutes}", Toast.LENGTH_SHORT)
+                    }
+                    busDrawerInteractor.patApiClient.getVehicles(
+                            collectionToString(routeSelection.selectedRoutes),
+                            BuildConfig.PAT_API_KEY
+                    )
+                }?.map(VehicleResponse::getBustimeResponse)
+                    ?.subscribeOn(Schedulers.io())
+                    ?.observeOn(AndroidSchedulers.mainThread())
+                    ?.share()
+
+        vehicleUpdateObservable = vehicleIntervalObservable
+                ?.flatMap { bustimeVehicleResponse ->
+                    Timber.d("getting vehicles")
+                    Observable.from(bustimeVehicleResponse.vehicle)
+                }?.map(makeBitmaps())
+
+        vehicleErrorObservable = vehicleIntervalObservable
+                ?.map(BustimeVehicleResponse::getProcessedErrors)
+                ?.distinctUntilChanged()
+                ?.flatMap { errorMap ->
+                    Observable.from(errorMap.entries)
+                }?.map(transformSingleMessage())
+
+        vehicleSubscriptions?.add(
+                vehicleUpdateObservable?.subscribe(vehicleUpdateObserver())
+        )
+        vehicleSubscriptions?.add(
+                vehicleErrorObservable?.subscribe(vehicleErrorObserver())
+        )
+
     }
 
     private fun setupMap() {
@@ -192,24 +259,6 @@ class BusMapFragment :
         }
     }
 
-    override fun onSelectBusRoute(route: Route) {
-        stopVehicleSubsciptions()
-        if (mMap == null) {
-            Timber.e("Map is not instantiated")
-            return
-        }
-    }
-
-    override fun onDeselectBusRoute(route: Route) {
-        stopVehicleSubsciptions()
-        if (mMap == null) {
-            Timber.e("Map is not instantiated")
-            return
-        }
-
-
-    }
-
     /**
      * Checks if the current location is in the immediate vicinity
      * @param currentLocation The current location.
@@ -220,14 +269,6 @@ class BusMapFragment :
                 currentLocation.latitude < 40.992847 &&
                 currentLocation.longitude > -80.372815 &&
                 currentLocation.longitude < -79.414258
-    }
-
-    /**
-     * Stops the vehicle subscriptions
-     */
-    private fun stopVehicleSubsciptions() {
-        vehicleSubscription?.unsubscribe()
-        vehicleErrorSubscription?.unsubscribe()
     }
 
     private fun getSelectedRoutes(): Set<String> {
@@ -255,33 +296,6 @@ class BusMapFragment :
         return buf.toString()
     }
 
-    private fun getVehicleIntervalObservable(): Observable<BustimeVehicleResponse> {
-        return Observable
-            .interval(0, 10, TimeUnit.SECONDS)
-            .filter { aLong: Long -> mMap != null && getSelectedRoutes().size > 0 }
-            .flatMap { aLong: Long ->
-                Timber.d("Updating vehicles ${aLong}x")
-                if(BuildConfig.DEBUG) {
-                    Toast.makeText(context, "Updating vehicles ${aLong}x", Toast.LENGTH_SHORT)
-                }
-                busDrawerInteractor.patApiClient.getVehicles(
-                        collectionToString(busDrawerInteractor.selectedRoutes),
-                        BuildConfig.PAT_API_KEY
-                )
-            }.map(VehicleResponse::getBustimeResponse)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .share()
-    }
-
-    private fun getVehicleUpdateObservable(vehicleIntervalObservable: Observable<BustimeVehicleResponse>): Observable<VehicleBitmap> {
-        return vehicleIntervalObservable
-            .flatMap { bustimeVehicleResponse ->
-                Timber.d("getting vehicles")
-                Observable.from(bustimeVehicleResponse.vehicle)
-            }.map(makeBitmaps())
-    }
-
     /**
      * Creates a closure for bitmaps for the map.
      * @return [Func1<Vehicle, VehicleBitmap>] The anonymous "function" to make the bitmaps
@@ -307,7 +321,7 @@ class BusMapFragment :
                 var busicon = Bitmap.createBitmap(bus_icon.width, bus_icon.height, bus_icon.config)
                 var canvas = Canvas(busicon)
                 var paint = Paint(Paint.ANTI_ALIAS_FLAG)
-                paint.setColorFilter(PorterDuffColorFilter(route.routeColor, PorterDuff.Mode.MULTIPLY))
+                paint.colorFilter = PorterDuffColorFilter(route.routeColor, PorterDuff.Mode.MULTIPLY)
                 canvas.drawBitmap(bus_icon, 0f, 0f, paint)
                 drawText(canvas, bus_icon, resources.displayMetrics.density, route.route, route.colorAsString)
                 return busicon
@@ -485,6 +499,15 @@ class BusMapFragment :
             }
 
         }
+    }
+
+
+    override fun onSelectBusRouteObservable(routeSelectionObservable: Observable<RouteSelection>) {
+
+    }
+
+    override fun onUnselectBusRouteObservable(routeSelectionObservable: Observable<RouteSelection>) {
+
     }
 
 }

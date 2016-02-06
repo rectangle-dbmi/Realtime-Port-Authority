@@ -7,6 +7,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -14,6 +15,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,15 +25,28 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jakewharton.rxbinding.support.v7.widget.RxRecyclerView;
+import com.jakewharton.rxbinding.view.RxView;
+import com.jakewharton.rxbinding.widget.RxAdapterView;
+
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.MissingResourceException;
 import java.util.Set;
 import java.util.TimeZone;
 
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
+import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
+import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 /**
@@ -71,6 +86,9 @@ public class NavigationDrawerFragment extends Fragment {
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
 
+    private CompositeSubscription recyclerviewSubscriptions;
+    private PublishSubject<RouteSelection> routeSelectionPublishSubject;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -84,6 +102,8 @@ public class NavigationDrawerFragment extends Fragment {
         if (savedInstanceState != null) {
             mFromSavedInstanceState = true;
         }
+        RouteSelection routeSelection = new RouteSelection(null, null);
+        routeSelectionPublishSubject = PublishSubject.create();
         // Select either the default item (0) or the last selected item.
 //        selectItem(mCurrentSelectedPosition);
 
@@ -103,17 +123,21 @@ public class NavigationDrawerFragment extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
 
         View v = inflater.inflate(R.layout.navigation_drawer_layout, container, false);
+        recyclerviewSubscriptions = new CompositeSubscription();
         busListAdapter = new BusRouteAdapter();
         RecyclerView busListRecyclerView = (RecyclerView) v.findViewById(R.id.bus_list_recyclerview);
         busListRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         busListAdapter.setHasStableIds(true);
         busListRecyclerView.setHasFixedSize(true);
         busListRecyclerView.setAdapter(busListAdapter);
-
-
-
         return v;
 
+    }
+
+    @Override
+    public void onDestroyView() {
+        recyclerviewSubscriptions.unsubscribe();
+        super.onDestroyView();
     }
 
     public boolean isDrawerOpen() {
@@ -220,16 +244,6 @@ public class NavigationDrawerFragment extends Fragment {
         super.onDetach();
         busCallbacks = null;
     }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-//        outState.putBooleanArray(STATE_SELECTED_POSITIONS, mSelected);
-//        outState.putParcelable(DRAWER_STATE, mDrawerListView.onSaveInstanceState());
-//        outState.putInt(STATE_SELECTED_POSITION, mCurrentSelectedPosition);
-        //TODO: figure out instance state
-    }
-
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -382,6 +396,10 @@ public class NavigationDrawerFragment extends Fragment {
          */
         void onSelectBusRoute(Route route);
 
+        void onSelectBusRouteObservable(@NonNull Observable<RouteSelection> selectionObservable);
+
+        void onUnselectBusRouteObservable(@NonNull Observable<RouteSelection> selectionObservable);
+
         /**
          * Do when the bus route has been deselected
          *
@@ -502,7 +520,7 @@ public class NavigationDrawerFragment extends Fragment {
             return routes[position].getRoute().hashCode();
         }
 
-        public class BusRouteHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        public class BusRouteHolder extends RecyclerView.ViewHolder implements View.OnClickListener  {
 
             private Route mRoute;
 
@@ -518,6 +536,23 @@ public class NavigationDrawerFragment extends Fragment {
                 itemView.setOnClickListener(this);
                 routeDescription = (TextView) itemView.findViewById(R.id.bus_route_text);
                 routeIcon = (TextView) itemView.findViewById(R.id.bus_route_icon);
+            }
+
+            public void onClick(View v) {
+                if (mRoute == null) return;
+                if (!mRoute.isSelected() &&
+                        selectedRoutes.size() == getResources().getInteger(R.integer.max_checked)) {
+                    Toast.makeText(getActivity(), getString(R.string.max_selected_routes), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                boolean selected = mRoute.toggleSelection();
+                if (selected) {
+                    selectedRoutes.add(mRoute.getRoute());
+                } else {
+                    selectedRoutes.remove(mRoute.getRoute());
+                }
+                routeSelectionPublishSubject.onNext(new RouteSelection(selectedRoutes, mRoute));
+                notifyItemChanged(getAdapterPosition());
             }
 
             private void generateIcon() {
@@ -536,30 +571,6 @@ public class NavigationDrawerFragment extends Fragment {
                 itemView.setActivated(mRoute.isSelected());
             }
 
-            @Override
-            public void onClick(View v) {
-                if(mRoute == null) { // do nothing if null
-                    return;
-                }
-
-                if(!mRoute.isSelected() && selectedRoutes.size() == getResources().getInteger(R.integer.max_checked)) {
-                    // print toast then do nothing if we are trying to select more than max
-                    Toast.makeText(getActivity(), getString(R.string.max_selected_routes), Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                // else, toggle selection
-                boolean selected = mRoute.toggleSelection();
-                if(selected) {
-                    selectedRoutes.add(mRoute.getRoute());
-                    busCallbacks.onSelectBusRoute(mRoute);
-                } else {
-                    selectedRoutes.remove(mRoute.getRoute());
-                    busCallbacks.onDeselectBusRoute(mRoute);
-                }
-                notifyItemChanged(getAdapterPosition());
-            }
-
             /**
              * Decides whether or not the color (background color) is light or not.
              * <p>
@@ -575,6 +586,10 @@ public class NavigationDrawerFragment extends Fragment {
             }
         }
 
+    }
+
+    public Observable<RouteSelection> getListSelectionSubject() {
+        return routeSelectionPublishSubject.share();
     }
 
 }
