@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.places.Places
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -20,6 +21,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.*
+import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestLine
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.errors.ErrorMessage
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.vehicles.VehicleBitmap
@@ -56,27 +58,46 @@ class BusMapFragment :
         SelectionFragment(),
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
+    override fun onLocationChanged(p0: Location?) {
+        throw UnsupportedOperationException()
+    }
+
+    private var mMap: GoogleMap? = null
+
+    private var googleAPIClient: GoogleApiClient? = null
+
+    private var zoom: Float = 11.8f
+
+    private var zoomStopVisibility: Float = 15.0f
+
+    // start of markers
+    private var busMarkers: ConcurrentMap<Int, Marker>? = null
+
+    private var routeLines: ConcurrentMap<String, List<Polyline>>? = null
+
+    private var selectionObservable : Observable<RouteSelection>? = null
+
+    private var vehicleSubscriptions : CompositeSubscription? = null
+
+    private var vehicleUpdateObservable : Observable<VehicleBitmap>? = null
+
+    private var vehicleErrorObservable : Observable<ErrorMessage>? = null
 
     override fun onConnectionFailed(p0: ConnectionResult) {
         throw UnsupportedOperationException()
     }
 
-    override fun onSelectBusRoute(route: Route?) {
-        throw UnsupportedOperationException()
-    }
-
-    override fun onDeselectBusRoute(route: Route?) {
-        throw UnsupportedOperationException()
-    }
 
     companion object DefaultMapProperties {
         private var PITTSBURGH: LatLng = LatLng(40.441, -79.981)
 
         // TODO: Rename parameter arguments, choose names that match
         // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-        private val ARG_PARAM1 = "param1"
-        private val ARG_PARAM2 = "param2"
+        private val LATITUDE = "longitude"
+        private val LONGITUDE = "latitude"
+        private val ZOOM = "zoom"
 
         /**
          * Use this factory method to create a new instance of
@@ -92,32 +113,10 @@ class BusMapFragment :
         fun newInstance(param1: String, param2: String): BusMapFragment {
             val fragment = BusMapFragment()
             val args = Bundle()
-            args.putString(ARG_PARAM1, param1)
-            args.putString(ARG_PARAM2, param2)
             fragment.arguments = args
             return fragment
         }
     }
-
-    private var mMap: GoogleMap? = null
-
-    private var googleAPIClient: GoogleApiClient? = null
-
-    private var zoom: Float = 11.8f
-
-    private var zoomStopVisibility: Float = 15.0f
-
-    private var busMarkers: ConcurrentMap<Int, Marker>? = null
-
-    private var routeLines: ConcurrentMap<String, List<Polyline>>? = null
-
-    private var selectionObservable : Observable<RouteSelection>? = null
-
-    private var vehicleSubscriptions : CompositeSubscription? = null
-
-    private var vehicleUpdateObservable : Observable<VehicleBitmap>? = null
-
-    private var vehicleErrorObservable : Observable<ErrorMessage>? = null
 
     /**
      * This is the object that decides the visibility of bus stop markers.
@@ -127,7 +126,7 @@ class BusMapFragment :
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
-        var zoomLevelValue: TypedValue = TypedValue()
+        val zoomLevelValue = TypedValue()
         context!!.resources.getValue(R.integer.zoom_level, zoomLevelValue, true)
         zoomStopVisibility = zoomLevelValue.float
 
@@ -139,7 +138,8 @@ class BusMapFragment :
         setGoogleApiClient()
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, @Nullable container: ViewGroup?, @Nullable savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        super.onCreateView(inflater, container, savedInstanceState)
         val view = inflater?.inflate(R.layout.fragment_bus_map, container, false)
         val mapView = view?.findViewById(R.id.map) as MapView
         mapView.getMapAsync(this)
@@ -147,9 +147,12 @@ class BusMapFragment :
     }
 
     override fun onResume() {
+        super.onResume()
         if(mMap != null) {
-            vehicleSubscriptions!!.add(vehicleUpdateObservable?.subscribe(vehicleUpdateObserver()))
-            vehicleSubscriptions!!.add(vehicleErrorObservable?.subscribe(vehicleErrorObserver()))
+            vehicleSubscriptions = CompositeSubscription(
+                    vehicleUpdateObservable?.subscribe(vehicleUpdateObserver()),
+                    vehicleErrorObservable?.subscribe(vehicleErrorObserver())
+            );
         }
     }
 
@@ -162,10 +165,6 @@ class BusMapFragment :
         transitStop?.destroyStops()
         transitStop = null
         super.onDestroy()
-    }
-
-    override fun onDetach() {
-        super.onDetach()
     }
 
     override fun onConnectionSuspended(p0: Int) {
@@ -188,9 +187,12 @@ class BusMapFragment :
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-
         setupMap()
         setupObservables()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        outState?.putParcelable(LATITUDE, mMap?.cameraPosition)
     }
 
     /**
@@ -213,7 +215,7 @@ class BusMapFragment :
                         busDrawerInteractor.showToast("getting buses ${routeSelection.selectedRoutes}", Toast.LENGTH_SHORT)
                     }
                     busDrawerInteractor.patApiClient.getVehicles(
-                            collectionToString(routeSelection.selectedRoutes),
+                            routeSelection.selectedRoutes?.joinToString(separator = ","),
                             BuildConfig.PAT_API_KEY
                     )
                 }?.map(VehicleResponse::getBustimeResponse)
@@ -273,27 +275,6 @@ class BusMapFragment :
 
     private fun getSelectedRoutes(): Set<String> {
         return busDrawerInteractor.selectedRoutes
-    }
-
-    /**
-     * @param data - the data in a collection to add
-     * *
-     * @param  - Any Object that extends [Object]
-     * *
-     * @since 46
-     * *
-     * @return a comma-delim strings of data
-     */
-    private fun <T> collectionToString(data: Collection<T>): String {
-        val size = data.size
-        var i = 0
-        val buf = StringBuilder()
-        for (datum in data) {
-            buf.append(datum)
-            if (++i < size)
-                buf.append(',')
-        }
-        return buf.toString()
     }
 
     /**
@@ -448,6 +429,10 @@ class BusMapFragment :
         }
     }
 
+    override fun clearSelection() {
+        throw UnsupportedOperationException()
+    }
+
     /**
      * Transforms PAT API messages to something more readable.
      */
@@ -475,7 +460,7 @@ class BusMapFragment :
     }
 
     /**
-     * THis is the vehicle observer to update the UI for error messages from PAT's system.
+     * This is the vehicle observer to update the UI for error messages from PAT's system.
      */
     private fun vehicleErrorObserver(): Subscriber<ErrorMessage> {
         return object : Subscriber<ErrorMessage>() {
@@ -501,13 +486,46 @@ class BusMapFragment :
         }
     }
 
+    override fun onSelectBusRoute(route: Route?) {
+        // this is bad...
+        // TODO: change into something better...
+        val polylines = routeLines?.get(route?.route)
 
-    override fun onSelectBusRouteObservable(routeSelectionObservable: Observable<RouteSelection>) {
-
+        if (polylines == null || polylines.isEmpty()) {
+            RequestLine(mMap,
+                    routeLines,
+                    route?.route,
+                    route?.routeColor!!,
+                    zoom,
+                    R.integer.zoom_level.toFloat(),
+                    transitStop, activity).execute()
+        } else if (!polylines[0].isVisible) {
+            setVisiblePolylines(polylines, true)
+            transitStop?.updateAddRoutes(route?.route, zoom, R.integer.zoom_level.toFloat())
+        }
     }
 
-    override fun onUnselectBusRouteObservable(routeSelectionObservable: Observable<RouteSelection>) {
-
+    override fun onDeselectBusRoute(route: Route?) {
+        // TODO: Change into something better...
+        val polylines = routeLines?.get(route?.route)
+        if (polylines != null) {
+            if (!polylines.isEmpty() && polylines[0].isVisible) {
+                setVisiblePolylines(polylines, false)
+                transitStop?.removeRoute(route?.route)
+            } else {
+                routeLines?.remove(route?.route)
+            }
+        }
     }
 
+    /**
+     * sets a visible or invisible polylines for a route
+     * @param polylines  list of polylines
+     * @param visibility whether or not the polylines are visible or not
+     */
+    private fun setVisiblePolylines(polylines: List<Polyline>, visibility: Boolean) {
+        for (polyline in polylines) {
+            polyline.isVisible = visibility
+        }
+    }
 }

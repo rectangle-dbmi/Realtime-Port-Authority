@@ -323,13 +323,13 @@ public class SelectTransit extends AppCompatActivity implements
         File data = getFilesDir();
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         Long lastUpdated = sp.getLong(LINES_LAST_UPDATED, -1);
-        Timber.d("data_storage", data.getName());
+        Timber.d(data.getName());
         if (data.mkdirs())
-            Log.d("sd_card", "Created data storage");
+            Timber.d("Created data storage");
         File lineInfo = new File(data, "/lineinfo");
         if (data.mkdirs())
-            Log.d("sd_card", "created line info folder in storage");
-        Timber.d("updated time", Long.toString(lastUpdated));
+            Timber.d("created line info folder in storage");
+        Timber.d(Long.toString(lastUpdated));
         if (lastUpdated != -1 && ((System.currentTimeMillis() - lastUpdated) / 1000 / 60 / 60) > 24) {
 //            Timber.d("update time....", Long.toString((System.currentTimeMillis() - lastUpdated) / 1000 / 60 / 60));
             if (lineInfo.exists()) {
@@ -344,7 +344,7 @@ public class SelectTransit extends AppCompatActivity implements
                     if (files != null) {
                         for (File file : files) {
                             if (file.delete())
-                                Timber.d("sd_card", file.getName() + " deleted");
+                                Timber.d("%s deleted", file.getName());
                         }
                     }
                 }
@@ -381,7 +381,7 @@ public class SelectTransit extends AppCompatActivity implements
                     .getMethod("install", File.class, long.class)
                     .invoke(null, httpCacheDir, httpCacheSize);
         } catch (Exception httpResponseCacheNotAvailable) {
-            Timber.d("HTTP_response_cache", "HTTP response cache is unavailable.");
+            Timber.e("HTTP response cache is unavailable.");
         }
     }
 
@@ -392,8 +392,8 @@ public class SelectTransit extends AppCompatActivity implements
      */
     protected void restoreInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
-            Timber.d("savedInstance_restore", "instance saved");
-            Timber.d("savedInstance_s", "lat=" + savedInstanceState.getDouble(LAST_LATITUDE));
+            Timber.d("instance saved");
+            Timber.d("lat=%f", savedInstanceState.getDouble(LAST_LATITUDE));
             inSavedState = true;
             latitude = savedInstanceState.getDouble(LAST_LATITUDE);
             longitude = savedInstanceState.getDouble(LAST_LONGITUDE);
@@ -401,13 +401,13 @@ public class SelectTransit extends AppCompatActivity implements
 
 
         } else {
-            Timber.d("savedInstance", "default location instead");
+            Timber.d("default location instead");
 
             defaultCameraLocation();
         }
-        Timber.d("savedInstance_restore", "saved? " + inSavedState);
-        Timber.d("savedInstance_restore", "lat=" + latitude);
-        Timber.d("savedInstance_restore", "long=" + longitude);
+        Timber.d("saved? %b", inSavedState);
+        Timber.d("lat=%f", latitude);
+        Timber.d("long=%f", longitude);
         if (transitStop == null) {
             transitStop = new TransitStop();
         }
@@ -442,10 +442,10 @@ public class SelectTransit extends AppCompatActivity implements
             savedInstanceState.putDouble(LAST_LATITUDE, latitude);
             savedInstanceState.putDouble(LAST_LONGITUDE, longitude);
             savedInstanceState.putFloat(LAST_ZOOM, zoom);
-            Timber.d("savedInstance_osi", "saved? " + inSavedState);
-            Timber.d("savedInstance_osi", "lat=" + latitude);
-            Timber.d("savedInstance_osi", "long=" + longitude);
-            Timber.d("savedInstance_osi", "zoom=" + zoom);
+            Timber.d("saved? %s", inSavedState);
+            Timber.d("lat=%f", latitude);
+            Timber.d("long=%f", longitude);
+            Timber.d("zoom=%f", zoom);
         }
 
     }
@@ -535,8 +535,13 @@ public class SelectTransit extends AppCompatActivity implements
      * @param route the bus route selected
      */
     @Override
-    public void onSelectBusRoute(Route route) {
+    public void onSelectBusRoute(@NonNull Route route) {
         selectFromList(route);
+    }
+
+    @Override
+    public void clearSelection() {
+        // TODO: change clear selection...
     }
 
     @Override
@@ -586,7 +591,7 @@ public class SelectTransit extends AppCompatActivity implements
      */
     private void deselectFromList(Route route) {
         removeBuses();
-        Timber.d("removed_bus", route.getRoute());
+        Timber.d("removed_bus %s", route.getRoute());
         deselectPolyline(route.getRoute());
         stopTimer();
     }
@@ -664,10 +669,13 @@ public class SelectTransit extends AppCompatActivity implements
         if (id == R.id.action_select_buses) {
             mNavigationDrawerFragment.openDrawer();
         }
-        if (id == R.id.action_about) {
+        else if (id == R.id.action_about) {
             Intent intent = new Intent(this, AboutActivity.class);
             startActivity(intent);
             return true;
+        } else if (id == R.id.action_clear) {
+            mNavigationDrawerFragment.clearMapAndSelection();
+//            selectionFragment.clearSelection();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -676,17 +684,17 @@ public class SelectTransit extends AppCompatActivity implements
      * Polls self on the map and then centers the map on Pittsburgh or you if you're in Pittsburgh..
      */
     private void centerMap() {
-        Timber.d("location_changed", "centering map in centerMap()");
+        Timber.d("location_changed - centering map in centerMap()");
         if (currentLocation != null) {
             latitude = currentLocation.getLatitude();
             longitude = currentLocation.getLongitude();
             zoom = 15.0f;
-            Timber.d("location_changed", "current location set in centerMap()");
+            Timber.d("location_changed - current location set in centerMap()");
         }
-        Timber.d("savedInstance", "saved? " + inSavedState);
-        Timber.d("savedInstance", "lat=" + latitude);
-        Timber.d("savedInstance", "long=" + longitude);
-        Timber.d("savedInstance", "zoom=" + zoom);
+        Timber.d("savedInstance saved? %b", inSavedState);
+        Timber.d("savedInstance lat=%f", latitude);
+        Timber.d("savedInstance long=%f", longitude);
+        Timber.d("savedInstance zoom=%f", zoom);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), zoom));
     }
 
@@ -735,7 +743,7 @@ public class SelectTransit extends AppCompatActivity implements
      * This will also create the bus update observables.
      */
     protected void setUpMap() {
-        Timber.d("setup_map", "If this runs 2+ in activity cycle, this is a problem");
+        Timber.d("If this runs 2+ in activity cycle, this is a problem");
         setMapListeners();
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -821,7 +829,7 @@ public class SelectTransit extends AppCompatActivity implements
      */
     private void clearAndAddToMap() {
         if (mMap != null) {
-            Timber.d("stop_add_buses", mNavigationDrawerFragment.getSelectedRoutes().toString());
+            Timber.d("stop_add_buses... %s", mNavigationDrawerFragment.getSelectedRoutes().toString());
             stopTimer();
             addBuses();
         }
@@ -870,7 +878,7 @@ public class SelectTransit extends AppCompatActivity implements
                     } else {
                         showToast(getString(R.string.retrofit_conversion_error), Toast.LENGTH_SHORT);
                     }
-                    Timber.e("bus_vehicle_error", e.getMessage());
+                    Timber.e("bus_vehicle_error: %s", e.getMessage());
                 }
                 Timber.e(e.getClass().getName());
                 Timber.e("Vehicle Observable error. %s\n%s",
@@ -912,7 +920,7 @@ public class SelectTransit extends AppCompatActivity implements
              */
             private void addMarker(VehicleBitmap vehicleBitmap) {
                 Vehicle vehicle = vehicleBitmap.getVehicle();
-                Timber.d("marker_add", "adding_marker " + Integer.toString(vehicle.getVid()));
+                Timber.d("marker_add adding_marker %s", Integer.toString(vehicle.getVid()));
                 busMarkers.put(vehicle.getVid(), mMap.addMarker(new MarkerOptions()
                                 .position(new LatLng(vehicle.getLat(), vehicle.getLon()))
                                 .title(vehicle.getRt() + "(" + vehicle.getVid() + ") " + vehicle.getDes() + (vehicle.isDly() ? " - Delayed" : ""))
@@ -931,7 +939,7 @@ public class SelectTransit extends AppCompatActivity implements
              * @param marker - marker to update
              */
             private void updateMarker(Vehicle vehicle, Marker marker) {
-                Timber.d("marker_update", "updating_pointer");
+                Timber.d("marker_update... updating_pointer");
                 marker.setTitle(vehicle.getRt() + "(" + vehicle.getVid() + ") " + vehicle.getDes() + (vehicle.isDly() ? " - Delayed" : ""));
                 marker.setPosition(new LatLng(vehicle.getLat(), vehicle.getLon()));
                 marker.setRotation(vehicle.getHdg());
@@ -946,22 +954,22 @@ public class SelectTransit extends AppCompatActivity implements
      * @since 55
      */
     private Subscriber<ErrorMessage> vehicleErrorObserver() {
-        Timber.d("vehicle_error_observer", "restarting the vehicle error observer");
+        Timber.d("vehicle_error_observer.. restarting the vehicle error observer");
         return new Subscriber<ErrorMessage>() {
 
             @Override
             public void onCompleted() {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZZZ", Locale.ENGLISH);
                 String cDateTime = dateFormat.format(new Date());
-                Timber.d("vehicle_error_complete", "Bus map error updates finished updates at " + cDateTime);
+                Timber.d("vehicle_error_complete... Bus map error updates finished updates at %s", cDateTime);
 
             }
 
             @Override
             public void onError(Throwable e) {
                 if (e.getLocalizedMessage() != null)
-                    Timber.e("vehicle_error_errs", e.getLocalizedMessage());
-                Timber.e("vehicle_error_errs", Log.getStackTraceString(e));
+                    Timber.e("vehicle_error_errs %s", e.getLocalizedMessage());
+                Timber.e("vehicle_error_errs %s", Log.getStackTraceString(e));
             }
 
             @Override
@@ -1075,7 +1083,7 @@ public class SelectTransit extends AppCompatActivity implements
      * process the Port Authority API call the Reactive way.
      */
     private void addBuses() {
-        Timber.d("adding buses", mNavigationDrawerFragment.getSelectedRoutes().toString());
+        Timber.d("adding buses... %s", mNavigationDrawerFragment.getSelectedRoutes().toString());
 
         // run the vehicle updater
         vehicleSubscription = vehicleUpdateObservable
@@ -1091,13 +1099,13 @@ public class SelectTransit extends AppCompatActivity implements
      * @param routesOnMap - markers to remove by vid
      */
     private void removeBuses(Set<Integer> routesOnMap) {
-        Timber.d("remove_buses", "removing buses");
+        Timber.d("removing buses");
         if (routesOnMap != null) {
             for (Integer vid : routesOnMap) {
                 if (vid != null) {
                     Marker marker = busMarkers.remove(vid);
                     if (marker != null) {
-                        Timber.d("remove_buses", Integer.toString(vid) + " removed");
+                        Timber.d("remove_buses... %s removed", Integer.toString(vid));
                         marker.remove();
                     }
                 }
@@ -1112,7 +1120,7 @@ public class SelectTransit extends AppCompatActivity implements
      */
     private void removeBuses() {
         if (busMarkers != null) {
-            Timber.d("bus_remove", "buses removed");
+            Timber.d("buses removed");
             for (Marker busMarker : busMarkers.values()) {
                 busMarker.remove();
             }
@@ -1175,7 +1183,7 @@ public class SelectTransit extends AppCompatActivity implements
         I noticed this is probably not a good method to use... you clear choices... but you also must
         clear the navigation drawer
          */
-        Timber.d("map_cleared", "map_cleared");
+        Timber.d("map_cleared");
         if (mMap != null) {
             stopTimer();
             mMap.clear();
@@ -1237,7 +1245,7 @@ public class SelectTransit extends AppCompatActivity implements
         currentLocation = LocationServices.FusedLocationApi.getLastLocation(googleAPIClient);
         //        Timber.d("location_changed", "What is going on here");
         if (currentLocation == null) {
-            Timber.d("location_changed", "current location is null");
+            Timber.d("current location is null");
             LocationServices.FusedLocationApi.requestLocationUpdates(googleAPIClient, gLocationRequest, this);
             if (currentLocation != null) {
                 if (mMap != null && isInPittsburgh(currentLocation))
@@ -1246,7 +1254,7 @@ public class SelectTransit extends AppCompatActivity implements
             }
         } else if (!inSavedState) {
             if (mMap != null) {
-                Timber.d("location_changed", "current location is not null");
+                Timber.d("current location is not null");
                 if (isInPittsburgh(currentLocation)) {
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                             new LatLng(
@@ -1334,7 +1342,7 @@ public class SelectTransit extends AppCompatActivity implements
      */
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Timber.d("Google API Error", connectionResult.toString());
+        Timber.d("Google API Error %s", connectionResult.toString());
 //        centerMap();
         Toast.makeText(this, "Google connection failed, please try again later", Toast.LENGTH_SHORT).show();
 
@@ -1343,7 +1351,7 @@ public class SelectTransit extends AppCompatActivity implements
 
     @Override
     public void onLocationChanged(Location location) {
-        Timber.d("location_changed", "onLocationChanged() " + location.toString());
+        Timber.d("onLocationChanged() %s", location.toString());
 //        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15.0f));
 
         currentLocation = location;
@@ -1363,16 +1371,7 @@ public class SelectTransit extends AppCompatActivity implements
         return mNavigationDrawerFragment.getSelectedRoute(routeName);
     }
 
-    @Override
-    public void onSelectBusRouteObservable(@NonNull Observable<RouteSelection> routeSelectionObservable) {
-
-    }
-
-    @Override
-    public void onUnselectBusRouteObservable(@NonNull Observable<RouteSelection> routeSelectionObservable) {
-
-    }
-
+    @NonNull
     public Observable<RouteSelection> getSelectionPublishSubject() {
         return mNavigationDrawerFragment.getListSelectionSubject();
     }

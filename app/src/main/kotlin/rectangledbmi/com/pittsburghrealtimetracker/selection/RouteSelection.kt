@@ -3,9 +3,11 @@ package rectangledbmi.com.pittsburghrealtimetracker.selection
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route
 
 /**
- * Created by epicstar on 1/23/16.
+ * This is the route selection object that shows the
+ * current selected route and the all routes selected
+ * @author Jeremy Jao
  */
-class RouteSelection(selectedRoutes: Set<String>, toggledRoute: Route) {
-    val selectedRoutes: Set<String> = selectedRoutes
-    val toggledRoute: Route = toggledRoute
+class RouteSelection(selectedRoutes: Set<String>?, toggledRoute: Route?) {
+    var selectedRoutes: Set<String>? = selectedRoutes
+    var toggledRoute: Route? = toggledRoute
 }

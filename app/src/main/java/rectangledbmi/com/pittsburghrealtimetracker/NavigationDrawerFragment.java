@@ -15,7 +15,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,15 +24,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jakewharton.rxbinding.support.v7.widget.RxRecyclerView;
-import com.jakewharton.rxbinding.view.RxView;
-import com.jakewharton.rxbinding.widget.RxAdapterView;
-
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.MissingResourceException;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -41,10 +35,6 @@ import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
@@ -278,7 +268,7 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     protected void clearMapAndSelection() {
-        Timber.d("cleared", "cleared_everything");
+        Timber.d("cleared_everything");
         SelectTransit activity = (SelectTransit)getActivity();
         if(activity!= null) {
             activity.clearMap();
@@ -292,7 +282,7 @@ public class NavigationDrawerFragment extends Fragment {
      */
     protected void clearSelection() {
         File lineInfo = new File(getActivity().getFilesDir(), "/lineinfo");
-        Timber.d("clear-files", "cleared files: " + lineInfo.getAbsolutePath());
+        Timber.d("cleared files: %s", lineInfo.getAbsolutePath());
         if(lineInfo.exists()) {
             File[] files = lineInfo.listFiles();
             if(files != null) {
@@ -396,9 +386,7 @@ public class NavigationDrawerFragment extends Fragment {
          */
         void onSelectBusRoute(Route route);
 
-        void onSelectBusRouteObservable(@NonNull Observable<RouteSelection> selectionObservable);
-
-        void onUnselectBusRouteObservable(@NonNull Observable<RouteSelection> selectionObservable);
+        void clearSelection();
 
         /**
          * Do when the bus route has been deselected
