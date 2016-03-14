@@ -360,7 +360,8 @@
         this by going into Settings ->\nApps ->\nPAT Realtime
         Tracker ->\nPermissions and toggle Location.
     </string>
-
+    <string name="center_permissions_denied">Cannot center map on you. Must enable Location permissions.</string>
+    <string name="center_permissions_action">Permission Settings</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

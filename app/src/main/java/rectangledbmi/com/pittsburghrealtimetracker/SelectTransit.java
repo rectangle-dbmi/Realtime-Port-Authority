@@ -15,9 +15,12 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.location.Location;
+import android.media.audiofx.BassBoost;
+import android.net.Uri;
 import android.net.http.HttpResponseCache;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -29,6 +32,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -48,7 +52,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.squareup.leakcanary.LeakCanary;
 
 import java.io.File;
 import java.io.IOException;
@@ -75,7 +78,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.er
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.vehicles.VehicleBitmap;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
-import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
+import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStopCollection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimeVehicleResponse;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Vehicle;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.VehicleResponse;
@@ -89,7 +92,6 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
 import timber.log.Timber;
 
 /**
@@ -100,7 +102,7 @@ public class SelectTransit extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         OnMapReadyCallback, LocationListener,
-        SelectionFragment.BusSelectionInteraction {
+        BusSelectionInteraction {
 
     private static final String LINES_LAST_UPDATED = "lines_last_updated";
 
@@ -179,7 +181,7 @@ public class SelectTransit extends AppCompatActivity implements
     /**
      * Object that does dynamic bus marker storage
      */
-    private TransitStop transitStop;
+    private TransitStopCollection transitStopCollection;
 
     /**
      * Boolean to identify if we are not centered
@@ -250,7 +252,6 @@ public class SelectTransit extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        LeakCanary.install(getApplication());
         restoreActionBar();
         setContentView(R.layout.activity_select_transit);
         mNavigationDrawerFragment = (NavigationDrawerFragment)
@@ -408,8 +409,8 @@ public class SelectTransit extends AppCompatActivity implements
         Timber.d("saved? %b", inSavedState);
         Timber.d("lat=%f", latitude);
         Timber.d("long=%f", longitude);
-        if (transitStop == null) {
-            transitStop = new TransitStop();
+        if (transitStopCollection == null) {
+            transitStopCollection = new TransitStopCollection();
         }
 
     }
@@ -507,8 +508,8 @@ public class SelectTransit extends AppCompatActivity implements
 
     @Override
     protected void onDestroy() {
-        transitStop.destroyStops();
-        transitStop = null;
+        transitStopCollection.destroyStops();
+        transitStopCollection = null;
         mMapCameraListener = null;
         mMapMarkerClickListener = null;
         if (mMap != null) {
@@ -577,10 +578,10 @@ public class SelectTransit extends AppCompatActivity implements
                     routeInfo.getRouteColor(),
                     zoom,
                     R.integer.zoom_level,
-                    transitStop, this).execute();
+                    transitStopCollection, this).execute();
         } else if (!polylines.get(0).isVisible()) {
             setVisiblePolylines(polylines, true);
-            transitStop.updateAddRoutes(route, zoom, R.integer.zoom_level);
+            transitStopCollection.updateAddRoutes(route, zoom, R.integer.zoom_level);
         }
     }
 
@@ -605,7 +606,7 @@ public class SelectTransit extends AppCompatActivity implements
         if (polylines != null) {
             if (!polylines.isEmpty() && polylines.get(0).isVisible()) {
                 setVisiblePolylines(polylines, false);
-                transitStop.removeRoute(route);
+                transitStopCollection.removeRoute(route);
             } else {
                 routeLines.remove(route);
             }
@@ -773,7 +774,7 @@ public class SelectTransit extends AppCompatActivity implements
                 longitude = cameraPosition.target.longitude;
                 if (zoom != cameraPosition.zoom) {
                     zoom = cameraPosition.zoom;
-                    transitStop.checkAllVisibility(zoom, R.integer.zoom_level);
+                    transitStopCollection.checkAllVisibility(zoom, R.integer.zoom_level);
                 }
             };
         }
@@ -1155,14 +1156,21 @@ public class SelectTransit extends AppCompatActivity implements
      * @param string - the string to add to on the
      * @param showLength - how long to show the snackbar
      */
-    private void makeSnackbar(String string, int showLength) {
-        if (string != null && string.length() > 0) {
+    public void makeSnackbar(@NonNull String string, int showLength) {
+        if (string.length() > 0) {
 
             Snackbar.make(mainLayout,
                     string, showLength
             ).show();
         }
 
+    }
+
+    public void makeSnackbar(@NonNull String string, int showLength, @NonNull String action, @NonNull View.OnClickListener listener) {
+        if (string.length() == 0) return;
+        Snackbar.make(mainLayout, string, showLength)
+                .setAction(action, listener)
+                .show();
     }
 
     /**
@@ -1188,7 +1196,7 @@ public class SelectTransit extends AppCompatActivity implements
             stopTimer();
             mMap.clear();
             routeLines = new ConcurrentHashMap<>(getResources().getInteger(R.integer.max_checked));
-            transitStop = new TransitStop();
+            transitStopCollection = new TransitStopCollection();
             removeBuses();
             mNavigationDrawerFragment.clearSelection();
 //            mNavigationDrawerFragment.clearSelection();
@@ -1200,7 +1208,8 @@ public class SelectTransit extends AppCompatActivity implements
             super.onBackPressed();
     }
 
-    private void showOkDialog(String message, DialogInterface.OnClickListener okListener) {
+    @Override
+    public void showOkDialog(String message, DialogInterface.OnClickListener okListener) {
         new AlertDialog.Builder(SelectTransit.this)
                 .setMessage(message)
                 .setPositiveButton("OK", okListener)
@@ -1367,12 +1376,17 @@ public class SelectTransit extends AppCompatActivity implements
         return mNavigationDrawerFragment.getSelectedRoutes();
     }
 
-    @Override public Route getSelectedRoute(@NonNull String routeName) {
-        return mNavigationDrawerFragment.getSelectedRoute(routeName);
-    }
-
     @NonNull
     public Observable<RouteSelection> getSelectionPublishSubject() {
         return mNavigationDrawerFragment.getListSelectionSubject();
+    }
+
+    @Override
+    public void openPermissionsPage() {
+        Intent intent = new Intent();
+        intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        Uri uri = Uri.fromParts("package", getPackageName(), null);
+        intent.setData(uri);
+        startActivity(intent);
     }
 }

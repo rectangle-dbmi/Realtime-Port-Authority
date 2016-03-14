@@ -5,7 +5,6 @@ import android.location.Location;
 import android.net.http.HttpResponseCache;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -31,7 +30,7 @@ import java.util.concurrent.ConcurrentMap;
 import rectangledbmi.com.pittsburghrealtimetracker.R;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.containers.RequestLineContainer;
 import rectangledbmi.com.pittsburghrealtimetracker.world.LineInfo;
-import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
+import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStopCollection;
 
 /**
  * This is the way to add the polylines if it's not present on the map
@@ -61,7 +60,7 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
 
     private float zoom, zoomVisibility;
 
-    TransitStop transitStop;
+    TransitStopCollection transitStopCollection;
 
     /**
      * The route color
@@ -75,7 +74,7 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
                        String selectedRoute, int color,
                        float zoomLevel,
                        float zoomVisibility,
-                       TransitStop stopMap,
+                       TransitStopCollection stopMap,
                        Context context
     ) {
         this.mMap = mMap;
@@ -83,7 +82,7 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
         this.selectedRoute = selectedRoute;
         this.color = color;
         this.zoom = zoomLevel;
-        this.transitStop = stopMap;
+        this.transitStopCollection = stopMap;
         this.zoomVisibility = zoomVisibility;
         this.context = context;
     }
@@ -332,7 +331,7 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
             if (busStopInfos != null) {
 
                 for (LineInfo busStopInfo : busStopInfos) {
-                    if (!transitStop.addRouteToMarker(busStopInfo.getStpid(), selectedRoute, zoom, zoomVisibility)) {
+                    if (!transitStopCollection.addRouteToMarker(busStopInfo.getStpid(), selectedRoute, zoom, zoomVisibility)) {
                         Marker marker = mMap.addMarker(new MarkerOptions().
                                         position(busStopInfo.getLatLng()).
                                         alpha(.65f).
@@ -344,7 +343,7 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
                                         anchor(.5f, .5f)
                                         .visible(false)
                         );
-                        transitStop.addMarkerToRoute(marker, busStopInfo.getStpid(), selectedRoute, zoom, zoomVisibility);
+                        transitStopCollection.addMarkerToRoute(marker, busStopInfo.getStpid(), selectedRoute, zoom, zoomVisibility);
                     }
                 }
             }

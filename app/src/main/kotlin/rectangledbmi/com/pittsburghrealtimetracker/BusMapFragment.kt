@@ -25,9 +25,8 @@ import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestLine
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.errors.ErrorMessage
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.vehicles.VehicleBitmap
-import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route
-import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop
+import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStopCollection
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimeVehicleResponse
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Vehicle
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.VehicleResponse
@@ -54,8 +53,7 @@ import java.util.concurrent.TimeUnit
  * Use the [BusMapFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class BusMapFragment :
-        SelectionFragment(),
+class BusMapFragmentm :
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -122,7 +120,7 @@ class BusMapFragment :
      * This is the object that decides the visibility of bus stop markers.
      * Note that this has to be null in [onDestroy].
      */
-    var transitStop: TransitStop? = null
+    var transitStopCollection: TransitStopCollection? = null
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
@@ -134,7 +132,7 @@ class BusMapFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        transitStop = TransitStop()
+        transitStopCollection = TransitStopCollection()
         setGoogleApiClient()
     }
 
@@ -162,8 +160,8 @@ class BusMapFragment :
     }
 
     override fun onDestroy() {
-        transitStop?.destroyStops()
-        transitStop = null
+        transitStopCollection?.destroyStops()
+        transitStopCollection = null
         super.onDestroy()
     }
 
@@ -247,7 +245,7 @@ class BusMapFragment :
 
     private fun setupMap() {
         Timber.d("setting up map")
-        transitStop = TransitStop()
+        transitStopCollection = TransitStopCollection()
         mMap?.setInfoWindowAdapter(ETAWindowAdapter(activity.layoutInflater))
         mMap?.setOnMarkerClickListener { marker: Marker ->
             mMap?.animateCamera(CameraUpdateFactory.newLatLng(marker.position),400, null)
@@ -256,7 +254,7 @@ class BusMapFragment :
         mMap?.setOnCameraChangeListener { cameraPosition: CameraPosition ->
             if(zoom != cameraPosition.zoom) {
                 zoom = cameraPosition.zoom
-                transitStop?.checkAllVisibility(zoom, zoomStopVisibility)
+                transitStopCollection?.checkAllVisibility(zoom, zoomStopVisibility)
             }
         }
     }
@@ -498,10 +496,10 @@ class BusMapFragment :
                     route?.routeColor!!,
                     zoom,
                     R.integer.zoom_level.toFloat(),
-                    transitStop, activity).execute()
+                    transitStopCollection, activity).execute()
         } else if (!polylines[0].isVisible) {
             setVisiblePolylines(polylines, true)
-            transitStop?.updateAddRoutes(route?.route, zoom, R.integer.zoom_level.toFloat())
+            transitStopCollection?.updateAddRoutes(route?.route, zoom, R.integer.zoom_level.toFloat())
         }
     }
 
@@ -511,7 +509,7 @@ class BusMapFragment :
         if (polylines != null) {
             if (!polylines.isEmpty() && polylines[0].isVisible) {
                 setVisiblePolylines(polylines, false)
-                transitStop?.removeRoute(route?.route)
+                transitStopCollection?.removeRoute(route?.route)
             } else {
                 routeLines?.remove(route?.route)
             }

@@ -27,16 +27,6 @@ public class AboutActivity extends AppCompatActivity {
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
-
-//        try {
-////            TextView version = (TextView)findViewById(R.id.version);
-////            version.setText(getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
-////        } catch (PackageManager.NameNotFoundException e) {
-////            e.printStackTrace();
-////        }
-//        TextView link = (TextView)findViewById(R.id.source_link);
-//        link.setMovementMethod(LinkMovementMethod.getInstance());
-
     }
 
 
