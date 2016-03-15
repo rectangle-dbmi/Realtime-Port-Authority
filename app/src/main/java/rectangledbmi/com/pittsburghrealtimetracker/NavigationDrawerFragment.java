@@ -354,16 +354,6 @@ public class NavigationDrawerFragment extends Fragment {
         return busListAdapter.getAmountSelected();
     }
 
-    /**
-     * @since 43
-     * @param position - the position in the list
-     * @return the route information by list position
-     */
-    @SuppressWarnings("unused")
-    public Route getSelectedRoute(int position) {
-        return busListAdapter.getRouteAtPosition(position);
-    }
-
     public Set<String> getSelectedRoutes() {
         if(busListAdapter != null)
             return busListAdapter.getSelectedRoutes();

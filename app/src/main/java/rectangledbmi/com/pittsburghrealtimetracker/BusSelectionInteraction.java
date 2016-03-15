@@ -3,13 +3,13 @@ package rectangledbmi.com.pittsburghrealtimetracker;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.view.View;
 
 import java.util.Set;
 
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
+import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rx.Observable;
 
 /**
@@ -17,6 +17,12 @@ import rx.Observable;
  * @author Jeremy Jao
  */
 public interface BusSelectionInteraction {
+
+    /**
+     * @param routeNumber the route number
+     * @return the selected route from the {@link NavigationDrawerFragment}
+     */
+    Route getSelectedRoute(String routeNumber);
 
     /**
      *
@@ -41,7 +47,7 @@ public interface BusSelectionInteraction {
      *
      * @return the Rx Observable that the {@link NavigationDrawerFragment} emits list clicks on.
      */
-    Observable<RouteSelection> getSelectionPublishSubject();
+    Observable<RouteSelection> getSelectionObservable();
 
     void showOkDialog(String message, DialogInterface.OnClickListener okListener);
 
@@ -49,5 +55,9 @@ public interface BusSelectionInteraction {
 
     void makeSnackbar(@NonNull String message, int length, @NonNull String action, @NonNull View.OnClickListener listener);
 
+    /**
+     * Opens the permissions page
+     */
     void openPermissionsPage();
+
 }
