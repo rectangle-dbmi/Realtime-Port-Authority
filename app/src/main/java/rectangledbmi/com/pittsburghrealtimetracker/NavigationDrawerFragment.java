@@ -10,20 +10,15 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,7 +31,6 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 import rx.subscriptions.CompositeSubscription;
-import timber.log.Timber;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -91,7 +85,6 @@ public class NavigationDrawerFragment extends Fragment {
         if (savedInstanceState != null) {
             mFromSavedInstanceState = true;
         }
-        RouteSelection routeSelection = new RouteSelection(null, null);
         routeSelectionPublishSubject = PublishSubject.create();
         // Select either the default item (0) or the last selected item.
 //        selectItem(mCurrentSelectedPosition);
@@ -145,11 +138,6 @@ public class NavigationDrawerFragment extends Fragment {
 
         // set a custom shadow that overlays the main content when the drawer opens
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-        // set up the drawer's list view with items and click listener
-
-//        ActionBar actionBar = getActionBar();
-//        actionBar.setDisplayHomeAsUpEnabled(true);
-//        actionBar.setHomeButtonEnabled(true);
 
 
         // ActionBarDrawerToggle ties together the the proper interactions
@@ -163,7 +151,6 @@ public class NavigationDrawerFragment extends Fragment {
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
-                ((SelectTransit)getActivity()).restoreBuses();
                 if (!isAdded()) {
                     return;
                 }
@@ -199,7 +186,7 @@ public class NavigationDrawerFragment extends Fragment {
         // Defer code dependent on restoration of previous instance state.
         mDrawerLayout.post(mDrawerToggle::syncState);
 
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
     }
 
     @Override
@@ -241,74 +228,14 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // If the drawer is open, show the global app actions in the action bar. See also
-        // showGlobalContextActionBar, which controls the top-left area of the action bar.
-        if (mDrawerLayout != null && isDrawerOpen()) {
-            inflater.inflate(R.menu.global, menu);
-            showGlobalContextActionBar();
-        }
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-
-        if (item.getItemId() == R.id.action_clear) {
-            clearMapAndSelection();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    protected void clearMapAndSelection() {
-        Timber.d("cleared_everything");
-        SelectTransit activity = (SelectTransit)getActivity();
-        if(activity!= null) {
-            activity.clearMap();
-        }
-        clearSelection();
-
-    }
-
     /**
      * If the Clear Buses button is clicked, clears the selection and the selected buses
      */
-    protected void clearSelection() {
-        File lineInfo = new File(getActivity().getFilesDir(), "/lineinfo");
-        Timber.d("cleared files: %s", lineInfo.getAbsolutePath());
-        if(lineInfo.exists()) {
-            File[] files = lineInfo.listFiles();
-            if(files != null) {
-                for(File file : files)
-                    file.delete();
-            }
-        }
+    public void clearSelection() {
         busListAdapter.clearSelection();
         Toast.makeText(getActivity(), getString(R.string.cleared), Toast.LENGTH_SHORT).show();
 
     }
-
-    /**
-     * Per the navigation drawer design guidelines, updates the action bar to show the global app
-     * 'context', rather than just what's in the current screen.
-     */
-    private void showGlobalContextActionBar() {
-        ActionBar actionBar = getActionBar();
-        actionBar.setDisplayShowTitleEnabled(true);
-//        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        actionBar.setTitle(R.string.app_name);
-    }
-
-    private ActionBar getActionBar() {
-        return ((SelectTransit)getActivity()).getSupportActionBar();
-    }
-
     /**
      * Place to save preferences....
      */
@@ -317,7 +244,6 @@ public class NavigationDrawerFragment extends Fragment {
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
             SharedPreferences.Editor spe = sp.edit();
             spe.putStringSet(BUS_SELECT_STATE, busListAdapter.getSelectedRoutes());
-//        sp.edit().putInt(BUSLIST_SIZE, getResources().getStringArray(R.array.buses).length).apply();
             spe.apply();
         }
 
@@ -374,8 +300,6 @@ public class NavigationDrawerFragment extends Fragment {
          * @param route the bus route selected
          */
         void onSelectBusRoute(Route route);
-
-        void clearSelection();
 
         /**
          * Do when the bus route has been deselected
@@ -525,8 +449,10 @@ public class NavigationDrawerFragment extends Fragment {
                 boolean selected = mRoute.toggleSelection();
                 if (selected) {
                     selectedRoutes.add(mRoute.getRoute());
+                    busCallbacks.onSelectBusRoute(mRoute);
                 } else {
                     selectedRoutes.remove(mRoute.getRoute());
+                    busCallbacks.onDeselectBusRoute(mRoute);
                 }
                 routeSelectionPublishSubject.onNext(new RouteSelection(mRoute, selectedRoutes));
                 notifyItemChanged(getAdapterPosition());

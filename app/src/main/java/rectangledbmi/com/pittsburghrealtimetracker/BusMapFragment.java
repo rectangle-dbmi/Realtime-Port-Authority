@@ -13,6 +13,7 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Debug;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -51,6 +52,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
@@ -82,9 +84,9 @@ import timber.log.Timber;
  * Use the {@link BusMapFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class BusMapFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks,
+public class BusMapFragment extends SelectionFragment implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        OnMapReadyCallback, LocationListener {
+        OnMapReadyCallback, LocationListener, ClearSelection {
 
     // region static parts of the fragment
 
@@ -109,7 +111,7 @@ public class BusMapFragment extends Fragment implements GoogleApiClient.Connecti
     private String mParam1;
     private String mParam2;
 
-    private BusSelectionInteraction mListener;
+    private BusSelectionInteraction busListInteraction;
 
     /**
      * The vehicles subscriptions
@@ -193,7 +195,7 @@ public class BusMapFragment extends Fragment implements GoogleApiClient.Connecti
         super.onAttach(context);
         if (context instanceof BusSelectionInteraction) {
             // get the default zoom level of the stops
-            mListener = (BusSelectionInteraction) context;
+            busListInteraction = (BusSelectionInteraction) context;
             TypedValue zoomLevelValue = new TypedValue();
             context.getResources().getValue(R.integer.zoom_level, zoomLevelValue, true);
             zoomStopVisibility = zoomLevelValue.getFloat();
@@ -298,6 +300,7 @@ public class BusMapFragment extends Fragment implements GoogleApiClient.Connecti
         }
         unselectVehicleSubscription.unsubscribe();
         unselectVehicleSubscription = null;
+        transitStopCollection.destroyStops();
         if (mMap != null) {
             mMap.setInfoWindowAdapter(null);
             mMap.setOnCameraChangeListener(null);
@@ -325,7 +328,7 @@ public class BusMapFragment extends Fragment implements GoogleApiClient.Connecti
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+        busListInteraction = null;
     }
     // endregion
 
@@ -343,11 +346,11 @@ public class BusMapFragment extends Fragment implements GoogleApiClient.Connecti
                 } else {
                     String message = getString(R.string.center_permissions_denied);
                     Timber.i("Request has been been denied: %s", message);
-                    mListener.makeSnackbar(
+                    busListInteraction.makeSnackbar(
                             message,
                             Snackbar.LENGTH_LONG,
                             getString(R.string.center_permissions_action),
-                            (view) -> mListener.openPermissionsPage());
+                            (view) -> busListInteraction.openPermissionsPage());
                 }
                 break;
         }
@@ -390,8 +393,8 @@ public class BusMapFragment extends Fragment implements GoogleApiClient.Connecti
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        if (getActivity() == null || mListener.getPatApiClient() == null) return;
-        patApiClient = mListener.getPatApiClient();
+        if (getActivity() == null || busListInteraction.getPatApiClient() == null) return;
+        patApiClient = busListInteraction.getPatApiClient();
         mMap = googleMap;
 
         // center the map
@@ -433,8 +436,8 @@ public class BusMapFragment extends Fragment implements GoogleApiClient.Connecti
      */
     protected void restorePolylines() {
         Route currentRoute;
-        for (String route : mListener.getSelectedRoutes()) {
-            currentRoute = mListener.getSelectedRoute(route);
+        for (String route : busListInteraction.getSelectedRoutes()) {
+            currentRoute = busListInteraction.getSelectedRoute(route);
             selectPolyline(currentRoute);
 //            mNavigationDrawerFragment.setTrue(currentRoute.getListPosition());
         }
@@ -505,27 +508,34 @@ public class BusMapFragment extends Fragment implements GoogleApiClient.Connecti
      * </ul>
      */
     private void setupReactiveObjects() {
-        Observable<RouteSelection> selectionObservable = mListener.getSelectionObservable().share();
+        Observable<RouteSelection> selectionObservable = busListInteraction.getSelectionObservable().share();
 
-        Observable<BustimeVehicleResponse> vehicleIntervalObservable = selectionObservable
-                .debounce(200, TimeUnit.MILLISECONDS)
-                .switchMap(routeSelection -> Observable.interval(10, TimeUnit.SECONDS)
-                        .map(aLong -> {
-                            if (BuildConfig.DEBUG) {
-                                String msg = String.format("updating vehicles: %d", aLong);
-                                Timber.d(msg);
-                                mListener.showToast(msg, Toast.LENGTH_SHORT);
-                            }
-                            return aLong;
-                        }).concatMap(aLong -> {
-                            if (BuildConfig.DEBUG) {
-                                String msg = String.format("#%d: updating map with %s", aLong, routeSelection);
-                                Timber.d(msg);
-                                mListener.showToast(msg, Toast.LENGTH_SHORT);
-                            }
-                            return patApiClient.getVehicles(collectionToString(routeSelection.getSelectedRoutes()), BuildConfig.PAT_API_KEY);
-                        }))
-                .map(VehicleResponse::getBustimeResponse)
+        //noinspection Convert2Lambda
+        Observable<BustimeVehicleResponse> vehicleIntervalObservable = selectionObservable.debounce(200, TimeUnit.MILLISECONDS)
+                .switchMap(new Func1<RouteSelection, Observable<RouteSelection>>() {
+                    @Override
+                    public Observable<RouteSelection> call(RouteSelection routeSelection) {
+                        if (routeSelection.getSelectedRoutes().isEmpty()) {
+                            return Observable.just(routeSelection);
+                        }
+                        return Observable.interval(10, TimeUnit.SECONDS)
+                                .map(aLong -> {
+                                    if (BuildConfig.DEBUG) {
+                                        String msg = String.format("Calling x%d", aLong);
+                                        Timber.d(msg);
+                                        busListInteraction.showToast(msg, Toast.LENGTH_SHORT);
+                                    }
+                                    return routeSelection;
+                                });
+                    }
+                }).concatMap(routeSelection -> {
+                    if (BuildConfig.DEBUG) {
+                        String msg = String.format("updating map with %s", routeSelection);
+                        Timber.d(msg);
+                        busListInteraction.showToast(msg, Toast.LENGTH_SHORT);
+                    }
+                    return patApiClient.getVehicles(collectionToString(routeSelection.getSelectedRoutes()), BuildConfig.PAT_API_KEY);
+                }).map(VehicleResponse::getBustimeResponse)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .share();
@@ -568,21 +578,6 @@ public class BusMapFragment extends Fragment implements GoogleApiClient.Connecti
     }
 
     /**
-     * Adds the route and bus (indirectly via buses) to the map
-     *
-     * @since 43
-     * @param route - the route and its info to be added
-     */
-    private void selectFromList(Route route) {
-        selectPolyline(route);
-    }
-
-    public void deselectFromList(Route route) {
-        Timber.d("removed_bus %s", route.getRoute());
-        deselectPolyline(route.getRoute());
-    }
-
-    /**
      * Centers the map if the {@link android.Manifest.permission_group#LOCATION} permissions are granted.
      * If they are not and has never been asked, check to see if location settings should be granted.
      * If they are granted, center the location either on your last known location or on the first
@@ -594,7 +589,7 @@ public class BusMapFragment extends Fragment implements GoogleApiClient.Connecti
         // first check if the permission is granted... if not, show why you should if user didn't say
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission_group.LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (shouldShowRequestPermissionRationale(Manifest.permission_group.LOCATION)) {
-                mListener.showOkDialog(
+                busListInteraction.showOkDialog(
                         getString(R.string.location_permission_message),
                         ((dialog, which) ->
                                 requestPermissions(new String[]{Manifest.permission_group.LOCATION}, CENTER_MAP_LOCATION_CODE))
@@ -657,7 +652,7 @@ public class BusMapFragment extends Fragment implements GoogleApiClient.Connecti
     private Func1<Vehicle, VehicleBitmap> makeBitmaps() {
         return new Func1<Vehicle, VehicleBitmap>() {
 
-            private HashMap<String, Bitmap> busIconCache = new HashMap<>(mListener.getSelectedRoutes().size());
+            private HashMap<String, Bitmap> busIconCache = new HashMap<>(busListInteraction.getSelectedRoutes().size());
 
             @Override
             public VehicleBitmap call(Vehicle vehicle) {
@@ -665,7 +660,7 @@ public class BusMapFragment extends Fragment implements GoogleApiClient.Connecti
                 if (busIconCache.containsKey(routeName)) {
                     return new VehicleBitmap(vehicle, busIconCache.get(routeName));
                 } else {
-                    Bitmap icon = makeBitmap(mListener.getSelectedRoute(vehicle.getRt()));
+                    Bitmap icon = makeBitmap(busListInteraction.getSelectedRoute(vehicle.getRt()));
                     busIconCache.put(routeName, icon);
                     return new VehicleBitmap(vehicle, icon);
                 }
@@ -769,13 +764,13 @@ public class BusMapFragment extends Fragment implements GoogleApiClient.Connecti
                 if (e.getMessage() != null && e.getLocalizedMessage() != null && !showedErrors) {
                     showedErrors = true;
                     if (e instanceof IOException) {
-                        mListener.showToast(getString(R.string.retrofit_network_error), Toast.LENGTH_SHORT);
+                        busListInteraction.showToast(getString(R.string.retrofit_network_error), Toast.LENGTH_SHORT);
                     } else if (e instanceof HttpException) {
                         HttpException http = (HttpException) e;
-                        mListener.showToast(http.code() + " " + http.message() + ": "
+                        busListInteraction.showToast(http.code() + " " + http.message() + ": "
                                 + getString(R.string.retrofit_http_error), Toast.LENGTH_SHORT);
                     } else {
-                        mListener.showToast(getString(R.string.retrofit_conversion_error), Toast.LENGTH_SHORT);
+                        busListInteraction.showToast(getString(R.string.retrofit_conversion_error), Toast.LENGTH_SHORT);
                     }
                     Timber.e("bus_vehicle_error: %s", e.getMessage());
                 }
@@ -869,7 +864,7 @@ public class BusMapFragment extends Fragment implements GoogleApiClient.Connecti
             @Override
             public void onNext(ErrorMessage errorMessage) {
                 if (errorMessage != null && errorMessage.getMessage() != null) {
-                    mListener.showToast(errorMessage.getMessage() +
+                    busListInteraction.showToast(errorMessage.getMessage() +
                                     (errorMessage.getParameters() != null ? ": " + errorMessage.getParameters() : ""),
                             Toast.LENGTH_SHORT);
                 }
@@ -923,6 +918,27 @@ public class BusMapFragment extends Fragment implements GoogleApiClient.Connecti
                 buf.append(',');
         }
         return buf.toString();
+    }
+
+    @Override
+    public void onSelectBusRoute(Route route) {
+        selectPolyline(route);
+    }
+
+    @Override
+    public void clearSelection() {
+        vehicleSubscriptions.clear();
+        vehicleSubscriptions.unsubscribe();
+        removeBuses();
+        for (Map.Entry<String, List<Polyline>> routeLine : routeLines.entrySet()) {
+            transitStopCollection.removeRoute(routeLine.getKey());
+            setVisiblePolylines(routeLine.getValue(), false);
+        }
+    }
+
+    @Override
+    public void onDeselectBusRoute(Route route) {
+        deselectPolyline(route.getRoute());
     }
     // endregion
 

@@ -42,24 +42,9 @@ import timber.log.Timber;
  */
 public class SelectTransit extends AppCompatActivity implements
         NavigationDrawerFragment.BusListCallbacks,
-        BusSelectionInteraction {
+        SelectionFragment.BusSelectionInteraction {
 
     private static final String LINES_LAST_UPDATED = "lines_last_updated";
-
-    /**
-     * Saved instance key for the latitude
-     */
-    private final static String LAST_LATITUDE = "lastLatitude";
-
-    /**
-     * Saved instance key for the longitude
-     */
-    private final static String LAST_LONGITUDE = "lastLongitude";
-
-    /**
-     * Saved instance key for the zoom of the map
-     */
-    private final static String LAST_ZOOM = "lastZoom";
 
     /**
      * The latitude and longitude of Pittsburgh... used if the app doesn't have a saved state of the camera
@@ -70,6 +55,11 @@ public class SelectTransit extends AppCompatActivity implements
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
+
+    /**
+     * Fragment that contains data from navigation drawer
+     */
+    private SelectionFragment selectionFragment;
 
 
     /**
@@ -159,7 +149,6 @@ public class SelectTransit extends AppCompatActivity implements
             Timber.d("created line info folder in storage");
         Timber.d(Long.toString(lastUpdated));
         if (lastUpdated != -1 && ((System.currentTimeMillis() - lastUpdated) / 1000 / 60 / 60) > 24) {
-//            Timber.d("update time....", Long.toString((System.currentTimeMillis() - lastUpdated) / 1000 / 60 / 60));
             if (lineInfo.exists()) {
                 Calendar c = Calendar.getInstance();
                 int day = c.get(Calendar.DAY_OF_WEEK);
@@ -209,17 +198,12 @@ public class SelectTransit extends AppCompatActivity implements
      */
     @Override
     public void onSelectBusRoute(@NonNull Route route) {
-        selectionFragment.selectFromList(route);
-    }
-
-    @Override
-    public void clearSelection() {
-        // TODO: change clear selection...
+        selectionFragment.onSelectBusRoute(route);
     }
 
     @Override
     public void onDeselectBusRoute(Route route) {
-        selectionFragment.deselectFromList(route);
+        selectionFragment.onDeselectBusRoute(route);
     }
 
 
@@ -273,10 +257,23 @@ public class SelectTransit extends AppCompatActivity implements
             startActivity(intent);
             return true;
         } else if (id == R.id.action_clear) {
-            mNavigationDrawerFragment.clearMapAndSelection();
-//            selectionFragment.clearSelection();
+            clearSelection();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void clearSelection() {
+        File lineInfo = new File(getFilesDir(), "/lineinfo");
+        Timber.d("cleared files: %s", lineInfo.getAbsolutePath());
+        if(lineInfo.exists()) {
+            File[] files = lineInfo.listFiles();
+            if(files != null) {
+                for(File file : files)
+                    file.delete();
+            }
+        }
+        mNavigationDrawerFragment.clearSelection();
+        selectionFragment.clearSelection();
     }
 
     /**
