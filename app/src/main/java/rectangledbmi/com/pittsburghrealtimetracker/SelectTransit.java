@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -81,9 +82,11 @@ public class SelectTransit extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
 
         restoreActionBar();
+        buildPATAPI();
         setContentView(R.layout.activity_select_transit);
+        FragmentManager fragmentManager = getSupportFragmentManager();
         mNavigationDrawerFragment = (NavigationDrawerFragment)
-                getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
+                fragmentManager.findFragmentById(R.id.navigation_drawer);
         checkSDCardData();
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
@@ -91,6 +94,8 @@ public class SelectTransit extends AppCompatActivity implements
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
         mainLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        selectionFragment = (SelectionFragment) fragmentManager.findFragmentById(R.id.map);
+
         enableHttpResponseCache();
 
     }
@@ -322,6 +327,7 @@ public class SelectTransit extends AppCompatActivity implements
         new AlertDialog.Builder(SelectTransit.this)
                 .setMessage(message)
                 .setPositiveButton("OK", okListener)
+                .setNegativeButton("Cancel", null)
                 .create()
                 .show();
     }
@@ -349,5 +355,13 @@ public class SelectTransit extends AppCompatActivity implements
         Uri uri = Uri.fromParts("package", getPackageName(), null);
         intent.setData(uri);
         startActivity(intent);
+    }
+
+    /**
+     * Click Event for the {@link rectangledbmi.com.pittsburghrealtimetracker.R.menu#select_transit}'s Application Details
+     * @param item the application details item
+     */
+    public void onClickAppDetails(MenuItem item) {
+        openPermissionsPage();
     }
 }

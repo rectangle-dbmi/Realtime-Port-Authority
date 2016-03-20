@@ -8,5 +8,10 @@
         android:title="@string/action_about"
         android:orderInCategory="200"
         appcompat:showAsAction="never" />
+    <item android:id="@+id/action_appdetails"
+        android:title="@string/app_details"
+        android:orderInCategory="300"
+        appcompat:showAsAction="never"
+        android:onClick="onClickAppDetails"/>
 
 </menu>

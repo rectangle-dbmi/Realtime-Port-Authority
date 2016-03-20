@@ -20,6 +20,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rx.Observable;
 
 public abstract class SelectionFragment extends Fragment implements NavigationDrawerFragment.BusListCallbacks, ClearSelection {
+
     /**
      * Interface that interacts with the list of buses in {@link NavigationDrawerFragment}
      * @author Jeremy Jao

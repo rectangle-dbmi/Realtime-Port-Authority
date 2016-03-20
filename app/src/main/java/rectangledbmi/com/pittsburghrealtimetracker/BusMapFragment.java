@@ -13,12 +13,11 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Debug;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -42,6 +41,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
+import com.squareup.leakcanary.RefWatcher;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -52,7 +52,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
@@ -148,7 +147,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     }
     // </editor-fold>
 
-    // <editor-fold desc="Private instance variables">
+    // region private instance variables
     private float zoomStopVisibility;
 
     /**
@@ -166,6 +165,8 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     private float zoom = 11.8f;
 
     private ConcurrentMap<Integer, Marker> busMarkers;
+
+    private ConcurrentMap<String, List<Polyline>> polylines;
 
     private TransitStopCollection transitStopCollection;
 
@@ -228,6 +229,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     @Override
     public void onActivityCreated(Bundle inState) {
         super.onActivityCreated(inState);
+        if (inState == null) return;
         cameraPosition = inState.getParcelable(CAMERA_POSITION);
 
     }
@@ -244,16 +246,19 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     @Override
     public void onResume() {
         super.onResume();
+        Timber.d("resuming map fragment");
         if (mapView != null) {
             mapView.onResume();
         }
         // enable/disable UI to see your current location based on permission changes
         Context context = getContext();
         if (context == null || mMap == null) return;
-        int permission = ActivityCompat.checkSelfPermission(context, Manifest.permission_group.LOCATION);
+        int permission = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
         if (permission == PackageManager.PERMISSION_GRANTED && !mMap.isMyLocationEnabled()) {
+            Timber.d("Setting Google map Location Enabled");
             mMap.setMyLocationEnabled(true);
         } else if (permission == PackageManager.PERMISSION_DENIED && mMap.isMyLocationEnabled()) {
+            Timber.d("Setting Google map Location as disabled");
             mMap.setMyLocationEnabled(false);
         }
         if (vehicleSubscriptions == null || vehicleSubscriptions.isUnsubscribed()) {
@@ -272,12 +277,15 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
     @Override
     public void onPause() {
+        Timber.d("Pausing Map Fragment");
         if (mapView != null) {
             mapView.onPause();
+            Timber.d("Pausing Map View");
         }
         if (vehicleSubscriptions != null) {
             vehicleSubscriptions.clear();
             vehicleSubscriptions.unsubscribe();
+            Timber.d("vehicle updater unsubscribed");
         }
         removeBuses();
         super.onPause();
@@ -285,29 +293,45 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
     @Override
     public void onStop() {
+        Timber.d("Stopping Bus Fragment");
         if (googleApiClient != null) {
             googleApiClient.disconnect();
+            Timber.d("disconnecting google map api client");
         }
-        mMap = null;
         super.onStop();
     }
 
     @Override
     public void onDestroy() {
-        if (mapView != null) {
-            mapView.onDestroy();
-            mapView = null;
+        Timber.d("Destroying Bus Fragment");
+        if (getActivity() != null) {
+            Timber.d("Adding leakcanary to fragment");
+            RefWatcher refWatcher = PATTrackApplication.getRefWatcher(getActivity());
+            refWatcher.watch(this);
         }
-        unselectVehicleSubscription.unsubscribe();
-        unselectVehicleSubscription = null;
-        transitStopCollection.destroyStops();
+        if (unselectVehicleSubscription != null) {
+            unselectVehicleSubscription.unsubscribe();
+            unselectVehicleSubscription = null;
+            Timber.d("Unselect Vehicle Event destroyed");
+        }
+        if (transitStopCollection != null) {
+            transitStopCollection.destroyStops();
+            Timber.d("Destroying stop object");
+        }
+
         if (mMap != null) {
+
             mMap.setInfoWindowAdapter(null);
             mMap.setOnCameraChangeListener(null);
             mMap.setOnMarkerClickListener(null);
             mMap = null;
+            Timber.d("Google Map Object destroyed");
         }
-
+        if (mapView != null) {
+            mapView.onDestroy();
+            mapView = null;
+            Timber.d("Map View destroyed");
+        }
         cameraPosition = null;
         super.onDestroy();
     }
@@ -315,7 +339,9 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     @Override
     public void onSaveInstanceState(Bundle outState) {
         mapView.onSaveInstanceState(outState);
-        outState.putParcelable(CAMERA_POSITION, mMap.getCameraPosition());
+        if (outState != null) {
+            outState.putParcelable(CAMERA_POSITION, mMap.getCameraPosition());
+        }
         super.onSaveInstanceState(outState);
     }
 
@@ -344,13 +370,25 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                     Timber.i("Request has been accepted to center the map");
                     centerMapWithPermissions();
                 } else {
-                    String message = getString(R.string.center_permissions_denied);
-                    Timber.i("Request has been been denied: %s", message);
-                    busListInteraction.makeSnackbar(
-                            message,
-                            Snackbar.LENGTH_LONG,
-                            getString(R.string.center_permissions_action),
-                            (view) -> busListInteraction.openPermissionsPage());
+                    if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                        busListInteraction.showOkDialog(
+                                getString(R.string.location_permission_message),
+                                ((dialog, which) ->
+                                        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, CENTER_MAP_LOCATION_CODE))
+                        );
+                    }
+                    else {
+                        String message = getString(R.string.center_permissions_denied);
+                        Timber.i("Request has been been denied: %s", message);
+                        busListInteraction.makeSnackbar(
+                                message,
+                                Snackbar.LENGTH_LONG,
+                                getString(R.string.center_permissions_action),
+                                (view) -> busListInteraction.openPermissionsPage());
+                        if (mMap != null && mMap.isMyLocationEnabled()) {
+                            mMap.setMyLocationEnabled(false);
+                        }
+                    }
                 }
                 break;
         }
@@ -369,6 +407,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         if (mMap == null) {
+            Timber.d("Google Map object is null. Getting Google Map Object");
             mapView.getMapAsync(this);
         }
     }
@@ -401,6 +440,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         if (cameraPosition != null) {
             Timber.d("map was instantiated from a recreation (orientation change, etc.)");
             mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            enableGoogleMapLocation();
         } else {
             Timber.d("Map was instantiated from a clean state. Centering the map on Pittsburgh and possibly on you");
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(PITTSBURGH, 11.8f));
@@ -587,14 +627,8 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         if (mMap == null || getContext() == null) return;
 
         // first check if the permission is granted... if not, show why you should if user didn't say
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission_group.LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            if (shouldShowRequestPermissionRationale(Manifest.permission_group.LOCATION)) {
-                busListInteraction.showOkDialog(
-                        getString(R.string.location_permission_message),
-                        ((dialog, which) ->
-                                requestPermissions(new String[]{Manifest.permission_group.LOCATION}, CENTER_MAP_LOCATION_CODE))
-                );
-            }
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, CENTER_MAP_LOCATION_CODE);
             return;
         }
         Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
@@ -608,6 +642,17 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                     .setExpirationTime(10000) // set expiration 10 seconds
                     .setNumUpdates(1); // only do one update. needs above call for expiration
             LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, gLocationRequest, this);
+        }
+        enableGoogleMapLocation();
+    }
+
+    /**
+     * Enables the google map location UI settings if the permission is allowed.
+     */
+    private void enableGoogleMapLocation() {
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, CENTER_MAP_LOCATION_CODE);
+            return;
         }
         mMap.setMyLocationEnabled(true);
     }
@@ -635,6 +680,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      * Resets the composite subscription for vehicles
      */
     private void resetVehicleSubscriptions() {
+        Timber.d("Reseting vehicle subscriptions in bus fragment");
         if(vehicleSubscriptions != null) {
             vehicleSubscriptions = new CompositeSubscription(
                     vehicleUpdateObservable.subscribe(vehicleUpdateObserver()),

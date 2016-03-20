@@ -19,6 +19,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.leakcanary.RefWatcher;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -120,6 +122,16 @@ public class NavigationDrawerFragment extends Fragment {
     public void onDestroyView() {
         recyclerviewSubscriptions.unsubscribe();
         super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        if (getActivity() != null) {
+            RefWatcher refWatcher = PATTrackApplication.getRefWatcher(getActivity());
+            refWatcher.watch(this);
+        }
+
+        super.onDestroy();
     }
 
     public boolean isDrawerOpen() {
