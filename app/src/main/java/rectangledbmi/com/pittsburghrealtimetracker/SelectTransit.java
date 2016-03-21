@@ -27,7 +27,9 @@ import com.google.gson.GsonBuilder;
 import java.io.File;
 import java.util.Calendar;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.OkHttpClient;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
@@ -36,6 +38,7 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
+import rx.subjects.PublishSubject;
 import timber.log.Timber;
 
 /**
@@ -110,11 +113,15 @@ public class SelectTransit extends AppCompatActivity implements
         Gson gson = new GsonBuilder()
                 .setDateFormat(Constants.DATE_FORMAT_PARSE)
                 .create();
+
+        final OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(5, TimeUnit.SECONDS).build();
         // build the restadapter
-        Retrofit retrofit = new Retrofit.Builder()
+        final Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(getString(R.string.api_url))
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .client(okHttpClient)
                 .build();
 
         // sets the PAT API
@@ -344,7 +351,7 @@ public class SelectTransit extends AppCompatActivity implements
 
 
     @NonNull @Override
-    public Observable<RouteSelection> getSelectionObservable() {
+    public PublishSubject<RouteSelection> getSelectionSubject() {
         return mNavigationDrawerFragment.getListSelectionSubject();
     }
 

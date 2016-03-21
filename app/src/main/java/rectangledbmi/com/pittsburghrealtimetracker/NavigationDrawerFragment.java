@@ -30,9 +30,7 @@ import java.util.TimeZone;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
-import rx.Observable;
 import rx.subjects.PublishSubject;
-import rx.subscriptions.CompositeSubscription;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -71,8 +69,14 @@ public class NavigationDrawerFragment extends Fragment {
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
 
-    private CompositeSubscription recyclerviewSubscriptions;
     private PublishSubject<RouteSelection> routeSelectionPublishSubject;
+
+    /**
+     * State of selected routes
+     * <p/>
+     * public because we want to clear this list...
+     */
+    private Set<String> selectedRoutes;
 
 
     @Override
@@ -87,6 +91,9 @@ public class NavigationDrawerFragment extends Fragment {
         if (savedInstanceState != null) {
             mFromSavedInstanceState = true;
         }
+        selectedRoutes = new HashSet<>(sp.getStringSet(BUS_SELECT_STATE,
+                Collections.synchronizedSet(
+                        new HashSet<>(getResources().getInteger(R.integer.max_checked)))));
         routeSelectionPublishSubject = PublishSubject.create();
         // Select either the default item (0) or the last selected item.
 //        selectItem(mCurrentSelectedPosition);
@@ -107,7 +114,6 @@ public class NavigationDrawerFragment extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
 
         View v = inflater.inflate(R.layout.navigation_drawer_layout, container, false);
-        recyclerviewSubscriptions = new CompositeSubscription();
         busListAdapter = new BusRouteAdapter();
         RecyclerView busListRecyclerView = (RecyclerView) v.findViewById(R.id.bus_list_recyclerview);
         busListRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -120,7 +126,6 @@ public class NavigationDrawerFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        recyclerviewSubscriptions.unsubscribe();
         super.onDestroyView();
     }
 
@@ -245,6 +250,7 @@ public class NavigationDrawerFragment extends Fragment {
      */
     public void clearSelection() {
         busListAdapter.clearSelection();
+        routeSelectionPublishSubject.onNext(RouteSelection.create(selectedRoutes));
         Toast.makeText(getActivity(), getString(R.string.cleared), Toast.LENGTH_SHORT).show();
 
     }
@@ -325,13 +331,6 @@ public class NavigationDrawerFragment extends Fragment {
     private class BusRouteAdapter extends RecyclerView.Adapter<BusRouteAdapter.BusRouteHolder> {
 
         /**
-         * State of selected routes
-         * <p/>
-         * public because we want to clear this list...
-         */
-        private Set<String> selectedRoutes;
-
-        /**
          * Routes dataset
          */
         private Route[] routes;
@@ -343,11 +342,6 @@ public class NavigationDrawerFragment extends Fragment {
 
         public BusRouteAdapter() {
             super();
-            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
-            selectedRoutes = new HashSet<>(sp.getStringSet(BUS_SELECT_STATE,
-                    Collections.synchronizedSet(
-                            new HashSet<>(getResources().getInteger(R.integer.max_checked)))));
             createRoutes();
         }
 
@@ -466,7 +460,7 @@ public class NavigationDrawerFragment extends Fragment {
                     selectedRoutes.remove(mRoute.getRoute());
                     busCallbacks.onDeselectBusRoute(mRoute);
                 }
-                routeSelectionPublishSubject.onNext(new RouteSelection(mRoute, selectedRoutes));
+                routeSelectionPublishSubject.onNext(RouteSelection.create(mRoute, selectedRoutes));
                 notifyItemChanged(getAdapterPosition());
             }
 
@@ -503,8 +497,8 @@ public class NavigationDrawerFragment extends Fragment {
 
     }
 
-    public Observable<RouteSelection> getListSelectionSubject() {
-        return routeSelectionPublishSubject.share();
+    public PublishSubject<RouteSelection> getListSelectionSubject() {
+        return routeSelectionPublishSubject;
     }
 
 }
