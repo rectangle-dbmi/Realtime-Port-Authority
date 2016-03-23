@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p/>
  * Created by epicstar on 9/5/14.
  */
-public class TransitStop {
+public class TransitStopCollection {
 
     /**
      * Routes by string followed by a reference to the stop container
@@ -24,10 +24,8 @@ public class TransitStop {
      * Stops by integer followed by their stop container
      */
     private ConcurrentHashMap<Integer, TransitStopContainer> stops;
-    private boolean isVisible;
 
-
-    public TransitStop() {
+    public TransitStopCollection() {
         routeStops = new ConcurrentHashMap<>(10);
         stops = new ConcurrentHashMap<>(300);
 
@@ -160,13 +158,6 @@ public class TransitStop {
     }
 
     /**
-     * @return all stop ids via a set
-     */
-    public Set<Integer> getStopIds() {
-        return stops.keySet();
-    }
-
-    /**
      * Container class that contains the bus stop's markers and routes assigned to them
      */
     public class TransitStopContainer {
@@ -182,18 +173,11 @@ public class TransitStop {
         private HashSet<String> selectedBuses;
 
         /**
-         * All routes assigned to the stop that are currently unselected
-         */
-        private HashSet<String> unSelectedBuses;
-//        private boolean isVisible;
-
-        /**
          * Initial constructor
          */
         public TransitStopContainer() {
             marker = null;
             selectedBuses = new HashSet<>(10);
-            unSelectedBuses = new HashSet<>(10);
         }
 
         /**
@@ -206,13 +190,9 @@ public class TransitStop {
          */
         public boolean addMarkerToRoute(String route, float zoom, float visibleZoomLevel) {
             if (marker != null) {
-                unSelectedBuses.remove(route);
                 if (selectedBuses.add(route)) {
-//                    System.out.println("setting visibility");
-                    setVisible(zoom, visibleZoomLevel);
-
+                    setVisibleIfPossible(zoom, visibleZoomLevel);
                 }
-//                System.out.println(selectedBuses);
                 return true;
             }
             return false;
@@ -244,7 +224,6 @@ public class TransitStop {
          */
         public boolean removeMarker(String route) {
             if (selectedBuses.remove(route)) {
-                unSelectedBuses.add(route);
                 if (selectedBuses.isEmpty())
                     setInvisible();
                 return true;
@@ -252,19 +231,11 @@ public class TransitStop {
             return false;
         }
 
-        public boolean containsRoute(String route) {
-            return selectedBuses.contains(route);
-        }
-
-        public Marker getMarker() {
-            return marker;
-        }
-
 
         /**
          * This sets the stop as invisible unconditionally
          */
-        public void setInvisible() {
+        private void setInvisible() {
             if (hasMarker()) {
                 marker.setVisible(false);
             }
@@ -277,14 +248,9 @@ public class TransitStop {
          * @param visibleZoomLevel the zoom level threshold
          */
         public void setVisibility(float zoom, float visibleZoomLevel) {
-            if (!setVisible(zoom, visibleZoomLevel)) {
+            if (!setVisibleIfPossible(zoom, visibleZoomLevel)) {
                 setInvisible();
-//                System.out.println("Invisible");
-                isVisible = false;
-            } else {
-                isVisible = true;
             }
-
         }
 
         /**
@@ -295,26 +261,14 @@ public class TransitStop {
          * @param visibleZoomLevel the zoom level threshold
          * @return whether or not the marker should be visible
          */
-        public boolean setVisible(float zoom, float visibleZoomLevel) {
+        private boolean setVisibleIfPossible(float zoom, float visibleZoomLevel) {
             if (hasMarker()) {
-//                System.out.println(zoom);
-//                System.out.println(zoom >= visibleZoomLevel);
                 if ((!selectedBuses.isEmpty()) && zoom >= visibleZoomLevel) {
                     marker.setVisible(true);
-//                    System.out.println(marker);
-//                    System.out.println("Marker should be visible " + marker.isVisible());
                     return true;
-                } /*else {
-//                    System.out.println(zoom > visibleZoomLevel);
-                }*/
-            } /*else {
-//                System.out.println("setVisible: no marker" );
-            }*/
+                }
+            }
             return false;
-        }
-
-        public boolean isVisible() {
-            return hasMarker() && marker.isVisible();
         }
 
         /**
