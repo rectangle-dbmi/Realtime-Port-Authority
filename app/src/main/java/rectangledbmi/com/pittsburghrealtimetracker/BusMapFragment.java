@@ -74,8 +74,9 @@ import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
+import rx.observables.ConnectableObservable;
 import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
+import rx.subjects.BehaviorSubject;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
@@ -111,20 +112,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
-    private BusSelectionInteraction busListInteraction;
-
-    /**
-     * The vehicles subscriptions
-     */
-    private CompositeSubscription vehicleSubscriptions;
-
-    /**
-     * The subscription to unselect a vehicle from the map
-     */
-    private Subscription unselectVehicleSubscription;
-
-    private ConcurrentMap<String,List<Polyline>> routeLines;
 
     public BusMapFragment() {
         // Required empty public constructor
@@ -168,13 +155,23 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
     private ConcurrentMap<Integer, Marker> busMarkers;
 
-    private ConcurrentMap<String, List<Polyline>> polylines;
-
     private TransitStopCollection transitStopCollection;
 
     private GoogleApiClient googleApiClient;
 
-    private PublishSubject<RouteSelection> selectionSubject;
+    private BusSelectionInteraction busListInteraction;
+
+    /**
+     * The vehicles subscriptions
+     */
+    private CompositeSubscription vehicleSubscriptions;
+
+    /**
+     * The subscription to unselect a vehicle from the map
+     */
+    private Subscription unselectVehicleSubscription;
+
+    private ConcurrentMap<String,List<Polyline>> routeLines;
 
     /**
      * Observable that emits individual vehicles onto the map.
@@ -192,6 +189,8 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      * The {@link retrofit2.Retrofit} instance of the Port Authority TrueTime API
      */
     private PATAPI patApiClient;
+
+    private Subscription selectionSubscription;
     // endregion
 
     // region Android Fragment LifeCycle
@@ -317,6 +316,11 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             unselectVehicleSubscription.unsubscribe();
             unselectVehicleSubscription = null;
             Timber.d("Unselect Vehicle Event destroyed");
+        }
+
+        if (selectionSubscription != null) {
+            selectionSubscription.unsubscribe();
+            selectionSubscription = null;
         }
         if (transitStopCollection != null) {
             transitStopCollection.destroyStops();
@@ -549,9 +553,8 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      * </ul>
      */
     private void setupReactiveObjects() {
-        selectionSubject = busListInteraction.getSelectionSubject();
-        Observable<RouteSelection> selectionObservable = selectionSubject.share();
-
+        BehaviorSubject<RouteSelection> selectionSubject = busListInteraction.getSelectionSubject();
+        ConnectableObservable<RouteSelection> selectionObservable = selectionSubject.replay(1);
         //noinspection Convert2Lambda
         Observable<BustimeVehicleResponse> vehicleIntervalObservable = selectionObservable
                 .debounce(400, TimeUnit.MILLISECONDS)
@@ -583,7 +586,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
         vehicleUpdateObservable = vehicleIntervalObservable
                 .flatMap(bustimeVehicleResponse -> {
-                    Timber.d("Iterating through all observables");
+                    Timber.d("Iterating through all vehicles to add");
                     return Observable.from(bustimeVehicleResponse.getVehicle());
                 }).map(makeBitmaps());
 
@@ -617,6 +620,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                     }
                 });
         resetVehicleSubscriptions();
+        selectionSubscription = selectionObservable.connect();
         restorePolylines();
     }
 
@@ -635,10 +639,13 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             return;
         }
         Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-        if (lastLocation != null) { // use the last location if found
+        // use the last location if found and if less than 1 hour
+        if (lastLocation != null && isInPittsburgh(lastLocation) && System.currentTimeMillis() - lastLocation.getTime() < 3600000) {
+            Timber.i("Using last location to center map.");
             LatLng latLng = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomStopVisibility));
         } else { // request one location update
+            Timber.i("Creating 1 location request to center map on you.");
             LocationRequest gLocationRequest = LocationRequest.create()
                     .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                     .setInterval(1000)
@@ -671,7 +678,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         requests location updates. If this needs to happen, we should have
         multiple internal classes that implement LocationListener with different logic in each
          */
-        if (location == null || mMap == null || isInPittsburgh(location)) return;
+        if (location == null || !isInPittsburgh(location) || mMap == null) return;
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomStopVisibility));
     }
@@ -689,8 +696,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                     vehicleUpdateObservable.subscribe(vehicleUpdateObserver()),
                     vehicleErrorObservable.subscribe(vehicleErrorObserver())
             );
-            selectionSubject.onNext(RouteSelection.create(busListInteraction.getSelectedRoutes()));
-            selectionSubject.onNext(RouteSelection.create(busListInteraction.getSelectedRoutes()));
             Timber.d("Vehicle subscriptions subscribed");
         } else if (BuildConfig.DEBUG) {
             IllegalStateException ex = new IllegalStateException("Vehicle state subscription must be unsubscribed.");

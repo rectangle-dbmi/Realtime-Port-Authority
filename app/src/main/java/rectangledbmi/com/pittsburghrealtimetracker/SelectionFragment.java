@@ -18,6 +18,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rx.Observable;
+import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 
 public abstract class SelectionFragment extends Fragment implements NavigationDrawerFragment.BusListCallbacks, ClearSelection {
@@ -55,7 +56,7 @@ public abstract class SelectionFragment extends Fragment implements NavigationDr
         /**
          * @return the Rx Observable that the {@link NavigationDrawerFragment} emits list clicks on.
          */
-        PublishSubject<RouteSelection> getSelectionSubject();
+        BehaviorSubject<RouteSelection> getSelectionSubject();
 
         void showOkDialog(String message, DialogInterface.OnClickListener okListener);
 

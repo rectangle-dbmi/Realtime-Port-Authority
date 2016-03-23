@@ -38,6 +38,7 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
+import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 import timber.log.Timber;
 
@@ -351,7 +352,7 @@ public class SelectTransit extends AppCompatActivity implements
 
 
     @NonNull @Override
-    public PublishSubject<RouteSelection> getSelectionSubject() {
+    public BehaviorSubject<RouteSelection> getSelectionSubject() {
         return mNavigationDrawerFragment.getListSelectionSubject();
     }
 

@@ -30,7 +30,7 @@ import java.util.TimeZone;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
-import rx.subjects.PublishSubject;
+import rx.subjects.BehaviorSubject;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -69,7 +69,7 @@ public class NavigationDrawerFragment extends Fragment {
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
 
-    private PublishSubject<RouteSelection> routeSelectionPublishSubject;
+    private BehaviorSubject<RouteSelection> routeSelectionPublishSubject;
 
     /**
      * State of selected routes
@@ -94,7 +94,7 @@ public class NavigationDrawerFragment extends Fragment {
         selectedRoutes = new HashSet<>(sp.getStringSet(BUS_SELECT_STATE,
                 Collections.synchronizedSet(
                         new HashSet<>(getResources().getInteger(R.integer.max_checked)))));
-        routeSelectionPublishSubject = PublishSubject.create();
+        routeSelectionPublishSubject = BehaviorSubject.create(RouteSelection.create(selectedRoutes));
         // Select either the default item (0) or the last selected item.
 //        selectItem(mCurrentSelectedPosition);
 
@@ -497,7 +497,7 @@ public class NavigationDrawerFragment extends Fragment {
 
     }
 
-    public PublishSubject<RouteSelection> getListSelectionSubject() {
+    public BehaviorSubject<RouteSelection> getListSelectionSubject() {
         return routeSelectionPublishSubject;
     }
 
