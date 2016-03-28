@@ -17,8 +17,8 @@ android {
         applicationId "rectangledbmi.com.pittsburghrealtimetracker"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 64
-        versionName "7.0b1"
+        versionCode 66
+        versionName "7.0b2"
     }
     buildTypes {
 
@@ -90,3 +90,6 @@ repositories {
     jcenter()
     mavenCentral()
 }
+
+apply plugin: 'me.tatarka.retrolambda'
+apply plugin: 'com.github.ben-manes.versions'
