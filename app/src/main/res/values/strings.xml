@@ -33,6 +33,7 @@
         <item color="#ffcccc">39</item>
         <item color="#ff99ff">40</item>
         <item color="#0099cc">41</item>
+        <item color="#0288d1">42</item>
         <item color="#ff9966">43</item>
         <item color="#ffcc00">44</item>
         <item color="#ff0066">48</item>
@@ -97,6 +98,7 @@
         <item color="#6666ff">P71</item>
         <item color="#6600ff">P76</item>
         <item color="#6633ff">P78</item>
+        <item color="#d50000">RED2</item>
         <item color="#ffff33">Y1</item>
         <item color="#ffff99">Y45</item>
         <item color="#ffff00">Y46</item>
@@ -133,6 +135,7 @@
         <item name="39">#ffcccc</item>
         <item name="40">#ff99ff</item>
         <item name="41">#0099cc</item>
+        <item name="42">#0288d1</item>
         <item name="43">#ff9966</item>
         <item name="44">#ffcc00</item>
         <item name="48">#ff0066</item>
@@ -197,6 +200,7 @@
         <item name="P71">#6666ff</item>
         <item name="P76">#6600ff</item>
         <item name="P78">#6633ff</item>
+        <item name="RED2">#ffd50000</item>
         <item name="Y1">#ffff33</item>
         <item name="Y45">#ffff99</item>
         <item name="Y46">#ffff00</item>
@@ -233,6 +237,7 @@
         <item name="39">Brookline</item>
         <item name="40">Mount Washington</item>
         <item name="41">Bower Hill</item>
+        <item name="42">Dormont</item>
         <item name="43">Bailey</item>
         <item name="44">Via Knoxville</item>
         <item name="48">Arlington</item>
@@ -297,6 +302,7 @@
         <item name="P71">Swissvale Flyer</item>
         <item name="P76">Lincoln Highway Flyer</item>
         <item name="P78">Oakmont Flyer</item>
+        <item name="RED2">Beechview Shuttle</item>
         <item name="Y1">Large Flyer</item>
         <item name="Y45">Baldwin Manor Flyer</item>
         <item name="Y46">Elizabeth Flyer</item>
