@@ -17,8 +17,8 @@ android {
         applicationId "rectangledbmi.com.pittsburghrealtimetracker"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 64
-        versionName "7.0b1"
+        versionCode 66
+        versionName "7.0b2"
     }
     buildTypes {
 
@@ -50,7 +50,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-location:8.4.0'
 
     compile 'com.android.support:support-v4:23.2.1'
-    compile 'com.android.support:design:23.2.1';
+    compile 'com.android.support:design:23.2.1'
     compile 'com.android.support:appcompat-v7:23.2.1'
     compile 'com.android.support:recyclerview-v7:23.2.1'
 
@@ -80,7 +80,7 @@ buildscript {
 
     dependencies {
         classpath 'me.tatarka:gradle-retrolambda:3.2.5' // use some java 8 syntax in the project
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.11.3'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.12.0'
         // check for updates of 3rd party libs
     }
 }
