@@ -600,8 +600,11 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 .skipWhile(route -> route == null || route.isSelected())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(route -> Observable.from(busMarkers.entrySet())
-                        .filter(busMarker -> busMarker.getValue().getTitle().contains(route.getRoute())))
+                .flatMap(route ->  {
+                    Timber.d("removing all %s's", route.getRoute());
+                    return Observable.from(busMarkers.entrySet())
+                            .filter(busMarker -> busMarker.getValue().getTitle().contains(route.getRoute()));
+                })
                 .subscribe(new Observer<Map.Entry<Integer, Marker>>() {
                     @Override
                     public void onCompleted() {
