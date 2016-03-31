@@ -393,6 +393,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                                 getString(R.string.center_permissions_action),
                                 (view) -> busListInteraction.openPermissionsPage());
                         if (mMap != null && mMap.isMyLocationEnabled()) {
+                            //noinspection MissingPermission
                             mMap.setMyLocationEnabled(false);
                         }
                     }
