@@ -84,9 +84,3 @@ buildscript {
         // check for updates of 3rd party libs
     }
 }
-
-// Required because retrolambda is on maven central
-repositories {
-    jcenter()
-    mavenCentral()
-}
