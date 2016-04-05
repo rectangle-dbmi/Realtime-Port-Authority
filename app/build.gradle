@@ -20,6 +20,9 @@ android {
         versionCode 66
         versionName "7.0b2"
     }
+    lintOptions {
+        warning 'InvalidPackage'
+    }
     buildTypes {
 
         release {
