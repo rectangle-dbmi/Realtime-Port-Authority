@@ -3,9 +3,9 @@ package rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.PatternResponse;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.PredictionResponse;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.VehicleResponse;
-import retrofit.http.GET;
-import retrofit.http.Path;
-import retrofit.http.Query;
+import retrofit2.http.GET;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
 import rx.Observable;
 
 /**
