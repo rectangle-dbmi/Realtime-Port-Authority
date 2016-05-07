@@ -116,7 +116,9 @@ public class SelectTransit extends AppCompatActivity implements
                 .create();
 
         final OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .connectTimeout(5, TimeUnit.SECONDS).build();
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .readTimeout(5, TimeUnit.SECONDS)
+                .build();
         // build the restadapter
         final Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(getString(R.string.api_url))
