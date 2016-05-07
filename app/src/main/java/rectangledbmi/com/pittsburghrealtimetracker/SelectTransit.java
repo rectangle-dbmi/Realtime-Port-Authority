@@ -78,16 +78,17 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStop;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimeVehicleResponse;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Vehicle;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.VehicleResponse;
-import retrofit.HttpException;
-import retrofit.Retrofit;
-import retrofit.GsonConverterFactory;
-import retrofit.RxJavaCallAdapterFactory;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.HttpException;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
+import okhttp3.OkHttpClient;
 
 /**
  * This is the main activity of the Realtime Tracker...
@@ -282,11 +283,16 @@ public class SelectTransit extends AppCompatActivity implements
         Gson gson = new GsonBuilder()
                 .setDateFormat(Constants.DATE_FORMAT_PARSE)
                 .create();
+        final OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .readTimeout(5, TimeUnit.SECONDS)
+                .build();
         // build the restadapter
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(getString(R.string.api_url))
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .client(okHttpClient)
                 .build();
 
         // sets the PAT API
@@ -839,13 +845,16 @@ public class SelectTransit extends AppCompatActivity implements
 
             @Override
             public void onError(Throwable e) {
-                if (e.getMessage() != null && e.getLocalizedMessage() != null && !showedErrors) {
+                if (e instanceof java.net.SocketTimeoutException) {
+                    showToast(getString(R.string.retrofit_http_error), Toast.LENGTH_SHORT);
+                }
+                else if (e.getMessage() != null && e.getLocalizedMessage() != null && !showedErrors) {
                     showedErrors = true;
                     if (e instanceof IOException) {
                         showToast(getString(R.string.retrofit_network_error), Toast.LENGTH_SHORT);
                     }
-                    else if (e instanceof retrofit.HttpException) {
-                        retrofit.HttpException http = (HttpException) e;
+                    else if (e instanceof HttpException) {
+                        HttpException http = (HttpException) e;
                         showToast(http.code() + " " + http.message() + ": "
                                 + getString(R.string.retrofit_http_error), Toast.LENGTH_SHORT);
                     }
