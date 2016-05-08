@@ -206,6 +206,10 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerLayout.addDrawerListener(mDrawerToggle);
     }
 
+    public ActionBarDrawerToggle getActionBarDrawerToggle() {
+        return mDrawerToggle;
+    }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
