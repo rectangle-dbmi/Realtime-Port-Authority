@@ -229,7 +229,8 @@ public class SelectTransit extends AppCompatActivity implements
                 setSupportActionBar(toolbar);
             } catch (Throwable e) {
                 Snackbar.make(mainLayout,
-                        "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Snackbar.LENGTH_SHORT).show();
+                        "Material Design bugged out on your device. Please report this to the " +
+                                "Play Store Email if this pops up.", Snackbar.LENGTH_SHORT).show();
 //                Toast.makeText(this, "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Toast.LENGTH_SHORT).show();
             }
         }
@@ -238,7 +239,8 @@ public class SelectTransit extends AppCompatActivity implements
             if (t != null) t.setDisplayHomeAsUpEnabled(true);
         } catch (NullPointerException e) {
             Snackbar.make(mainLayout,
-                    "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Snackbar.LENGTH_SHORT).show();
+                    "Material Design bugged out on your device. Please report this to the " +
+                            "Play Store Email if this pops up.", Snackbar.LENGTH_SHORT).show();
         }
 
     }
@@ -333,7 +335,10 @@ public class SelectTransit extends AppCompatActivity implements
 
     }
 
-    public void makeSnackbar(@NonNull String string, int showLength, @NonNull String action, @NonNull View.OnClickListener listener) {
+    public void makeSnackbar(@NonNull String string,
+                             int showLength,
+                             @NonNull String action,
+                             @NonNull View.OnClickListener listener) {
         if (string.length() == 0) return;
         Snackbar.make(mainLayout, string, showLength)
                 .setAction(action, listener)
@@ -382,20 +387,27 @@ public class SelectTransit extends AppCompatActivity implements
     }
 
     /**
-     * Click Event for the {@link rectangledbmi.com.pittsburghrealtimetracker.R.menu#select_transit}'s Detour Information.
+     * Click Event for the
+     * {@link rectangledbmi.com.pittsburghrealtimetracker.R.menu#select_transit}'s Detour
+     * Information.
      *
-     * Maybe we should be moving item item events in {@link #onOptionsItemSelected(MenuItem)} to an onClick like this method.
+     * Maybe we should be moving item item events in {@link #onOptionsItemSelected(MenuItem)} to
+     * an onClick like this method.
      * @param item the application details item
      */
     public void onClickDetourInfo(MenuItem item) {
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.detour_url)));
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW,
+                Uri.parse(getString(R.string.detour_url)));
         startActivity(browserIntent);
     }
 
     /**
-     * Click Event for the {@link rectangledbmi.com.pittsburghrealtimetracker.R.menu#select_transit}'s Application Details.
+     * Click Event for the
+     * {@link rectangledbmi.com.pittsburghrealtimetracker.R.menu#select_transit}'s Application
+     * Details.
      *
-     * Maybe we should be moving item item events in {@link #onOptionsItemSelected(MenuItem)} to an onClick like this method.
+     * Maybe we should be moving item item events in {@link #onOptionsItemSelected(MenuItem)} to an
+     * onClick like this method.
      * @param item the application details item
      */
     public void onClickAppDetails(MenuItem item) {
