@@ -39,7 +39,6 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
-import rx.subjects.PublishSubject;
 import timber.log.Timber;
 
 /**
@@ -50,11 +49,6 @@ public class SelectTransit extends AppCompatActivity implements
         SelectionFragment.BusSelectionInteraction {
 
     private static final String LINES_LAST_UPDATED = "lines_last_updated";
-
-    /**
-     * The latitude and longitude of Pittsburgh... used if the app doesn't have a saved state of the camera
-     */
-    private final static LatLng PITTSBURGH = new LatLng(40.441, -79.981);
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -373,8 +367,8 @@ public class SelectTransit extends AppCompatActivity implements
 
 
     @NonNull @Override
-    public BehaviorSubject<RouteSelection> getSelectionSubject() {
-        return mNavigationDrawerFragment.getListSelectionSubject();
+    public Observable<RouteSelection> getSelectionSubject() {
+        return mNavigationDrawerFragment.getListObservable();
     }
 
     @Override
