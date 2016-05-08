@@ -371,4 +371,6 @@
     <string name="center_permissions_action">Permission Settings</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="detour_info">Detour Information</string>
+    <string name="detour_url">http://www.portauthority.org/paac/SchedulesMaps/Detours.aspx</string>
 </resources>

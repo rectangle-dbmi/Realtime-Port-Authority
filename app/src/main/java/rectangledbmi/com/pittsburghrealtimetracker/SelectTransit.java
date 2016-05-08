@@ -382,6 +382,17 @@ public class SelectTransit extends AppCompatActivity implements
     }
 
     /**
+     * Click Event for the {@link rectangledbmi.com.pittsburghrealtimetracker.R.menu#select_transit}'s Detour Information.
+     *
+     * Maybe we should be moving item item events in {@link #onOptionsItemSelected(MenuItem)} to an onClick like this method.
+     * @param item the application details item
+     */
+    public void onClickDetourInfo(MenuItem item) {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.detour_url)));
+        startActivity(browserIntent);
+    }
+
+    /**
      * Click Event for the {@link rectangledbmi.com.pittsburghrealtimetracker.R.menu#select_transit}'s Application Details.
      *
      * Maybe we should be moving item item events in {@link #onOptionsItemSelected(MenuItem)} to an onClick like this method.
