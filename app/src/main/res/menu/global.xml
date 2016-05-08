@@ -14,7 +14,7 @@
         appcompat:showAsAction="never"
         android:onClick="onClickDetourInfo"/>
     <item android:id="@+id/action_appdetails"
-        android:title="@string/app_details"
+        android:title="@string/app_info"
         android:orderInCategory="400"
         appcompat:showAsAction="never"
         android:onClick="onClickAppDetails"/>

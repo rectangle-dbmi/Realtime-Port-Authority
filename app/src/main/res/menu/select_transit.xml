@@ -9,19 +9,19 @@
         android:title="@string/action_select_buses"
         android:orderInCategory="100"
         appcompat:showAsAction="never" />
-    <item android:id="@+id/action_about"
-        android:title="@string/action_about"
-        android:orderInCategory="200"
-        appcompat:showAsAction="never" />
     <item android:id="@+id/detour_info"
         android:title="@string/detour_info"
-        android:orderInCategory="300"
+        android:orderInCategory="200"
         appcompat:showAsAction="never"
         android:onClick="onClickDetourInfo"/>
     <item android:id="@+id/action_appdetails"
-        android:title="@string/app_details"
-        android:orderInCategory="400"
+        android:title="@string/app_info"
+        android:orderInCategory="300"
         appcompat:showAsAction="never"
         android:onClick="onClickAppDetails"/>
+    <item android:id="@+id/action_about"
+        android:title="@string/action_about"
+        android:orderInCategory="400"
+        appcompat:showAsAction="never" />
 
 </menu>
