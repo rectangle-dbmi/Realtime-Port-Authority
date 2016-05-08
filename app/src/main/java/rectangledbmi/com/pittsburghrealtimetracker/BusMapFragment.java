@@ -555,7 +555,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      * </ul>
      */
     private void setupReactiveObjects() {
-        BehaviorSubject<RouteSelection> selectionSubject = busListInteraction.getSelectionSubject();
+        Observable<RouteSelection> selectionSubject = busListInteraction.getSelectionSubject();
         ConnectableObservable<RouteSelection> selectionObservable = selectionSubject.replay(1);
         //noinspection Convert2Lambda
         Observable<BustimeVehicleResponse> vehicleIntervalObservable = selectionObservable
