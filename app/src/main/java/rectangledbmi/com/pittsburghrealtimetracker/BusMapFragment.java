@@ -44,6 +44,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.squareup.leakcanary.RefWatcher;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -393,6 +394,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                                 getString(R.string.center_permissions_action),
                                 (view) -> busListInteraction.openPermissionsPage());
                         if (mMap != null && mMap.isMyLocationEnabled()) {
+                            //noinspection MissingPermission
                             mMap.setMyLocationEnabled(false);
                         }
                     }
@@ -827,7 +829,9 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
             @Override
             public void onError(Throwable e) {
-                if (e.getMessage() != null && e.getLocalizedMessage() != null && !showedErrors) {
+                if (e instanceof SocketTimeoutException) {
+                    busListInteraction.showToast(getString(R.string.retrofit_http_error), Toast.LENGTH_SHORT);
+                } else if (e.getMessage() != null && e.getLocalizedMessage() != null && !showedErrors) {
                     showedErrors = true;
                     if (e instanceof IOException) {
                         busListInteraction.showToast(getString(R.string.retrofit_network_error), Toast.LENGTH_SHORT);

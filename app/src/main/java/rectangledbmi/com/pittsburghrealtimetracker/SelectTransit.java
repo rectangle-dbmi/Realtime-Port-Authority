@@ -116,7 +116,9 @@ public class SelectTransit extends AppCompatActivity implements
                 .create();
 
         final OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .connectTimeout(5, TimeUnit.SECONDS).build();
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .readTimeout(5, TimeUnit.SECONDS)
+                .build();
         // build the restadapter
         final Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(getString(R.string.api_url))
@@ -255,22 +257,36 @@ public class SelectTransit extends AppCompatActivity implements
         return super.onCreateOptionsMenu(menu);
     }
 
-    //We probably don't need this? Maybe we do
+    /**
+     * Handles action bar item clicks. The action bar will automatically handle clicks on the
+     * home/up button so long as you specify a parent activity in the AndroidManifest.xml.
+     * @param item the menu item clicked
+     * @return true if the option is found?
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+        Timber.d("Running SelectTransit's onOptionsItemSelected");
+        // TODO: Perhaps we should be using onClick events in the XML like onClickAppDetails()
+        if (mNavigationDrawerFragment != null &&
+                mNavigationDrawerFragment.getActionBarDrawerToggle() != null &&
+                mNavigationDrawerFragment.getActionBarDrawerToggle().onOptionsItemSelected(item)) {
+            Timber.d("Hamburger menu selected - will either close or open drawer");
+            return true;
+        }
         int id = item.getItemId();
-        if (id == R.id.action_select_buses) {
+        if (id == R.id.action_select_buses && mNavigationDrawerFragment != null) {
+            Timber.d("Select Buses in Menu Dropdown clicked - opens the drawer");
             mNavigationDrawerFragment.openDrawer();
+            return true;
         }
         else if (id == R.id.action_about) {
+            Timber.d("About Button Clicked. Will open the about page");
             Intent intent = new Intent(this, AboutActivity.class);
             startActivity(intent);
             return true;
         } else if (id == R.id.action_clear) {
             clearSelection();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -366,7 +382,20 @@ public class SelectTransit extends AppCompatActivity implements
     }
 
     /**
-     * Click Event for the {@link rectangledbmi.com.pittsburghrealtimetracker.R.menu#select_transit}'s Application Details
+     * Click Event for the {@link rectangledbmi.com.pittsburghrealtimetracker.R.menu#select_transit}'s Detour Information.
+     *
+     * Maybe we should be moving item item events in {@link #onOptionsItemSelected(MenuItem)} to an onClick like this method.
+     * @param item the application details item
+     */
+    public void onClickDetourInfo(MenuItem item) {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.detour_url)));
+        startActivity(browserIntent);
+    }
+
+    /**
+     * Click Event for the {@link rectangledbmi.com.pittsburghrealtimetracker.R.menu#select_transit}'s Application Details.
+     *
+     * Maybe we should be moving item item events in {@link #onOptionsItemSelected(MenuItem)} to an onClick like this method.
      * @param item the application details item
      */
     public void onClickAppDetails(MenuItem item) {
