@@ -85,8 +85,6 @@ public class SelectTransit extends AppCompatActivity implements
      */
     private PublishSubject<NotificationMessage> toastSubject;
 
-    private Subscription toastSubscription;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,7 +106,7 @@ public class SelectTransit extends AppCompatActivity implements
 
         // create a publish subject for displaying toasts
         toastSubject = PublishSubject.create();
-        toastSubscription = toastSubject.asObservable()
+        toastSubject.asObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(toastMessageObserver());
@@ -116,11 +114,13 @@ public class SelectTransit extends AppCompatActivity implements
         enableHttpResponseCache();
     }
 
+    /**
+     * In addition to destroying the {@link SelectTransit}, it will also complete the toast subject.
+     * @since 70
+     */
     @Override
     protected void onDestroy() {
-        if (toastSubscription != null) {
-            toastSubscription.unsubscribe();
-        }
+        toastSubject.onCompleted();
         super.onDestroy();
     }
 
