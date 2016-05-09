@@ -590,15 +590,26 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 .retryWhen(attempt -> attempt.flatMap(throwable -> {
                     // theoretically, this should only resubscribe when internet is back
                     if (throwable instanceof IOException){
+                        Timber.d("Retrying since internet cut out.");
                         // retry when connectivity is online
                         busListInteraction.showToast(getString(R.string.retrofit_network_error),
                                 Toast.LENGTH_SHORT);
                         return new ReactiveNetwork()
                                 .observeConnectivity(getContext())
-                                .skipWhile(connectivityStatus ->
-                                        connectivityStatus == ConnectivityStatus.OFFLINE);
+                                .skipWhile(connectivityStatus -> {
+                                    if (connectivityStatus == ConnectivityStatus.OFFLINE) {
+                                        return true;
+                                    } else {
+                                        busListInteraction.showToast(
+                                                "Re-retrieving vehicles from Port Authority.",
+                                                Toast.LENGTH_SHORT);
+                                        return false;
+                                    }
+                                });
                     }
                     // otherwise, just run normal onError
+                    Timber.d("Not retrying since something should be wrong on " +
+                            "Port Authority's end.");
                     return null;
                 }))
                 .share()
@@ -857,6 +868,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                         busListInteraction.showToast(http.code() + " " + http.message() + ": "
                                 + getString(R.string.retrofit_http_error), Toast.LENGTH_SHORT);
                     } else {
+                        Timber.e("Vehicle error not handled.");
                         busListInteraction.showToast(getString(R.string.retrofit_conversion_error), Toast.LENGTH_SHORT);
                     }
                     Timber.e(e, "bus_vehicle_error");
