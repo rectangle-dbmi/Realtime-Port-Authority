@@ -20,7 +20,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -32,13 +31,17 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
+import rectangledbmi.com.pittsburghrealtimetracker.selection.NotificationMessage;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
-import rx.subjects.BehaviorSubject;
+import rx.Observer;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 import timber.log.Timber;
 
@@ -50,11 +53,6 @@ public class SelectTransit extends AppCompatActivity implements
         SelectionFragment.BusSelectionInteraction {
 
     private static final String LINES_LAST_UPDATED = "lines_last_updated";
-
-    /**
-     * The latitude and longitude of Pittsburgh... used if the app doesn't have a saved state of the camera
-     */
-    private final static LatLng PITTSBURGH = new LatLng(40.441, -79.981);
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -81,6 +79,12 @@ public class SelectTransit extends AppCompatActivity implements
      */
     private DrawerLayout mainLayout;
 
+    /**
+     * subject to show toast messages.
+     * @since 70
+     */
+    private PublishSubject<NotificationMessage> toastSubject;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,8 +104,24 @@ public class SelectTransit extends AppCompatActivity implements
         mainLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         selectionFragment = (SelectionFragment) fragmentManager.findFragmentById(R.id.map);
 
-        enableHttpResponseCache();
+        // create a publish subject for displaying toasts
+        toastSubject = PublishSubject.create();
+        toastSubject.asObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(toastMessageObserver());
 
+        enableHttpResponseCache();
+    }
+
+    /**
+     * In addition to destroying the {@link SelectTransit}, it will also complete the toast subject.
+     * @since 70
+     */
+    @Override
+    protected void onDestroy() {
+        toastSubject.onCompleted();
+        super.onDestroy();
     }
 
     /**
@@ -135,21 +155,10 @@ public class SelectTransit extends AppCompatActivity implements
         return patApiClient;
     }
 
-//    /**
-//     * Checks if the network is available
-//     * TODO: incorporate this with a dialog to enable internet
-//     * @return whether or not the network is available...
-//     */
-//    private boolean isNetworkAvailable() {
-//        ConnectivityManager connectivityManager
-//                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-//        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-//        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
-//    }
-
     /**
      * Checks if the stored polylines directory is present and clears if we hit a friday or if the
      * saved day of the week is higher than the current day of the week.
+     *
      * @since 32
      */
     private void checkSDCardData() {
@@ -208,8 +217,8 @@ public class SelectTransit extends AppCompatActivity implements
      * Checks the state of the route on the map. If it is not on the map, the relevant info will be
      * added. Otherwise, it will be unselected on the map
      *
-     * @since 43
      * @param route the bus route selected
+     * @since 43
      */
     @Override
     public void onSelectBusRoute(@NonNull Route route) {
@@ -229,7 +238,8 @@ public class SelectTransit extends AppCompatActivity implements
                 setSupportActionBar(toolbar);
             } catch (Throwable e) {
                 Snackbar.make(mainLayout,
-                        "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Snackbar.LENGTH_SHORT).show();
+                        "Material Design bugged out on your device. Please report this to the " +
+                                "Play Store Email if this pops up.", Snackbar.LENGTH_SHORT).show();
 //                Toast.makeText(this, "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Toast.LENGTH_SHORT).show();
             }
         }
@@ -238,7 +248,8 @@ public class SelectTransit extends AppCompatActivity implements
             if (t != null) t.setDisplayHomeAsUpEnabled(true);
         } catch (NullPointerException e) {
             Snackbar.make(mainLayout,
-                    "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Snackbar.LENGTH_SHORT).show();
+                    "Material Design bugged out on your device. Please report this to the " +
+                            "Play Store Email if this pops up.", Snackbar.LENGTH_SHORT).show();
         }
 
     }
@@ -260,6 +271,7 @@ public class SelectTransit extends AppCompatActivity implements
     /**
      * Handles action bar item clicks. The action bar will automatically handle clicks on the
      * home/up button so long as you specify a parent activity in the AndroidManifest.xml.
+     *
      * @param item the menu item clicked
      * @return true if the option is found?
      */
@@ -278,8 +290,7 @@ public class SelectTransit extends AppCompatActivity implements
             Timber.d("Select Buses in Menu Dropdown clicked - opens the drawer");
             mNavigationDrawerFragment.openDrawer();
             return true;
-        }
-        else if (id == R.id.action_about) {
+        } else if (id == R.id.action_about) {
             Timber.d("About Button Clicked. Will open the about page");
             Intent intent = new Intent(this, AboutActivity.class);
             startActivity(intent);
@@ -294,10 +305,10 @@ public class SelectTransit extends AppCompatActivity implements
     public void clearSelection() {
         File lineInfo = new File(getFilesDir(), "/lineinfo");
         Timber.d("cleared files: %s", lineInfo.getAbsolutePath());
-        if(lineInfo.exists()) {
+        if (lineInfo.exists()) {
             File[] files = lineInfo.listFiles();
-            if(files != null) {
-                for(File file : files)
+            if (files != null) {
+                for (File file : files)
                     file.delete();
             }
         }
@@ -305,23 +316,72 @@ public class SelectTransit extends AppCompatActivity implements
         selectionFragment.clearSelection();
     }
 
+
     /**
-     * Create a toast
+     * Show a toast message.
      * @since 47
-     * @param string - string to show
-     * @param length - length to show message
+     * @param message the message to show as a toast
+     * @param duration the duration that the message shows
      */
     @Override
-    public void showToast(String string, int length) {
-        Toast.makeText(this, string, length).show();
+    public void showToast(String message, int duration) {
+        if (toastSubject == null) {
+            return;
+        }
+        toastSubject.onNext(NotificationMessage.create(message, duration));
     }
+
+    /**
+     * Workaround to show a toast from {@link #toastMessageObserver()}
+     * @param message the message to show
+     * @param duration the duration of the message
+     */
+    private void showToastInternal(String message, int duration) {
+        Toast.makeText(this, message, duration).show();
+    }
+
+    /**
+     * {@link Observer} to show a toast using Notification Messages.
+     *
+     * @since 70
+     */
+    private Observer<NotificationMessage> toastMessageObserver() {
+        return new Observer<NotificationMessage>() {
+            @Override
+            public void onCompleted() {
+                Timber.i("Completed toast observer");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Timber.e(e, "Toast Observable encountered an error");
+            }
+
+            @Override
+            public void onNext(NotificationMessage notificationMessage) {
+                if (notificationMessage == null) {
+                    Timber.d("No notification message was sent");
+                } else {
+                    Timber.d("printing toast message: %s", notificationMessage.getMessage());
+                    // android linter goes crazy if passing a normal int into
+                    // Toast.makeText in the line below...... (Why) must use
+                    // showToastInternal() to generate a toast as a workaround.
+                    showToastInternal(
+                            notificationMessage.getMessage(),
+                            notificationMessage.getLength());
+                }
+
+            }
+        };
+    }
+
 
     /**
      * General way to make a snackbar
      *
-     * @since 46
-     * @param string - the string to add to on the
+     * @param string     - the string to add to on the
      * @param showLength - how long to show the snackbar
+     * @since 46
      */
     public void makeSnackbar(@NonNull String string, int showLength) {
         if (string.length() > 0) {
@@ -333,7 +393,10 @@ public class SelectTransit extends AppCompatActivity implements
 
     }
 
-    public void makeSnackbar(@NonNull String string, int showLength, @NonNull String action, @NonNull View.OnClickListener listener) {
+    public void makeSnackbar(@NonNull String string,
+                             int showLength,
+                             @NonNull String action,
+                             @NonNull View.OnClickListener listener) {
         if (string.length() == 0) return;
         Snackbar.make(mainLayout, string, showLength)
                 .setAction(action, listener)
@@ -356,20 +419,24 @@ public class SelectTransit extends AppCompatActivity implements
                 .show();
     }
 
-    @Override @NonNull
+    @Override
+    @NonNull
     public Route getSelectedRoute(String routeNumber) {
         return mNavigationDrawerFragment.getSelectedRoute(routeNumber);
     }
 
 
-    @Override @NonNull public Set<String> getSelectedRoutes() {
+    @Override
+    @NonNull
+    public Set<String> getSelectedRoutes() {
         return mNavigationDrawerFragment.getSelectedRoutes();
     }
 
 
-    @NonNull @Override
-    public BehaviorSubject<RouteSelection> getSelectionSubject() {
-        return mNavigationDrawerFragment.getListSelectionSubject();
+    @NonNull
+    @Override
+    public Observable<RouteSelection> getSelectionSubject() {
+        return mNavigationDrawerFragment.getListObservable();
     }
 
     @Override
@@ -382,20 +449,29 @@ public class SelectTransit extends AppCompatActivity implements
     }
 
     /**
-     * Click Event for the {@link rectangledbmi.com.pittsburghrealtimetracker.R.menu#select_transit}'s Detour Information.
+     * Click Event for the
+     * {@link rectangledbmi.com.pittsburghrealtimetracker.R.menu#select_transit}'s Detour
+     * Information.
+     * <p>
+     * Maybe we should be moving item item events in {@link #onOptionsItemSelected(MenuItem)} to
+     * an onClick like this method.
      *
-     * Maybe we should be moving item item events in {@link #onOptionsItemSelected(MenuItem)} to an onClick like this method.
      * @param item the application details item
      */
     public void onClickDetourInfo(MenuItem item) {
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.detour_url)));
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW,
+                Uri.parse(getString(R.string.detour_url)));
         startActivity(browserIntent);
     }
 
     /**
-     * Click Event for the {@link rectangledbmi.com.pittsburghrealtimetracker.R.menu#select_transit}'s Application Details.
+     * Click Event for the
+     * {@link rectangledbmi.com.pittsburghrealtimetracker.R.menu#select_transit}'s Application
+     * Details.
+     * <p>
+     * Maybe we should be moving item item events in {@link #onOptionsItemSelected(MenuItem)} to an
+     * onClick like this method.
      *
-     * Maybe we should be moving item item events in {@link #onOptionsItemSelected(MenuItem)} to an onClick like this method.
      * @param item the application details item
      */
     public void onClickAppDetails(MenuItem item) {

@@ -30,6 +30,7 @@ import java.util.TimeZone;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
+import rx.Observable;
 import rx.subjects.BehaviorSubject;
 
 /**
@@ -276,16 +277,6 @@ public class NavigationDrawerFragment extends Fragment {
         savePreferences();
         super.onPause();
     }
-    /**
-     * Attempt to save the list view...
-     */
-    @Override
-    public void onStop() {
-//        Timber.d("saving_sbchecked", mDrawerListView.getCheckedItemPositions().toString());
-        super.onStop();
-
-
-    }
 
     /**
      * @since 43
@@ -501,8 +492,8 @@ public class NavigationDrawerFragment extends Fragment {
 
     }
 
-    public BehaviorSubject<RouteSelection> getListSelectionSubject() {
-        return routeSelectionPublishSubject;
+    public Observable<RouteSelection> getListObservable() {
+        return routeSelectionPublishSubject.asObservable();
     }
 
 }
