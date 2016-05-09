@@ -155,18 +155,6 @@ public class SelectTransit extends AppCompatActivity implements
         return patApiClient;
     }
 
-//    /**
-//     * Checks if the network is available
-//     * TODO: incorporate this with a dialog to enable internet
-//     * @return whether or not the network is available...
-//     */
-//    private boolean isNetworkAvailable() {
-//        ConnectivityManager connectivityManager
-//                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-//        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-//        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
-//    }
-
     /**
      * Checks if the stored polylines directory is present and clears if we hit a friday or if the
      * saved day of the week is higher than the current day of the week.

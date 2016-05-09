@@ -590,7 +590,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 .retryWhen(attempt -> attempt.flatMap(throwable -> {
                     // theoretically, this should only resubscribe when internet is back
                     if (throwable instanceof IOException){
-                        Timber.d("Retrying since internet cut out.");
+                        Timber.d("Retrying since data on the phone was lost.");
                         // retry when connectivity is online
                         busListInteraction.showToast(getString(R.string.retrofit_network_error),
                                 Toast.LENGTH_SHORT);
@@ -601,7 +601,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                                         return true;
                                     } else {
                                         busListInteraction.showToast(
-                                                "Re-retrieving vehicles from Port Authority.",
+                                                getString(R.string.retry_data_lost),
                                                 Toast.LENGTH_SHORT);
                                         return false;
                                     }

@@ -355,13 +355,13 @@
     <!-- Errors -->
     <string name="no_vehicle_error">No tracking data available for routes</string>
     <string name="pat_api_exceeded">Port Authority server unavailable. Please try again after midnight.</string>
-    <string name="retrofit_network_error">Please check your data connection.</string>
+    <string name="retrofit_network_error">Cannot connect to internet. Please check your data.</string>
     <string name="retrofit_conversion_error">Cannot translate information from Port Authority.</string>
     <string name="retrofit_http_error">The Port Authority website seems to be down.</string>
     <string name="retrofit_unexpected_error">An unexpected error occurred. Please contact the
         developers.
     </string>
-    
+    <string name="retry_data_lost">Reconnected to internet. Refreshing vehicle information.</string>
     <string name="location_permission_message">In order to center the map on your current location,
         please Allow the following prompt.\n\nYou can always change
         this by going into Settings ->\nApps ->\nPAT Realtime
