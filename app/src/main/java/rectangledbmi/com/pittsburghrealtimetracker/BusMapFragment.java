@@ -25,6 +25,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.github.pwittchen.reactivenetwork.library.ConnectivityStatus;
+import com.github.pwittchen.reactivenetwork.library.ReactiveNetwork;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -77,7 +79,6 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.observables.ConnectableObservable;
 import rx.schedulers.Schedulers;
-import rx.subjects.BehaviorSubject;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
@@ -581,8 +582,26 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                         String msg = String.format("updating map with %s", routeSelection);
                         Timber.d(msg);
                     }
-                    return patApiClient.getVehicles(collectionToString(routeSelection.getSelectedRoutes()), BuildConfig.PAT_API_KEY);
-                }).map(VehicleResponse::getBustimeResponse).share()
+                    return patApiClient.getVehicles(
+                            collectionToString(
+                                    routeSelection.getSelectedRoutes()),
+                                    BuildConfig.PAT_API_KEY);
+                }).map(VehicleResponse::getBustimeResponse)
+                .retryWhen(attempt -> attempt.flatMap(throwable -> {
+                    // theoretically, this should only resubscribe when internet is back
+                    if (throwable instanceof IOException){
+                        // retry when connectivity is online
+                        busListInteraction.showToast(getString(R.string.retrofit_network_error),
+                                Toast.LENGTH_SHORT);
+                        return new ReactiveNetwork()
+                                .observeConnectivity(getContext())
+                                .skipWhile(connectivityStatus ->
+                                        connectivityStatus == ConnectivityStatus.OFFLINE);
+                    }
+                    // otherwise, just run normal onError
+                    return null;
+                }))
+                .share()
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread());
 
@@ -833,9 +852,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                     busListInteraction.showToast(getString(R.string.retrofit_http_error), Toast.LENGTH_SHORT);
                 } else if (e.getMessage() != null && e.getLocalizedMessage() != null && !showedErrors) {
                     showedErrors = true;
-                    if (e instanceof IOException) {
-                        busListInteraction.showToast(getString(R.string.retrofit_network_error), Toast.LENGTH_SHORT);
-                    } else if (e instanceof HttpException) {
+                    if (e instanceof HttpException) {
                         HttpException http = (HttpException) e;
                         busListInteraction.showToast(http.code() + " " + http.message() + ": "
                                 + getString(R.string.retrofit_http_error), Toast.LENGTH_SHORT);
