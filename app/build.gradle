@@ -17,8 +17,8 @@ android {
         applicationId "rectangledbmi.com.pittsburghrealtimetracker"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 69
-        versionName "7.0b4"
+        versionCode 70
+        versionName "7.0b5"
     }
     lintOptions {
         warning 'InvalidPackage'
@@ -52,12 +52,12 @@ dependencies {
     //google play services location and places
     compile 'com.google.android.gms:play-services-location:8.4.0'
 
-    compile 'com.android.support:support-v4:23.3.0'
-    compile 'com.android.support:design:23.3.0'
-    compile 'com.android.support:appcompat-v7:23.3.0'
-    compile 'com.android.support:recyclerview-v7:23.3.0'
+    compile 'com.android.support:support-v4:23.4.0'
+    compile 'com.android.support:design:23.4.0'
+    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.android.support:recyclerview-v7:23.4.0'
 
-    compile 'com.android.support:mediarouter-v7:23.3.0'
+    compile 'com.android.support:mediarouter-v7:23.4.0'
 
     //3rd party android libraries
     compile 'io.reactivex:rxandroid:1.2.0'
@@ -72,8 +72,11 @@ dependencies {
     compile 'com.jakewharton.timber:timber:4.1.2'
     compile 'com.github.pwittchen:reactivenetwork:0.2.0'
 
-    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.3.1'
-    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.3.1'
+    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-beta2'
+    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
+    testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
+
+    retrolambdaConfig 'net.orfjackal.retrolambda:retrolambda:2.3.0'
 }
 
 buildscript {
@@ -83,8 +86,10 @@ buildscript {
     }
 
     dependencies {
-        classpath 'me.tatarka:gradle-retrolambda:3.2.5' // use some java 8 syntax in the project
+        // use some java 8 syntax in the project
+        classpath 'me.tatarka:gradle-retrolambda:3.3.0-beta4'
+        // check for updates of 3rd party libs:
+        // `./gradlew dependencyUpdates -Drevision=release`
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.12.0'
-        // check for updates of 3rd party libs
     }
 }
