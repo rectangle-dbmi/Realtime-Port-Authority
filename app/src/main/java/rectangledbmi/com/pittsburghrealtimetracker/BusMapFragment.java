@@ -590,22 +590,30 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 .retryWhen(attempt -> attempt.flatMap(throwable -> {
                     // theoretically, this should only resubscribe when internet is back
                     if (throwable instanceof IOException){
-                        Timber.d("Retrying since data on the phone was lost.");
-                        // retry when connectivity is online
-                        busListInteraction.showToast(getString(R.string.retrofit_network_error),
-                                Toast.LENGTH_SHORT);
                         return new ReactiveNetwork()
+                                .enableInternetCheck()
                                 .observeConnectivity(getContext())
-                                .skipWhile(connectivityStatus -> {
-                                    if (connectivityStatus == ConnectivityStatus.OFFLINE) {
-                                        return true;
-                                    } else {
-                                        busListInteraction.showToast(
-                                                getString(R.string.retry_data_lost),
-                                                Toast.LENGTH_SHORT);
-                                        return false;
-                                    }
-                                });
+                                .skipWhile(connectivityStatus ->
+                                        // there is a bug here:
+                                        // When on wifi that needs authentication,
+                                        // (ex. Xfinity, Starbucks WIFI)
+                                        // connectivityStatus is going to be
+                                        // connectivityStatus.WIFI_CONNECTED_HAS_INTERNET.
+                                        // This is only a problem if we notify the user....
+                                        // It will just print many toasts since the retryWhen is always
+                                        // activated and deactivated since there is actually no
+                                        // internet. This is ok since it will not
+                                        // leak on the stack. Plus, this is possibly only a rare edge
+                                        // case.
+                                        //
+                                        // This will be fixed in ReactiveNetwork 0.3.0:
+                                        // https://github.com/pwittchen/ReactiveNetwork/issues/51
+                                        // TODO: change observeConnectivity to observeInternetConnectivity in 0.3.0
+                                        // TODO: When this changes, notify users that internet is down and needs fixed
+                                        connectivityStatus == ConnectivityStatus.OFFLINE ||
+                                        connectivityStatus == ConnectivityStatus.UNKNOWN ||
+                                        connectivityStatus == ConnectivityStatus.WIFI_CONNECTED_HAS_NO_INTERNET
+                                );
                     }
                     // otherwise, just run normal onError
                     Timber.d("Not retrying since something should be wrong on " +
