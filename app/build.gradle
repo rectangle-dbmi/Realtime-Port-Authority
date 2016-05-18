@@ -45,6 +45,7 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     repositories {
         mavenCentral()
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     }
 
      //google play services maps
@@ -62,6 +63,7 @@ dependencies {
     //3rd party android libraries
     compile 'io.reactivex:rxandroid:1.2.0'
     compile 'io.reactivex:rxjava:1.1.5'
+    compile 'com.f2prateek.rx.receivers:rx-receivers:0.1.0-SNAPSHOT'
 
     compile 'com.squareup.retrofit2:retrofit:2.0.2'
     compile 'com.squareup.retrofit2:converter-gson:2.0.2'
@@ -70,7 +72,6 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.2.0'
 
     compile 'com.jakewharton.timber:timber:4.1.2'
-    compile 'com.github.pwittchen:reactivenetwork:0.2.0'
 
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-beta2'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
