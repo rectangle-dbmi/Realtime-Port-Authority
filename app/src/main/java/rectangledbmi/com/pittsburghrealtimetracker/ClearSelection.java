@@ -1,7 +1,9 @@
 package rectangledbmi.com.pittsburghrealtimetracker;
 
 /**
- * Created by epicstar on 3/15/16.
+ * Interface for clearing selection state among the navigation drawer fragments and the other fragments
+ * that interact with it.
+ * @author Jeremy Jao
  */
 public interface ClearSelection {
     /**

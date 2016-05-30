@@ -39,7 +39,6 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
 import rx.Observer;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
@@ -309,6 +308,7 @@ public class SelectTransit extends AppCompatActivity implements
             File[] files = lineInfo.listFiles();
             if (files != null) {
                 for (File file : files)
+                    //noinspection ResultOfMethodCallIgnored
                     file.delete();
             }
         }
@@ -375,23 +375,6 @@ public class SelectTransit extends AppCompatActivity implements
         };
     }
 
-
-    /**
-     * General way to make a snackbar
-     *
-     * @param string     - the string to add to on the
-     * @param showLength - how long to show the snackbar
-     * @since 46
-     */
-    public void makeSnackbar(@NonNull String string, int showLength) {
-        if (string.length() > 0) {
-
-            Snackbar.make(mainLayout,
-                    string, showLength
-            ).show();
-        }
-
-    }
 
     public void makeSnackbar(@NonNull String string,
                              int showLength,
