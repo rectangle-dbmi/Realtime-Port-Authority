@@ -361,7 +361,8 @@
     <string name="retrofit_unexpected_error">An unexpected error occurred. Please contact the
         developers.
     </string>
-    <string name="retry_data_lost">Reconnected to internet. Refreshing vehicle information.</string>
+    <string name="disconnected_internet">Disconnected from internet. Please check your data.</string>
+    <string name="retrying_vehicles">Reconnecting to internet. Refreshing vehicle information.</string>
     <string name="location_permission_message">In order to center the map on your current location,
         please Allow the following prompt.\n\nYou can always change
         this by going into Settings ->\nApps ->\nPAT Realtime

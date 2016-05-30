@@ -289,10 +289,6 @@ public class NavigationDrawerFragment extends Fragment {
         return null;
     }
 
-    public int getAmountSelected() {
-        return busListAdapter.getAmountSelected();
-    }
-
     public Set<String> getSelectedRoutes() {
         if(busListAdapter != null)
             return busListAdapter.getSelectedRoutes();
@@ -372,18 +368,6 @@ public class NavigationDrawerFragment extends Fragment {
             return selectedRoutes;
         }
 
-        /**
-         *
-         * @param position The route on the recycler view to peek at
-         * @return the route at the certain position of the recycler view
-         */
-        public Route getRouteAtPosition(int position) {
-            if(position >= 0 && position < routes.length) {
-                return routes[position];
-            }
-            return null;
-        }
-
         public HashMap<String, Route> getRouteMap() {
             return routeHashMap;
         }
@@ -412,10 +396,6 @@ public class NavigationDrawerFragment extends Fragment {
             }
             selectedRoutes.clear();
             notifyDataSetChanged();
-        }
-
-        public int getAmountSelected() {
-            return selectedRoutes.size();
         }
 
         public long getItemId(int position) {

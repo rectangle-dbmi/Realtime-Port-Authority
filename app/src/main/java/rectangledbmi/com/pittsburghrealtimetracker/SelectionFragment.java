@@ -58,8 +58,6 @@ public abstract class SelectionFragment extends Fragment implements NavigationDr
 
         void showOkDialog(String message, DialogInterface.OnClickListener okListener);
 
-        void makeSnackbar(@NonNull String message, int length);
-
         void makeSnackbar(@NonNull String message, int length, @NonNull String action, @NonNull View.OnClickListener listener);
 
         /**

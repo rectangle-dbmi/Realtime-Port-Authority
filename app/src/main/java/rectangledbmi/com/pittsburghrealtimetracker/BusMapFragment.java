@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.TypedValue;
@@ -84,20 +83,13 @@ import timber.log.Timber;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Use the {@link BusMapFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * <p>Fragment that holds a map for the buses. This currrently holds all logic related to displaying
+ * the buses, stops, and polylines on a {@link GoogleMap} instance</p>
+ * @author Jeremy Jao
  */
 public class BusMapFragment extends SelectionFragment implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         OnMapReadyCallback, LocationListener, ClearSelection {
-
-    // region static parts of the fragment
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
     private static final String CAMERA_POSITION = "cameraPosition";
 
@@ -111,32 +103,9 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      */
     private final static LatLng PITTSBURGH = new LatLng(40.441, -79.981);
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     public BusMapFragment() {
         // Required empty public constructor
     }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment BusMapFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static BusMapFragment newInstance(String param1, String param2) {
-        BusMapFragment fragment = new BusMapFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-    // endregion
 
     // region private instance variables
     private float zoomStopVisibility;
@@ -218,10 +187,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
         googleApiClient = new GoogleApiClient.Builder(getContext())
                 .addApi(LocationServices.API)
                 .addApi(Places.GEO_DATA_API)
@@ -587,25 +552,46 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                                     routeSelection.getSelectedRoutes()),
                                     BuildConfig.PAT_API_KEY);
                 }).map(VehicleResponse::getBustimeResponse)
-                .retryWhen(attempt -> attempt.flatMap(throwable -> {
+                .retryWhen(attempt -> attempt
+                        .flatMap(throwable -> {
                     // theoretically, this should only resubscribe when internet is back
                     if (throwable instanceof IOException){
-                        Timber.d("Retrying since data on the phone was lost.");
-                        // retry when connectivity is online
-                        busListInteraction.showToast(getString(R.string.retrofit_network_error),
-                                Toast.LENGTH_SHORT);
-                        return new ReactiveNetwork()
-                                .observeConnectivity(getContext())
+                        if (busListInteraction != null) {
+                            busListInteraction.showToast(getString(R.string.disconnected_internet), Toast.LENGTH_SHORT);
+                        }
+                        return Observable
+                                .timer(2, TimeUnit.SECONDS)
+                                .flatMap(aLong -> new ReactiveNetwork()
+                                        .enableInternetCheck()
+                                        .observeConnectivity(getContext()))
                                 .skipWhile(connectivityStatus -> {
-                                    if (connectivityStatus == ConnectivityStatus.OFFLINE) {
+                                    // there is a bug here:
+                                    // When on wifi that needs authentication,
+                                    // (ex. Xfinity, Starbucks WIFI)
+                                    // connectivityStatus is going to be
+                                    // connectivityStatus.WIFI_CONNECTED_HAS_INTERNET.
+                                    // This is only a problem if we notify the user....
+                                    // It will just print many toasts since the retryWhen is always
+                                    // activated and deactivated since there is actually no
+                                    // internet. This is ok since it will not
+                                    // leak on the stack. Plus, this is possibly only a rare edge
+                                    // case.
+                                    //
+                                    // This will be fixed in ReactiveNetwork 0.3.0:
+                                    // https://github.com/pwittchen/ReactiveNetwork/issues/51
+                                    if (connectivityStatus == null) {
                                         return true;
-                                    } else {
-                                        busListInteraction.showToast(
-                                                getString(R.string.retry_data_lost),
-                                                Toast.LENGTH_SHORT);
+                                    }
+                                    if ((connectivityStatus == ConnectivityStatus.MOBILE_CONNECTED ||
+                                            connectivityStatus == ConnectivityStatus.WIFI_CONNECTED_HAS_INTERNET) &&
+                                            busListInteraction != null) {
+                                        String msg = getString(R.string.retrying_vehicles);
+                                        Timber.d(msg);
+                                        busListInteraction.showToast(msg, Toast.LENGTH_SHORT);
                                         return false;
                                     }
-                                });
+                                    return true;
+                                }).delay(3, TimeUnit.SECONDS); // add 4 second delay so toasts don't cycle
                     }
                     // otherwise, just run normal onError
                     Timber.d("Not retrying since something should be wrong on " +
@@ -992,6 +978,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     private void removeBuses() {
         if (busMarkers != null) {
             Timber.d("buses removed");
+            //noinspection Convert2streamapi
             for (Marker busMarker : busMarkers.values()) {
                 busMarker.remove();
             }
