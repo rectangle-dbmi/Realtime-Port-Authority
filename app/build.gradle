@@ -18,7 +18,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 23
         versionCode 72
-        versionName "7.0.0"
+        versionName "7.0.0.rc1"
     }
     lintOptions {
         warning 'InvalidPackage'
