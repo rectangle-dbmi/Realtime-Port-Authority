@@ -63,7 +63,6 @@ dependencies {
     //3rd party android libraries
     compile 'io.reactivex:rxandroid:1.2.0'
     compile 'io.reactivex:rxjava:1.1.5'
-    compile 'io.reactivex:rxjava-computation-expressions:0.21.0'
     compile 'com.github.pwittchen:reactivenetwork:0.2.0'
 
     compile 'com.squareup.retrofit2:retrofit:2.0.2'
