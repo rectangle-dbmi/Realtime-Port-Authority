@@ -49,9 +49,9 @@ dependencies {
     }
 
      //google play services maps
-    compile 'com.google.android.gms:play-services-maps:9.0.0'
+    compile 'com.google.android.gms:play-services-maps:9.0.1'
     //google play services location and places
-    compile 'com.google.android.gms:play-services-location:9.0.0'
+    compile 'com.google.android.gms:play-services-location:9.0.1'
 
     compile 'com.android.support:support-v4:23.4.0'
     compile 'com.android.support:design:23.4.0'
@@ -63,7 +63,8 @@ dependencies {
     //3rd party android libraries
     compile 'io.reactivex:rxandroid:1.2.0'
     compile 'io.reactivex:rxjava:1.1.5'
-    compile 'com.f2prateek.rx.receivers:rx-receivers:0.1.0-SNAPSHOT'
+    compile 'io.reactivex:rxjava-computation-expressions:0.21.0'
+    compile 'com.github.pwittchen:reactivenetwork:0.2.0'
 
     compile 'com.squareup.retrofit2:retrofit:2.0.2'
     compile 'com.squareup.retrofit2:converter-gson:2.0.2'

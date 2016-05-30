@@ -2,7 +2,6 @@ package rectangledbmi.com.pittsburghrealtimetracker;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,15 +12,12 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.location.Location;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.net.ConnectivityManagerCompat;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -29,7 +25,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.f2prateek.rx.receivers.RxBroadcastReceiver;
+import com.github.pwittchen.reactivenetwork.library.ConnectivityStatus;
+import com.github.pwittchen.reactivenetwork.library.ReactiveNetwork;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -590,24 +587,46 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                                     routeSelection.getSelectedRoutes()),
                                     BuildConfig.PAT_API_KEY);
                 }).map(VehicleResponse::getBustimeResponse)
-                .retryWhen(attempt -> attempt.flatMap(throwable -> {
+                .retryWhen(attempt -> attempt
+                        .flatMap(throwable -> {
                     // theoretically, this should only resubscribe when internet is back
                     if (throwable instanceof IOException){
                         if (busListInteraction != null) {
-                            busListInteraction.showToast("Disconnected from internet", Toast.LENGTH_SHORT);
+                            busListInteraction.showToast(getString(R.string.disconnected_internet), Toast.LENGTH_SHORT);
                         }
-                        return RxBroadcastReceiver.create(getContext(), new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
-                                .skipWhile(intent -> {
-                                    NetworkInfo info = ConnectivityManagerCompat.
-                                            getNetworkInfoFromBroadcast(
-                                                    (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE),
-                                                    intent);
-                                    if (info.isConnected() && busListInteraction != null) {
-                                        busListInteraction.showToast("Reconnected to internet.", Toast.LENGTH_SHORT);
+                        return Observable
+                                .timer(2, TimeUnit.SECONDS)
+                                .flatMap(aLong -> new ReactiveNetwork()
+                                        .enableInternetCheck()
+                                        .observeConnectivity(getContext()))
+                                .skipWhile(connectivityStatus -> {
+                                    // there is a bug here:
+                                    // When on wifi that needs authentication,
+                                    // (ex. Xfinity, Starbucks WIFI)
+                                    // connectivityStatus is going to be
+                                    // connectivityStatus.WIFI_CONNECTED_HAS_INTERNET.
+                                    // This is only a problem if we notify the user....
+                                    // It will just print many toasts since the retryWhen is always
+                                    // activated and deactivated since there is actually no
+                                    // internet. This is ok since it will not
+                                    // leak on the stack. Plus, this is possibly only a rare edge
+                                    // case.
+                                    //
+                                    // This will be fixed in ReactiveNetwork 0.3.0:
+                                    // https://github.com/pwittchen/ReactiveNetwork/issues/51
+                                    if (connectivityStatus == null) {
+                                        return true;
+                                    }
+                                    if ((connectivityStatus == ConnectivityStatus.MOBILE_CONNECTED ||
+                                            connectivityStatus == ConnectivityStatus.WIFI_CONNECTED_HAS_INTERNET) &&
+                                            busListInteraction != null) {
+                                        String msg = getString(R.string.retrying_vehicles);
+                                        Timber.d(msg);
+                                        busListInteraction.showToast(msg, Toast.LENGTH_SHORT);
                                         return false;
                                     }
                                     return true;
-                                });
+                                }).delay(3, TimeUnit.SECONDS); // add 4 second delay so toasts don't cycle
                     }
                     // otherwise, just run normal onError
                     Timber.d("Not retrying since something should be wrong on " +
