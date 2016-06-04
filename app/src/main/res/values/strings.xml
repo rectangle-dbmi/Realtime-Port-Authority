@@ -319,6 +319,7 @@
     <string name="action_select_buses">Select Buses</string>
     <string name="title_activity_maps_fragment">Map</string>
     <string name="action_about">About</string>
+    <string name="app_info">App Info</string>
     <string name="title_activity_about">About</string>
     <string name="hello_world">Hello world!</string>
     <string name="max_selected_routes">Cannot select more than 10 routes.</string>
@@ -336,7 +337,6 @@
     <string name="git_link"><a href='https://github.com/rectangle-dbmi/Realtime-Port-Authority'>Visit us on Github</a></string>
     <string name="contact_email"><a href='mailto:pat.realtime.tracker@gmail.com'>Send us an email</a></string>
     <string name="directory_in_sdcard">/Data/rectangledbmi.com.pittsburghrealtimetracker</string>
-    <string name="zoom_level">15.0</string>
     <string name="cleared">Map cleared and routes reset.</string>
     <string name="disclaimerTitle">Disclaimer</string>
     <string name="linksTitle">Links</string>
@@ -355,16 +355,23 @@
     <!-- Errors -->
     <string name="no_vehicle_error">No tracking data available for routes</string>
     <string name="pat_api_exceeded">Port Authority server unavailable. Please try again after midnight.</string>
-    <string name="retrofit_network_error">Please check your data connection.</string>
+    <string name="retrofit_network_error">Cannot connect to internet. Please check your data.</string>
     <string name="retrofit_conversion_error">Cannot translate information from Port Authority.</string>
     <string name="retrofit_http_error">The Port Authority website seems to be down.</string>
     <string name="retrofit_unexpected_error">An unexpected error occurred. Please contact the
         developers.
     </string>
-    
+    <string name="disconnected_internet">Disconnected from internet. Please check your data.</string>
+    <string name="retrying_vehicles">Reconnecting to internet. Refreshing vehicle information.</string>
     <string name="location_permission_message">In order to center the map on your current location,
         please Allow the following prompt.\n\nYou can always change
         this by going into Settings ->\nApps ->\nPAT Realtime
         Tracker ->\nPermissions and toggle Location.
     </string>
+    <string name="center_permissions_denied">Cannot center map on you. Must enable Location permissions.</string>
+    <string name="center_permissions_action">Permission Settings</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="detour_info">Detour Information</string>
+    <string name="detour_url">http://www.portauthority.org/paac/SchedulesMaps/Detours.aspx</string>
 </resources>

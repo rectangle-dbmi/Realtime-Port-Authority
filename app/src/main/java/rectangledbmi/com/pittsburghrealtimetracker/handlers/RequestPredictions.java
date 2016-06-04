@@ -15,6 +15,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -107,9 +108,9 @@ public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
                 int i = 0;
                 for (Prediction prediction : predictions) {
                     Log.d("time", prediction.getPrdtm().split(" ")[1]);
-                    SimpleDateFormat date = new SimpleDateFormat("hh:mm a");
+                    SimpleDateFormat date = new SimpleDateFormat("hh:mm a", Locale.US);
 
-                    StringBuilder addString = new StringBuilder(date.format(new SimpleDateFormat("HH:mm").parse(prediction.getPrdtm().split(" ")[1])));
+                    StringBuilder addString = new StringBuilder(date.format(new SimpleDateFormat("HH:mm", Locale.US).parse(prediction.getPrdtm().split(" ")[1])));
 
                     if (sw == 0) { // bus dialog that displays stops
                         stopPredictions.add("(" + prediction.getStpid() + ")" + prediction.getStpnm() + ": " + addString);

@@ -1,13 +1,10 @@
 package rectangledbmi.com.pittsburghrealtimetracker;
 
 import android.app.Fragment;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Html;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,16 +24,6 @@ public class AboutActivity extends AppCompatActivity {
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
-
-//        try {
-////            TextView version = (TextView)findViewById(R.id.version);
-////            version.setText(getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
-////        } catch (PackageManager.NameNotFoundException e) {
-////            e.printStackTrace();
-////        }
-//        TextView link = (TextView)findViewById(R.id.source_link);
-//        link.setMovementMethod(LinkMovementMethod.getInstance());
-
     }
 
 
@@ -52,7 +39,7 @@ public class AboutActivity extends AppCompatActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+//        int id = item.getItemId();
 //        if (id == R.id.action_settings) {
 //            return true;
 //        }

@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
-
+apply plugin: 'me.tatarka.retrolambda'
+apply plugin: 'com.github.ben-manes.versions'
 
 //must define PAT_API_KEY in gradle.properties by adding pat_api=<KEY> on the last line non-commented
 def PAT_API_KEY = '"' + pat_api + '"' ?: '"Define Port Authority TrueTime API Key in gradle.properties"';
@@ -11,13 +12,13 @@ android.buildTypes.each { type ->
 android {
 
     compileSdkVersion 23
-    buildToolsVersion '23.0.2'
+    buildToolsVersion '23.0.3'
     defaultConfig {
         applicationId "rectangledbmi.com.pittsburghrealtimetracker"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 67
-        versionName "6.4.2"
+        versionCode 72
+        versionName "7.0.0.rc1"
     }
     lintOptions {
         warning 'InvalidPackage'
@@ -44,22 +45,25 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     repositories {
         mavenCentral()
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     }
 
      //google play services maps
-    compile 'com.google.android.gms:play-services-maps:8.3.0'
+    compile 'com.google.android.gms:play-services-maps:9.0.1'
     //google play services location and places
-    compile 'com.google.android.gms:play-services-location:8.3.0'
+    compile 'com.google.android.gms:play-services-location:9.0.1'
 
-    compile 'com.android.support:support-v4:23.1.1'
-    compile 'com.android.support:design:23.1.1';
-    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:support-v4:23.4.0'
+    compile 'com.android.support:design:23.4.0'
+    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.android.support:recyclerview-v7:23.4.0'
 
-    compile 'com.android.support:mediarouter-v7:23.1.1'
+    compile 'com.android.support:mediarouter-v7:23.4.0'
 
     //3rd party android libraries
-    compile 'io.reactivex:rxandroid:1.0.1'
-    compile 'io.reactivex:rxjava:1.0.16'
+    compile 'io.reactivex:rxandroid:1.2.0'
+    compile 'io.reactivex:rxjava:1.1.5'
+    compile 'com.github.pwittchen:reactivenetwork:0.2.0'
 
     compile 'com.squareup.retrofit2:retrofit:2.0.2'
     compile 'com.squareup.retrofit2:converter-gson:2.0.2'
@@ -67,8 +71,13 @@ dependencies {
     compile 'org.glassfish:javax.annotation:10.0-b28'
     compile 'com.squareup.okhttp3:okhttp:3.2.0'
 
-    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.3.1'
-    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.3.1'
+    compile 'com.jakewharton.timber:timber:4.1.2'
+
+    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-beta2'
+    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
+    testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
+
+    retrolambdaConfig 'net.orfjackal.retrolambda:retrolambda:2.3.0'
 }
 
 buildscript {
@@ -78,16 +87,10 @@ buildscript {
     }
 
     dependencies {
-        classpath 'me.tatarka:gradle-retrolambda:3.2.4' // use some java 8 syntax in the project
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.11.3' // check for updates of 3rd party libs
+        // use some java 8 syntax in the project
+        classpath 'me.tatarka:gradle-retrolambda:3.3.0-beta4'
+        // check for updates of 3rd party libs:
+        // `./gradlew dependencyUpdates -Drevision=release`
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.12.0'
     }
 }
-
-// Required because retrolambda is on maven central
-repositories {
-    jcenter()
-    mavenCentral()
-}
-
-apply plugin: 'me.tatarka.retrolambda'
-apply plugin: 'com.github.ben-manes.versions'

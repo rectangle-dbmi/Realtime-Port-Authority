@@ -10,21 +10,17 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
+import com.squareup.leakcanary.RefWatcher;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,7 +28,10 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
+import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
+import rx.Observable;
+import rx.subjects.BehaviorSubject;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -71,6 +70,15 @@ public class NavigationDrawerFragment extends Fragment {
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
 
+    private BehaviorSubject<RouteSelection> routeSelectionPublishSubject;
+
+    /**
+     * State of selected routes
+     * <p/>
+     * public because we want to clear this list...
+     */
+    private Set<String> selectedRoutes;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -84,6 +92,10 @@ public class NavigationDrawerFragment extends Fragment {
         if (savedInstanceState != null) {
             mFromSavedInstanceState = true;
         }
+        selectedRoutes = new HashSet<>(sp.getStringSet(BUS_SELECT_STATE,
+                Collections.synchronizedSet(
+                        new HashSet<>(getResources().getInteger(R.integer.max_checked)))));
+        routeSelectionPublishSubject = BehaviorSubject.create(RouteSelection.create(selectedRoutes));
         // Select either the default item (0) or the last selected item.
 //        selectItem(mCurrentSelectedPosition);
 
@@ -109,11 +121,23 @@ public class NavigationDrawerFragment extends Fragment {
         busListAdapter.setHasStableIds(true);
         busListRecyclerView.setHasFixedSize(true);
         busListRecyclerView.setAdapter(busListAdapter);
-
-
-
         return v;
 
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        if (getActivity() != null) {
+            RefWatcher refWatcher = PATTrackApplication.getRefWatcher(getActivity());
+            refWatcher.watch(this);
+        }
+
+        super.onDestroy();
     }
 
     public boolean isDrawerOpen() {
@@ -132,11 +156,6 @@ public class NavigationDrawerFragment extends Fragment {
 
         // set a custom shadow that overlays the main content when the drawer opens
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-        // set up the drawer's list view with items and click listener
-
-//        ActionBar actionBar = getActionBar();
-//        actionBar.setDisplayHomeAsUpEnabled(true);
-//        actionBar.setHomeButtonEnabled(true);
 
 
         // ActionBarDrawerToggle ties together the the proper interactions
@@ -150,7 +169,6 @@ public class NavigationDrawerFragment extends Fragment {
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
-                ((SelectTransit)getActivity()).restoreBuses();
                 if (!isAdded()) {
                     return;
                 }
@@ -186,7 +204,11 @@ public class NavigationDrawerFragment extends Fragment {
         // Defer code dependent on restoration of previous instance state.
         mDrawerLayout.post(mDrawerToggle::syncState);
 
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
+    }
+
+    public ActionBarDrawerToggle getActionBarDrawerToggle() {
+        return mDrawerToggle;
     }
 
     @Override
@@ -222,90 +244,21 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-//        outState.putBooleanArray(STATE_SELECTED_POSITIONS, mSelected);
-//        outState.putParcelable(DRAWER_STATE, mDrawerListView.onSaveInstanceState());
-//        outState.putInt(STATE_SELECTED_POSITION, mCurrentSelectedPosition);
-        //TODO: figure out instance state
-    }
-
-
-    @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         // Forward the new configuration the drawer toggle component.
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // If the drawer is open, show the global app actions in the action bar. See also
-        // showGlobalContextActionBar, which controls the top-left area of the action bar.
-        if (mDrawerLayout != null && isDrawerOpen()) {
-            inflater.inflate(R.menu.global, menu);
-            showGlobalContextActionBar();
-        }
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-
-        if (item.getItemId() == R.id.action_clear) {
-            clearMapAndSelection();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    protected void clearMapAndSelection() {
-        Log.d("cleared", "cleared_everything");
-        SelectTransit activity = (SelectTransit)getActivity();
-        if(activity!= null) {
-            activity.clearMap();
-        }
-        clearSelection();
-
-    }
-
     /**
      * If the Clear Buses button is clicked, clears the selection and the selected buses
      */
-    protected void clearSelection() {
-        File lineInfo = new File(getActivity().getFilesDir(), "/lineinfo");
-        Log.d("clear-files", "cleared files: " + lineInfo.getAbsolutePath());
-        if(lineInfo.exists()) {
-            File[] files = lineInfo.listFiles();
-            if(files != null) {
-                for(File file : files)
-                    file.delete();
-            }
-        }
+    public void clearSelection() {
         busListAdapter.clearSelection();
+        routeSelectionPublishSubject.onNext(RouteSelection.create(selectedRoutes));
         Toast.makeText(getActivity(), getString(R.string.cleared), Toast.LENGTH_SHORT).show();
 
     }
-
-    /**
-     * Per the navigation drawer design guidelines, updates the action bar to show the global app
-     * 'context', rather than just what's in the current screen.
-     */
-    private void showGlobalContextActionBar() {
-        ActionBar actionBar = getActionBar();
-        actionBar.setDisplayShowTitleEnabled(true);
-//        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        actionBar.setTitle(R.string.app_name);
-    }
-
-    private ActionBar getActionBar() {
-        return ((SelectTransit)getActivity()).getSupportActionBar();
-    }
-
     /**
      * Place to save preferences....
      */
@@ -314,7 +267,6 @@ public class NavigationDrawerFragment extends Fragment {
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
             SharedPreferences.Editor spe = sp.edit();
             spe.putStringSet(BUS_SELECT_STATE, busListAdapter.getSelectedRoutes());
-//        sp.edit().putInt(BUSLIST_SIZE, getResources().getStringArray(R.array.buses).length).apply();
             spe.apply();
         }
 
@@ -324,16 +276,6 @@ public class NavigationDrawerFragment extends Fragment {
     public void onPause() {
         savePreferences();
         super.onPause();
-    }
-    /**
-     * Attempt to save the list view...
-     */
-    @Override
-    public void onStop() {
-//        Log.d("saving_sbchecked", mDrawerListView.getCheckedItemPositions().toString());
-        super.onStop();
-
-
     }
 
     /**
@@ -345,20 +287,6 @@ public class NavigationDrawerFragment extends Fragment {
         if(busListAdapter != null)
             return busListAdapter.getRouteMap().get(rt);
         return null;
-    }
-
-    public int getAmountSelected() {
-        return busListAdapter.getAmountSelected();
-    }
-
-    /**
-     * @since 43
-     * @param position - the position in the list
-     * @return the route information by list position
-     */
-    @SuppressWarnings("unused")
-    public Route getSelectedRoute(int position) {
-        return busListAdapter.getRouteAtPosition(position);
     }
 
     public Set<String> getSelectedRoutes() {
@@ -394,13 +322,6 @@ public class NavigationDrawerFragment extends Fragment {
     private class BusRouteAdapter extends RecyclerView.Adapter<BusRouteAdapter.BusRouteHolder> {
 
         /**
-         * State of selected routes
-         * <p/>
-         * public because we want to clear this list...
-         */
-        private Set<String> selectedRoutes;
-
-        /**
          * Routes dataset
          */
         private Route[] routes;
@@ -412,11 +333,6 @@ public class NavigationDrawerFragment extends Fragment {
 
         public BusRouteAdapter() {
             super();
-            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
-            selectedRoutes = new HashSet<>(sp.getStringSet(BUS_SELECT_STATE,
-                    Collections.synchronizedSet(
-                            new HashSet<>(getResources().getInteger(R.integer.max_checked)))));
             createRoutes();
         }
 
@@ -452,18 +368,6 @@ public class NavigationDrawerFragment extends Fragment {
             return selectedRoutes;
         }
 
-        /**
-         *
-         * @param position The route on the recycler view to peek at
-         * @return the route at the certain position of the recycler view
-         */
-        public Route getRouteAtPosition(int position) {
-            if(position >= 0 && position < routes.length) {
-                return routes[position];
-            }
-            return null;
-        }
-
         public HashMap<String, Route> getRouteMap() {
             return routeHashMap;
         }
@@ -494,15 +398,11 @@ public class NavigationDrawerFragment extends Fragment {
             notifyDataSetChanged();
         }
 
-        public int getAmountSelected() {
-            return selectedRoutes.size();
-        }
-
         public long getItemId(int position) {
             return routes[position].getRoute().hashCode();
         }
 
-        public class BusRouteHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        public class BusRouteHolder extends RecyclerView.ViewHolder implements View.OnClickListener  {
 
             private Route mRoute;
 
@@ -518,6 +418,25 @@ public class NavigationDrawerFragment extends Fragment {
                 itemView.setOnClickListener(this);
                 routeDescription = (TextView) itemView.findViewById(R.id.bus_route_text);
                 routeIcon = (TextView) itemView.findViewById(R.id.bus_route_icon);
+            }
+
+            public void onClick(View v) {
+                if (mRoute == null) return;
+                if (!mRoute.isSelected() &&
+                        selectedRoutes.size() == getResources().getInteger(R.integer.max_checked)) {
+                    Toast.makeText(getActivity(), getString(R.string.max_selected_routes), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                boolean selected = mRoute.toggleSelection();
+                if (selected) {
+                    selectedRoutes.add(mRoute.getRoute());
+                    busCallbacks.onSelectBusRoute(mRoute);
+                } else {
+                    selectedRoutes.remove(mRoute.getRoute());
+                    busCallbacks.onDeselectBusRoute(mRoute);
+                }
+                routeSelectionPublishSubject.onNext(RouteSelection.create(mRoute, selectedRoutes));
+                notifyItemChanged(getAdapterPosition());
             }
 
             private void generateIcon() {
@@ -536,30 +455,6 @@ public class NavigationDrawerFragment extends Fragment {
                 itemView.setActivated(mRoute.isSelected());
             }
 
-            @Override
-            public void onClick(View v) {
-                if(mRoute == null) { // do nothing if null
-                    return;
-                }
-
-                if(!mRoute.isSelected() && selectedRoutes.size() == getResources().getInteger(R.integer.max_checked)) {
-                    // print toast then do nothing if we are trying to select more than max
-                    Toast.makeText(getActivity(), getString(R.string.max_selected_routes), Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                // else, toggle selection
-                boolean selected = mRoute.toggleSelection();
-                if(selected) {
-                    selectedRoutes.add(mRoute.getRoute());
-                    busCallbacks.onSelectBusRoute(mRoute);
-                } else {
-                    selectedRoutes.remove(mRoute.getRoute());
-                    busCallbacks.onDeselectBusRoute(mRoute);
-                }
-                notifyItemChanged(getAdapterPosition());
-            }
-
             /**
              * Decides whether or not the color (background color) is light or not.
              * <p>
@@ -575,6 +470,10 @@ public class NavigationDrawerFragment extends Fragment {
             }
         }
 
+    }
+
+    public Observable<RouteSelection> getListObservable() {
+        return routeSelectionPublishSubject.asObservable();
     }
 
 }

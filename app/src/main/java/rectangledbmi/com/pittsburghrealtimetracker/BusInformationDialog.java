@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 /**
+ * This is the bus information dialog
  * Created by Ritwik Gupta on 12/18/14.
  */
 public class BusInformationDialog extends DialogFragment {
