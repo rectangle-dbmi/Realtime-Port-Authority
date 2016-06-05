@@ -194,6 +194,11 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
+
+        // set up the stops collection object and its listeners
+        transitStopCollection = new TransitStopCollection();
+        busMarkers = new ConcurrentHashMap<>();
+        routeLines = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -420,10 +425,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(PITTSBURGH, 11.8f));
             centerMapWithPermissions();
         }
-        // set up the stops collection object and its listeners
-        transitStopCollection = new TransitStopCollection();
-        busMarkers = new ConcurrentHashMap<>();
-        routeLines = new ConcurrentHashMap<>();
 
         mMap.setInfoWindowAdapter(new ETAWindowAdapter(getActivity().getLayoutInflater()));
         mMap.setOnMarkerClickListener((marker) -> {
@@ -463,7 +464,16 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      * @param routeInfo - the route and its info to add
      */
     private void selectPolyline(Route routeInfo) {
+        if (routeInfo == null) {
+            // Perhaps for this case, when route lines are in retrofit, instead of just returning,
+            // the app should keep a stack of clicks instead of do nothing if routeLines or routeInfo
+            // are null
+            return;
+        }
         String route = routeInfo.getRoute();
+        if (routeLines == null) {
+            return;
+        }
         List<Polyline> polylines = routeLines.get(route);
 
         if (polylines == null || polylines.isEmpty()) {
