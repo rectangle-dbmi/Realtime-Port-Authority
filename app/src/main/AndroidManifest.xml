@@ -20,7 +20,7 @@
     <application
         android:allowBackup="true"
         android:name=".PATTrackApplication"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@mipmap/ic_launcher"
         android:installLocation="auto"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >

@@ -1,9 +1,13 @@
 package rectangledbmi.com.pittsburghrealtimetracker.handlers;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.http.HttpResponseCache;
 import android.os.AsyncTask;
+import android.support.graphics.drawable.VectorDrawableCompat;
 import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -332,6 +336,13 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
 
                 for (LineInfo busStopInfo : busStopInfos) {
                     if (!transitStopCollection.addRouteToMarker(busStopInfo.getStpid(), selectedRoute, zoom, zoomVisibility)) {
+                        Drawable drawable = VectorDrawableCompat.create(context.getResources(), R.drawable.bus_stop, context.getTheme());
+                        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+
+                        Canvas canvas = new Canvas(bitmap);
+                        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+                        drawable.draw(canvas);
+
                         Marker marker = mMap.addMarker(new MarkerOptions().
                                         position(busStopInfo.getLatLng()).
                                         alpha(.65f).
@@ -339,7 +350,7 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
                                         title("(" + busStopInfo.getStpid() + ") " + busStopInfo.getStpnm() + " " + busStopInfo.getRtdir()).
                                         snippet(busStopInfo.getRtdir()).
                                         draggable(false).
-                                        icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_stop)).
+                                        icon(BitmapDescriptorFactory.fromBitmap(bitmap)).
                                         anchor(.5f, .5f)
                                         .visible(false)
                         );
