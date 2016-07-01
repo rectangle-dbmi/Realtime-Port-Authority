@@ -61,7 +61,7 @@ MERGED from com.android.support:support-v4:21.0.3:16:5
 		ADDED from AndroidManifest.xml:23:9
 	android:installLocation
 		ADDED from AndroidManifest.xml:21:9
-activity#rectangledbmi.com.pittsburghrealtimetracker.ui.activities.SelectTransit
+activity#rectangledbmi.com.pittsburghrealtimetracker.ui.activities.TransitActivity
 ADDED from AndroidManifest.xml:24:9
 	android:label
 		ADDED from AndroidManifest.xml:26:13

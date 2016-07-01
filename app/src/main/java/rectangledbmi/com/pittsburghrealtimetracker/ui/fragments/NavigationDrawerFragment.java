@@ -7,6 +7,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -17,7 +18,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.leakcanary.RefWatcher;
 
@@ -31,7 +31,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.PATTrackApplication;
 import rectangledbmi.com.pittsburghrealtimetracker.R;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
-import rectangledbmi.com.pittsburghrealtimetracker.ui.activities.SelectTransit;
+import rectangledbmi.com.pittsburghrealtimetracker.ui.activities.TransitActivity;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
@@ -74,6 +74,8 @@ public class NavigationDrawerFragment extends Fragment {
     private boolean mUserLearnedDrawer;
 
     private BehaviorSubject<RouteSelection> routeSelectionPublishSubject;
+
+    private SelectionFragment.BusSelectionInteraction busListInteraction;
 
     /**
      * State of selected routes
@@ -139,6 +141,8 @@ public class NavigationDrawerFragment extends Fragment {
             RefWatcher refWatcher = PATTrackApplication.getRefWatcher(getActivity());
             refWatcher.watch(this);
         }
+
+        busListInteraction = null;
 
         super.onDestroy();
     }
@@ -219,6 +223,7 @@ public class NavigationDrawerFragment extends Fragment {
         super.onAttach(context);
         try {
             busCallbacks = (BusListCallbacks) context;
+            busListInteraction = (SelectionFragment.BusSelectionInteraction) context;
         } catch (ClassCastException e) {
             throw new ClassCastException("Activity must implement NavigationDrawerCallbacks.");
         }
@@ -243,7 +248,6 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        busCallbacks = null;
     }
 
     @Override
@@ -259,7 +263,7 @@ public class NavigationDrawerFragment extends Fragment {
     public void clearSelection() {
         busListAdapter.clearSelection();
         routeSelectionPublishSubject.onNext(RouteSelection.create(selectedRoutes));
-        Toast.makeText(getActivity(), getString(R.string.cleared), Toast.LENGTH_SHORT).show();
+        busListInteraction.makeSnackbar(getString(R.string.cleared), Snackbar.LENGTH_SHORT, null, null);
 
     }
     /**
@@ -299,7 +303,7 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     /**
-     * This takes the bus route information to the main activity {@link SelectTransit}.
+     * This takes the bus route information to the main activity {@link TransitActivity}.
      *
      * @since 43
      * @author Jeremy Jao
@@ -427,7 +431,7 @@ public class NavigationDrawerFragment extends Fragment {
                 if (mRoute == null) return;
                 if (!mRoute.isSelected() &&
                         selectedRoutes.size() == getResources().getInteger(R.integer.max_checked)) {
-                    Toast.makeText(getActivity(), getString(R.string.max_selected_routes), Toast.LENGTH_SHORT).show();
+                    busListInteraction.makeSnackbar(getString(R.string.max_selected_routes), Snackbar.LENGTH_SHORT, null, null);
                     return;
                 }
                 boolean selected = mRoute.toggleSelection();

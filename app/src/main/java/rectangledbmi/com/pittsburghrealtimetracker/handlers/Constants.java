@@ -5,7 +5,7 @@ import android.os.Bundle;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-import rectangledbmi.com.pittsburghrealtimetracker.ui.activities.SelectTransit;
+import rectangledbmi.com.pittsburghrealtimetracker.ui.activities.TransitActivity;
 
 /**
  * Global constants available to everyone
@@ -31,7 +31,7 @@ public class Constants {
 
     /**
      * The default date format to parse... The timezone is set as EST in
-     * {@link SelectTransit#onCreate(Bundle)}
+     * {@link TransitActivity#onCreate(Bundle)}
      * @since 46
      */
     public final static SimpleDateFormat DEFAULT_DATE_PARSE_FORMAT = new SimpleDateFormat(DATE_FORMAT_PARSE, Locale.US);
