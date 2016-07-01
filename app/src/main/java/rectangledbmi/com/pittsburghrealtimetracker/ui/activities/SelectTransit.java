@@ -1,4 +1,4 @@
-package rectangledbmi.com.pittsburghrealtimetracker;
+package rectangledbmi.com.pittsburghrealtimetracker.ui.activities;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -29,10 +29,13 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
+import rectangledbmi.com.pittsburghrealtimetracker.R;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.NotificationMessage;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
+import rectangledbmi.com.pittsburghrealtimetracker.ui.fragments.NavigationDrawerFragment;
+import rectangledbmi.com.pittsburghrealtimetracker.ui.fragments.SelectionFragment;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;

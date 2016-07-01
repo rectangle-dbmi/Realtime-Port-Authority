@@ -25,7 +25,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".SelectTransit"
+            android:name=".ui.activities.SelectTransit"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -41,12 +41,12 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".AboutActivity"
+            android:name=".ui.activities.AboutActivity"
             android:label="@string/title_activity_about"
-            android:parentActivityName=".SelectTransit" >
+            android:parentActivityName=".ui.activities.SelectTransit" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="rectangledbmi.com.pittsburghrealtimetracker.SelectTransit" />
+                android:value=".ui.activities.SelectTransit" />
         </activity>
 
         <service

@@ -61,7 +61,7 @@ MERGED from com.android.support:support-v4:21.0.3:16:5
 		ADDED from AndroidManifest.xml:23:9
 	android:installLocation
 		ADDED from AndroidManifest.xml:21:9
-activity#rectangledbmi.com.pittsburghrealtimetracker.SelectTransit
+activity#rectangledbmi.com.pittsburghrealtimetracker.ui.activities.SelectTransit
 ADDED from AndroidManifest.xml:24:9
 	android:label
 		ADDED from AndroidManifest.xml:26:13
@@ -90,7 +90,7 @@ ADDED from AndroidManifest.xml:43:9
 		ADDED from AndroidManifest.xml:44:13
 	android:value
 		ADDED from AndroidManifest.xml:45:13
-activity#rectangledbmi.com.pittsburghrealtimetracker.AboutActivity
+activity#rectangledbmi.com.pittsburghrealtimetracker.ui.activities.AboutActivity
 ADDED from AndroidManifest.xml:47:9
 	android:label
 		ADDED from AndroidManifest.xml:49:13

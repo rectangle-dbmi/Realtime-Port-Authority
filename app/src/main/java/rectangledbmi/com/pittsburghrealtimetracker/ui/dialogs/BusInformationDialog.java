@@ -1,15 +1,18 @@
-package rectangledbmi.com.pittsburghrealtimetracker;
+package rectangledbmi.com.pittsburghrealtimetracker.ui.dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
+
+import rectangledbmi.com.pittsburghrealtimetracker.R;
 
 /**
  * This is the bus information dialog
@@ -41,7 +44,7 @@ public class BusInformationDialog extends DialogFragment {
 
         //Set the Dismiss button's colors and listener
         Button negBut = (Button) view.findViewById(R.id.info_dismiss);
-        negBut.setBackgroundColor(getResources().getColor(R.color.blue_500_trans));
+        negBut.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.blue_500_trans));
         negBut.setTextColor(Color.WHITE);
         negBut.setOnClickListener(v -> dismiss());
 

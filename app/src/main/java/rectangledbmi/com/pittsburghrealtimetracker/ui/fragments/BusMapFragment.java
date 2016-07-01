@@ -1,4 +1,4 @@
-package rectangledbmi.com.pittsburghrealtimetracker;
+package rectangledbmi.com.pittsburghrealtimetracker.ui.fragments;
 
 import android.Manifest;
 import android.content.Context;
@@ -58,6 +58,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
+import rectangledbmi.com.pittsburghrealtimetracker.BuildConfig;
+import rectangledbmi.com.pittsburghrealtimetracker.ClearSelection;
+import rectangledbmi.com.pittsburghrealtimetracker.PATTrackApplication;
+import rectangledbmi.com.pittsburghrealtimetracker.R;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestLine;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter;

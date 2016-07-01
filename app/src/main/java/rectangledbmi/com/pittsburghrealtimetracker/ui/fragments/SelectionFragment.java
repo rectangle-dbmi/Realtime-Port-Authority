@@ -1,4 +1,4 @@
-package rectangledbmi.com.pittsburghrealtimetracker;
+package rectangledbmi.com.pittsburghrealtimetracker.ui.fragments;
 
 /**
  * Fragment that houses the selection.
@@ -14,8 +14,10 @@ import android.view.View;
 
 import java.util.Set;
 
+import rectangledbmi.com.pittsburghrealtimetracker.ClearSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
+import rectangledbmi.com.pittsburghrealtimetracker.ui.activities.SelectTransit;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rx.Observable;
 

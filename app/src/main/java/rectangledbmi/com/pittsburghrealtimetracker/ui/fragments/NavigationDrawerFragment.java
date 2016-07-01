@@ -1,4 +1,4 @@
-package rectangledbmi.com.pittsburghrealtimetracker;
+package rectangledbmi.com.pittsburghrealtimetracker.ui.fragments;
 
 
 import android.content.Context;
@@ -27,8 +27,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TimeZone;
 
+import rectangledbmi.com.pittsburghrealtimetracker.PATTrackApplication;
+import rectangledbmi.com.pittsburghrealtimetracker.R;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
+import rectangledbmi.com.pittsburghrealtimetracker.ui.activities.SelectTransit;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;

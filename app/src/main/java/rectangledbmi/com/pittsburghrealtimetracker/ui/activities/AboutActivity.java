@@ -1,4 +1,4 @@
-package rectangledbmi.com.pittsburghrealtimetracker;
+package rectangledbmi.com.pittsburghrealtimetracker.ui.activities;
 
 import android.app.Fragment;
 import android.content.pm.PackageManager;
@@ -11,6 +11,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import rectangledbmi.com.pittsburghrealtimetracker.R;
 
 
 public class AboutActivity extends AppCompatActivity {
