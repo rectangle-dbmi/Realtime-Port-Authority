@@ -43,6 +43,7 @@
         <activity
             android:name=".ui.activities.AboutActivity"
             android:label="@string/title_activity_about"
+            android:theme="@style/AppTheme.NoActionBar"
             android:parentActivityName=".ui.activities.TransitActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

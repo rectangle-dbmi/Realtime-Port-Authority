@@ -105,6 +105,7 @@
         <item color="#ffffcc">Y47</item>
         <item color="#ffff66">Y49</item>
     </string-array>
+
     <string-array name="buscolors">
         <item name="1">#3300cc</item>
         <item name="2">#ff33cc</item>
@@ -332,10 +333,17 @@
     <string name="data_close_app">Close App</string>
     <string name="data_dismiss">Cancel</string>
     <!-- About Strings -->
-    <string name="version_prefix">Version </string>
-    <string name="fb_link"><a href='https://www.facebook.com/PATRealtimeTracker'>Visit us on Facebook</a></string>
-    <string name="git_link"><a href='https://github.com/rectangle-dbmi/Realtime-Port-Authority'>Visit us on Github</a></string>
-    <string name="contact_email"><a href='mailto:pat.realtime.tracker@gmail.com'>Send us an email</a></string>
+    <string name="version_prefix">"Version "</string>
+
+    <string name="facebook">Facebook</string>
+    <string name="facebook_link">https://www.facebook.com/PATRealtimeTracker</string>
+
+    <string name="github">GitHub</string>
+    <string name="github_link">https://github.com/rectangle-dbmi/Realtime-Port-Authority</string>
+
+    <string name="email">Email</string>
+    <string name="email_link">mailto:pat.realtime.tracker@gmail.com</string>
+
     <string name="directory_in_sdcard">/Data/rectangledbmi.com.pittsburghrealtimetracker</string>
     <string name="cleared">Map cleared and routes reset.</string>
     <string name="disclaimerTitle">Disclaimer</string>
@@ -374,4 +382,125 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="detour_info">Detour Information</string>
     <string name="detour_url">http://www.portauthority.org/paac/SchedulesMaps/Detours.aspx</string>
+
+    <!-- about section -->
+
+    <string name="contrib_prefix">Contributors:</string>
+
+    <string-array name="contrib_names">
+        <item>Jeremy Jao</item>
+        <item>Jhalakg</item>
+        <item>Joe4000</item>
+        <item>Kevilu9116</item>
+        <item>Maniacs M</item>
+        <item>Mike Antonacci</item>
+        <item>Jamie</item>
+        <item>MotherHouse</item>
+        <item>Ahmad Nazhir</item>
+        <item>Pensokha</item>
+        <item>Postdep Lincoln</item>
+        <item>Richard</item>
+        <item>Ritwik Gupta</item>
+        <item>James Fenn</item>
+        <item>Tony Tang</item>
+        <item>Vincent Agresti</item>
+        <item>Anas Khan</item>
+        <item>James Amend</item>
+    </string-array>
+
+    <string-array name="contrib_descs">
+        <item>Hi I\'m a person.</item>
+        <item>Hi I\'m a person.</item>
+        <item>Hi I\'m a person.</item>
+        <item>Hi I\'m a person.</item>
+        <item>Hi I\'m an organization.</item>
+        <item>Hi I\'m a person.</item>
+        <item>Hi I\'m a person.</item>
+        <item>If you are kind, people may accuse you of selfish, ulterior motives;</item>
+        <item>Hi I\'m a person.</item>
+        <item>Hi I\'m a person.</item>
+        <item>Hi I\'m a person</item>
+        <item>Hi I\'m a person.</item>
+        <item>Machine Learning Intern. I live at the point where machine learning and healthcare intersect.</item>
+        <item>Android developer. Writes Java, C, and HTML. PHP confuses me.</item>
+        <item>Hi I\'m a person.</item>
+        <item>Hi I\'m a person.</item>
+        <item>I suck at introductions. Made the app\'s icon.</item>
+        <item>I like colourful things. Created a few in-app illustrations.</item>
+    </string-array>
+
+    <string-array name="contrib_urls">
+        <item>https://github.com/epicstar</item>
+        <item>https://github.com/Jhalakg</item>
+        <item>https://github.com/joe4000</item>
+        <item>https://github.com/kevilu9116</item>
+        <item>https://github.com/maniacs-m</item>
+        <item>https://github.com/mikeantonacci</item>
+        <item>https://github.com/minj131</item>
+        <item>https://github.com/MotherHouse</item>
+        <item>https://github.com/nazhir</item>
+        <item>https://github.com/pensokha</item>
+        <item>https://github.com/postdep</item>
+        <item>https://github.com/richmau90</item>
+        <item>http://ritwikgupta.me/</item>
+        <item>https://github.com/TheAndroidMaster/</item>
+        <item>https://github.com/TonyTangAndroid</item>
+        <item>https://github.com/VincentIII</item>
+        <item>https://plus.google.com/u/0/+AnasKhanTheLastUndead</item>
+        <item>https://plus.google.com/u/0/+JamesAmend13</item>
+    </string-array>
+
+    <string-array name="contrib_images">
+        <item>https://avatars.githubusercontent.com/u/7193970</item>
+        <item>https://avatars.githubusercontent.com/u/10603164</item>
+        <item>https://avatars.githubusercontent.com/u/10472772</item>
+        <item>https://avatars.githubusercontent.com/u/7231892</item>
+        <item>https://avatars.githubusercontent.com/u/19735205</item>
+        <item>https://avatars.githubusercontent.com/u/8284049</item>
+        <item>https://avatars.githubusercontent.com/u/19155583</item>
+        <item>https://avatars.githubusercontent.com/u/15070772</item>
+        <item>https://avatars.githubusercontent.com/u/10587637</item>
+        <item>https://avatars.githubusercontent.com/u/4475533</item>
+        <item>https://avatars.githubusercontent.com/u/3955544</item>
+        <item>https://avatars.githubusercontent.com/u/6586195</item>
+        <item>https://avatars.githubusercontent.com/u/4959141</item>
+        <item>https://avatars.githubusercontent.com/u/13000407</item>
+        <item>https://avatars.githubusercontent.com/u/8612724</item>
+        <item>https://avatars.githubusercontent.com/u/800672</item>
+        <item>https://lh3.googleusercontent.com/O4gmeJVnk4Wxp-bTmCnKqnRcolzGq6E4dtkrO2_vxKyEDSGtsyV9s8XXwIwScsENLIS5yYJpAw</item>
+        <item>https://lh3.googleusercontent.com/mTti1WhFXIH6sH0hPxkuT0QBtsl11QcjQVYXE34yWus0-WyZ7di6JIOVY-A_UAEUJd_U-yNI3fM</item>
+    </string-array>
+
+    <string name="lib_prefix">Libraries:</string>
+
+    <string-array name="lib_names">
+        <item>RxJava</item>
+        <item>ReactiveNetwork</item>
+        <item>Retrofit</item>
+        <item>OkHttp</item>
+        <item>Glide</item>
+        <item>Timber</item>
+        <item>LeakCanary</item>
+    </string-array>
+
+    <string-array name="lib_descs">
+        <item>Reactive Extensions for the JVM – a library for composing asynchronous and event-based programs using observable sequences for the Java VM.</item>
+        <item>ReactiveNetwork is an Android library listening network connection state and Internet connectivity with RxJava Observables.</item>
+        <item>Type-safe HTTP client for Android and Java by Square, Inc.</item>
+        <item>An HTTP+HTTP/2 client for Android and Java applications.</item>
+        <item>An image loading and caching library for Android focused on smooth scrolling.</item>
+        <item>A logger with a small, extensible API which provides utility on top of Android\'s normal Log class.</item>
+        <item>A memory leak detection library for Android and Java.</item>
+    </string-array>
+
+    <string-array name="lib_urls">
+        <item>https://github.com/ReactiveX/RxJava</item>
+        <item>https://github.com/pwittchen/ReactiveNetwork</item>
+        <item>https://github.com/square/retrofit</item>
+        <item>https://github.com/square/okhttp</item>
+        <item>https://github.com/bumptech/glide</item>
+        <item>https://github.com/JakeWharton/timber</item>
+        <item>https://github.com/square/leakcanary</item>
+    </string-array>
+
 </resources>
