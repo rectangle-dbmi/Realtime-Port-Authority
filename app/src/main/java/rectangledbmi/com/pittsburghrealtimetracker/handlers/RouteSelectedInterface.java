@@ -2,11 +2,12 @@ package rectangledbmi.com.pittsburghrealtimetracker.handlers;
 
 import java.util.Set;
 
+import rectangledbmi.com.pittsburghrealtimetracker.ui.fragments.NavigationDrawerFragment;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 
 /**
  * This is an interface for common methods to react to the
- * {@link rectangledbmi.com.pittsburghrealtimetracker.NavigationDrawerFragment}
+ * {@link NavigationDrawerFragment}
  *
  * @author Jeremy Jao
  * @since 64

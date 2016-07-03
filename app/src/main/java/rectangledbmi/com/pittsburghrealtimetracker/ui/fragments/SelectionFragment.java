@@ -1,4 +1,4 @@
-package rectangledbmi.com.pittsburghrealtimetracker;
+package rectangledbmi.com.pittsburghrealtimetracker.ui.fragments;
 
 /**
  * Fragment that houses the selection.
@@ -9,13 +9,17 @@ package rectangledbmi.com.pittsburghrealtimetracker;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
 import java.util.Set;
 
+import rectangledbmi.com.pittsburghrealtimetracker.ClearSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
+import rectangledbmi.com.pittsburghrealtimetracker.ui.activities.TransitActivity;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rx.Observable;
 
@@ -39,17 +43,19 @@ public abstract class SelectionFragment extends Fragment implements NavigationDr
         Set<String> getSelectedRoutes();
 
         /**
-         * @return The PAT API instantiated in {@link SelectTransit#onCreate(Bundle)}
+         * @return The PAT API instantiated in {@link TransitActivity#onCreate(Bundle)}
          */
         PATAPI getPatApiClient();
 
         /**
-         * Shows a toast message
+         * Shows a snackbar
          *
-         * @param message the message
-         * @param length  the length of the message
+         * @param string the message
+         * @param showLength  the duration to show for
+         * @param action the text to show on the (optional) action button
+         * @param listener the click listener for the (optional) action button
          */
-        void showToast(String message, int length);
+        void makeSnackbar(@NonNull String string, @Snackbar.Duration int showLength, @Nullable String action, @Nullable View.OnClickListener listener);
 
         /**
          * @return the Rx Observable that the {@link NavigationDrawerFragment} emits list clicks on.
@@ -57,8 +63,6 @@ public abstract class SelectionFragment extends Fragment implements NavigationDr
         Observable<RouteSelection> getSelectionSubject();
 
         void showOkDialog(String message, DialogInterface.OnClickListener okListener);
-
-        void makeSnackbar(@NonNull String message, int length, @NonNull String action, @NonNull View.OnClickListener listener);
 
         /**
          * Opens the permissions page
