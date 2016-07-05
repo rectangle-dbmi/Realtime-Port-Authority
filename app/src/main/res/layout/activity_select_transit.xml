@@ -21,14 +21,21 @@
         <!--</FrameLayout>-->
 
 
-    <!-- TODO: expect this to be programmatically called from now on-->
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/map"
-        android:name="rectangledbmi.com.pittsburghrealtimetracker.BusMapFragment"
-        tools:layout="@layout/fragment_bus_map" />
+        android:id="@+id/coordinatorLayout">
+
+        <!-- TODO: expect this to be programmatically called from now on-->
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/map"
+            android:name="rectangledbmi.com.pittsburghrealtimetracker.BusMapFragment"
+            tools:layout="@layout/fragment_bus_map" />
+
+    </android.support.design.widget.CoordinatorLayout>
 
     <!-- android:layout_gravity="start" tells DrawerLayout to treat
          this as a sliding drawer on the left side for left-to-right

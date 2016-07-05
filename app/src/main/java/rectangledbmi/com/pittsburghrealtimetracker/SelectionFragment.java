@@ -9,6 +9,8 @@ package rectangledbmi.com.pittsburghrealtimetracker;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
@@ -44,21 +46,13 @@ public abstract class SelectionFragment extends Fragment implements NavigationDr
         PATAPI getPatApiClient();
 
         /**
-         * Shows a toast message
-         *
-         * @param message the message
-         * @param length  the length of the message
-         */
-        void showToast(String message, int length);
-
-        /**
          * @return the Rx Observable that the {@link NavigationDrawerFragment} emits list clicks on.
          */
         Observable<RouteSelection> getSelectionSubject();
 
         void showOkDialog(String message, DialogInterface.OnClickListener okListener);
 
-        void makeSnackbar(@NonNull String message, int length, @NonNull String action, @NonNull View.OnClickListener listener);
+        void makeSnackbar(@NonNull String string, @Snackbar.Duration int showLength, @Nullable String action, @Nullable View.OnClickListener listener);
 
         /**
          * Opens the permissions page

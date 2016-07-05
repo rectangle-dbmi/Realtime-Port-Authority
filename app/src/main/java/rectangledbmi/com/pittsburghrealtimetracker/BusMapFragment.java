@@ -22,7 +22,6 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.github.pwittchen.reactivenetwork.library.ConnectivityStatus;
 import com.github.pwittchen.reactivenetwork.library.ReactiveNetwork;
@@ -567,7 +566,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                     // theoretically, this should only resubscribe when internet is back
                     if (throwable instanceof IOException){
                         if (busListInteraction != null) {
-                            busListInteraction.showToast(getString(R.string.disconnected_internet), Toast.LENGTH_SHORT);
+                            busListInteraction.makeSnackbar(getString(R.string.disconnected_internet), Snackbar.LENGTH_SHORT, null, null);
                         }
                         return Observable
                                 .timer(2, TimeUnit.SECONDS)
@@ -597,7 +596,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                                             busListInteraction != null) {
                                         String msg = getString(R.string.retrying_vehicles);
                                         Timber.d(msg);
-                                        busListInteraction.showToast(msg, Toast.LENGTH_SHORT);
+                                        busListInteraction.makeSnackbar(msg, Snackbar.LENGTH_SHORT, null, null);
                                         return false;
                                     }
                                     return true;
@@ -856,16 +855,15 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             @Override
             public void onError(Throwable e) {
                 if (e instanceof SocketTimeoutException) {
-                    busListInteraction.showToast(getString(R.string.retrofit_http_error), Toast.LENGTH_SHORT);
+                    busListInteraction.makeSnackbar(getString(R.string.retrofit_http_error), Snackbar.LENGTH_SHORT, null, null);
                 } else if (e.getMessage() != null && e.getLocalizedMessage() != null && !showedErrors) {
                     showedErrors = true;
                     if (e instanceof HttpException) {
                         HttpException http = (HttpException) e;
-                        busListInteraction.showToast(http.code() + " " + http.message() + ": "
-                                + getString(R.string.retrofit_http_error), Toast.LENGTH_SHORT);
+                        busListInteraction.makeSnackbar(http.code() + " " + http.message() + ": " + getString(R.string.retrofit_http_error), Snackbar.LENGTH_SHORT, null, null);
                     } else {
                         Timber.e("Vehicle error not handled.");
-                        busListInteraction.showToast(getString(R.string.retrofit_conversion_error), Toast.LENGTH_SHORT);
+                        busListInteraction.makeSnackbar(getString(R.string.retrofit_conversion_error), Snackbar.LENGTH_SHORT, null, null);
                     }
                     Timber.e(e, "bus_vehicle_error");
                 }
@@ -959,9 +957,9 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             @Override
             public void onNext(ErrorMessage errorMessage) {
                 if (errorMessage != null && errorMessage.getMessage() != null) {
-                    busListInteraction.showToast(errorMessage.getMessage() +
+                    busListInteraction.makeSnackbar(errorMessage.getMessage() +
                                     (errorMessage.getParameters() != null ? ": " + errorMessage.getParameters() : ""),
-                            Toast.LENGTH_SHORT);
+                            Snackbar.LENGTH_SHORT, null, null);
                 }
             }
         };

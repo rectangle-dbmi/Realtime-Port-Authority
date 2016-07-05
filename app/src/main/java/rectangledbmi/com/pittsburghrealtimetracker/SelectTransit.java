@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
@@ -18,7 +20,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -63,6 +64,8 @@ public class SelectTransit extends AppCompatActivity implements
      */
     private SelectionFragment selectionFragment;
 
+    private CoordinatorLayout coordinatorLayout;
+
 
     /**
      * Port Authority API Client made through Retrofit
@@ -70,13 +73,6 @@ public class SelectTransit extends AppCompatActivity implements
      * @since 46
      */
     private PATAPI patApiClient;
-
-    /**
-     * Reference to the main activity's Layout.
-     *
-     * @since 55
-     */
-    private DrawerLayout mainLayout;
 
     /**
      * subject to show toast messages.
@@ -94,13 +90,15 @@ public class SelectTransit extends AppCompatActivity implements
         FragmentManager fragmentManager = getSupportFragmentManager();
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 fragmentManager.findFragmentById(R.id.navigation_drawer);
+
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
+
         checkSDCardData();
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
-        mainLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         selectionFragment = (SelectionFragment) fragmentManager.findFragmentById(R.id.map);
 
         // create a publish subject for displaying toasts
@@ -236,7 +234,7 @@ public class SelectTransit extends AppCompatActivity implements
             try {
                 setSupportActionBar(toolbar);
             } catch (Throwable e) {
-                Snackbar.make(mainLayout,
+                Snackbar.make(coordinatorLayout,
                         "Material Design bugged out on your device. Please report this to the " +
                                 "Play Store Email if this pops up.", Snackbar.LENGTH_SHORT).show();
 //                Toast.makeText(this, "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Toast.LENGTH_SHORT).show();
@@ -246,7 +244,7 @@ public class SelectTransit extends AppCompatActivity implements
             ActionBar t = getSupportActionBar();
             if (t != null) t.setDisplayHomeAsUpEnabled(true);
         } catch (NullPointerException e) {
-            Snackbar.make(mainLayout,
+            Snackbar.make(coordinatorLayout,
                     "Material Design bugged out on your device. Please report this to the " +
                             "Play Store Email if this pops up.", Snackbar.LENGTH_SHORT).show();
         }
@@ -316,30 +314,6 @@ public class SelectTransit extends AppCompatActivity implements
         selectionFragment.clearSelection();
     }
 
-
-    /**
-     * Show a toast message.
-     * @since 47
-     * @param message the message to show as a toast
-     * @param duration the duration that the message shows
-     */
-    @Override
-    public void showToast(String message, int duration) {
-        if (toastSubject == null) {
-            return;
-        }
-        toastSubject.onNext(NotificationMessage.create(message, duration));
-    }
-
-    /**
-     * Workaround to show a toast from {@link #toastMessageObserver()}
-     * @param message the message to show
-     * @param duration the duration of the message
-     */
-    private void showToastInternal(String message, int duration) {
-        Toast.makeText(this, message, duration).show();
-    }
-
     /**
      * {@link Observer} to show a toast using Notification Messages.
      *
@@ -366,9 +340,7 @@ public class SelectTransit extends AppCompatActivity implements
                     // android linter goes crazy if passing a normal int into
                     // Toast.makeText in the line below...... (Why) must use
                     // showToastInternal() to generate a toast as a workaround.
-                    showToastInternal(
-                            notificationMessage.getMessage(),
-                            notificationMessage.getLength());
+                    makeSnackbar(notificationMessage.getMessage(), notificationMessage.getLength(), null, null);
                 }
 
             }
@@ -376,14 +348,13 @@ public class SelectTransit extends AppCompatActivity implements
     }
 
 
-    public void makeSnackbar(@NonNull String string,
-                             int showLength,
-                             @NonNull String action,
-                             @NonNull View.OnClickListener listener) {
-        if (string.length() == 0) return;
-        Snackbar.make(mainLayout, string, showLength)
-                .setAction(action, listener)
-                .show();
+    @Override
+    public void makeSnackbar(@NonNull String string, @Snackbar.Duration int showLength, @Nullable String action, @Nullable View.OnClickListener listener) {
+        if (string.length() < 1) return;
+        Snackbar snackbar = Snackbar.make(coordinatorLayout, string, showLength);
+        if (action != null && action.length() < 0 && listener != null)
+            snackbar.setAction(action, listener);
+        snackbar.show();
     }
 
 
