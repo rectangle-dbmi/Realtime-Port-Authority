@@ -26,8 +26,8 @@ public class PatternSelection {
      * since it keeps {@link #getPatterns()} null. We will not the pattern information when unselecting
      * a polyline.</p>
      * <p>Creates a data-transfer object for {@link com.google.android.gms.maps.model.Polyline} creation.</p>
-     * @param isSelected
-     * @param routeNumber
+     * @param isSelected whether or not the pattern is selected
+     * @param routeNumber the route number of the object
      */
     public PatternSelection(boolean isSelected, String routeNumber) {
         this(null, isSelected, routeNumber);

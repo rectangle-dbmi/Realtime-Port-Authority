@@ -20,8 +20,9 @@ import static rectangledbmi.com.pittsburghrealtimetracker.mock.PatApiMock.getPat
 import static rectangledbmi.com.pittsburghrealtimetracker.mock.StubRouteSelection.getRouteSelection;
 
 /**
- * <p></p>
+ * <p>Unit tests around the {@link PolylineViewModel}</p>
  * <p>Created by epicstar on 7/18/16.</p>
+ * @since 76
  * @author Jeremy Jao and Michael Antonacci
  */
 public class PolylineViewModelTest {
@@ -29,6 +30,7 @@ public class PolylineViewModelTest {
     private Subscription polylinePresenterSubscription;
     private TestSubscriber<PatternSelection> patternSelectionTestSubscriber;
     private PATAPI patapiMock;
+
     @Before
     public void setUp() {
         patapiMock = getPatApiMock();
@@ -65,20 +67,26 @@ public class PolylineViewModelTest {
     }
 
     /**
-     * Tests the
+     * Tests the observables of the polyline of two "click events":
+     * <li>
+     *     <ul>The retrofit call has been made</ul>
+     *     <ul>Then makes sure that the next call gets from disk and ensures that what is deserialized correctly</ul>
+     * </li>
      */
     @Test
     public void testGetPolylineObservable() {
-        subject.onNext(getRouteSelection());
+        RouteSelection firstRouteSelection = getRouteSelection();
+        subject.onNext(firstRouteSelection);
         verify(patapiMock).getPatterns(PatApiMock.testRoute1, PatApiMock.stubApiKey);
         noErrorsAndNotCompleted(patternSelectionTestSubscriber);
 
-        subject.onNext(getRouteSelection());
+        subject.onNext(firstRouteSelection);
         noErrorsAndNotCompleted(patternSelectionTestSubscriber);
 
         for (PatternSelection patternSelection : patternSelectionTestSubscriber.getOnNextEvents()) {
             assertEquals(PatApiMock.getResponse().getPatternResponse().getPtr(), patternSelection.getPatterns());
-            assertEquals(true, patternSelection.isSelected());
+            assertEquals(firstRouteSelection.getToggledRoute().isSelected(), patternSelection.isSelected());
+            assertEquals(firstRouteSelection.getToggledRoute().getRoute(), patternSelection.getRouteNumber());
         }
 
     }

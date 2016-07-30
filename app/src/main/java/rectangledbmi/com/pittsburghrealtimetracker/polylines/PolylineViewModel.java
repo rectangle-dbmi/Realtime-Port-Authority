@@ -125,7 +125,7 @@ public class PolylineViewModel {
                     gson.fromJson(
                             new JsonReader(new FileReader(polylineFile)),
                             serializationType),
-                    route.isSelected(), route.getRouteInfo());
+                    route.isSelected(), route.getRoute());
             return Observable.just(patternFromDisk);
         } catch (FileNotFoundException e) {
             Timber.e(e, "File does not exist when it should.");
