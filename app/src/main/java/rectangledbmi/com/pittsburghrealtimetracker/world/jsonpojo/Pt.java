@@ -164,4 +164,40 @@ public class Pt {
         this.msg = msg;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Pt)) return false;
+
+        Pt pt = (Pt) o;
+
+        if (seq != pt.seq) return false;
+        if (Double.compare(pt.lat, lat) != 0) return false;
+        if (Double.compare(pt.lon, lon) != 0) return false;
+        if (typ != pt.typ) return false;
+        if (stpid != pt.stpid) return false;
+        if (Double.compare(pt.pdist, pdist) != 0) return false;
+        if (stpnm != null ? !stpnm.equals(pt.stpnm) : pt.stpnm != null) return false;
+        if (msg != null ? !msg.equals(pt.msg) : pt.msg != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = seq;
+        temp = Double.doubleToLongBits(lat);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(lon);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (int) typ;
+        result = 31 * result + stpid;
+        result = 31 * result + (stpnm != null ? stpnm.hashCode() : 0);
+        temp = Double.doubleToLongBits(pdist);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (msg != null ? msg.hashCode() : 0);
+        return result;
+    }
 }

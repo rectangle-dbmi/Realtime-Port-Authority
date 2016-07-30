@@ -106,4 +106,32 @@ public class Ptr {
         this.msg = msg;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Ptr)) return false;
+
+        Ptr ptr = (Ptr) o;
+
+        if (pid != ptr.pid) return false;
+        if (Double.compare(ptr.ln, ln) != 0) return false;
+        if (rtdir != null ? !rtdir.equals(ptr.rtdir) : ptr.rtdir != null) return false;
+        if (pt != null ? !pt.equals(ptr.pt) : ptr.pt != null) return false;
+        if (msg != null ? !msg.equals(ptr.msg) : ptr.msg != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = pid;
+        temp = Double.doubleToLongBits(ln);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (rtdir != null ? rtdir.hashCode() : 0);
+        result = 31 * result + (pt != null ? pt.hashCode() : 0);
+        result = 31 * result + (msg != null ? msg.hashCode() : 0);
+        return result;
+    }
 }
