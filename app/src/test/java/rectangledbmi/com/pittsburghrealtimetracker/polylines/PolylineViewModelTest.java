@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.List;
 
 import rectangledbmi.com.pittsburghrealtimetracker.mock.PatApiMock;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
@@ -14,10 +15,13 @@ import rx.observers.TestSubscriber;
 import rx.subjects.BehaviorSubject;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.verify;
 import static rectangledbmi.com.pittsburghrealtimetracker.TestHelperMethods.noErrorsAndNotCompleted;
 import static rectangledbmi.com.pittsburghrealtimetracker.mock.PatApiMock.getPatApiMock;
-import static rectangledbmi.com.pittsburghrealtimetracker.mock.StubRouteSelection.getRouteSelection;
+import static rectangledbmi.com.pittsburghrealtimetracker.mock.StubRouteSelection.getSelectedRouteSelection;
+import static rectangledbmi.com.pittsburghrealtimetracker.mock.StubRouteSelection.getUnselectedRouteSelection;
 
 /**
  * <p>Unit tests around the {@link PolylineViewModel}</p>
@@ -71,11 +75,12 @@ public class PolylineViewModelTest {
      * <li>
      *     <ul>The retrofit call has been made</ul>
      *     <ul>Then makes sure that the next call gets from disk and ensures that what is deserialized correctly</ul>
+     *     <ul>The unselection event of the same route works as expected</ul>
      * </li>
      */
     @Test
     public void testGetPolylineObservable() {
-        RouteSelection firstRouteSelection = getRouteSelection();
+        RouteSelection firstRouteSelection = getSelectedRouteSelection();
         subject.onNext(firstRouteSelection);
         verify(patapiMock).getPatterns(PatApiMock.testRoute1, PatApiMock.stubApiKey);
         noErrorsAndNotCompleted(patternSelectionTestSubscriber);
@@ -89,6 +94,14 @@ public class PolylineViewModelTest {
             assertEquals(firstRouteSelection.getToggledRoute().getRoute(), patternSelection.getRouteNumber());
         }
 
+        RouteSelection unselectedSelection = getUnselectedRouteSelection();
+        subject.onNext(unselectedSelection);
+        noErrorsAndNotCompleted(patternSelectionTestSubscriber);
+        List<PatternSelection> onNextEvents = patternSelectionTestSubscriber.getOnNextEvents();
+        PatternSelection unselectedOnNextEvent = onNextEvents.get(onNextEvents.size() - 1);
+        assertNull(unselectedOnNextEvent.getPatterns());
+        assertFalse(unselectedOnNextEvent.isSelected());
+        assertEquals(unselectedSelection.getToggledRoute().getRoute(), unselectedOnNextEvent.getRouteNumber());
     }
 
 
