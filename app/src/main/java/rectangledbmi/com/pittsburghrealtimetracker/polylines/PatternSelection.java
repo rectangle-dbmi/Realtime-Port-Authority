@@ -1,5 +1,7 @@
 package rectangledbmi.com.pittsburghrealtimetracker.polylines;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.List;
 
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Ptr;
@@ -17,9 +19,12 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Ptr;
  */
 public class PatternSelection {
 
-    private List<Ptr> patterns;
+
+    private final List<Ptr> patterns;
     private boolean isSelected;
-    private String routeNumber;
+    private final String routeNumber;
+    private List<List<LatLng>> latLngs;
+    private final int routeColor;
 
     /**
      * <p>It is recommended to use this constructor when you want to unselect a polyline for a route
@@ -30,7 +35,7 @@ public class PatternSelection {
      * @param routeNumber the route number of the object
      */
     public PatternSelection(boolean isSelected, String routeNumber) {
-        this(null, isSelected, routeNumber);
+        this(null, isSelected, routeNumber, 0);
     }
 
     /**
@@ -43,14 +48,15 @@ public class PatternSelection {
      * @param isSelected whether or not the route is selected
      * @param routeNumber the route number of the polyline
      */
-    public PatternSelection(List<Ptr> patterns, boolean isSelected, String routeNumber) {
+    public PatternSelection(List<Ptr> patterns, boolean isSelected, String routeNumber, int routeColor) {
         this.patterns = patterns;
         this.isSelected = isSelected;
         this.routeNumber = routeNumber;
+        this.routeColor = routeColor;
     }
 
     /**
-     * <p>The List of patterns. Each pattern should represent a list of
+     * <p>The List of patterns. Each pattern should represent some metadata
      * {@link com.google.android.gms.maps.model.Polyline}s for a selected route.</p>
      *
      * <p>This should always be null if {@link #isSelected()} is `false`. Otherwise, it should almost
@@ -78,5 +84,30 @@ public class PatternSelection {
      */
     public String getRouteNumber() {
         return routeNumber;
+    }
+
+    /**
+     * {@link com.google.android.gms.maps.model.Polyline} creation needs a list of latlngs to create.
+     * A route has a list of patterns per outbound and inbound route.
+     * @return List of latLngs for polyline creation
+     */
+    public List<List<LatLng>> getLatLngs() {
+        return latLngs;
+    }
+
+    /**
+     * Sets the object for direct {@link com.google.android.gms.maps.model.Polyline} metadata
+     * @param latLngs a list of Google Map points for polyline creation
+     */
+    public void setLatLngs(List<List<LatLng>> latLngs) {
+        this.latLngs = latLngs;
+    }
+
+    /**
+     *
+     * @return the route's color
+     */
+    public int getRouteColor() {
+        return routeColor;
     }
 }

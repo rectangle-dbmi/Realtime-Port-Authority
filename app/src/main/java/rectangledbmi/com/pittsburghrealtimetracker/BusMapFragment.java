@@ -42,6 +42,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.squareup.leakcanary.RefWatcher;
 
 import java.io.IOException;
@@ -61,6 +62,8 @@ import java.util.concurrent.TimeUnit;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestLine;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter;
+import rectangledbmi.com.pittsburghrealtimetracker.polylines.PatternSelection;
+import rectangledbmi.com.pittsburghrealtimetracker.polylines.PolylineView;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.errors.ErrorMessage;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.vehicles.VehicleBitmap;
@@ -89,7 +92,9 @@ import timber.log.Timber;
  */
 public class BusMapFragment extends SelectionFragment implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        OnMapReadyCallback, LocationListener, ClearSelection {
+        OnMapReadyCallback, LocationListener, ClearSelection,
+        PolylineView
+{
 
     private static final String CAMERA_POSITION = "cameraPosition";
 
@@ -162,6 +167,8 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     private PATAPI patApiClient;
 
     private Subscription selectionSubscription;
+
+    private Subscription polylineSubscription;
     // endregion
 
     // region Android Fragment LifeCycle
@@ -237,7 +244,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             Timber.d("Setting Google map Location as disabled");
             mMap.setMyLocationEnabled(false);
         }
-        resetVehicleSubscriptions();
+        resetMapSubscriptions();
     }
 
     @Override
@@ -650,7 +657,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                         vehicleMapEntry.getValue().remove();
                     }
                 });
-        resetVehicleSubscriptions();
+        resetMapSubscriptions();
         selectionSubscription = selectionObservable.connect();
         restorePolylines();
     }
@@ -718,9 +725,9 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     // region Map State and Observables
 
     /**
-     * Resets the composite subscription for vehicles
+     * Resets the composite subscription for observable things on {@link #mMap}
      */
-    private void resetVehicleSubscriptions() {
+    private void resetMapSubscriptions() {
         Timber.d("Resetting vehicle subscriptions in bus fragment");
         if(vehicleSubscriptions == null || vehicleSubscriptions.isUnsubscribed()) {
             vehicleSubscriptions = new CompositeSubscription(
@@ -1034,6 +1041,51 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     @Override
     public void onDeselectBusRoute(Route route) {
         deselectPolyline(route.getRoute());
+    }
+
+    @Override
+    public Observer<PatternSelection> polylineObserver() {
+        return new Observer<PatternSelection>() {
+            @Override
+            public void onCompleted() {
+                Timber.d("Completed observing on PatternSelection");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Timber.e(e, "Problem with polyline creation.");
+            }
+
+            @Override
+            public void onNext(PatternSelection patternSelection) {
+                if (mMap == null) {
+                    Timber.e("Google Map is null while trying to add polylines");
+                }
+                List<Polyline> routeLine = routeLines.get(patternSelection.getRouteNumber());
+                if (routeLine != null) {
+                    setVisiblePolylines(routeLine, patternSelection.isSelected());
+                } else if (patternSelection.isSelected()) {
+                    createRouteLine(patternSelection);
+                }
+            }
+
+            private void createRouteLine(PatternSelection patternSelection) {
+                List<List<LatLng>> latLngList = patternSelection.getLatLngs();
+                if (patternSelection.getLatLngs() == null) {
+                    Timber.i("Cannot add patterns... should not be null");
+                    return;
+                }
+                List<Polyline> polylines = new ArrayList<>(patternSelection.getLatLngs().size());
+                for (List<LatLng> latLngs : latLngList) {
+                    polylines.add(mMap.addPolyline(
+                            new PolylineOptions()
+                                    .addAll(latLngs)
+                                    .color(patternSelection.getRouteColor())
+                                    .geodesic(true)
+                    ));
+                }
+            }
+        };
     }
     // endregion
 

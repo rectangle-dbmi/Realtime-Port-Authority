@@ -1,5 +1,6 @@
 package rectangledbmi.com.pittsburghrealtimetracker.polylines;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -92,7 +93,6 @@ public class PolylineViewModel {
             Timber.d("Selection observable is null. Returning null.");
             return null;
         }
-
         return selectionObservable
                 .flatMap(routeSelection -> {
                     Timber.d("Getting polyline from disk");
@@ -108,8 +108,22 @@ public class PolylineViewModel {
                         return getPolylineFromInternet(polylineFile, route);
                     }
 
+                }).flatMap(patternSelection -> {
+                    if (patternSelection.getPatterns() == null) {
+                        return Observable.just(patternSelection);
+                    }
+                    return Observable
+                            .from(patternSelection.getPatterns())
+                            .flatMap(patterns -> Observable
+                                    .from(patterns.getPt())
+                                    .map(pt -> new LatLng(pt.getLat(), pt.getLon()))
+                                    .toList()
+                            ).toList()
+                            .map(latLngs -> {
+                                patternSelection.setLatLngs(latLngs);
+                                return patternSelection;
+                            });
                 });
-
     }
 
     /**
@@ -125,8 +139,9 @@ public class PolylineViewModel {
                     gson.fromJson(
                             new JsonReader(new FileReader(polylineFile)),
                             serializationType),
-                    route.isSelected(), route.getRoute());
-            return Observable.just(patternFromDisk);
+                    route.isSelected(), route.getRoute(), route.getRouteColor());
+            return Observable
+                    .just(patternFromDisk);
         } catch (FileNotFoundException e) {
             Timber.e(e, "File does not exist when it should.");
             return Observable.error(e);
@@ -155,7 +170,7 @@ public class PolylineViewModel {
                         // need to flush and close otherwise the file is incomplete and bugs
                         writer.flush();
                         writer.close();
-                        return new PatternSelection(patterns, route.isSelected(), route.getRoute());
+                        return new PatternSelection(patterns, route.isSelected(), route.getRoute(), route.getRouteColor());
                     } catch (IOException e) {
                         Timber.e(e, "Could not retrieve polyline from internet when it should have.");
                         throw Exceptions.propagate(e);
