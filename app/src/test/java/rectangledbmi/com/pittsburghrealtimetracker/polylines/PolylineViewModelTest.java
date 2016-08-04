@@ -60,7 +60,7 @@ public class PolylineViewModelTest {
         polylinePresenterSubscription.unsubscribe();
     }
 
-    private void deleteFiles(File file) {
+    private static void deleteFiles(File file) {
         if (file.isDirectory()) {
             for (File f : file.listFiles()) {
                 deleteFiles(f);
