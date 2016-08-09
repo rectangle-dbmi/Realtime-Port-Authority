@@ -1,5 +1,7 @@
 package rectangledbmi.com.pittsburghrealtimetracker.selection;
 
+import android.support.annotation.NonNull;
+
 import java.util.Set;
 
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
@@ -30,12 +32,12 @@ public class RouteSelection {
 
     private Set<String> selectedRoutes;
 
-    private RouteSelection(Route route) {
+    private RouteSelection(@NonNull Route route) {
         toggledRoute = route;
         Timber.d("Only initiating route for selection: %s", route.getRoute());
     }
 
-    private RouteSelection(Set<String> selectedRoutes) {
+    private RouteSelection(@NonNull Set<String> selectedRoutes) {
         this.selectedRoutes = selectedRoutes;
         Timber.d("Only initiating route for selection: %s", selectedRoutes.toString());
     }

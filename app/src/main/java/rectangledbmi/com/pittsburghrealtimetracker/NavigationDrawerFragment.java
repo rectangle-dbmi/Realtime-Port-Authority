@@ -32,6 +32,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
+import timber.log.Timber;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -74,7 +75,7 @@ public class NavigationDrawerFragment extends Fragment {
 
     /**
      * State of selected routes
-     * <p/>
+     * <p>
      * public because we want to clear this list...
      */
     private Set<String> selectedRoutes;
@@ -95,14 +96,28 @@ public class NavigationDrawerFragment extends Fragment {
         selectedRoutes = new HashSet<>(sp.getStringSet(BUS_SELECT_STATE,
                 Collections.synchronizedSet(
                         new HashSet<>(getResources().getInteger(R.integer.max_checked)))));
-        routeSelectionPublishSubject = BehaviorSubject.create(RouteSelection.create(selectedRoutes));
+        busListAdapter = new BusRouteAdapter();
+        routeSelectionPublishSubject = BehaviorSubject.create();
+        multiSelectAtOnce(selectedRoutes);
+
         // Select either the default item (0) or the last selected item.
 //        selectItem(mCurrentSelectedPosition);
 
     }
 
+    private void multiSelectAtOnce(Set<String> selectedRoutes) {
+        if (routeSelectionPublishSubject == null || selectedRoutes == null || busListAdapter == null) {
+            Timber.i("Cannot multiselect things... Will not work");
+            return;
+        }
+        for (String routeNumber : selectedRoutes) {
+            routeSelectionPublishSubject.onNext(RouteSelection.create(busListAdapter.getRouteByNumber(routeNumber)));
+        }
+        Timber.d("Finished multiselecting routes");
+    }
+
     @Override
-    public void onActivityCreated (Bundle savedInstanceState) {
+    public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         // Indicate that this fragment would like to influence the set of actions in the action bar.
         setHasOptionsMenu(true);
@@ -111,11 +126,10 @@ public class NavigationDrawerFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
         View v = inflater.inflate(R.layout.navigation_drawer_layout, container, false);
-        busListAdapter = new BusRouteAdapter();
         RecyclerView busListRecyclerView = (RecyclerView) v.findViewById(R.id.bus_list_recyclerview);
         busListRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         busListAdapter.setHasStableIds(true);
@@ -222,7 +236,7 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     public boolean closeDrawer() {
-        if(isDrawerOpen()) {
+        if (isDrawerOpen()) {
             mDrawerLayout.closeDrawer(mFragmentContainerView);
             return true;
         }
@@ -230,7 +244,7 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     public boolean openDrawer() {
-        if(!isDrawerOpen()) {
+        if (!isDrawerOpen()) {
             mDrawerLayout.openDrawer(mFragmentContainerView);
             return true;
         }
@@ -254,16 +268,20 @@ public class NavigationDrawerFragment extends Fragment {
      * If the Clear Buses button is clicked, clears the selection and the selected buses
      */
     public void clearSelection() {
+
+        Set<String> selectedRoutes = new HashSet<>(getSelectedRoutes());
         busListAdapter.clearSelection();
+        multiSelectAtOnce(selectedRoutes);
         routeSelectionPublishSubject.onNext(RouteSelection.create(selectedRoutes));
         Toast.makeText(getActivity(), getString(R.string.cleared), Toast.LENGTH_SHORT).show();
 
     }
+
     /**
      * Place to save preferences....
      */
     private void savePreferences() {
-        if(getActivity() != null && busListAdapter != null) {
+        if (getActivity() != null && busListAdapter != null) {
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
             SharedPreferences.Editor spe = sp.edit();
             spe.putStringSet(BUS_SELECT_STATE, busListAdapter.getSelectedRoutes());
@@ -279,18 +297,18 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     /**
-     * @since 43
      * @param rt - the route number
      * @return the route information by rt
+     * @since 43
      */
     public Route getSelectedRoute(String rt) {
-        if(busListAdapter != null)
+        if (busListAdapter != null)
             return busListAdapter.getRouteMap().get(rt);
         return null;
     }
 
     public Set<String> getSelectedRoutes() {
-        if(busListAdapter != null)
+        if (busListAdapter != null)
             return busListAdapter.getSelectedRoutes();
         return null;
     }
@@ -298,8 +316,8 @@ public class NavigationDrawerFragment extends Fragment {
     /**
      * This takes the bus route information to the main activity {@link SelectTransit}.
      *
-     * @since 43
      * @author Jeremy Jao
+     * @since 43
      */
     public interface BusListCallbacks {
 
@@ -338,8 +356,9 @@ public class NavigationDrawerFragment extends Fragment {
 
         /**
          * Creates an array of routes for the recycler view and a reverse mapping
-         *
+         * <p>
          * TODO: This is rather slow and takes up some time according to the Android Studio debugger
+         *
          * @return the routes to be made for the recycler view
          */
         private Route[] createRoutes() {
@@ -351,7 +370,7 @@ public class NavigationDrawerFragment extends Fragment {
             routeHashMap = new HashMap<>(numbers.length);
             Route currentRoute;
 
-            for(int i=0;i<numbers.length;++i) {
+            for (int i = 0; i < numbers.length; ++i) {
                 currentRoute = new Route(numbers[i], descriptions[i], colors[i], i, selectedRoutes.contains(numbers[i]));
                 routes[i] = currentRoute;
                 routeHashMap.put(currentRoute.getRoute(), currentRoute);
@@ -360,8 +379,14 @@ public class NavigationDrawerFragment extends Fragment {
             return routes;
         }
 
+        public Route getRouteByNumber(String routeNumber) {
+            if (routeHashMap == null) {
+                Timber.i("Route hashmap not yet created...");
+            }
+            return routeHashMap.get(routeNumber);
+        }
+
         /**
-         *
          * @return a set of currently selected routes from the recycler view
          */
         public Set<String> getSelectedRoutes() {
@@ -391,7 +416,7 @@ public class NavigationDrawerFragment extends Fragment {
         }
 
         public void clearSelection() {
-            for(String s : selectedRoutes) {
+            for (String s : selectedRoutes) {
                 routeHashMap.get(s).setSelected(false);
             }
             selectedRoutes.clear();
@@ -402,7 +427,7 @@ public class NavigationDrawerFragment extends Fragment {
             return routes[position].getRoute().hashCode();
         }
 
-        public class BusRouteHolder extends RecyclerView.ViewHolder implements View.OnClickListener  {
+        public class BusRouteHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
             private Route mRoute;
 
@@ -474,6 +499,26 @@ public class NavigationDrawerFragment extends Fragment {
 
     public Observable<RouteSelection> getListObservable() {
         return routeSelectionPublishSubject.asObservable();
+    }
+
+    public Observable<Set<String>> getSelectedRoutesObservable() {
+        if (routeSelectionPublishSubject == null) {
+            return null;
+        }
+        return routeSelectionPublishSubject
+                .asObservable()
+                .map(RouteSelection::getSelectedRoutes)
+                .skipWhile(selectedRoutes -> selectedRoutes == null);
+    }
+
+    public Observable<Route> getToggledRouteObservable() {
+        if (routeSelectionPublishSubject == null) {
+            return null;
+        }
+        return routeSelectionPublishSubject
+                .asObservable()
+                .map(RouteSelection::getToggledRoute)
+                .skipWhile(toggledRoute -> toggledRoute == null);
     }
 
 }
