@@ -318,15 +318,15 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
     @Override
     protected void onPostExecute(RequestLineContainer container) {
         if(mMap != null && container != null) {
-            ArrayList<LinkedList<LatLng>> latLngs = container.getPolylinesInfo();
+//            ArrayList<LinkedList<LatLng>> latLngs = container.getPolylinesInfo();
             ArrayList<LineInfo> busStopInfos = container.getBusStopInfos();
-            if (latLngs != null) {
-                List<Polyline> polylines = new ArrayList<>(latLngs.size());
-                for (LinkedList<LatLng> points : latLngs) {
-                    polylines.add(mMap.addPolyline(new PolylineOptions().addAll(points).color(color).geodesic(true).visible(true)));
-                }
-                patterns.put(selectedRoute, polylines);
-            }
+//            if (latLngs != null) {
+//                List<Polyline> polylines = new ArrayList<>(latLngs.size());
+//                for (LinkedList<LatLng> points : latLngs) {
+//                    polylines.add(mMap.addPolyline(new PolylineOptions().addAll(points).color(color).geodesic(true).visible(true)));
+//                }
+//                patterns.put(selectedRoute, polylines);
+//            }
 
             if (busStopInfos != null) {
 

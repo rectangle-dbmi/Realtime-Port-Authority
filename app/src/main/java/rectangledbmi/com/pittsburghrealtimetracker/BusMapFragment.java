@@ -64,6 +64,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter;
 import rectangledbmi.com.pittsburghrealtimetracker.polylines.PatternSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.polylines.PolylineView;
+import rectangledbmi.com.pittsburghrealtimetracker.polylines.PolylineViewModel;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.errors.ErrorMessage;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.vehicles.VehicleBitmap;
@@ -162,12 +163,20 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     private Observable<ErrorMessage> vehicleErrorObservable;
 
     /**
+     * Creates a stream for the polyline observable
+     */
+    private PolylineViewModel polylineViewModel;
+
+    /**
      * The {@link retrofit2.Retrofit} instance of the Port Authority TrueTime API
      */
     private PATAPI patApiClient;
 
     private Subscription selectionSubscription;
 
+    /**
+     * Subscription for the polylines
+     */
     private Subscription polylineSubscription;
     // endregion
 
@@ -265,12 +274,16 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             mapView.onPause();
             Timber.d("Pausing Map View");
         }
+        pauseMapState();
+        super.onPause();
+    }
+
+    private void pauseMapState() {
         if (vehicleSubscriptions != null) {
             vehicleSubscriptions.unsubscribe();
             Timber.d("vehicle updater unsubscribed");
         }
         removeBuses();
-        super.onPause();
     }
 
     @Override
@@ -657,9 +670,24 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                         vehicleMapEntry.getValue().remove();
                     }
                 });
+
         resetMapSubscriptions();
         selectionSubscription = selectionObservable.connect();
+        setupPolylineObservable(selectionObservable);
         restorePolylines();
+    }
+
+    private void setupPolylineObservable(Observable<RouteSelection> routeSelectionObservable) {
+        polylineViewModel = new PolylineViewModel(
+                patApiClient,
+                BuildConfig.PAT_API_KEY,
+                routeSelectionObservable,
+                busListInteraction.getDatadirectory()
+        );
+        polylineSubscription = polylineViewModel.getPolylineObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(polylineObserver());
     }
 
     /**
@@ -1053,6 +1081,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
             @Override
             public void onError(Throwable e) {
+                e.printStackTrace();
                 Timber.e(e, "Problem with polyline creation.");
             }
 
@@ -1060,6 +1089,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             public void onNext(PatternSelection patternSelection) {
                 if (mMap == null) {
                     Timber.e("Google Map is null while trying to add polylines");
+                    return;
                 }
                 List<Polyline> routeLine = routeLines.get(patternSelection.getRouteNumber());
                 if (routeLine != null) {
@@ -1080,10 +1110,12 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                     polylines.add(mMap.addPolyline(
                             new PolylineOptions()
                                     .addAll(latLngs)
+                                    .width(4.0f)
                                     .color(patternSelection.getRouteColor())
                                     .geodesic(true)
                     ));
                 }
+                routeLines.put(patternSelection.getRouteNumber(), polylines);
             }
         };
     }

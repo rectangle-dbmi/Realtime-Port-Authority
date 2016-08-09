@@ -431,6 +431,11 @@ public class SelectTransit extends AppCompatActivity implements
         startActivity(intent);
     }
 
+    @Override
+    public File getDatadirectory() {
+        return getFilesDir();
+    }
+
     /**
      * Click Event for the
      * {@link rectangledbmi.com.pittsburghrealtimetracker.R.menu#select_transit}'s Detour

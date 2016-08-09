@@ -22,6 +22,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.PatternRespons
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Ptr;
 import rx.Observable;
 import rx.exceptions.Exceptions;
+import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
 /**
@@ -90,13 +91,14 @@ public class PolylineViewModel {
      */
     public Observable<PatternSelection> getPolylineObservable() {
         if (selectionObservable == null) {
-            Timber.d("Selection observable is null. Returning null.");
+            Timber.i("Selection observable is null. Returning null.");
             return null;
         }
         return selectionObservable
-                .flatMap(routeSelection -> {
-                    Timber.d("Getting polyline from disk");
-                    Route route = routeSelection.getToggledRoute();
+                .skipWhile(routeSelection -> routeSelection.getToggledRoute() == null)
+                .map(RouteSelection::getToggledRoute)
+                .flatMap(route -> {
+                    Timber.d("Getting polylines");
                     if (!route.isSelected()) {
                         return Observable.just(new PatternSelection(false, route.getRoute()));
                     }
@@ -134,6 +136,7 @@ public class PolylineViewModel {
      */
     private Observable<PatternSelection> getPolylineFromDisk(File polylineFile, Route route) {
         try {
+            Timber.d("Getting Polylines from disk");
             Gson gson = new GsonBuilder().create();
             PatternSelection patternFromDisk = new PatternSelection(
                     gson.fromJson(
@@ -141,7 +144,8 @@ public class PolylineViewModel {
                             serializationType),
                     route.isSelected(), route.getRoute(), route.getRouteColor());
             return Observable
-                    .just(patternFromDisk);
+                    .just(patternFromDisk)
+                    .subscribeOn(Schedulers.io());
         } catch (FileNotFoundException e) {
             Timber.e(e, "File does not exist when it should.");
             return Observable.error(e);
@@ -156,8 +160,10 @@ public class PolylineViewModel {
      */
     private Observable<PatternSelection> getPolylineFromInternet(File polylineFile, Route route) {
         return patapi.getPatterns(route.getRoute(), patApiKey)
+                .subscribeOn(Schedulers.io())
                 .map(PatternResponse::getPatternResponse)
                 .map(bustimePatternResponse -> {
+                    Timber.d("Getting polylines from internet");
                     List<Ptr> patterns = bustimePatternResponse.getPtr();
                     try {
                         JsonWriter writer = new JsonWriter(new FileWriter(polylineFile));
@@ -178,4 +184,5 @@ public class PolylineViewModel {
 
                 });
     }
+
 }

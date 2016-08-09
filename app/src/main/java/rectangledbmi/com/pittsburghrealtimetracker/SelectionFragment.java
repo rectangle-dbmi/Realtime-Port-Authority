@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
+import java.io.File;
 import java.util.Set;
 
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
@@ -64,5 +65,7 @@ public abstract class SelectionFragment extends Fragment implements NavigationDr
          * Opens the permissions page
          */
         void openPermissionsPage();
+
+        File getDatadirectory();
     }
 }
