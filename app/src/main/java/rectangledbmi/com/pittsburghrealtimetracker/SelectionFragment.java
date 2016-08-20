@@ -16,7 +16,6 @@ import java.io.File;
 import java.util.Set;
 
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
-import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rx.Observable;
 
@@ -69,10 +68,12 @@ public abstract class SelectionFragment extends Fragment implements NavigationDr
         File getDatadirectory();
 
 
+        // TODO: add documentation
         Observable<Set<String>> getSelectedRoutesObservable();
 
         Observable<Route> getToggledRouteObservable();
 
+        // TODO: change bad name... add documentation
         void onBadName();
     }
 }
