@@ -9,7 +9,7 @@ import java.util.List;
 
 import rectangledbmi.com.pittsburghrealtimetracker.mock.PatApiMock;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
-import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
+import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rx.Subscription;
 import rx.observers.TestSubscriber;
 import rx.subjects.BehaviorSubject;
@@ -20,8 +20,8 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.verify;
 import static rectangledbmi.com.pittsburghrealtimetracker.TestHelperMethods.noErrorsAndNotCompleted;
 import static rectangledbmi.com.pittsburghrealtimetracker.mock.PatApiMock.getPatApiMock;
-import static rectangledbmi.com.pittsburghrealtimetracker.mock.StubRouteSelection.getSelectedRouteSelection;
-import static rectangledbmi.com.pittsburghrealtimetracker.mock.StubRouteSelection.getUnselectedRouteSelection;
+import static rectangledbmi.com.pittsburghrealtimetracker.mock.ToggledRouteMockMethods.getSelectedRouteSelection;
+import static rectangledbmi.com.pittsburghrealtimetracker.mock.ToggledRouteMockMethods.getUnselectedRouteSelection;
 
 /**
  * <p>Unit tests around the {@link PolylineViewModel}</p>
@@ -34,6 +34,7 @@ public class PolylineViewModelTest {
     private Subscription polylinePresenterSubscription;
     private TestSubscriber<PatternSelection> patternSelectionTestSubscriber;
     private PATAPI patapiMock;
+    private static BehaviorSubject<Route> subject = BehaviorSubject.create();
 
     @Before
     public void setUp() {
@@ -80,7 +81,7 @@ public class PolylineViewModelTest {
      */
     @Test
     public void testGetPolylineObservable() {
-        RouteSelection firstRouteSelection = getSelectedRouteSelection();
+        Route firstRouteSelection = getSelectedRouteSelection();
         subject.onNext(firstRouteSelection);
         verify(patapiMock).getPatterns(PatApiMock.testRoute1, PatApiMock.stubApiKey);
         noErrorsAndNotCompleted(patternSelectionTestSubscriber);
@@ -90,21 +91,18 @@ public class PolylineViewModelTest {
 
         for (PatternSelection patternSelection : patternSelectionTestSubscriber.getOnNextEvents()) {
             assertEquals(PatApiMock.getResponse().getPatternResponse().getPtr(), patternSelection.getPatterns());
-            assertEquals(firstRouteSelection.getToggledRoute().isSelected(), patternSelection.isSelected());
-            assertEquals(firstRouteSelection.getToggledRoute().getRoute(), patternSelection.getRouteNumber());
+            assertEquals(firstRouteSelection.isSelected(), patternSelection.isSelected());
+            assertEquals(firstRouteSelection.getRoute(), patternSelection.getRouteNumber());
         }
 
-        RouteSelection unselectedSelection = getUnselectedRouteSelection();
+        Route unselectedSelection = getUnselectedRouteSelection();
         subject.onNext(unselectedSelection);
         noErrorsAndNotCompleted(patternSelectionTestSubscriber);
         List<PatternSelection> onNextEvents = patternSelectionTestSubscriber.getOnNextEvents();
         PatternSelection unselectedOnNextEvent = onNextEvents.get(onNextEvents.size() - 1);
         assertNull(unselectedOnNextEvent.getPatterns());
         assertFalse(unselectedOnNextEvent.isSelected());
-        assertEquals(unselectedSelection.getToggledRoute().getRoute(), unselectedOnNextEvent.getRouteNumber());
+        assertEquals(unselectedSelection.getRoute(), unselectedOnNextEvent.getRouteNumber());
     }
-
-
-    private static BehaviorSubject<RouteSelection> subject = BehaviorSubject.create();
 
 }

@@ -52,11 +52,6 @@ public abstract class SelectionFragment extends Fragment implements NavigationDr
          */
         void showToast(String message, int length);
 
-        /**
-         * @return the Rx Observable that the {@link NavigationDrawerFragment} emits list clicks on.
-         */
-        Observable<RouteSelection> getSelectionSubject();
-
         void showOkDialog(String message, DialogInterface.OnClickListener okListener);
 
         void makeSnackbar(@NonNull String message, int length, @NonNull String action, @NonNull View.OnClickListener listener);
@@ -66,6 +61,18 @@ public abstract class SelectionFragment extends Fragment implements NavigationDr
          */
         void openPermissionsPage();
 
+        /**
+         * Gets Android's default data directory... Eventually will want the API that accepts an external
+         * SD card as this
+         * @return the Android Data Directory
+         */
         File getDatadirectory();
+
+
+        Observable<Set<String>> getSelectedRoutesObservable();
+
+        Observable<Route> getToggledRouteObservable();
+
+        void onBadName();
     }
 }

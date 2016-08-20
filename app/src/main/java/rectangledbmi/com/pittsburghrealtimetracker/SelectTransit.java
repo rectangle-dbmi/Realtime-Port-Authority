@@ -220,12 +220,18 @@ public class SelectTransit extends AppCompatActivity implements
      * @since 43
      */
     @Override
-    public void onSelectBusRoute(@NonNull Route route) {
+    public void onSelectBusRoute(Route route) {
+        if (selectionFragment == null || route == null) {
+            return;
+        }
         selectionFragment.onSelectBusRoute(route);
     }
 
     @Override
     public void onDeselectBusRoute(Route route) {
+        if (selectionFragment == null || route == null) {
+            return;
+        }
         selectionFragment.onDeselectBusRoute(route);
     }
 
@@ -415,13 +421,6 @@ public class SelectTransit extends AppCompatActivity implements
         return mNavigationDrawerFragment.getSelectedRoutes();
     }
 
-
-    @NonNull
-    @Override
-    public Observable<RouteSelection> getSelectionSubject() {
-        return mNavigationDrawerFragment.getListObservable();
-    }
-
     @Override
     public void openPermissionsPage() {
         Intent intent = new Intent();
@@ -435,6 +434,19 @@ public class SelectTransit extends AppCompatActivity implements
     public File getDatadirectory() {
         return getFilesDir();
     }
+
+    @Override
+    public Observable<Set<String>> getSelectedRoutesObservable() {
+        return mNavigationDrawerFragment.getSelectedRoutesObservable();
+    }
+
+    @Override
+    public Observable<Route> getToggledRouteObservable() {
+        return mNavigationDrawerFragment.getToggledRouteObservable();
+    }
+
+
+
 
     /**
      * Click Event for the
@@ -465,4 +477,12 @@ public class SelectTransit extends AppCompatActivity implements
     public void onClickAppDetails(MenuItem item) {
         openPermissionsPage();
     }
+
+    public void onBadName() {
+        if (mNavigationDrawerFragment == null) {
+            return;
+        }
+        mNavigationDrawerFragment.reselectRoutes();
+    }
+
 }

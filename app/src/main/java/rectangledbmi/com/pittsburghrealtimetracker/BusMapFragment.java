@@ -55,6 +55,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
@@ -68,7 +69,6 @@ import rectangledbmi.com.pittsburghrealtimetracker.polylines.PolylineViewModel;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.errors.ErrorMessage;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.vehicles.VehicleBitmap;
-import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStopCollection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimeVehicleResponse;
@@ -460,6 +460,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             }
         });
 
+        busListInteraction.onBadName();
         // set up observable information
         setupReactiveObjects();
     }
@@ -551,17 +552,23 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      * </ul>
      */
     private void setupReactiveObjects() {
-        Observable<RouteSelection> selectionSubject = busListInteraction.getSelectionSubject();
-        ConnectableObservable<RouteSelection> selectionObservable = selectionSubject.replay(1);
+        Observable<Set<String>> selectedRoutesObservable = busListInteraction.getSelectedRoutesObservable();
+        Observable<Route> toggledRoutesObservable = busListInteraction.getToggledRouteObservable();
+        ConnectableObservable<Set<String>> selectionObservable = selectedRoutesObservable
+                .map(blah -> {
+                    Timber.d("checking selected routes: " + blah);
+                    return blah;
+                })
+                .replay(1);
         //noinspection Convert2Lambda
         Observable<BustimeVehicleResponse> vehicleIntervalObservable = selectionObservable
                 .debounce(400, TimeUnit.MILLISECONDS)
-                .switchMap(new Func1<RouteSelection, Observable<RouteSelection>>() {
+                .switchMap(new Func1<Set<String>, Observable<Set<String>>>() {
                     @Override
-                    public Observable<RouteSelection> call(RouteSelection routeSelection) {
+                    public Observable<Set<String>> call(Set<String> routes) {
                         Timber.d("Selecting vehicle observable");
-                        if (routeSelection.getSelectedRoutes().isEmpty()) {
-                            return Observable.just(routeSelection);
+                        if (routes.isEmpty()) {
+                            return Observable.just(routes);
                         }
                         return Observable.interval(0, 10, TimeUnit.SECONDS)
                                 .map(aLong -> {
@@ -569,17 +576,17 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                                         String msg = String.format("Calling x%d", aLong);
                                         Timber.d(msg);
                                     }
-                                    return routeSelection;
+                                    return routes;
                                 });
                     }
-                }).flatMap(routeSelection -> {
+                }).flatMap(routes -> {
                     if (BuildConfig.DEBUG) {
-                        String msg = String.format("updating map with %s", routeSelection);
+                        String msg = String.format("updating map with %s", routes);
                         Timber.d(msg);
                     }
                     return patApiClient.getVehicles(
                             collectionToString(
-                                    routeSelection.getSelectedRoutes()),
+                                    routes),
                                     BuildConfig.PAT_API_KEY);
                 }).map(VehicleResponse::getBustimeResponse)
                 .retryWhen(attempt -> attempt
@@ -644,8 +651,8 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 .flatMap( errorMap -> Observable.from(errorMap.entrySet()))
                 .map(transformSingleMessage());
 
-        unselectVehicleSubscription = selectionObservable.map(RouteSelection::getToggledRoute)
-                .skipWhile(route -> route == null || route.isSelected())
+        unselectVehicleSubscription = toggledRoutesObservable
+                .skipWhile(route -> route.isSelected())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(route ->  {
@@ -673,11 +680,11 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
         resetMapSubscriptions();
         selectionSubscription = selectionObservable.connect();
-        setupPolylineObservable(selectionObservable);
+        setupPolylineObservable(toggledRoutesObservable);
         restorePolylines();
     }
 
-    private void setupPolylineObservable(Observable<RouteSelection> routeSelectionObservable) {
+    private void setupPolylineObservable(Observable<Route> routeSelectionObservable) {
         polylineViewModel = new PolylineViewModel(
                 patApiClient,
                 BuildConfig.PAT_API_KEY,

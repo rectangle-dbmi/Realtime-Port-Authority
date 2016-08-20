@@ -93,25 +93,29 @@ public class NavigationDrawerFragment extends Fragment {
         if (savedInstanceState != null) {
             mFromSavedInstanceState = true;
         }
-        selectedRoutes = new HashSet<>(sp.getStringSet(BUS_SELECT_STATE,
+        selectedRoutes = Collections.synchronizedSet(new HashSet<>(sp.getStringSet(BUS_SELECT_STATE,
                 Collections.synchronizedSet(
-                        new HashSet<>(getResources().getInteger(R.integer.max_checked)))));
+                        new HashSet<>(getResources().getInteger(R.integer.max_checked))))));
         busListAdapter = new BusRouteAdapter();
         routeSelectionPublishSubject = BehaviorSubject.create();
-        multiSelectAtOnce(selectedRoutes);
-
         // Select either the default item (0) or the last selected item.
 //        selectItem(mCurrentSelectedPosition);
 
     }
 
-    private void multiSelectAtOnce(Set<String> selectedRoutes) {
-        if (routeSelectionPublishSubject == null || selectedRoutes == null || busListAdapter == null) {
+    public void reselectRoutes() {
+        setSelection(selectedRoutes, true);
+    }
+
+    private void setSelection(Set<String> selectedRoutes, boolean isSelected) {
+        String[] routesArray = selectedRoutes.toArray(new String[selectedRoutes.size()]);
+        if (routeSelectionPublishSubject == null || busListAdapter == null) {
             Timber.i("Cannot multiselect things... Will not work");
             return;
         }
-        for (String routeNumber : selectedRoutes) {
-            routeSelectionPublishSubject.onNext(RouteSelection.create(busListAdapter.getRouteByNumber(routeNumber)));
+        for (String routeNumber : routesArray) {
+            Route route = busListAdapter.getRouteByNumber(routeNumber);
+            toggleRoute(route, isSelected);
         }
         Timber.d("Finished multiselecting routes");
     }
@@ -270,11 +274,9 @@ public class NavigationDrawerFragment extends Fragment {
     public void clearSelection() {
 
         Set<String> selectedRoutes = new HashSet<>(getSelectedRoutes());
+        setSelection(selectedRoutes, false);
         busListAdapter.clearSelection();
-        multiSelectAtOnce(selectedRoutes);
-        routeSelectionPublishSubject.onNext(RouteSelection.create(selectedRoutes));
         Toast.makeText(getActivity(), getString(R.string.cleared), Toast.LENGTH_SHORT).show();
-
     }
 
     /**
@@ -336,6 +338,23 @@ public class NavigationDrawerFragment extends Fragment {
         void onDeselectBusRoute(Route route);
         //TODO: Fix this to use observables or designate callback function for selection or deselection
     }
+
+    private void toggleRoute(Route route) {
+        toggleRoute(route, route.toggleSelection());
+    }
+
+    private void toggleRoute(Route route, boolean isSelected) {
+        route.setSelected(isSelected);
+        if (isSelected) {
+            selectedRoutes.add(route.getRoute());
+            busCallbacks.onSelectBusRoute(route);
+        } else {
+            selectedRoutes.remove(route.getRoute());
+            busCallbacks.onDeselectBusRoute(route);
+        }
+        routeSelectionPublishSubject.onNext(RouteSelection.create(route, selectedRoutes));
+    }
+
 
     private class BusRouteAdapter extends RecyclerView.Adapter<BusRouteAdapter.BusRouteHolder> {
 
@@ -452,15 +471,7 @@ public class NavigationDrawerFragment extends Fragment {
                     Toast.makeText(getActivity(), getString(R.string.max_selected_routes), Toast.LENGTH_SHORT).show();
                     return;
                 }
-                boolean selected = mRoute.toggleSelection();
-                if (selected) {
-                    selectedRoutes.add(mRoute.getRoute());
-                    busCallbacks.onSelectBusRoute(mRoute);
-                } else {
-                    selectedRoutes.remove(mRoute.getRoute());
-                    busCallbacks.onDeselectBusRoute(mRoute);
-                }
-                routeSelectionPublishSubject.onNext(RouteSelection.create(mRoute, selectedRoutes));
+                toggleRoute(mRoute);
                 notifyItemChanged(getAdapterPosition());
             }
 
@@ -495,10 +506,6 @@ public class NavigationDrawerFragment extends Fragment {
             }
         }
 
-    }
-
-    public Observable<RouteSelection> getListObservable() {
-        return routeSelectionPublishSubject.asObservable();
     }
 
     public Observable<Set<String>> getSelectedRoutesObservable() {

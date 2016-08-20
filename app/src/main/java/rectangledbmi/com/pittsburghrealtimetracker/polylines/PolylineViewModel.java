@@ -61,7 +61,7 @@ public class PolylineViewModel {
     /**
      *  This is the observable that submits events to this class.
      */
-    private final Observable<RouteSelection> selectionObservable;
+    private final Observable<Route> selectionObservable;
 
     /**
      * Dependencies for the View Model.
@@ -72,7 +72,7 @@ public class PolylineViewModel {
      */
     public PolylineViewModel(PATAPI patapi,
                              String patApiKey,
-                             Observable<RouteSelection> selectionObservable,
+                             Observable<Route> selectionObservable,
                              File dataDirectory) {
         this.patapi = patapi;
         this.patApiKey = patApiKey;
@@ -95,8 +95,6 @@ public class PolylineViewModel {
             return null;
         }
         return selectionObservable
-                .skipWhile(routeSelection -> routeSelection.getToggledRoute() == null)
-                .map(RouteSelection::getToggledRoute)
                 .flatMap(route -> {
                     Timber.d("Getting polylines");
                     if (!route.isSelected()) {
