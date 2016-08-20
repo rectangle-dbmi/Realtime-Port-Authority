@@ -98,9 +98,6 @@ public class NavigationDrawerFragment extends Fragment {
                         new HashSet<>(getResources().getInteger(R.integer.max_checked))))));
         busListAdapter = new BusRouteAdapter();
         routeSelectionPublishSubject = BehaviorSubject.create();
-        // Select either the default item (0) or the last selected item.
-//        selectItem(mCurrentSelectedPosition);
-
     }
 
     public void reselectRoutes() {
