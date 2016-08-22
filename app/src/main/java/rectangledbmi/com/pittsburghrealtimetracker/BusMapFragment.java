@@ -564,8 +564,9 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 }).map(VehicleResponse::getBustimeResponse)
                 .retryWhen(attempt -> attempt
                         .flatMap(throwable -> {
+                            Timber.d(throwable, "Catching error");
                     // theoretically, this should only resubscribe when internet is back
-                    if (throwable instanceof IOException){
+                    if (throwable instanceof IOException && !(throwable instanceof SocketTimeoutException)){
                         if (busListInteraction != null) {
                             busListInteraction.showToast(getString(R.string.disconnected_internet), Toast.LENGTH_SHORT);
                         }
@@ -606,7 +607,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                     // otherwise, just run normal onError
                     Timber.d("Not retrying since something should be wrong on " +
                             "Port Authority's end.");
-                    return null;
+                    return Observable.error(throwable);
                 }))
                 .share()
                 .subscribeOn(Schedulers.computation())
