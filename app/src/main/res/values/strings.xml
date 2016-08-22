@@ -357,7 +357,7 @@
     <string name="pat_api_exceeded">Port Authority server unavailable. Please try again after midnight.</string>
     <string name="retrofit_network_error">Cannot connect to internet. Please check your data.</string>
     <string name="retrofit_conversion_error">Cannot translate information from Port Authority.</string>
-    <string name="retrofit_http_error">Port Authority's server is down. Please try again later.</string>
+    <string name="retrofit_http_error">Port Authority\'s server is down. Please try again later.</string>
     <string name="retrofit_unexpected_error">An unexpected error occurred. Please contact the
         developers.
     </string>
