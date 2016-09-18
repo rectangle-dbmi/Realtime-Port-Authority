@@ -16,7 +16,6 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
-import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.PatternResponse;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Ptr;
