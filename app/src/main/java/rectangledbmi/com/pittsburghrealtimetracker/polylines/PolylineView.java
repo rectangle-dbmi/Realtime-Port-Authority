@@ -14,5 +14,5 @@ public interface PolylineView {
      * info from the {@link PolylineViewModel}.
      * @return an Observer for {@link com.google.android.gms.maps.model.Polyline} creation.
      */
-    Observer<PatternSelection> polylineObserver();
+    Observer<PatternSelectionModel> polylineObserver();
 }

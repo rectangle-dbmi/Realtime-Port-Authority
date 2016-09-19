@@ -1,27 +1,10 @@
 package rectangledbmi.com.pittsburghrealtimetracker.polylines;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.List;
-
-import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
+import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.PatternResponse;
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Ptr;
 import rx.Observable;
-import rx.exceptions.Exceptions;
-import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
 /**
@@ -32,30 +15,7 @@ import timber.log.Timber;
  */
 public class PolylineViewModel {
 
-    /**
-     * This is the folder path that determines the location of the polylines
-     */
-    private final static String polylineLocation = "/lineinfo";
-
-    /**
-     * the serialization type to
-     */
-    private final static Type serializationType = new TypeToken<List<Ptr>>() {}.getType();
-
-    /**
-     * the default data directory
-     */
-    private File dataDirectory;
-
-    /**
-     * The service that gets information from Port Authority's API.
-     */
-    private final PATAPI patapi;
-
-    /**
-     * The API key of the Port Authority API
-     */
-    private final String patApiKey;
+    private final PatApiService service;
 
     /**
      *  This is the observable that submits events to this class.
@@ -64,31 +24,24 @@ public class PolylineViewModel {
 
     /**
      * Dependencies for the View Model.
-     * @param patapi Port Authority API
-     * @param patApiKey the API Key of the Port Authority API
+     * @param service the service that retrieves data from the Port Authority API
      * @param selectionObservable the observable for bus route selection
-     * @param dataDirectory the root data directory
      */
-    public PolylineViewModel(PATAPI patapi,
-                             String patApiKey,
-                             Observable<Route> selectionObservable,
-                             File dataDirectory) {
-        this.patapi = patapi;
-        this.patApiKey = patApiKey;
+    public PolylineViewModel(PatApiService service,
+                             Observable<Route> selectionObservable) {
+        this.service = service;
         this.selectionObservable = selectionObservable;
-        this.dataDirectory = new File(dataDirectory, polylineLocation);
-        //noinspection ResultOfMethodCallIgnored
-        this.dataDirectory.mkdirs();
+
     }
 
     /**
      * <p>Gets an observable so the {@link PolylineView} can listen to actions to create, show,
      * or make a {@link com.google.android.gms.maps.model.Polyline} disappear.</p>
-     * <p>{@link PatternSelection#getPatterns()} will be `null` if {@link PatternSelection#isSelected()}
+     * <p>{@link PatternSelectionModel#getPatterns()} will be `null` if {@link PatternSelectionModel#isSelected()}
      * is `false`. Otherwise, it will be not be `null` unless the polyline data was unable to </p>
      * @return an observable for polylines
      */
-    public Observable<PatternSelection> getPolylineObservable() {
+    public Observable<PatternSelectionModel> getPolylineObservable() {
         if (selectionObservable == null) {
             Timber.i("Selection observable is null. Returning null.");
             return null;
@@ -97,15 +50,15 @@ public class PolylineViewModel {
                 .flatMap(route -> {
                     Timber.d("Getting polylines");
                     if (!route.isSelected()) {
-                        return Observable.just(new PatternSelection(false, route.getRoute()));
+                        return Observable.just(new PatternSelectionModel(false, route.getRoute()));
                     }
-                    File polylineFile = new File(dataDirectory,
-                            String.format("%s.json", route.getRoute()));
-                    if (polylineFile.exists()) {
-                        return getPolylineFromDisk(polylineFile, route);
-                    } else {
-                        return getPolylineFromInternet(polylineFile, route);
-                    }
+                    return service.getPatterns(route.getRoute())
+                            .map(patterns ->
+                                    new PatternSelectionModel(
+                                            patterns,
+                                            route.isSelected(),
+                                            route.getRoute(),
+                                            route.getRouteColor()));
 
                 }).flatMap(patternSelection -> {
                     if (patternSelection.getPatterns() == null) {
@@ -124,62 +77,4 @@ public class PolylineViewModel {
                             });
                 });
     }
-
-    /**
-     * Gets the Polyline information from the disk as an observable
-     * @param polylineFile the file that has polyline info
-     * @param route the route of the polyline info
-     * @return an Observable for the Polyline data transfer object
-     */
-    private Observable<PatternSelection> getPolylineFromDisk(File polylineFile, Route route) {
-        try {
-            Timber.d("Getting Polylines from disk");
-            Gson gson = new GsonBuilder().create();
-            PatternSelection patternFromDisk = new PatternSelection(
-                    gson.fromJson(
-                            new JsonReader(new FileReader(polylineFile)),
-                            serializationType),
-                    route.isSelected(), route.getRoute(), route.getRouteColor());
-            return Observable
-                    .just(patternFromDisk)
-                    .subscribeOn(Schedulers.io());
-        } catch (FileNotFoundException e) {
-            Timber.e(e, "File does not exist when it should.");
-            return Observable.error(e);
-        }
-    }
-
-    /**
-     * Gets the polyline info from the internet and stores this meta-data to disk
-     * @param polylineFile the file to save polyline info from the internet to the disk
-     * @param route the route of the polyline info
-     * @return an Observable for the polyline data transfer object
-     */
-    private Observable<PatternSelection> getPolylineFromInternet(File polylineFile, Route route) {
-        return patapi.getPatterns(route.getRoute(), patApiKey)
-                .subscribeOn(Schedulers.io())
-                .map(PatternResponse::getPatternResponse)
-                .map(bustimePatternResponse -> {
-                    Timber.d("Getting polylines from internet");
-                    List<Ptr> patterns = bustimePatternResponse.getPtr();
-                    try {
-                        JsonWriter writer = new JsonWriter(new FileWriter(polylineFile));
-                        Gson gson = new GsonBuilder().create();
-                        gson.toJson(
-                                patterns,
-                                serializationType,
-                                writer
-                        );
-                        // need to flush and close otherwise the file is incomplete and bugs
-                        writer.flush();
-                        writer.close();
-                        return new PatternSelection(patterns, route.isSelected(), route.getRoute(), route.getRouteColor());
-                    } catch (IOException e) {
-                        Timber.e(e, "Could not retrieve polyline from internet when it should have.");
-                        throw Exceptions.propagate(e);
-                    }
-
-                });
-    }
-
 }

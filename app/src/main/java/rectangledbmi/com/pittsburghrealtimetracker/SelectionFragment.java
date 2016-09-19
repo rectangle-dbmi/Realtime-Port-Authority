@@ -15,6 +15,7 @@ import android.view.View;
 import java.io.File;
 import java.util.Set;
 
+import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rx.Observable;
@@ -41,7 +42,15 @@ public abstract class SelectionFragment extends Fragment implements NavigationDr
         /**
          * @return The PAT API instantiated in {@link SelectTransit#onCreate(Bundle)}
          */
+        // TODO: remove this from interface when nothing else will use this
         PATAPI getPatApiClient();
+
+        /**
+         *
+         * @return the service class that gets Port Authority objects
+         * @since 76
+         */
+        PatApiService getPatApiService();
 
         /**
          * Shows a toast message

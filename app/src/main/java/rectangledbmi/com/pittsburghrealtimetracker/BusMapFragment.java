@@ -63,7 +63,7 @@ import java.util.concurrent.TimeUnit;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestLine;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter;
-import rectangledbmi.com.pittsburghrealtimetracker.polylines.PatternSelection;
+import rectangledbmi.com.pittsburghrealtimetracker.polylines.PatternSelectionModel;
 import rectangledbmi.com.pittsburghrealtimetracker.polylines.PolylineView;
 import rectangledbmi.com.pittsburghrealtimetracker.polylines.PolylineViewModel;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
@@ -163,13 +163,9 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     private Observable<ErrorMessage> vehicleErrorObservable;
 
     /**
-     * Creates a stream for the polyline observable
-     */
-    private PolylineViewModel polylineViewModel;
-
-    /**
      * The {@link retrofit2.Retrofit} instance of the Port Authority TrueTime API
      */
+    // TODO: take this out and use the PatApiService instead
     private PATAPI patApiClient;
 
     private Subscription selectionSubscription;
@@ -292,6 +288,9 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         if (googleApiClient != null) {
             googleApiClient.disconnect();
             Timber.d("disconnecting google map api client");
+        }
+        if (polylineSubscription != null && !polylineSubscription.isUnsubscribed()) {
+            polylineSubscription.unsubscribe();
         }
         super.onStop();
     }
@@ -552,8 +551,10 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      * </ul>
      */
     private void setupReactiveObjects() {
-        Observable<Set<String>> selectedRoutesObservable = busListInteraction.getSelectedRoutesObservable();
-        Observable<Route> toggledRoutesObservable = busListInteraction.getToggledRouteObservable();
+        Observable<Set<String>> selectedRoutesObservable = busListInteraction.getSelectedRoutesObservable()
+                .observeOn(Schedulers.io());
+        Observable<Route> toggledRoutesObservable = busListInteraction.getToggledRouteObservable()
+                .observeOn(Schedulers.io());
         ConnectableObservable<Set<String>> selectionObservable = selectedRoutesObservable
                 .map(blah -> {
                     Timber.d("checking selected routes: " + blah);
@@ -586,8 +587,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                     }
                     return patApiClient.getVehicles(
                             collectionToString(
-                                    routes),
-                                    BuildConfig.PAT_API_KEY);
+                                    routes));
                 }).map(VehicleResponse::getBustimeResponse)
                 .retryWhen(attempt -> attempt
                         .flatMap(throwable -> {
@@ -652,7 +652,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 .map(transformSingleMessage());
 
         unselectVehicleSubscription = toggledRoutesObservable
-                .skipWhile(route -> route.isSelected())
+                .skipWhile(Route::isSelected)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(route ->  {
@@ -685,11 +685,12 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     }
 
     private void setupPolylineObservable(Observable<Route> routeSelectionObservable) {
-        polylineViewModel = new PolylineViewModel(
-                patApiClient,
-                BuildConfig.PAT_API_KEY,
-                routeSelectionObservable,
-                busListInteraction.getDatadirectory()
+        /*
+      Creates a stream for the polyline observable
+     */
+        PolylineViewModel polylineViewModel = new PolylineViewModel(
+                busListInteraction.getPatApiService(),
+                routeSelectionObservable
         );
         polylineSubscription = polylineViewModel.getPolylineObservable()
                 .subscribeOn(Schedulers.io())
@@ -1079,50 +1080,49 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     }
 
     @Override
-    public Observer<PatternSelection> polylineObserver() {
-        return new Observer<PatternSelection>() {
+    public Observer<PatternSelectionModel> polylineObserver() {
+        return new Observer<PatternSelectionModel>() {
             @Override
             public void onCompleted() {
-                Timber.d("Completed observing on PatternSelection");
+                Timber.d("Completed observing on PatternSelectionModel");
             }
 
             @Override
             public void onError(Throwable e) {
-                e.printStackTrace();
                 Timber.e(e, "Problem with polyline creation.");
             }
 
             @Override
-            public void onNext(PatternSelection patternSelection) {
+            public void onNext(PatternSelectionModel patternSelectionModel) {
                 if (mMap == null) {
                     Timber.e("Google Map is null while trying to add polylines");
                     return;
                 }
-                List<Polyline> routeLine = routeLines.get(patternSelection.getRouteNumber());
+                List<Polyline> routeLine = routeLines.get(patternSelectionModel.getRouteNumber());
                 if (routeLine != null) {
-                    setVisiblePolylines(routeLine, patternSelection.isSelected());
-                } else if (patternSelection.isSelected()) {
-                    createRouteLine(patternSelection);
+                    setVisiblePolylines(routeLine, patternSelectionModel.isSelected());
+                } else if (patternSelectionModel.isSelected()) {
+                    createRouteLine(patternSelectionModel);
                 }
             }
 
-            private void createRouteLine(PatternSelection patternSelection) {
-                List<List<LatLng>> latLngList = patternSelection.getLatLngs();
-                if (patternSelection.getLatLngs() == null) {
+            private void createRouteLine(PatternSelectionModel patternSelectionModel) {
+                List<List<LatLng>> latLngList = patternSelectionModel.getLatLngs();
+                if (patternSelectionModel.getLatLngs() == null) {
                     Timber.i("Cannot add patterns... should not be null");
                     return;
                 }
-                List<Polyline> polylines = new ArrayList<>(patternSelection.getLatLngs().size());
+                List<Polyline> polylines = new ArrayList<>(patternSelectionModel.getLatLngs().size());
                 for (List<LatLng> latLngs : latLngList) {
                     polylines.add(mMap.addPolyline(
                             new PolylineOptions()
                                     .addAll(latLngs)
                                     .width(4.0f)
-                                    .color(patternSelection.getRouteColor())
+                                    .color(patternSelectionModel.getRouteColor())
                                     .geodesic(true)
                     ));
                 }
-                routeLines.put(patternSelection.getRouteNumber(), polylines);
+                routeLines.put(patternSelectionModel.getRouteNumber(), polylines);
             }
         };
     }

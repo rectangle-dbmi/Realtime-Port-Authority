@@ -1,5 +1,7 @@
 package rectangledbmi.com.pittsburghrealtimetracker;
 
+import java.io.File;
+
 import rx.observers.TestSubscriber;
 
 import static org.junit.Assert.assertNotNull;
@@ -11,7 +13,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public class TestHelperMethods {
     /**
-     *
+     * Assert that the {@link TestSubscriber} has no errors and the subscription hasn't been completed
      * @param testSubscriber a test subscriber
      * @param <N> any Object inside a TestSubscriber
      */
@@ -19,5 +21,15 @@ public class TestHelperMethods {
         assertNotNull(testSubscriber);
         testSubscriber.assertNoErrors();
         testSubscriber.assertNotCompleted();
+    }
+
+    public static void deleteFiles(File file) {
+        if (file.isDirectory()) {
+            for (File f : file.listFiles()) {
+                deleteFiles(f);
+            }
+        }
+        //noinspection ResultOfMethodCallIgnored
+        file.delete();
     }
 }

@@ -17,7 +17,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Ptr;
  * @since 76
  * @author Jeremy Jao
  */
-public class PatternSelection {
+public class PatternSelectionModel {
 
 
     private final List<Ptr> patterns;
@@ -34,7 +34,7 @@ public class PatternSelection {
      * @param isSelected whether or not the pattern is selected
      * @param routeNumber the route number of the object
      */
-    public PatternSelection(boolean isSelected, String routeNumber) {
+    public PatternSelectionModel(boolean isSelected, String routeNumber) {
         this(null, isSelected, routeNumber, 0);
     }
 
@@ -48,7 +48,7 @@ public class PatternSelection {
      * @param isSelected whether or not the route is selected
      * @param routeNumber the route number of the polyline
      */
-    public PatternSelection(List<Ptr> patterns, boolean isSelected, String routeNumber, int routeColor) {
+    public PatternSelectionModel(List<Ptr> patterns, boolean isSelected, String routeNumber, int routeColor) {
         this.patterns = patterns;
         this.isSelected = isSelected;
         this.routeNumber = routeNumber;

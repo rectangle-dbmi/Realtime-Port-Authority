@@ -1,8 +1,5 @@
 package rectangledbmi.com.pittsburghrealtimetracker.mock;
 
-import java.util.Collections;
-
-import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 
 /**

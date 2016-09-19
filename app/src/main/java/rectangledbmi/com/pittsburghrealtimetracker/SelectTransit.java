@@ -20,22 +20,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.io.File;
 import java.util.Calendar;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
-import okhttp3.OkHttpClient;
-import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
+import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
+import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiServiceImpl;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.NotificationMessage;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
-import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
@@ -68,7 +61,13 @@ public class SelectTransit extends AppCompatActivity implements
      *
      * @since 46
      */
+    // TODO: deprecate this class when moving vehicles to a ViewModel class
     private PATAPI patApiClient;
+
+    /**
+     * @since 76
+     */
+    private PatApiService patApiService;
 
     /**
      * Reference to the main activity's Layout.
@@ -128,29 +127,19 @@ public class SelectTransit extends AppCompatActivity implements
      * @since 46
      */
     private void buildPATAPI() {
-        // use a date converter
-        Gson gson = new GsonBuilder()
-                .setDateFormat(Constants.DATE_FORMAT_PARSE)
-                .create();
-
-        final OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .connectTimeout(5, TimeUnit.SECONDS)
-                .readTimeout(5, TimeUnit.SECONDS)
-                .build();
-        // build the restadapter
-        final Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(getString(R.string.api_url))
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                .client(okHttpClient)
-                .build();
-
-        // sets the PAT API
-        patApiClient = retrofit.create(PATAPI.class);
+        patApiService = new PatApiServiceImpl(
+                getString(R.string.api_url),
+                BuildConfig.PAT_API_KEY,
+                getDatadirectory());
+        patApiClient = ((PatApiServiceImpl) patApiService).getPatApiClient();
     }
 
     public PATAPI getPatApiClient() {
         return patApiClient;
+    }
+
+    public PatApiService getPatApiService() {
+        return patApiService;
     }
 
     /**
