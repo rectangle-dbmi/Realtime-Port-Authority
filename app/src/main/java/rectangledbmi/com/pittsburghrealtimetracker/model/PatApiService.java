@@ -3,6 +3,7 @@ package rectangledbmi.com.pittsburghrealtimetracker.model;
 import java.util.List;
 
 import rectangledbmi.com.pittsburghrealtimetracker.world.Prediction;
+import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Pt;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Ptr;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Vehicle;
 import rx.Observable;
@@ -24,4 +25,6 @@ public interface PatApiService {
     Observable<Prediction> getStopPredictions(int id, String... rts);
 
     Observable<List<Ptr>> getPatterns(String rt);
+
+    Observable<List<Pt>> getStops(String rt);
 }

@@ -1,4 +1,4 @@
-package rectangledbmi.com.pittsburghrealtimetracker.polylines;
+package rectangledbmi.com.pittsburghrealtimetracker.model;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -70,9 +70,9 @@ public class PolylineDataManager {
                 .map(gson -> {
                     try {
                         Timber.d("Getting polylines from disk");
-                        return gson.fromJson(
-                                new JsonReader(new FileReader(getPolylineFile(rt))),
-                                serializationType);
+                        //noinspection UnnecessaryLocalVariable -> Android Studio thinks this is an error
+                        List<Ptr> ptrs = gson.fromJson(new JsonReader(new FileReader(getPolylineFile(rt))), serializationType);
+                        return ptrs;
                     } catch (FileNotFoundException e) {
                         Timber.e(e, "File does not exist when it should.");
                         throw Exceptions.propagate(e);

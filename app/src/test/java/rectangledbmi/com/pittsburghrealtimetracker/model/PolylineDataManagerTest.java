@@ -1,4 +1,4 @@
-package rectangledbmi.com.pittsburghrealtimetracker.polylines;
+package rectangledbmi.com.pittsburghrealtimetracker.model;
 
 import org.junit.After;
 import org.junit.Before;
@@ -8,6 +8,7 @@ import java.io.File;
 import java.util.List;
 
 import rectangledbmi.com.pittsburghrealtimetracker.mock.PatApiMock;
+import rectangledbmi.com.pittsburghrealtimetracker.model.PolylineDataManager;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Ptr;
 import rx.observers.TestSubscriber;

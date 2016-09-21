@@ -15,9 +15,9 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
-import rectangledbmi.com.pittsburghrealtimetracker.polylines.PolylineDataManager;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Prediction;
+import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Pt;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Ptr;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Vehicle;
 import retrofit2.Retrofit;
@@ -63,6 +63,11 @@ public class PatApiServiceImpl implements PatApiService {
     @Override
     public Observable<List<Ptr>> getPatterns(String rt) {
         return polylineDataManager.getPatterns(rt);
+    }
+
+    @Override
+    public Observable<List<Pt>> getStops(String rt) {
+        return null;
     }
 
     @Override
