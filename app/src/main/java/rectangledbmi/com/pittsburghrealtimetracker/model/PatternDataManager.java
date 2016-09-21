@@ -33,14 +33,14 @@ import timber.log.Timber;
  * @since 77
  */
 // TODO: fix the last thing in the list
-public class PolylineDataManager {
+public class PatternDataManager {
 
     private final static String polylineLocation = "/lineinfo";
     private final File polylineDirectory;
     private final PATAPI patApiClient;
     private final static Type serializationType = new TypeToken<List<Ptr>>() {}.getType();
 
-    public PolylineDataManager(File dataDirectory, PATAPI patApiClient) {
+    public PatternDataManager(File dataDirectory, PATAPI patApiClient) {
         polylineDirectory = new File(dataDirectory, polylineLocation);
         //noinspection ResultOfMethodCallIgnored
         polylineDirectory.mkdirs();

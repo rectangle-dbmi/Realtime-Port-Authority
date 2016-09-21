@@ -50,19 +50,19 @@ public class PatApiServiceImpl implements PatApiService {
 
     private final PATAPI patApiClient;
 
-    private final PolylineDataManager polylineDataManager;
+    private final PatternDataManager patternDataManager;
 
     public PatApiServiceImpl(String baseUrl,
                              String apiKey,
                              File dataDirectory) {
 
         patApiClient = createPatApiClient(baseUrl, apiKey);
-        polylineDataManager = new PolylineDataManager(dataDirectory, patApiClient);
+        patternDataManager = new PatternDataManager(dataDirectory, patApiClient);
     }
 
     @Override
     public Observable<List<Ptr>> getPatterns(String rt) {
-        return polylineDataManager.getPatterns(rt);
+        return patternDataManager.getPatterns(rt);
     }
 
     @Override
