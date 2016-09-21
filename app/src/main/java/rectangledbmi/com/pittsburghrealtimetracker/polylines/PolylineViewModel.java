@@ -10,7 +10,7 @@ import timber.log.Timber;
 /**
  * <p>Contains the logic of the {@link PolylineView} for pre-processing the polylines.</p>
  * <p>Created by epicstar on 7/18/16.</p>
- * @since 76
+ * @since 77
  * @author Jeremy Jao and Michael Antonacci
  */
 public class PolylineViewModel {

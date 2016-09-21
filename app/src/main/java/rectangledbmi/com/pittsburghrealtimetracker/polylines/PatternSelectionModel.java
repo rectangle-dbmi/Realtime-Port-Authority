@@ -14,7 +14,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Ptr;
  * should be `null. Otherwise, it will always not be null.</p>
  *
  * <p>Created by epicstar on 7/30/16.</p>
- * @since 76
+ * @since 77
  * @author Jeremy Jao
  */
 public class PatternSelectionModel {
