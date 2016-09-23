@@ -1,6 +1,7 @@
 package rectangledbmi.com.pittsburghrealtimetracker;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -60,18 +61,20 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
-import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestLine;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter;
-import rectangledbmi.com.pittsburghrealtimetracker.polylines.PatternSelectionModel;
+import rectangledbmi.com.pittsburghrealtimetracker.polylines.PatternSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.polylines.PolylineView;
 import rectangledbmi.com.pittsburghrealtimetracker.polylines.PolylineViewModel;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.errors.ErrorMessage;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.vehicles.VehicleBitmap;
+import rectangledbmi.com.pittsburghrealtimetracker.stops.StopRenderInfo;
+import rectangledbmi.com.pittsburghrealtimetracker.stops.StopView;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStopCollection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimeVehicleResponse;
+import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Pt;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Vehicle;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.VehicleResponse;
 import retrofit2.adapter.rxjava.HttpException;
@@ -82,20 +85,21 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.observables.ConnectableObservable;
 import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 
 /**
  * <p>Fragment that holds a map for the buses. This currrently holds all logic related to displaying
- * the buses, stops, and polylines on a {@link GoogleMap} instance</p>
+ * the buses, stopRenderInfos, and patternSelections on a {@link GoogleMap} instance</p>
+ *
  * @author Jeremy Jao
  */
 public class BusMapFragment extends SelectionFragment implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         OnMapReadyCallback, LocationListener, ClearSelection,
-        PolylineView
-{
+        PolylineView, StopView {
 
     private static final String CAMERA_POSITION = "cameraPosition";
 
@@ -148,7 +152,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      */
     private Subscription unselectVehicleSubscription;
 
-    private ConcurrentMap<String,List<Polyline>> routeLines;
+    private ConcurrentMap<String, List<Polyline>> routeLines;
 
     /**
      * Observable that emits individual vehicles onto the map.
@@ -171,17 +175,24 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     private Subscription selectionSubscription;
 
     /**
-     * Subscription for the polylines
+     * Subscription for the patternSelections
      */
     private Subscription polylineSubscription;
+
+    private Subscription stopSubscription;
+
+    private HashMap<Integer, Marker> stops;
+
+    private PublishSubject<Float> zoomSubject;
     // endregion
 
     // region Android Fragment LifeCycle
     @Override
+
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof BusSelectionInteraction) {
-            // get the default zoom level of the stops
+            // get the default zoom level of the stopRenderInfos
             busListInteraction = (BusSelectionInteraction) context;
             TypedValue zoomLevelValue = new TypedValue();
             context.getResources().getValue(R.integer.zoom_level, zoomLevelValue, true);
@@ -195,6 +206,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         }
     }
 
+    @SuppressLint("UseSparseArrays")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -207,10 +219,12 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 .addOnConnectionFailedListener(this)
                 .build();
 
-        // set up the stops collection object and its listeners
+        // set up the stopRenderInfos collection object and its listeners
         transitStopCollection = new TransitStopCollection();
         busMarkers = new ConcurrentHashMap<>();
         routeLines = new ConcurrentHashMap<>();
+        stops = new HashMap<>();
+        zoomSubject = PublishSubject.create();
     }
 
     @Override
@@ -374,8 +388,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                                 ((dialog, which) ->
                                         requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, CENTER_MAP_LOCATION_CODE))
                         );
-                    }
-                    else {
+                    } else {
                         String message = getString(R.string.center_permissions_denied);
                         Timber.i("Request has been been denied: %s", message);
                         busListInteraction.makeSnackbar(
@@ -395,6 +408,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     // endregion
 
     // region Google API Client Callbacks
+
     /**
      * Called from {@link #onStart()} to connect to the Google APIs. This will get the Google Map object
      * which is handled in {@link #onMapReady(GoogleMap)}
@@ -421,6 +435,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     // endregion
 
     // region Google Map and Location Callbacks
+
     /**
      * This is called from {@link #onConnected(Bundle)} to retrieve a non-null map object
      * from the Google Maps API.
@@ -455,7 +470,8 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         mMap.setOnCameraChangeListener(cameraPosition -> {
             if (zoom != cameraPosition.zoom) {
                 zoom = cameraPosition.zoom;
-                transitStopCollection.checkAllVisibility(zoom, zoomStopVisibility);
+                zoomSubject.onNext(zoom);
+//                transitStopCollection.checkAllVisibility(zoom, zoomStopVisibility);
             }
         });
 
@@ -465,56 +481,10 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     }
 
     /**
-     * This is the method to restore polylines.
+     * sets a visible or invisible patternSelections for a route
      *
-     * @since 43
-     */
-    protected void restorePolylines() {
-        Route currentRoute;
-        for (String route : busListInteraction.getSelectedRoutes()) {
-            currentRoute = busListInteraction.getSelectedRoute(route);
-            selectPolyline(currentRoute);
-        }
-    }
-
-    /**
-     * Adds the bus route line to the map
-     *
-     * @since 43
-     * @param routeInfo - the route and its info to add
-     */
-    private void selectPolyline(Route routeInfo) {
-        if (routeInfo == null) {
-            // Perhaps for this case, when route lines are in retrofit, instead of just returning,
-            // the app should keep a stack of clicks instead of do nothing if routeLines or routeInfo
-            // are null
-            return;
-        }
-        String route = routeInfo.getRoute();
-        if (routeLines == null) {
-            return;
-        }
-        List<Polyline> polylines = routeLines.get(route);
-
-        if (polylines == null || polylines.isEmpty()) {
-            new RequestLine(mMap,
-                    routeLines,
-                    route,
-                    routeInfo.getRouteColor(),
-                    zoom,
-                    R.integer.zoom_level,
-                    transitStopCollection, getContext()).execute();
-        } else if (!polylines.get(0).isVisible()) {
-            setVisiblePolylines(polylines, true);
-            transitStopCollection.updateAddRoutes(route, zoom, R.integer.zoom_level);
-        }
-    }
-
-    /**
-     * sets a visible or invisible polylines for a route
-     *
-     * @param polylines  list of polylines
-     * @param visibility whether or not the polylines are visible or not
+     * @param polylines  list of patternSelections
+     * @param visibility whether or not the patternSelections are visible or not
      */
     private void setVisiblePolylines(List<Polyline> polylines, boolean visibility) {
         for (Polyline polyline : polylines) {
@@ -523,31 +493,15 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     }
 
     /**
-     * Removes the route line if it was on the map
-     * @param route - the route to remove by its string
-     */
-    private void deselectPolyline(String route) {
-        List<Polyline> polylines = routeLines.get(route);
-        if (polylines != null) {
-            if (!polylines.isEmpty() && polylines.get(0).isVisible()) {
-                setVisiblePolylines(polylines, false);
-                transitStopCollection.removeRoute(route);
-            } else {
-                routeLines.remove(route);
-            }
-        }
-    }
-
-    /**
      * <p>Observables created:</p>
      * <ul>
-     *     <li>{@link #vehicleErrorObservable}</li>
-     *     <li>{@link #vehicleErrorObservable}</li>
+     * <li>{@link #vehicleErrorObservable}</li>
+     * <li>{@link #vehicleErrorObservable}</li>
      * </ul>
      * <p>Subscriptions created:</p>
      * <ul>
-     *     <li>{@link #vehicleSubscriptions}</li>
-     *     <li>{@link #unselectVehicleSubscription}</li>
+     * <li>{@link #vehicleSubscriptions}</li>
+     * <li>{@link #unselectVehicleSubscription}</li>
      * </ul>
      */
     private void setupReactiveObjects() {
@@ -556,10 +510,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         Observable<Route> toggledRoutesObservable = busListInteraction.getToggledRouteObservable()
                 .observeOn(Schedulers.io());
         ConnectableObservable<Set<String>> selectionObservable = selectedRoutesObservable
-                .map(blah -> {
-                    Timber.d("checking selected routes: " + blah);
-                    return blah;
-                })
                 .replay(1);
         //noinspection Convert2Lambda
         Observable<BustimeVehicleResponse> vehicleIntervalObservable = selectionObservable
@@ -591,50 +541,50 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 }).map(VehicleResponse::getBustimeResponse)
                 .retryWhen(attempt -> attempt
                         .flatMap(throwable -> {
-                    // theoretically, this should only resubscribe when internet is back
-                    if (throwable instanceof IOException){
-                        if (busListInteraction != null) {
-                            busListInteraction.showToast(getString(R.string.disconnected_internet), Toast.LENGTH_SHORT);
-                        }
-                        return Observable
-                                .timer(2, TimeUnit.SECONDS)
-                                .flatMap(aLong -> new ReactiveNetwork()
-                                        .enableInternetCheck()
-                                        .observeConnectivity(getContext()))
-                                .skipWhile(connectivityStatus -> {
-                                    // there is a bug here:
-                                    // When on wifi that needs authentication,
-                                    // (ex. Xfinity, Starbucks WIFI)
-                                    // connectivityStatus is going to be
-                                    // connectivityStatus.WIFI_CONNECTED_HAS_INTERNET.
-                                    // This is only a problem if we notify the user....
-                                    // It will just print many toasts since the retryWhen is always
-                                    // activated and deactivated since there is actually no
-                                    // internet. This is ok since it will not
-                                    // leak on the stack. Plus, this is possibly only a rare edge
-                                    // case.
-                                    //
-                                    // This will be fixed in ReactiveNetwork 0.3.0:
-                                    // https://github.com/pwittchen/ReactiveNetwork/issues/51
-                                    if (connectivityStatus == null) {
-                                        return true;
-                                    }
-                                    if ((connectivityStatus == ConnectivityStatus.MOBILE_CONNECTED ||
-                                            connectivityStatus == ConnectivityStatus.WIFI_CONNECTED_HAS_INTERNET) &&
-                                            busListInteraction != null) {
-                                        String msg = getString(R.string.retrying_vehicles);
-                                        Timber.d(msg);
-                                        busListInteraction.showToast(msg, Toast.LENGTH_SHORT);
-                                        return false;
-                                    }
-                                    return true;
-                                }).delay(3, TimeUnit.SECONDS); // add 4 second delay so toasts don't cycle
-                    }
-                    // otherwise, just run normal onError
-                    Timber.d("Not retrying since something should be wrong on " +
-                            "Port Authority's end.");
-                    return null;
-                }))
+                            // theoretically, this should only resubscribe when internet is back
+                            if (throwable instanceof IOException) {
+                                if (busListInteraction != null) {
+                                    busListInteraction.showToast(getString(R.string.disconnected_internet), Toast.LENGTH_SHORT);
+                                }
+                                return Observable
+                                        .timer(2, TimeUnit.SECONDS)
+                                        .flatMap(aLong -> new ReactiveNetwork()
+                                                .enableInternetCheck()
+                                                .observeConnectivity(getContext()))
+                                        .skipWhile(connectivityStatus -> {
+                                            // there is a bug here:
+                                            // When on wifi that needs authentication,
+                                            // (ex. Xfinity, Starbucks WIFI)
+                                            // connectivityStatus is going to be
+                                            // connectivityStatus.WIFI_CONNECTED_HAS_INTERNET.
+                                            // This is only a problem if we notify the user....
+                                            // It will just print many toasts since the retryWhen is always
+                                            // activated and deactivated since there is actually no
+                                            // internet. This is ok since it will not
+                                            // leak on the stack. Plus, this is possibly only a rare edge
+                                            // case.
+                                            //
+                                            // This will be fixed in ReactiveNetwork 0.3.0:
+                                            // https://github.com/pwittchen/ReactiveNetwork/issues/51
+                                            if (connectivityStatus == null) {
+                                                return true;
+                                            }
+                                            if ((connectivityStatus == ConnectivityStatus.MOBILE_CONNECTED ||
+                                                    connectivityStatus == ConnectivityStatus.WIFI_CONNECTED_HAS_INTERNET) &&
+                                                    busListInteraction != null) {
+                                                String msg = getString(R.string.retrying_vehicles);
+                                                Timber.d(msg);
+                                                busListInteraction.showToast(msg, Toast.LENGTH_SHORT);
+                                                return false;
+                                            }
+                                            return true;
+                                        }).delay(3, TimeUnit.SECONDS); // add 4 second delay so toasts don't cycle
+                            }
+                            // otherwise, just run normal onError
+                            Timber.d("Not retrying since something should be wrong on " +
+                                    "Port Authority's end.");
+                            return null;
+                        }))
                 .share()
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread());
@@ -648,14 +598,14 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         vehicleErrorObservable = vehicleIntervalObservable
                 .map(BustimeVehicleResponse::getProcessedErrors)
                 .distinctUntilChanged()
-                .flatMap( errorMap -> Observable.from(errorMap.entrySet()))
+                .flatMap(errorMap -> Observable.from(errorMap.entrySet()))
                 .map(transformSingleMessage());
 
         unselectVehicleSubscription = toggledRoutesObservable
                 .skipWhile(Route::isSelected)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(route ->  {
+                .flatMap(route -> {
                     Timber.d("removing all %s's", route.getRoute());
                     return Observable.from(busMarkers.entrySet())
                             .filter(busMarker -> busMarker.getValue().getTitle().contains(route.getRoute()));
@@ -681,7 +631,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         resetMapSubscriptions();
         selectionSubscription = selectionObservable.connect();
         setupPolylineObservable(toggledRoutesObservable);
-        restorePolylines();
     }
 
     private void setupPolylineObservable(Observable<Route> routeSelectionObservable) {
@@ -690,12 +639,19 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      */
         PolylineViewModel polylineViewModel = new PolylineViewModel(
                 busListInteraction.getPatApiService(),
-                routeSelectionObservable
+                routeSelectionObservable,
+                zoomSubject.asObservable()
         );
-        polylineSubscription = polylineViewModel.getPolylineObservable()
+        polylineSubscription = polylineViewModel.patternSelections()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(polylineObserver());
+
+        stopSubscription = polylineViewModel.stopRenderInfos()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(stopObserver());
+
     }
 
     /**
@@ -743,6 +699,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
     /**
      * Centers the map on the user's latest location data.
+     *
      * @param location the user's latest location data.
      */
     @Override
@@ -765,7 +722,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      */
     private void resetMapSubscriptions() {
         Timber.d("Resetting vehicle subscriptions in bus fragment");
-        if(vehicleSubscriptions == null || vehicleSubscriptions.isUnsubscribed()) {
+        if (vehicleSubscriptions == null || vehicleSubscriptions.isUnsubscribed()) {
             vehicleSubscriptions = new CompositeSubscription(
                     vehicleUpdateObservable.subscribe(vehicleUpdateObserver()),
                     vehicleErrorObservable.subscribe(vehicleErrorObserver())
@@ -782,6 +739,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     /**
      * This is an anonymous function that attaches a route's bitmap to its information
      * from {@link Vehicle}. This will make an {@link rx.Observable} emit a {@link VehicleBitmap}.
+     *
      * @return the anonymous vehicle information with its associated bitmap
      */
     private Func1<Vehicle, VehicleBitmap> makeBitmaps() {
@@ -845,6 +803,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
     /**
      * Creates an anonymous class to make messages more human-readable.
+     *
      * @return a closure to create a human-readable {@link ErrorMessage}
      * @since 55
      */
@@ -879,8 +838,10 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     // endregion
 
     // region Observers
+
     /**
      * This creates an observer to either update or add the buses to the map.
+     *
      * @return the vehicle update observer
      * @since 55
      */
@@ -982,6 +943,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     /**
      * This is the vehicle update/add Port Authority API observer that will print each processed error
      * into a Toast.
+     *
      * @return the vehicle update observer
      * @since 55
      */
@@ -1012,8 +974,10 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     // endregion
 
     // region Miscellaneous Private Methods
+
     /**
      * Checks if the current location is in the immediate vicinity
+     *
      * @param currentLocation The current location.
      * @return whether or not your device is in Pittsburgh
      */
@@ -1041,11 +1005,10 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     }
 
     /**
-     *
      * @param data - the data in a collection to add
-     * @param <T> - Any Object that extends {@link Object}
-     * @since 46
+     * @param <T>  - Any Object that extends {@link Object}
      * @return a comma-delim strings of data
+     * @since 46
      */
     private <T> String collectionToString(Collection<T> data) {
         int size = data.size();
@@ -1061,7 +1024,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
     @Override
     public void onSelectBusRoute(Route route) {
-        selectPolyline(route);
+
     }
 
     @Override
@@ -1076,15 +1039,15 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
     @Override
     public void onDeselectBusRoute(Route route) {
-        deselectPolyline(route.getRoute());
+
     }
 
     @Override
-    public Observer<PatternSelectionModel> polylineObserver() {
-        return new Observer<PatternSelectionModel>() {
+    public Observer<PatternSelection> polylineObserver() {
+        return new Observer<PatternSelection>() {
             @Override
             public void onCompleted() {
-                Timber.d("Completed observing on PatternSelectionModel");
+                Timber.d("Completed observing on PatternSelection");
             }
 
             @Override
@@ -1093,36 +1056,97 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             }
 
             @Override
-            public void onNext(PatternSelectionModel patternSelectionModel) {
+            public void onNext(PatternSelection patternSelection) {
                 if (mMap == null) {
-                    Timber.e("Google Map is null while trying to add polylines");
+                    Timber.e("Google Map is null while trying to add patternSelections");
                     return;
                 }
-                List<Polyline> routeLine = routeLines.get(patternSelectionModel.getRouteNumber());
+                List<Polyline> routeLine = routeLines.get(patternSelection.getRouteNumber());
                 if (routeLine != null) {
-                    setVisiblePolylines(routeLine, patternSelectionModel.isSelected());
-                } else if (patternSelectionModel.isSelected()) {
-                    createRouteLine(patternSelectionModel);
+                    setVisiblePolylines(routeLine, patternSelection.isSelected());
+                } else if (patternSelection.isSelected()) {
+                    createRouteLine(patternSelection);
                 }
             }
 
-            private void createRouteLine(PatternSelectionModel patternSelectionModel) {
-                List<List<LatLng>> latLngList = patternSelectionModel.getLatLngs();
-                if (patternSelectionModel.getLatLngs() == null) {
+            private void createRouteLine(PatternSelection patternSelection) {
+                List<List<LatLng>> latLngList = patternSelection.getLatLngs();
+                if (patternSelection.getLatLngs() == null) {
                     Timber.i("Cannot add patterns... should not be null");
                     return;
                 }
-                List<Polyline> polylines = new ArrayList<>(patternSelectionModel.getLatLngs().size());
+                List<Polyline> polylines = new ArrayList<>(patternSelection.getLatLngs().size());
                 for (List<LatLng> latLngs : latLngList) {
                     polylines.add(mMap.addPolyline(
                             new PolylineOptions()
                                     .addAll(latLngs)
                                     .width(4.0f)
-                                    .color(patternSelectionModel.getRouteColor())
+                                    .color(patternSelection.getRouteColor())
                                     .geodesic(true)
                     ));
                 }
-                routeLines.put(patternSelectionModel.getRouteNumber(), polylines);
+                routeLines.put(patternSelection.getRouteNumber(), polylines);
+            }
+        };
+    }
+
+    private void clearStops() {
+        if (stops == null) {
+            Timber.i("Cannot clear all stopRenderInfos");
+            return;
+        }
+        for (Marker marker : stops.values()) {
+            marker.remove();
+        }
+        stops.clear();
+    }
+
+    @Override
+    public Observer<StopRenderInfo> stopObserver() {
+        return new Observer<StopRenderInfo>() {
+            @Override
+            public void onCompleted() {
+                Timber.i("Stops have been unsubscribed");
+                clearStops();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Timber.e(e, "Stop observer encountered an error");
+                clearStops();
+            }
+
+            @Override
+            public void onNext(StopRenderInfo stopRenderInfo) {
+                if (mMap == null) {
+                    Timber.i("Google Map is null");
+                    return;
+                }
+                if (stops == null) {
+                    Timber.i("stopRenderInfos is null");
+                    return;
+                }
+                Pt stopInfo = stopRenderInfo.getStopInfo();
+                Marker stopMarker = stops.get(stopInfo.getStpid());
+                if (stopRenderInfo.isVisible()) {
+                    if (stopMarker == null) {
+                        stopMarker = mMap.addMarker(new MarkerOptions()
+                                .anchor(.5f, .5f)
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_stop))
+                                .visible(true)
+                                .draggable(false)
+                                .position(new LatLng(stopInfo.getLat(), stopInfo.getLon()))
+                                .flat(true)
+                        );
+                        stopMarker.setTag(stopRenderInfo.getStopInfo());
+                        stops.put(stopRenderInfo.getStopInfo().getStpid(), stopMarker);
+                    }
+                    else {
+                        stopMarker.setVisible(true);
+                    }
+                } else if (stopMarker != null) {
+                    stopMarker.setVisible(false);
+                }
             }
         };
     }

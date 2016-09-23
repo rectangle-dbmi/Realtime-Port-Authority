@@ -22,7 +22,7 @@ import rx.exceptions.Exceptions;
 import timber.log.Timber;
 
 /**
- * <p>Create a data manager for polylines that will handle:</p>
+ * <p>Create a data manager for patternSelections that will handle:</p>
  * <ul>
  *     <li>getting data from disk</li>
  *     <li>or... getting from retrofit and saving that data to disk</li>
@@ -48,7 +48,7 @@ public class PatternDataManager {
     }
 
     public Observable<List<Ptr>> getPatterns(String rt) {
-        Timber.d("Getting polylines");
+        Timber.d("Getting patternSelections");
         File polylineFile = getPolylineFile(rt);
         if (polylineFile.exists() && polylineFile.canWrite()) {
             return getPolylineFromDisk(rt);
@@ -69,7 +69,7 @@ public class PatternDataManager {
         return Observable.just(new GsonBuilder().create())
                 .map(gson -> {
                     try {
-                        Timber.d("Getting polylines from disk");
+                        Timber.d("Getting patternSelections from disk");
                         //noinspection UnnecessaryLocalVariable -> Android Studio thinks this is an error
                         List<Ptr> ptrs = gson.fromJson(new JsonReader(new FileReader(getPolylineFile(rt))), serializationType);
                         return ptrs;
@@ -91,7 +91,7 @@ public class PatternDataManager {
         return patApiClient.getPatterns(rt)
                 .map(PatternResponse::getPatternResponse)
                 .map(bustimePatternResponse -> {
-                    Timber.d("Getting polylines from internet");
+                    Timber.d("Getting patternSelections from internet");
                     List<Ptr> patterns = bustimePatternResponse.getPtr();
                     try {
                         JsonWriter writer = new JsonWriter(new FileWriter(getPolylineFile(rt)));

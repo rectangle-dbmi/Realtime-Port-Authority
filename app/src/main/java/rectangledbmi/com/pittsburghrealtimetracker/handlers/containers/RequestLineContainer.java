@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import rectangledbmi.com.pittsburghrealtimetracker.world.LineInfo;
 
 /**
- * Container class for the the RequestLine Asynctask that gets the polylines and bus stop info.
+ * Container class for the the RequestLine Asynctask that gets the patternSelections and bus stop info.
  *
  * Will use a LinkedList<LinkedList<LatLng>> and BusStopInfo setter and getter
  *
@@ -22,7 +22,7 @@ public class RequestLineContainer {
     /**
      * General class to set the RequestLineContainer
      *
-     * @param polylinesInfo LinkedList of a LinkedList of latlngs for the polylines
+     * @param polylinesInfo LinkedList of a LinkedList of latlngs for the patternSelections
      * @param busStopInfos the bus stop info of the line
      */
     public RequestLineContainer(ArrayList<LinkedList<LatLng>> polylinesInfo,

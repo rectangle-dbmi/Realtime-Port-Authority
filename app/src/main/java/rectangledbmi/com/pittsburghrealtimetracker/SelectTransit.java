@@ -143,7 +143,7 @@ public class SelectTransit extends AppCompatActivity implements
     }
 
     /**
-     * Checks if the stored polylines directory is present and clears if we hit a friday or if the
+     * Checks if the stored patternSelections directory is present and clears if we hit a friday or if the
      * saved day of the week is higher than the current day of the week.
      *
      * @since 32

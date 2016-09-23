@@ -31,7 +31,7 @@ import static rectangledbmi.com.pittsburghrealtimetracker.mock.ToggledRouteMockM
 public class PolylineViewModelTest {
 
     private Subscription polylinePresenterSubscription;
-    private TestSubscriber<PatternSelectionModel> patternSelectionTestSubscriber;
+    private TestSubscriber<PatternSelection> patternSelectionTestSubscriber;
     private PatApiService patapiMock;
     private static BehaviorSubject<Route> subject = BehaviorSubject.create();
 
@@ -42,11 +42,12 @@ public class PolylineViewModelTest {
 
         PolylineViewModel polylineViewModel = new PolylineViewModel(
                 patapiMock,
-                subject.asObservable()
+                subject.asObservable(),
+                null
         );
         patternSelectionTestSubscriber = new TestSubscriber<>();
         polylinePresenterSubscription = polylineViewModel
-                .getPolylineObservable()
+                .patternSelections()
                 .subscribe(patternSelectionTestSubscriber);
     }
 
@@ -76,17 +77,17 @@ public class PolylineViewModelTest {
         subject.onNext(firstRouteSelection);
         noErrorsAndNotCompleted(patternSelectionTestSubscriber);
 
-        for (PatternSelectionModel patternSelectionModel : patternSelectionTestSubscriber.getOnNextEvents()) {
-            assertEquals(PatApiMock.getPatterns(), patternSelectionModel.getPatterns());
-            assertEquals(firstRouteSelection.isSelected(), patternSelectionModel.isSelected());
-            assertEquals(firstRouteSelection.getRoute(), patternSelectionModel.getRouteNumber());
+        for (PatternSelection patternSelection : patternSelectionTestSubscriber.getOnNextEvents()) {
+            assertEquals(PatApiMock.getPatterns(), patternSelection.getPatterns());
+            assertEquals(firstRouteSelection.isSelected(), patternSelection.isSelected());
+            assertEquals(firstRouteSelection.getRoute(), patternSelection.getRouteNumber());
         }
 
         Route unselectedSelection = getUnselectedRouteSelection();
         subject.onNext(unselectedSelection);
         noErrorsAndNotCompleted(patternSelectionTestSubscriber);
-        List<PatternSelectionModel> onNextEvents = patternSelectionTestSubscriber.getOnNextEvents();
-        PatternSelectionModel unselectedOnNextEvent = onNextEvents.get(onNextEvents.size() - 1);
+        List<PatternSelection> onNextEvents = patternSelectionTestSubscriber.getOnNextEvents();
+        PatternSelection unselectedOnNextEvent = onNextEvents.get(onNextEvents.size() - 1);
         assertNull(unselectedOnNextEvent.getPatterns());
         assertFalse(unselectedOnNextEvent.isSelected());
         assertEquals(unselectedSelection.getRoute(), unselectedOnNextEvent.getRouteNumber());

@@ -46,7 +46,7 @@ public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
     /*    /**
          * Initializes the asynctask
          * @param busIds set of id of buses
-         * @param stopIds set of id of bus stops
+         * @param stopIds set of id of bus stopRenderInfos
          * @param fragmentManager the fragment manager class from the activity
          * @param context the context of the activity
          */
@@ -112,7 +112,7 @@ public class RequestPredictions extends AsyncTask<String, Void, ETAContainer> {
 
                     StringBuilder addString = new StringBuilder(date.format(new SimpleDateFormat("HH:mm", Locale.US).parse(prediction.getPrdtm().split(" ")[1])));
 
-                    if (sw == 0) { // bus dialog that displays stops
+                    if (sw == 0) { // bus dialog that displays stopRenderInfos
                         stopPredictions.add("(" + prediction.getStpid() + ")" + prediction.getStpnm() + ": " + addString);
                     } else if (sw == 1) { // stop dialog that displays routes
                         Log.d("delayed", prediction.getDly());

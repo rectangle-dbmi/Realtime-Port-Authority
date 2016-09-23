@@ -33,11 +33,11 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.LineInfo;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStopCollection;
 
 /**
- * This is the way to add the polylines if it's not present on the map
+ * This is the way to add the patternSelections if it's not present on the map
  * <p/>
  * REQUIRES PortAuthorityAPI class to get the Port Authority URLs
  * <p/>
- * TODO: to get the bus stops... change linkedList<LinkedList<LatLng>> to be a custom wrapper
+ * TODO: to get the bus stopRenderInfos... change linkedList<LinkedList<LatLng>> to be a custom wrapper
  *
  * @author Jeremy Jao
  */
@@ -69,7 +69,7 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
 
     private Context context;
 
-    //TODO: selectedRoute and color have to go out in order to add the polylines to the map...
+    //TODO: selectedRoute and color have to go out in order to add the patternSelections to the map...
     public RequestLine(GoogleMap mMap, ConcurrentMap<String, List<Polyline>> patterns,
                        String selectedRoute, int color,
                        float zoomLevel,
@@ -321,11 +321,11 @@ public class RequestLine extends AsyncTask<Void, Void, RequestLineContainer> {
 //            ArrayList<LinkedList<LatLng>> latLngs = container.getPolylinesInfo();
             ArrayList<LineInfo> busStopInfos = container.getBusStopInfos();
 //            if (latLngs != null) {
-//                List<Polyline> polylines = new ArrayList<>(latLngs.size());
+//                List<Polyline> patternSelections = new ArrayList<>(latLngs.size());
 //                for (LinkedList<LatLng> points : latLngs) {
-//                    polylines.add(mMap.addPolyline(new PolylineOptions().addAll(points).color(color).geodesic(true).visible(true)));
+//                    patternSelections.add(mMap.addPolyline(new PolylineOptions().addAll(points).color(color).geodesic(true).visible(true)));
 //                }
-//                patterns.put(selectedRoute, polylines);
+//                patterns.put(selectedRoute, patternSelections);
 //            }
 
             if (busStopInfos != null) {
