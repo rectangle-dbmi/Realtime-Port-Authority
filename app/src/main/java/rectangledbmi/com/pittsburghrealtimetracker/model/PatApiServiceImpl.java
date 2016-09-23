@@ -24,6 +24,7 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 /**
  * Implemented service that retrieves data.
@@ -62,7 +63,8 @@ public class PatApiServiceImpl implements PatApiService {
 
     @Override
     public Observable<List<Ptr>> getPatterns(String rt) {
-        return patternDataManager.getPatterns(rt);
+        return patternDataManager.getPatterns(rt)
+                .compose(applySchedulers());
     }
 
     @Override
@@ -124,6 +126,18 @@ public class PatApiServiceImpl implements PatApiService {
                 .build();
 
         return retrofit.create(PATAPI.class);
+    }
+
+    /**
+     * Sets IO above and computation schedulers below. This is fine because this class will only be mocked
+     * in unit tests.
+     * @param <T> any value
+     * @return a transformer anonymous class
+     */
+    private static <T> Observable.Transformer<T, T> applySchedulers() {
+        return observable -> observable
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation());
     }
     // endregion
 }
