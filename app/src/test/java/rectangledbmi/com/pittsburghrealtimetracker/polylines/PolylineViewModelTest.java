@@ -47,7 +47,7 @@ public class PolylineViewModelTest {
         );
         patternSelectionTestSubscriber = new TestSubscriber<>();
         polylinePresenterSubscription = polylineViewModel
-                .patternSelections()
+                .getPatternSelections()
                 .subscribe(patternSelectionTestSubscriber);
     }
 

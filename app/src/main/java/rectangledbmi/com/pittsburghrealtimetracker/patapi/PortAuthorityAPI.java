@@ -95,7 +95,7 @@ public class PortAuthorityAPI {
     }
 
     /**
-     * Gets predictions for the buses to stopRenderInfos
+     * Gets predictions for the buses to getStopRenderRequests
      * @param vid the bus id
      * @return the URL to get the predictions for the specific bus
      * @throws MalformedURLException

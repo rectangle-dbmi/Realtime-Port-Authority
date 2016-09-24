@@ -103,7 +103,7 @@ public class TransitStopCollection {
     }
 
     /**
-     * Removes stopRenderInfos that previously had a stop assigned to them but not anymore.
+     * Removes getStopRenderRequests that previously had a stop assigned to them but not anymore.
      *
      * @param route the route that was previously selected and is now selected
      * @return whether or not this call was successful
@@ -142,13 +142,13 @@ public class TransitStopCollection {
     }
 
     /**
-     * Checks whether or not to show the stopRenderInfos depending on the zoom visibility.
+     * Checks whether or not to show the getStopRenderRequests depending on the zoom visibility.
      *
      * @param zoom             zoom level
      * @param visibleZoomLevel zoom level threshold
      */
     public void checkAllVisibility(float zoom, float visibleZoomLevel) {
-//        System.out.println(stopRenderInfos);
+//        System.out.println(getStopRenderRequests);
 
         if (stops != null) {
             for (TransitStopContainer stop : stops.values()) {
