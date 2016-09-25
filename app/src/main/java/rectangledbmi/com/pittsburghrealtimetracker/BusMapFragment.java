@@ -1128,7 +1128,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 }
                 Pt stopInfo = stopRenderRequest.getStopPt();
                 Marker stopMarker = stops.get(stopInfo.getStpid());
-                if (stopRenderRequest.isVisible()) {
+                if (stopRenderRequest.routeCount() > 0) {
                     if (stopMarker == null) {
                         stopMarker = mMap.addMarker(new MarkerOptions()
                                 .anchor(.5f, .5f)

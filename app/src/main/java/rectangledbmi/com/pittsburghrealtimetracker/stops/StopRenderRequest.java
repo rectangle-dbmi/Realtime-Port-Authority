@@ -11,23 +11,23 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Pt;
  */
 public class StopRenderRequest {
     private final Pt stopPt;
-    private final boolean isVisible;
+    private final int routeCount;
 
-    public static StopRenderRequest create(Pt stopInfo, boolean isVisible) {
+    public static StopRenderRequest create(Pt stopInfo, int isVisible) {
         return new StopRenderRequest(stopInfo, isVisible);
     }
 
-    private StopRenderRequest(Pt stopPt, boolean isVisible) {
+    private StopRenderRequest(Pt stopPt, int routeCount) {
         this.stopPt = stopPt;
-        this.isVisible = isVisible;
+        this.routeCount = routeCount;
     }
 
     public Pt getStopPt() {
         return stopPt;
     }
 
-    public boolean isVisible() {
-        return isVisible;
+    public int routeCount() {
+        return routeCount;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class StopRenderRequest {
 
         StopRenderRequest that = (StopRenderRequest) o;
 
-        if (isVisible != that.isVisible) return false;
+        if (routeCount != that.routeCount) return false;
         return stopPt != null ? stopPt.equals(that.stopPt) : that.stopPt == null;
 
     }
@@ -45,7 +45,7 @@ public class StopRenderRequest {
     @Override
     public int hashCode() {
         int result = stopPt != null ? stopPt.hashCode() : 0;
-        result = 31 * result + (isVisible ? 1 : 0);
+        result = 31 * result + routeCount;
         return result;
     }
 }

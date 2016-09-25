@@ -104,10 +104,17 @@ public class PolylineViewModel {
                         String stpid = Integer.toString(pt.getStpid());
                         if (!current.containsKey(stpid)) {
                             current.put(stpid,
-                                        StopRenderRequest.create(pt, true));
-                        } else if (current.get(stpid).isVisible() != routeStops.isSelected()) {
-                            current.put(stpid,
-                                        StopRenderRequest.create(pt, routeStops.isSelected()));
+                                        StopRenderRequest.create(pt, 1));
+                        } else {
+                            int refcount = current.get(stpid).routeCount();
+                            if (routeStops.isSelected()) {
+                                current.put(stpid,
+                                        StopRenderRequest.create(pt, ++refcount));
+                            }
+                            else{
+                                current.put(stpid,
+                                        StopRenderRequest.create(pt, --refcount));
+                            }
                         }
                     }
                     return current;
