@@ -511,6 +511,7 @@ public class NavigationDrawerFragment extends Fragment {
         }
         return routeSelectionPublishSubject
                 .asObservable()
+                .onBackpressureBuffer()
                 .map(RouteSelection::getSelectedRoutes)
                 .skipWhile(selectedRoutes -> selectedRoutes == null);
     }

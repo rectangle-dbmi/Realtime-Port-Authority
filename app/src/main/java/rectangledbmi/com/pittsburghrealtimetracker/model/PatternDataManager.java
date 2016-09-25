@@ -69,7 +69,7 @@ public class PatternDataManager {
         return Observable.just(new GsonBuilder().create())
                 .map(gson -> {
                     try {
-                        Timber.d("Getting patternSelections from disk");
+                        Timber.d("Getting patternSelections from disk: " + rt);
                         //noinspection UnnecessaryLocalVariable -> Android Studio thinks this is an error
                         List<Ptr> ptrs = gson.fromJson(new JsonReader(new FileReader(getPolylineFile(rt))), serializationType);
                         return ptrs;
