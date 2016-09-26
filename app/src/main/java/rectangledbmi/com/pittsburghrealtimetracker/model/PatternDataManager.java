@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.PatternResponse;
@@ -39,6 +40,7 @@ public class PatternDataManager {
     private final File polylineDirectory;
     private final PATAPI patApiClient;
     private final static Type serializationType = new TypeToken<List<Ptr>>() {}.getType();
+    private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
 
     public PatternDataManager(File dataDirectory, PATAPI patApiClient) {
         polylineDirectory = new File(dataDirectory, polylineLocation);
@@ -69,10 +71,16 @@ public class PatternDataManager {
         return Observable.just(new GsonBuilder().create())
                 .map(gson -> {
                     try {
-                        Timber.d("Getting patternSelections from disk: " + rt);
-                        //noinspection UnnecessaryLocalVariable -> Android Studio thinks this is an error
-                        List<Ptr> ptrs = gson.fromJson(new JsonReader(new FileReader(getPolylineFile(rt))), serializationType);
-                        return ptrs;
+                        rwl.readLock().lock();
+                        try {
+                            Timber.d("Getting patternSelections from disk: " + rt);
+                            //noinspection UnnecessaryLocalVariable -> Android Studio thinks this is an error
+                            List<Ptr> ptrs = gson.fromJson(new JsonReader(new FileReader(getPolylineFile(rt))), serializationType);
+                            Timber.d("Done getting patternSelections from disk: " + rt);
+                            return ptrs;
+                        } finally {
+                            rwl.readLock().unlock();
+                        }
                     } catch (FileNotFoundException e) {
                         Timber.e(e, "File does not exist when it should.");
                         throw Exceptions.propagate(e);
@@ -94,16 +102,23 @@ public class PatternDataManager {
                     Timber.d("Getting patternSelections from internet");
                     List<Ptr> patterns = bustimePatternResponse.getPtr();
                     try {
-                        JsonWriter writer = new JsonWriter(new FileWriter(getPolylineFile(rt)));
-                        Gson gson = new GsonBuilder().create();
-                        gson.toJson(
-                                patterns,
-                                serializationType,
-                                writer
-                        );
-                        // need to flush and close otherwise the file is incomplete and bugs
-                        writer.flush();
-                        writer.close();
+                        rwl.writeLock().lock();
+                        try {
+                            Timber.d("Writing patternSelections to disk: " + rt);
+                            JsonWriter writer = new JsonWriter(new FileWriter(getPolylineFile(rt)));
+                            Gson gson = new GsonBuilder().create();
+                            gson.toJson(
+                                    patterns,
+                                    serializationType,
+                                    writer
+                            );
+                            // need to flush and close otherwise the file is incomplete and bugs
+                            writer.flush();
+                            writer.close();
+                            Timber.d("Done writing patternSelections to disk: " + rt);
+                        } finally {
+                            rwl.writeLock().unlock();
+                        }
                         return patterns;
                     } catch (IOException e) {
                         Timber.e(e, "Could not retrieve polyline from internet when it should have.");

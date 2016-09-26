@@ -13,8 +13,8 @@ public class StopRenderRequest {
     private final Pt stopPt;
     private final int routeCount;
 
-    public static StopRenderRequest create(Pt stopInfo, int isVisible) {
-        return new StopRenderRequest(stopInfo, isVisible);
+    public static StopRenderRequest create(Pt stopInfo, int routeCount) {
+        return new StopRenderRequest(stopInfo, routeCount);
     }
 
     private StopRenderRequest(Pt stopPt, int routeCount) {
