@@ -99,9 +99,9 @@ public class PolylineViewModel {
                         .map(pts -> StopSelection.create(pts,
                                 patternSelection.getRouteNumber(),
                                 patternSelection.isSelected()))
-                ).scan(new HashMap<String, StopRenderRequest>(200), (current, routeStops) -> {
+                ).scan(new HashMap<Integer, StopRenderRequest>(200), (current, routeStops) -> {
                     for (Pt pt : routeStops.getStopPts()) {
-                        String stpid = Integer.toString(pt.getStpid());
+                        Integer stpid = pt.getStpid();
                         if (!current.containsKey(stpid)) {
                             current.put(stpid,
                                         StopRenderRequest.create(pt, 1));
