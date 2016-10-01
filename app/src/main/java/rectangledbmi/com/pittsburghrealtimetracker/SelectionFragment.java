@@ -40,12 +40,6 @@ public abstract class SelectionFragment extends Fragment implements NavigationDr
         Set<String> getSelectedRoutes();
 
         /**
-         * @return The PAT API instantiated in {@link SelectTransit#onCreate(Bundle)}
-         */
-        // TODO: remove this from interface when nothing else will use this
-        PATAPI getPatApiClient();
-
-        /**
          *
          * @return the service class that gets Port Authority objects
          * @since 77

@@ -131,11 +131,6 @@ public class SelectTransit extends AppCompatActivity implements
                 getString(R.string.api_url),
                 BuildConfig.PAT_API_KEY,
                 getDatadirectory());
-        patApiClient = ((PatApiServiceImpl) patApiService).getPatApiClient();
-    }
-
-    public PATAPI getPatApiClient() {
-        return patApiClient;
     }
 
     public PatApiService getPatApiService() {

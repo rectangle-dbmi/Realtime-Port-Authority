@@ -7,6 +7,8 @@ import com.google.gson.GsonBuilder;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -17,9 +19,11 @@ import okhttp3.Request;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Prediction;
+import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimeVehicleResponse;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Pt;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Ptr;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Vehicle;
+import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.VehicleResponse;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -73,8 +77,9 @@ public class PatApiServiceImpl implements PatApiService {
     }
 
     @Override
-    public Observable<Vehicle> getVehicles(Iterable<String> routes) {
-        return null;
+    public Observable<VehicleResponse> getVehicles(Collection<String> routes) {
+        return patApiClient.getVehicles(collectionToString(routes))
+                .compose(applySchedulers());
     }
 
     @Override
@@ -138,6 +143,24 @@ public class PatApiServiceImpl implements PatApiService {
         return observable -> observable
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation());
+    }
+
+    /**
+     * @param data - the data in a collection to add
+     * @param <T>  - Any Object that extends {@link Object}
+     * @return a comma-delim strings of data
+     * @since 46
+     */
+    private <T> String collectionToString(Collection<T> data) {
+        int size = data.size();
+        int i = 0;
+        StringBuilder buf = new StringBuilder();
+        for (T datum : data) {
+            buf.append(datum);
+            if (++i < size)
+                buf.append(',');
+        }
+        return buf.toString();
     }
     // endregion
 }

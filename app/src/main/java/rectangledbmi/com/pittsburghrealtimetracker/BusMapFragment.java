@@ -63,6 +63,7 @@ import java.util.concurrent.TimeUnit;
 
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter;
+import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
 import rectangledbmi.com.pittsburghrealtimetracker.polylines.PatternSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.polylines.PolylineView;
 import rectangledbmi.com.pittsburghrealtimetracker.polylines.PolylineViewModel;
@@ -95,6 +96,7 @@ import timber.log.Timber;
  * the buses, getStopRenderRequests, and patternSelections on a {@link GoogleMap} instance</p>
  *
  * @author Jeremy Jao
+ * @author Michael Antonacci
  */
 public class BusMapFragment extends SelectionFragment implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -170,7 +172,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      * The {@link retrofit2.Retrofit} instance of the Port Authority TrueTime API
      */
     // TODO: take this out and use the PatApiService instead
-    private PATAPI patApiClient;
+    private PatApiService patApiService;
 
     private Subscription selectionSubscription;
 
@@ -444,10 +446,10 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        if (getActivity() == null || busListInteraction.getPatApiClient() == null) return;
+        if (getActivity() == null || busListInteraction.getPatApiService() == null) return;
         mMap = googleMap;
         Timber.d("google map object set");
-        patApiClient = busListInteraction.getPatApiClient();
+        patApiService = busListInteraction.getPatApiService();
         Timber.d("PAT API client set");
         // center the map
         if (cameraPosition != null) {
@@ -467,7 +469,8 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             return true;
         });
 
-        mMap.setOnCameraChangeListener(cameraPosition -> {
+        mMap.setOnCameraMoveListener(() -> {
+            cameraPosition = mMap.getCameraPosition();
             if (zoom != cameraPosition.zoom) {
                 zoom = cameraPosition.zoom;
                 zoomSubject.onNext(zoom);
@@ -535,9 +538,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                         String msg = String.format("updating map with %s", routes);
                         Timber.d(msg);
                     }
-                    return patApiClient.getVehicles(
-                            collectionToString(
-                                    routes));
+                    return patApiService.getVehicles(routes);
                 }).map(VehicleResponse::getBustimeResponse)
                 .retryWhen(attempt -> attempt
                         .flatMap(throwable -> {
@@ -638,7 +639,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
       Creates a stream for the polyline observable
      */
         PolylineViewModel polylineViewModel = new PolylineViewModel(
-                busListInteraction.getPatApiService(),
+                patApiService,
                 routeSelectionObservable,
                 zoomSubject.asObservable()
         );
@@ -1002,24 +1003,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             busMarkers.clear();
         }
 
-    }
-
-    /**
-     * @param data - the data in a collection to add
-     * @param <T>  - Any Object that extends {@link Object}
-     * @return a comma-delim strings of data
-     * @since 46
-     */
-    private <T> String collectionToString(Collection<T> data) {
-        int size = data.size();
-        int i = 0;
-        StringBuilder buf = new StringBuilder();
-        for (T datum : data) {
-            buf.append(datum);
-            if (++i < size)
-                buf.append(',');
-        }
-        return buf.toString();
     }
 
     @Override
