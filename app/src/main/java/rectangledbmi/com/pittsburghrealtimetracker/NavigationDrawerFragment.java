@@ -48,13 +48,6 @@ public class NavigationDrawerFragment extends Fragment {
     private static final String PREF_USER_LEARNED_DRAWER = "navigation_drawer_learned";
 
     /**
-     * pointer to the current selected bus for the current callbacks instance (Activity)
-     *
-     * @since 43
-     */
-    private BusListCallbacks busCallbacks;
-
-    /**
      * Saved instance of the buses that are selected
      */
     private final static String BUS_SELECT_STATE = "busesSelected";
@@ -229,11 +222,6 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        try {
-            busCallbacks = (BusListCallbacks) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException("Activity must implement NavigationDrawerCallbacks.");
-        }
     }
 
     public boolean closeDrawer() {
@@ -255,7 +243,6 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        busCallbacks = null;
     }
 
     @Override
@@ -312,30 +299,6 @@ public class NavigationDrawerFragment extends Fragment {
         return null;
     }
 
-    /**
-     * This takes the bus route information to the main activity {@link SelectTransit}.
-     *
-     * @author Jeremy Jao
-     * @since 43
-     */
-    public interface BusListCallbacks {
-
-        /**
-         * This bus route has been selected
-         *
-         * @param route the bus route selected
-         */
-        void onSelectBusRoute(Route route);
-
-        /**
-         * Do when the bus route has been deselected
-         *
-         * @param route the bus route deselected
-         */
-        void onDeselectBusRoute(Route route);
-        //TODO: Fix this to use observables or designate callback function for selection or deselection
-    }
-
     private void toggleRoute(Route route) {
         toggleRoute(route, route.toggleSelection());
     }
@@ -344,10 +307,8 @@ public class NavigationDrawerFragment extends Fragment {
         route.setSelected(isSelected);
         if (isSelected) {
             selectedRoutes.add(route.getRoute());
-            busCallbacks.onSelectBusRoute(route);
         } else {
             selectedRoutes.remove(route.getRoute());
-            busCallbacks.onDeselectBusRoute(route);
         }
         routeSelectionPublishSubject.onNext(RouteSelection.create(new Route(route), selectedRoutes));
     }

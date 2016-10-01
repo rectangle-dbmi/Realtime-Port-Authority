@@ -40,7 +40,6 @@ import timber.log.Timber;
  * This is the main activity of the Realtime Tracker...
  */
 public class SelectTransit extends AppCompatActivity implements
-        NavigationDrawerFragment.BusListCallbacks,
         SelectionFragment.BusSelectionInteraction {
 
     private static final String LINES_LAST_UPDATED = "lines_last_updated";
@@ -194,30 +193,6 @@ public class SelectTransit extends AppCompatActivity implements
             Timber.e("HTTP response cache is unavailable.");
         }
     }
-
-    /**
-     * Checks the state of the route on the map. If it is not on the map, the relevant info will be
-     * added. Otherwise, it will be unselected on the map
-     *
-     * @param route the bus route selected
-     * @since 43
-     */
-    @Override
-    public void onSelectBusRoute(Route route) {
-        if (selectionFragment == null || route == null) {
-            return;
-        }
-        selectionFragment.onSelectBusRoute(route);
-    }
-
-    @Override
-    public void onDeselectBusRoute(Route route) {
-        if (selectionFragment == null || route == null) {
-            return;
-        }
-        selectionFragment.onDeselectBusRoute(route);
-    }
-
 
     public void restoreActionBar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

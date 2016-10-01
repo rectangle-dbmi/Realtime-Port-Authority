@@ -20,7 +20,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rx.Observable;
 
-public abstract class SelectionFragment extends Fragment implements NavigationDrawerFragment.BusListCallbacks, ClearSelection {
+public abstract class SelectionFragment extends Fragment implements ClearSelection {
 
     /**
      * Interface that interacts with the list of buses in {@link NavigationDrawerFragment}

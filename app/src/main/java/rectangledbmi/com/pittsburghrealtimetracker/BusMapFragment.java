@@ -983,11 +983,14 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      * @return whether or not your device is in Pittsburgh
      */
     private boolean isInPittsburgh(Location currentLocation) {
-        return currentLocation != null &&
-                (
-                        (currentLocation.getLatitude() > 39.859673 && currentLocation.getLatitude() < 40.992847) &&
-                                (currentLocation.getLongitude() > -80.372815 && currentLocation.getLongitude() < -79.414258)
-                );
+        if (currentLocation == null){
+            return false;
+        }
+
+        double lat = currentLocation.getLatitude();
+        double lon = currentLocation.getLongitude();
+        return lat > 39.859673 && lat < 40.992847
+                && lon > -80.372815 && lon < -79.414258;
     }
 
     /**
@@ -1006,11 +1009,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     }
 
     @Override
-    public void onSelectBusRoute(Route route) {
-
-    }
-
-    @Override
     public void clearSelection() {
 
         removeBuses();
@@ -1018,11 +1016,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             transitStopCollection.removeRoute(routeLine.getKey());
             setVisiblePolylines(routeLine.getValue(), false);
         }
-    }
-
-    @Override
-    public void onDeselectBusRoute(Route route) {
-
     }
 
     @Override
