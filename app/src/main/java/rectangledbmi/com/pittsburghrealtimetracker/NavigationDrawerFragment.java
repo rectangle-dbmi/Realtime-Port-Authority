@@ -349,9 +349,8 @@ public class NavigationDrawerFragment extends Fragment {
             selectedRoutes.remove(route.getRoute());
             busCallbacks.onDeselectBusRoute(route);
         }
-        routeSelectionPublishSubject.onNext(RouteSelection.create(route, selectedRoutes));
+        routeSelectionPublishSubject.onNext(RouteSelection.create(new Route(route), selectedRoutes));
     }
-
 
     private class BusRouteAdapter extends RecyclerView.Adapter<BusRouteAdapter.BusRouteHolder> {
 
@@ -512,8 +511,7 @@ public class NavigationDrawerFragment extends Fragment {
         return routeSelectionPublishSubject
                 .asObservable()
                 .onBackpressureBuffer()
-                .map(RouteSelection::getSelectedRoutes)
-                .skipWhile(selectedRoutes -> selectedRoutes == null);
+                .map(RouteSelection::getSelectedRoutes);
     }
 
     public Observable<Route> getToggledRouteObservable() {
@@ -523,8 +521,7 @@ public class NavigationDrawerFragment extends Fragment {
         return routeSelectionPublishSubject
                 .asObservable()
                 .onBackpressureBuffer()
-                .map(RouteSelection::getToggledRoute)
-                .skipWhile(toggledRoute -> toggledRoute == null);
+                .map(RouteSelection::getToggledRoute);
     }
 
 }

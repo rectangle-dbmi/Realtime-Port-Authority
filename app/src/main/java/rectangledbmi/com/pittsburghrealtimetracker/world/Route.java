@@ -8,6 +8,7 @@ import android.graphics.Color;
  * Created by epicstar on 9/5/14.
  *
  * @author Jeremy Jao
+ * @author Michael Antonacci
  */
 public class Route {
 
@@ -46,6 +47,14 @@ public class Route {
      */
     public Route(String route, String routeInfo, String routeColor, int listPosition, boolean isSelected) {
         this(route, routeInfo, Color.parseColor(routeColor), listPosition, isSelected);
+    }
+
+    /**
+     * Copy constructor for Route objects
+     * @param route
+     */
+    public Route(Route route){
+        this(route.getRoute(),route.getRouteInfo(),route.getRouteColor(),route.getListPosition(),route.isSelected());
     }
 
     /**

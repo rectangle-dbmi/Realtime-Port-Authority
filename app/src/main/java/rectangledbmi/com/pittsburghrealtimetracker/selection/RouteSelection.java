@@ -16,14 +16,6 @@ import timber.log.Timber;
  */
 public class RouteSelection {
 
-    public static RouteSelection create(Route route) {
-        return new RouteSelection(route);
-    }
-
-    public static RouteSelection create(Set<String> selectedRoutes) {
-        return new RouteSelection(selectedRoutes);
-    }
-
     public static RouteSelection create(Route route, Set<String> selectedRoutes) {
         return new RouteSelection(route, selectedRoutes);
     }
@@ -31,16 +23,6 @@ public class RouteSelection {
     private Route toggledRoute;
 
     private Set<String> selectedRoutes;
-
-    private RouteSelection(@NonNull Route route) {
-        toggledRoute = route;
-        Timber.d("Only initiating route for selection: %s", route.getRoute());
-    }
-
-    private RouteSelection(@NonNull Set<String> selectedRoutes) {
-        this.selectedRoutes = selectedRoutes;
-        Timber.d("Only initiating route for selection: %s", selectedRoutes.toString());
-    }
 
     private RouteSelection(Route route, Set<String> selectedRoutes) {
         toggledRoute = route;
