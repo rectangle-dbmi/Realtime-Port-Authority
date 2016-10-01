@@ -522,6 +522,7 @@ public class NavigationDrawerFragment extends Fragment {
         }
         return routeSelectionPublishSubject
                 .asObservable()
+                .onBackpressureBuffer()
                 .map(RouteSelection::getToggledRoute)
                 .skipWhile(toggledRoute -> toggledRoute == null);
     }
