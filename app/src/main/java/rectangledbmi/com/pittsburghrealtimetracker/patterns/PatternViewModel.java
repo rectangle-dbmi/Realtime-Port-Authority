@@ -1,5 +1,7 @@
 package rectangledbmi.com.pittsburghrealtimetracker.patterns;
 
+import android.annotation.SuppressLint;
+
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.HashMap;
@@ -91,6 +93,7 @@ public class PatternViewModel {
                 });
     }
 
+    @SuppressLint("UseSparseArrays")
     public Observable<StopRenderRequest> getStopRenderRequests() {
         return patternSelections
                 .flatMap(patternSelection -> Observable.from(patternSelection.getPatterns())
