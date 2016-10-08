@@ -88,7 +88,6 @@ public class PolylineViewModelTest {
         noErrorsAndNotCompleted(patternSelectionTestSubscriber);
         List<PatternSelection> onNextEvents = patternSelectionTestSubscriber.getOnNextEvents();
         PatternSelection unselectedOnNextEvent = onNextEvents.get(onNextEvents.size() - 1);
-        assertNull(unselectedOnNextEvent.getPatterns());
         assertFalse(unselectedOnNextEvent.isSelected());
         assertEquals(unselectedSelection.getRoute(), unselectedOnNextEvent.getRouteNumber());
     }
