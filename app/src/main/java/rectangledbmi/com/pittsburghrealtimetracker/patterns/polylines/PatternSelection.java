@@ -1,4 +1,4 @@
-package rectangledbmi.com.pittsburghrealtimetracker.polylines;
+package rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -8,7 +8,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Ptr;
 
 /**
  * <p>Data Transfer Object that transfers meta info for {@link com.google.android.gms.maps.model.Polyline}
- * creation from the {@link PolylineViewModel} to the {@link PolylineView}.</p>
+ * creation from the {@link PatternViewModel} to the {@link PolylineView}.</p>
  *
  * <p>The contract of this class should be that if {@link #isSelected()} is `false`, {@link #getPatterns()}
  * should be `null. Otherwise, it will always not be null.</p>

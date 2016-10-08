@@ -1,12 +1,13 @@
-package rectangledbmi.com.pittsburghrealtimetracker.polylines;
+package rectangledbmi.com.pittsburghrealtimetracker.patterns;
 
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.HashMap;
 
 import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
-import rectangledbmi.com.pittsburghrealtimetracker.stops.StopRenderRequest;
-import rectangledbmi.com.pittsburghrealtimetracker.stops.StopSelection;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PatternSelection;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopRenderRequest;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Pt;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Ptr;
@@ -14,14 +15,14 @@ import rx.Observable;
 import timber.log.Timber;
 
 /**
- * <p>Contains the logic of the {@link PolylineView} for pre-processing the patternSelections.</p>
+ * <p>Contains the logic of the {@link rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PolylineView} for pre-processing the patternSelections.</p>
  * <p>Created by epicstar on 7/18/16.</p>
  *
  * @author Jeremy Jao
  * @author Michael Antonacci
  * @since 77
  */
-public class PolylineViewModel {
+public class PatternViewModel {
 
     private final Observable<PatternSelection> patternSelections;
     private final Observable<Float> currentZoom;
@@ -35,9 +36,9 @@ public class PolylineViewModel {
      * @param service             the service that retrieves data from the Port Authority API
      * @param selectionObservable the observable for bus route selection
      */
-    public PolylineViewModel(PatApiService service,
-                             Observable<Route> selectionObservable,
-                             Observable<Float> currentZoom) {
+    public PatternViewModel(PatApiService service,
+                            Observable<Route> selectionObservable,
+                            Observable<Float> currentZoom) {
         patternSelections = createPatternSelection(service, selectionObservable);
         this.currentZoom = currentZoom;
     }
@@ -63,7 +64,7 @@ public class PolylineViewModel {
     }
 
     /**
-     * <p>Gets an observable so the {@link PolylineView} can listen to actions to create, show,
+     * <p>Gets an observable so the {@link rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PolylineView} can listen to actions to create, show,
      * or make a {@link com.google.android.gms.maps.model.Polyline} disappear.</p>
      * <p>{@link PatternSelection#getPatterns()} will be `null` if {@link PatternSelection#isSelected()}
      * is `false`. Otherwise, it will be not be `null` unless the polyline data was unable to </p>

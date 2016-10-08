@@ -1,4 +1,4 @@
-package rectangledbmi.com.pittsburghrealtimetracker.polylines;
+package rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines;
 
 import rx.Observer;
 
@@ -11,7 +11,7 @@ import rx.Observer;
 public interface PolylineView {
     /**
      * Creates a an {@link Observer} for {@link com.google.android.gms.maps.model.Polyline} creation
-     * info from the {@link PolylineViewModel}.
+     * info from the {@link rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternViewModel}.
      * @return an Observer for {@link com.google.android.gms.maps.model.Polyline} creation.
      */
     Observer<PatternSelection> polylineObserver();

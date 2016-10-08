@@ -1,4 +1,4 @@
-package rectangledbmi.com.pittsburghrealtimetracker.model;
+package rectangledbmi.com.pittsburghrealtimetracker.patterns;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

@@ -1,4 +1,4 @@
-package rectangledbmi.com.pittsburghrealtimetracker.stops;
+package rectangledbmi.com.pittsburghrealtimetracker.patterns.stops;
 
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Pt;
 

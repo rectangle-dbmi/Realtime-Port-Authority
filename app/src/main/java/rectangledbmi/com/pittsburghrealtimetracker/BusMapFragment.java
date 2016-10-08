@@ -50,7 +50,6 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -64,14 +63,13 @@ import java.util.concurrent.TimeUnit;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter;
 import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
-import rectangledbmi.com.pittsburghrealtimetracker.polylines.PatternSelection;
-import rectangledbmi.com.pittsburghrealtimetracker.polylines.PolylineView;
-import rectangledbmi.com.pittsburghrealtimetracker.polylines.PolylineViewModel;
-import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PatternSelection;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternViewModel;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PolylineView;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopRenderRequest;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopView;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.errors.ErrorMessage;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.vehicles.VehicleBitmap;
-import rectangledbmi.com.pittsburghrealtimetracker.stops.StopRenderRequest;
-import rectangledbmi.com.pittsburghrealtimetracker.stops.StopView;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStopCollection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimeVehicleResponse;
@@ -638,17 +636,17 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         /*
       Creates a stream for the polyline observable
      */
-        PolylineViewModel polylineViewModel = new PolylineViewModel(
+        PatternViewModel patternViewModel = new PatternViewModel(
                 patApiService,
                 routeSelectionObservable,
                 zoomSubject.asObservable()
         );
-        polylineSubscription = polylineViewModel.getPatternSelections()
+        polylineSubscription = patternViewModel.getPatternSelections()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(polylineObserver());
 
-        stopSubscription = polylineViewModel.getStopRenderRequests()
+        stopSubscription = patternViewModel.getStopRenderRequests()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(stopObserver());
