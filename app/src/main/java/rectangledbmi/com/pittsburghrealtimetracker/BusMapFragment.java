@@ -50,7 +50,6 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -63,14 +62,14 @@ import java.util.concurrent.TimeUnit;
 
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter;
-import rectangledbmi.com.pittsburghrealtimetracker.polylines.PatternSelection;
-import rectangledbmi.com.pittsburghrealtimetracker.polylines.PolylineView;
-import rectangledbmi.com.pittsburghrealtimetracker.polylines.PolylineViewModel;
-import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
+import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternViewModel;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PatternSelection;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PolylineView;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRenderRequest;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopView;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.errors.ErrorMessage;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.vehicles.VehicleBitmap;
-import rectangledbmi.com.pittsburghrealtimetracker.stops.StopRenderInfo;
-import rectangledbmi.com.pittsburghrealtimetracker.stops.StopView;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStopCollection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimeVehicleResponse;
@@ -92,9 +91,10 @@ import timber.log.Timber;
 
 /**
  * <p>Fragment that holds a map for the buses. This currrently holds all logic related to displaying
- * the buses, stopRenderInfos, and patternSelections on a {@link GoogleMap} instance</p>
+ * the buses, getStopRenderRequests, and patternSelections on a {@link GoogleMap} instance</p>
  *
  * @author Jeremy Jao
+ * @author Michael Antonacci
  */
 public class BusMapFragment extends SelectionFragment implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -170,7 +170,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      * The {@link retrofit2.Retrofit} instance of the Port Authority TrueTime API
      */
     // TODO: take this out and use the PatApiService instead
-    private PATAPI patApiClient;
+    private PatApiService patApiService;
 
     private Subscription selectionSubscription;
 
@@ -192,7 +192,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof BusSelectionInteraction) {
-            // get the default zoom level of the stopRenderInfos
+            // get the default zoom level of the getStopRenderRequests
             busListInteraction = (BusSelectionInteraction) context;
             TypedValue zoomLevelValue = new TypedValue();
             context.getResources().getValue(R.integer.zoom_level, zoomLevelValue, true);
@@ -219,7 +219,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 .addOnConnectionFailedListener(this)
                 .build();
 
-        // set up the stopRenderInfos collection object and its listeners
+        // set up the getStopRenderRequests collection object and its listeners
         transitStopCollection = new TransitStopCollection();
         busMarkers = new ConcurrentHashMap<>();
         routeLines = new ConcurrentHashMap<>();
@@ -285,6 +285,8 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             Timber.d("Pausing Map View");
         }
         pauseMapState();
+        unsubscribeSubscription(polylineSubscription);
+        unsubscribeSubscription(stopSubscription);
         super.onPause();
     }
 
@@ -303,10 +305,13 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             googleApiClient.disconnect();
             Timber.d("disconnecting google map api client");
         }
-        if (polylineSubscription != null && !polylineSubscription.isUnsubscribed()) {
-            polylineSubscription.unsubscribe();
-        }
         super.onStop();
+    }
+
+    private static void unsubscribeSubscription(Subscription subscription) {
+        if (subscription != null && !subscription.isUnsubscribed()) {
+            subscription.unsubscribe();
+        }
     }
 
     @Override
@@ -444,10 +449,10 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        if (getActivity() == null || busListInteraction.getPatApiClient() == null) return;
+        if (getActivity() == null || busListInteraction.getPatApiService() == null) return;
         mMap = googleMap;
         Timber.d("google map object set");
-        patApiClient = busListInteraction.getPatApiClient();
+        patApiService = busListInteraction.getPatApiService();
         Timber.d("PAT API client set");
         // center the map
         if (cameraPosition != null) {
@@ -467,7 +472,8 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             return true;
         });
 
-        mMap.setOnCameraChangeListener(cameraPosition -> {
+        mMap.setOnCameraMoveListener(() -> {
+            cameraPosition = mMap.getCameraPosition();
             if (zoom != cameraPosition.zoom) {
                 zoom = cameraPosition.zoom;
                 zoomSubject.onNext(zoom);
@@ -535,9 +541,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                         String msg = String.format("updating map with %s", routes);
                         Timber.d(msg);
                     }
-                    return patApiClient.getVehicles(
-                            collectionToString(
-                                    routes));
+                    return patApiService.getVehicles(routes);
                 }).map(VehicleResponse::getBustimeResponse)
                 .retryWhen(attempt -> attempt
                         .flatMap(throwable -> {
@@ -637,17 +641,16 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         /*
       Creates a stream for the polyline observable
      */
-        PolylineViewModel polylineViewModel = new PolylineViewModel(
-                busListInteraction.getPatApiService(),
-                routeSelectionObservable,
-                zoomSubject.asObservable()
+        PatternViewModel patternViewModel = new PatternViewModel(
+                patApiService,
+                routeSelectionObservable
         );
-        polylineSubscription = polylineViewModel.patternSelections()
+        polylineSubscription = patternViewModel.getPatternSelections()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(polylineObserver());
 
-        stopSubscription = polylineViewModel.stopRenderInfos()
+        stopSubscription = patternViewModel.getStopRenderRequests(zoomSubject.asObservable())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(stopObserver());
@@ -982,11 +985,14 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      * @return whether or not your device is in Pittsburgh
      */
     private boolean isInPittsburgh(Location currentLocation) {
-        return currentLocation != null &&
-                (
-                        (currentLocation.getLatitude() > 39.859673 && currentLocation.getLatitude() < 40.992847) &&
-                                (currentLocation.getLongitude() > -80.372815 && currentLocation.getLongitude() < -79.414258)
-                );
+        if (currentLocation == null){
+            return false;
+        }
+
+        double lat = currentLocation.getLatitude();
+        double lon = currentLocation.getLongitude();
+        return lat > 39.859673 && lat < 40.992847
+                && lon > -80.372815 && lon < -79.414258;
     }
 
     /**
@@ -1004,29 +1010,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
     }
 
-    /**
-     * @param data - the data in a collection to add
-     * @param <T>  - Any Object that extends {@link Object}
-     * @return a comma-delim strings of data
-     * @since 46
-     */
-    private <T> String collectionToString(Collection<T> data) {
-        int size = data.size();
-        int i = 0;
-        StringBuilder buf = new StringBuilder();
-        for (T datum : data) {
-            buf.append(datum);
-            if (++i < size)
-                buf.append(',');
-        }
-        return buf.toString();
-    }
-
-    @Override
-    public void onSelectBusRoute(Route route) {
-
-    }
-
     @Override
     public void clearSelection() {
 
@@ -1035,11 +1018,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             transitStopCollection.removeRoute(routeLine.getKey());
             setVisiblePolylines(routeLine.getValue(), false);
         }
-    }
-
-    @Override
-    public void onDeselectBusRoute(Route route) {
-
     }
 
     @Override
@@ -1092,7 +1070,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
     private void clearStops() {
         if (stops == null) {
-            Timber.i("Cannot clear all stopRenderInfos");
+            Timber.i("Cannot clear all getStopRenderRequests");
             return;
         }
         for (Marker marker : stops.values()) {
@@ -1102,8 +1080,8 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     }
 
     @Override
-    public Observer<StopRenderInfo> stopObserver() {
-        return new Observer<StopRenderInfo>() {
+    public Observer<StopRenderRequest> stopObserver() {
+        return new Observer<StopRenderRequest>() {
             @Override
             public void onCompleted() {
                 Timber.i("Stops have been unsubscribed");
@@ -1117,18 +1095,18 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             }
 
             @Override
-            public void onNext(StopRenderInfo stopRenderInfo) {
+            public void onNext(StopRenderRequest stopRenderRequest) {
                 if (mMap == null) {
                     Timber.i("Google Map is null");
                     return;
                 }
                 if (stops == null) {
-                    Timber.i("stopRenderInfos is null");
+                    Timber.i("getStopRenderRequests is null");
                     return;
                 }
-                Pt stopInfo = stopRenderInfo.getStopInfo();
+                Pt stopInfo = stopRenderRequest.getStopPt();
                 Marker stopMarker = stops.get(stopInfo.getStpid());
-                if (stopRenderInfo.isVisible()) {
+                if (stopRenderRequest.isVisible()) {
                     if (stopMarker == null) {
                         stopMarker = mMap.addMarker(new MarkerOptions()
                                 .anchor(.5f, .5f)
@@ -1138,8 +1116,8 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                                 .position(new LatLng(stopInfo.getLat(), stopInfo.getLon()))
                                 .flat(true)
                         );
-                        stopMarker.setTag(stopRenderInfo.getStopInfo());
-                        stops.put(stopRenderInfo.getStopInfo().getStpid(), stopMarker);
+                        stopMarker.setTag(stopRenderRequest.getStopPt());
+                        stops.put(stopRenderRequest.getStopPt().getStpid(), stopMarker);
                     }
                     else {
                         stopMarker.setVisible(true);

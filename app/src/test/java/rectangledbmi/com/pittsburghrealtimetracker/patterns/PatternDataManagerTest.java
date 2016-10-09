@@ -1,4 +1,4 @@
-package rectangledbmi.com.pittsburghrealtimetracker.model;
+package rectangledbmi.com.pittsburghrealtimetracker.patterns;
 
 import org.junit.After;
 import org.junit.Before;

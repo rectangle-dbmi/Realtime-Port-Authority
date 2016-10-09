@@ -1,33 +1,33 @@
-package rectangledbmi.com.pittsburghrealtimetracker.stops;
+package rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.selection;
 
 import java.util.Collection;
 
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Pt;
 
 /**
- * <p>Selection Info for stopRenderInfos.</p>
+ * <p>Immediate selection info for getStopRenderRequests.</p>
  * <p>Created by epicstar on 9/20/16.</p>
  * @author Jeremy Jao
  */
 public class StopSelection {
-    private final Collection<Pt> stopInfoCollection;
+    private final Collection<Pt> StopPts;
     private final String routeNumber;
     private final boolean isSelected;
 
-    public static StopSelection create(Collection<Pt> stopInfoCollection,
+    public static StopSelection create(Collection<Pt> pts,
                                        String routeNumber,
                                        boolean isSelected) {
-        return new StopSelection(stopInfoCollection, routeNumber, isSelected);
+        return new StopSelection(pts, routeNumber, isSelected);
     }
 
-    private StopSelection(Collection<Pt> stopInfoCollection, String routeNumber, boolean isSelected) {
-        this.stopInfoCollection = stopInfoCollection;
+    private StopSelection(Collection<Pt> pts, String routeNumber, boolean isSelected) {
+        this.StopPts = pts;
         this.routeNumber = routeNumber;
         this.isSelected = isSelected;
     }
 
-    public Collection<Pt> getStopInfoCollection() {
-        return stopInfoCollection;
+    public Collection<Pt> getStopPts() {
+        return StopPts;
     }
 
     public boolean isSelected() {
@@ -46,7 +46,7 @@ public class StopSelection {
         StopSelection that = (StopSelection) o;
 
         if (isSelected != that.isSelected) return false;
-        if (stopInfoCollection != null ? !stopInfoCollection.equals(that.stopInfoCollection) : that.stopInfoCollection != null)
+        if (StopPts != null ? !StopPts.equals(that.StopPts) : that.StopPts != null)
             return false;
         return routeNumber != null ? routeNumber.equals(that.routeNumber) : that.routeNumber == null;
 
@@ -54,7 +54,7 @@ public class StopSelection {
 
     @Override
     public int hashCode() {
-        int result = stopInfoCollection != null ? stopInfoCollection.hashCode() : 0;
+        int result = StopPts != null ? StopPts.hashCode() : 0;
         result = 31 * result + (routeNumber != null ? routeNumber.hashCode() : 0);
         result = 31 * result + (isSelected ? 1 : 0);
         return result;

@@ -1,4 +1,4 @@
-package rectangledbmi.com.pittsburghrealtimetracker.polylines;
+package rectangledbmi.com.pittsburghrealtimetracker.patterns;
 
 import org.junit.After;
 import org.junit.Before;
@@ -8,6 +8,7 @@ import java.util.List;
 
 import rectangledbmi.com.pittsburghrealtimetracker.mock.PatApiMock;
 import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PatternSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rx.Subscription;
 import rx.observers.TestSubscriber;
@@ -23,12 +24,12 @@ import static rectangledbmi.com.pittsburghrealtimetracker.mock.ToggledRouteMockM
 import static rectangledbmi.com.pittsburghrealtimetracker.mock.ToggledRouteMockMethods.getUnselectedRouteSelection;
 
 /**
- * <p>Unit tests around the {@link PolylineViewModel}</p>
+ * <p>Unit tests around the {@link PatternViewModel}</p>
  * <p>Created by epicstar on 7/18/16.</p>
  * @since 77
  * @author Jeremy Jao and Michael Antonacci
  */
-public class PolylineViewModelTest {
+public class PatternViewModelTest {
 
     private Subscription polylinePresenterSubscription;
     private TestSubscriber<PatternSelection> patternSelectionTestSubscriber;
@@ -40,14 +41,14 @@ public class PolylineViewModelTest {
         patapiMock = getPatApiServiceMock();
         //noinspection ResultOfMethodCallIgnored
 
-        PolylineViewModel polylineViewModel = new PolylineViewModel(
+        PatternViewModel patternViewModel = new PatternViewModel(
                 patapiMock,
                 subject.asObservable(),
                 null
         );
         patternSelectionTestSubscriber = new TestSubscriber<>();
-        polylinePresenterSubscription = polylineViewModel
-                .patternSelections()
+        polylinePresenterSubscription = patternViewModel
+                .getPatternSelections()
                 .subscribe(patternSelectionTestSubscriber);
     }
 
@@ -88,7 +89,6 @@ public class PolylineViewModelTest {
         noErrorsAndNotCompleted(patternSelectionTestSubscriber);
         List<PatternSelection> onNextEvents = patternSelectionTestSubscriber.getOnNextEvents();
         PatternSelection unselectedOnNextEvent = onNextEvents.get(onNextEvents.size() - 1);
-        assertNull(unselectedOnNextEvent.getPatterns());
         assertFalse(unselectedOnNextEvent.isSelected());
         assertEquals(unselectedSelection.getRoute(), unselectedOnNextEvent.getRouteNumber());
     }

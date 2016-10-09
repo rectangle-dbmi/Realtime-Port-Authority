@@ -37,7 +37,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStopCollection;
  * <p/>
  * REQUIRES PortAuthorityAPI class to get the Port Authority URLs
  * <p/>
- * TODO: to get the bus stopRenderInfos... change linkedList<LinkedList<LatLng>> to be a custom wrapper
+ * TODO: to get the bus getStopRenderRequests... change linkedList<LinkedList<LatLng>> to be a custom wrapper
  *
  * @author Jeremy Jao
  */

@@ -20,7 +20,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rx.Observable;
 
-public abstract class SelectionFragment extends Fragment implements NavigationDrawerFragment.BusListCallbacks, ClearSelection {
+public abstract class SelectionFragment extends Fragment implements ClearSelection {
 
     /**
      * Interface that interacts with the list of buses in {@link NavigationDrawerFragment}
@@ -38,12 +38,6 @@ public abstract class SelectionFragment extends Fragment implements NavigationDr
          * @return the selected routes from the {@link NavigationDrawerFragment}
          */
         Set<String> getSelectedRoutes();
-
-        /**
-         * @return The PAT API instantiated in {@link SelectTransit#onCreate(Bundle)}
-         */
-        // TODO: remove this from interface when nothing else will use this
-        PATAPI getPatApiClient();
 
         /**
          *
