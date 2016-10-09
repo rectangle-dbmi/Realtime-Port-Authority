@@ -123,12 +123,12 @@ public class PatternViewModel {
                 .scan(StopRequestAccumulator.create(null, null, Collections.emptyList()), // initial val
                         ((stopRequestAccumulator, eitherStopState) -> { // scan lambda
                             if (eitherStopState instanceof FullStopSelectionState) {
-                                return stopSelectionChange(
+                                return changeStopSelectionState(
                                         stopRequestAccumulator,
                                         (FullStopSelectionState) eitherStopState
                                 );
                             } else if (eitherStopState instanceof MapState) {
-                                return mapStateChange(
+                                return changeMapState(
                                         stopRequestAccumulator,
                                         (MapState) eitherStopState
                                 );
@@ -146,7 +146,7 @@ public class PatternViewModel {
      * @param fullStopSelectionState the new selection state
      * @return a DTO for storing the most recent
      */
-    private static StopRequestAccumulator stopSelectionChange(
+    private static StopRequestAccumulator changeStopSelectionState(
             StopRequestAccumulator previousAccumulator,
             FullStopSelectionState fullStopSelectionState
     ) {
@@ -190,7 +190,7 @@ public class PatternViewModel {
      * @param mapState the new map state
      * @return a DTO that stores the new map state, current selection state, and new stop visibility states
      */
-    private static StopRequestAccumulator mapStateChange(
+    private static StopRequestAccumulator changeMapState(
             StopRequestAccumulator previousAccumulator,
             MapState mapState
     ) {
