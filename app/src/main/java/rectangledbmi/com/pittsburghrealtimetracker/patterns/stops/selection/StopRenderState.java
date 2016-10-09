@@ -1,23 +1,23 @@
-package rectangledbmi.com.pittsburghrealtimetracker.patterns.stops;
+package rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.selection;
 
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Pt;
 
 /**
- * <p>Rendering info for getStopRenderRequests</p>
+ * <p>Rendering info for holding selection states for stops</p>
  * <p>Created by epicstar on 9/20/16.</p>
  * @since 77
  * @author Jeremy Jao
  * @author Michael Antonacci
  */
-public class StopRenderRequest {
+public class StopRenderState {
     private final Pt stopPt;
     private final int routeCount;
 
-    public static StopRenderRequest create(Pt stopInfo, int routeCount) {
-        return new StopRenderRequest(stopInfo, routeCount);
+    public static StopRenderState create(Pt stopInfo, int routeCount) {
+        return new StopRenderState(stopInfo, routeCount);
     }
 
-    private StopRenderRequest(Pt stopPt, int routeCount) {
+    private StopRenderState(Pt stopPt, int routeCount) {
         this.stopPt = stopPt;
         this.routeCount = routeCount;
     }
@@ -33,9 +33,9 @@ public class StopRenderRequest {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof StopRenderRequest)) return false;
+        if (!(o instanceof StopRenderState)) return false;
 
-        StopRenderRequest that = (StopRenderRequest) o;
+        StopRenderState that = (StopRenderState) o;
 
         if (routeCount != that.routeCount) return false;
         return stopPt != null ? stopPt.equals(that.stopPt) : that.stopPt == null;

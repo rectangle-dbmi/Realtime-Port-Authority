@@ -1,5 +1,6 @@
 package rectangledbmi.com.pittsburghrealtimetracker.patterns.stops;
 
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRenderRequest;
 import rx.Observer;
 
 /**

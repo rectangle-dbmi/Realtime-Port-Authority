@@ -63,10 +63,10 @@ import java.util.concurrent.TimeUnit;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter;
 import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PatternSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternViewModel;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PatternSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PolylineView;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopRenderRequest;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRenderRequest;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopView;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.errors.ErrorMessage;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.vehicles.VehicleBitmap;
@@ -285,6 +285,8 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             Timber.d("Pausing Map View");
         }
         pauseMapState();
+        unsubscribeSubscription(polylineSubscription);
+        unsubscribeSubscription(stopSubscription);
         super.onPause();
     }
 
@@ -303,10 +305,13 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             googleApiClient.disconnect();
             Timber.d("disconnecting google map api client");
         }
-        if (polylineSubscription != null && !polylineSubscription.isUnsubscribed()) {
-            polylineSubscription.unsubscribe();
-        }
         super.onStop();
+    }
+
+    private static void unsubscribeSubscription(Subscription subscription) {
+        if (subscription != null && !subscription.isUnsubscribed()) {
+            subscription.unsubscribe();
+        }
     }
 
     @Override
@@ -638,15 +643,14 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      */
         PatternViewModel patternViewModel = new PatternViewModel(
                 patApiService,
-                routeSelectionObservable,
-                zoomSubject.asObservable()
+                routeSelectionObservable
         );
         polylineSubscription = patternViewModel.getPatternSelections()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(polylineObserver());
 
-        stopSubscription = patternViewModel.getStopRenderRequests()
+        stopSubscription = patternViewModel.getStopRenderRequests(zoomSubject.asObservable())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(stopObserver());
@@ -1102,7 +1106,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 }
                 Pt stopInfo = stopRenderRequest.getStopPt();
                 Marker stopMarker = stops.get(stopInfo.getStpid());
-                if (stopRenderRequest.routeCount() > 0) {
+                if (stopRenderRequest.isVisible()) {
                     if (stopMarker == null) {
                         stopMarker = mMap.addMarker(new MarkerOptions()
                                 .anchor(.5f, .5f)

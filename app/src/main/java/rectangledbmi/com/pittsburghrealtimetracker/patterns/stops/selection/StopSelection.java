@@ -1,11 +1,11 @@
-package rectangledbmi.com.pittsburghrealtimetracker.patterns.stops;
+package rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.selection;
 
 import java.util.Collection;
 
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Pt;
 
 /**
- * <p>Selection Info for getStopRenderRequests.</p>
+ * <p>Immediate selection info for getStopRenderRequests.</p>
  * <p>Created by epicstar on 9/20/16.</p>
  * @author Jeremy Jao
  */
