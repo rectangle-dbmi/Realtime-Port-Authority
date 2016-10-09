@@ -62,7 +62,7 @@ public class PatternViewModel {
         }
         return selectionObservable
                 .flatMap(route -> {
-                    Timber.d("Getting patternSelections");
+                    Timber.d("Getting patternSelections: %s", route.getRoute());
                     return service.getPatterns(route.getRoute())
                             .map(patterns ->
                                     new PatternSelection(
