@@ -475,6 +475,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         mMap.setOnCameraMoveListener(() -> {
             cameraPosition = mMap.getCameraPosition();
             if (zoom != cameraPosition.zoom) {
+                Timber.v("Change zoom state: %f", zoom);
                 zoom = cameraPosition.zoom;
                 zoomSubject.onNext(zoom);
 //                transitStopCollection.checkAllVisibility(zoom, zoomStopVisibility);

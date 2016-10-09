@@ -150,14 +150,15 @@ public class PatternViewModel {
             StopRequestAccumulator previousAccumulator,
             FullStopSelectionState fullStopSelectionState
     ) {
-
         List<StopRenderRequest> stopsToChange = new ArrayList<>();
         if (previousAccumulator.getMapState() == null || !previousAccumulator.getMapState().value()) {
+            Timber.d("Not changing stop selection state");
             return StopRequestAccumulator.create(
                     fullStopSelectionState,
                     previousAccumulator.getMapState(),
                     stopsToChange);
         }
+        Timber.d("Changing stop selection state");
         Collection<StopRenderState> diff = getDiffList(
                 previousAccumulator.getFullStopSelectionState().value().values(),
                 fullStopSelectionState.value().values()
@@ -165,7 +166,7 @@ public class PatternViewModel {
         for (StopRenderState stopRenderState : diff) {
             if (stopRenderState.routeCount() <= 0) {
                 if (stopRenderState.routeCount() < 0) {
-                    Timber.w("Stop routeCount should never be < 0 for %d", stopRenderState.getStopPt().getStpid());
+                    Timber.v("Bug in app: Stop routeCount should never be < 0 for %d: %d", stopRenderState.getStopPt().getStpid(), stopRenderState.routeCount());
                 }
                 stopsToChange.add(StopRenderRequest.create(stopRenderState.getStopPt(), false));
             } else if (previousAccumulator.getMapState().value()) {
@@ -199,12 +200,14 @@ public class PatternViewModel {
                         previousAccumulator.getFullStopSelectionState().value() == null ||
                         (previousAccumulator.getMapState() != null && (previousAccumulator.getMapState().value() == mapState.value()))
         ) {
+            Timber.d("Not changing stop map state");
             return StopRequestAccumulator.create(
                     previousAccumulator.getFullStopSelectionState(),
                     mapState,
                     stopsToChange
             );
         }
+        Timber.d("Changing stop map state");
         for (StopRenderState stopRenderState : previousAccumulator.getFullStopSelectionState().value().values()) {
             if (stopRenderState.routeCount() > 0) {
                 stopsToChange.add(StopRenderRequest.create(stopRenderState.getStopPt(), mapState.value()));
