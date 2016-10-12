@@ -31,7 +31,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rx.Observable;
-import rx.subjects.BehaviorSubject;
+import rx.subjects.ReplaySubject;
 import timber.log.Timber;
 
 /**
@@ -64,7 +64,7 @@ public class NavigationDrawerFragment extends Fragment {
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
 
-    private BehaviorSubject<RouteSelection> routeSelectionPublishSubject;
+    private ReplaySubject<RouteSelection> routeSelectionPublishSubject;
 
     /**
      * State of selected routes
@@ -90,7 +90,7 @@ public class NavigationDrawerFragment extends Fragment {
                 Collections.synchronizedSet(
                         new HashSet<>(getResources().getInteger(R.integer.max_checked))))));
         busListAdapter = new BusRouteAdapter();
-        routeSelectionPublishSubject = BehaviorSubject.create();
+        routeSelectionPublishSubject = ReplaySubject.create();
     }
 
     public void reselectRoutes() {
@@ -325,7 +325,7 @@ public class NavigationDrawerFragment extends Fragment {
          */
         private HashMap<String, Route> routeHashMap;
 
-        public BusRouteAdapter() {
+        BusRouteAdapter() {
             super();
             createRoutes();
         }

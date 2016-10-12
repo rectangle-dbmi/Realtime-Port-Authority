@@ -516,6 +516,8 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 .observeOn(Schedulers.io());
         Observable<Route> toggledRoutesObservable = busListInteraction.getToggledRouteObservable()
                 .observeOn(Schedulers.io());
+
+        setupPolylineObservable(toggledRoutesObservable);
         ConnectableObservable<Set<String>> selectionObservable = selectedRoutesObservable
                 .replay(1);
         //noinspection Convert2Lambda
@@ -531,7 +533,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                         return Observable.interval(0, 10, TimeUnit.SECONDS)
                                 .map(aLong -> {
                                     if (BuildConfig.DEBUG) {
-                                        String msg = String.format("Calling x%d", aLong);
+                                        String msg = String.format(Locale.US, "Calling x%d", aLong);
                                         Timber.d(msg);
                                     }
                                     return routes;
@@ -635,7 +637,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
         resetMapSubscriptions();
         selectionSubscription = selectionObservable.connect();
-        setupPolylineObservable(toggledRoutesObservable);
     }
 
     private void setupPolylineObservable(Observable<Route> routeSelectionObservable) {
@@ -647,12 +648,10 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 routeSelectionObservable
         );
         polylineSubscription = patternViewModel.getPatternSelections()
-                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(polylineObserver());
 
         stopSubscription = patternViewModel.getStopRenderRequests(zoomSubject.asObservable())
-                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(stopObserver());
 
