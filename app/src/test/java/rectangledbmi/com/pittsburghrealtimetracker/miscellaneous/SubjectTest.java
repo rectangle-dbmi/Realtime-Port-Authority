@@ -27,7 +27,7 @@ public class SubjectTest {
     }
 
     /**
-     * Test to confirm that subjects can work in a for-loop. Would go against issue #290 on github.
+     * Test to confirm that subjects can work in a for-loop. Would go against a hypothesis on why issue #290 is failing.
      * @see <a href="https://github.com/rectangle-dbmi/Realtime-Port-Authority/issues/290">Issue #290</a>
      */
     @Test
