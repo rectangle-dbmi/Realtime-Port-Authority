@@ -6,7 +6,7 @@ import org.junit.Test;
 import java.util.List;
 
 import rx.observers.TestSubscriber;
-import rx.subjects.PublishSubject;
+import rx.subjects.ReplaySubject;
 
 import static org.junit.Assert.assertEquals;
 
@@ -18,25 +18,25 @@ import static org.junit.Assert.assertEquals;
 
 public class SubjectTest {
 
-    private PublishSubject<Integer> testSubject;
+    private ReplaySubject<Integer> testSubject;
     private final static int maxEmissions = 1000;
 
     @Before
     public void setUp() {
-        testSubject = PublishSubject.create();
+        testSubject = ReplaySubject.create();
     }
 
     /**
-     * Test to confirm that subjects can work in a for-loop. Would go against a hypothesis on why issue #290 is failing.
+     * Test to confirm that subjects can work in a for-loop.
      * @see <a href="https://github.com/rectangle-dbmi/Realtime-Port-Authority/issues/290">Issue #290</a>
      */
     @Test
     public void testToggle() {
-        TestSubscriber<Integer> testSubscriber = new TestSubscriber<>();
-        testSubject.subscribe(testSubscriber);
         for (int i=0;i<maxEmissions;++i) {
             testSubject.onNext(i);
         }
+        TestSubscriber<Integer> testSubscriber = new TestSubscriber<>();
+        testSubject.subscribe(testSubscriber);
         List<Integer> events = testSubscriber.getOnNextEvents();
         assertEquals(maxEmissions, events.size());
         for (int i=0;i<maxEmissions;++i) {
