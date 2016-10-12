@@ -200,14 +200,14 @@ public class PatternViewModel {
                         previousAccumulator.getFullStopSelectionState().value() == null ||
                         (previousAccumulator.getMapState() != null && (previousAccumulator.getMapState().value() == mapState.value()))
         ) {
-            Timber.d("Not changing stop map state");
+            Timber.v("Not changing stop map state");
             return StopRequestAccumulator.create(
                     previousAccumulator.getFullStopSelectionState(),
                     mapState,
                     stopsToChange
             );
         }
-        Timber.d("Changing stop map state");
+        Timber.v("Changing stop map state");
         for (StopRenderState stopRenderState : previousAccumulator.getFullStopSelectionState().value().values()) {
             if (stopRenderState.routeCount() > 0) {
                 stopsToChange.add(StopRenderRequest.create(stopRenderState.getStopPt(), mapState.value()));
