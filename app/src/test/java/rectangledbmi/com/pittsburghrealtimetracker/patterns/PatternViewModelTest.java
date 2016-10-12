@@ -43,8 +43,7 @@ public class PatternViewModelTest {
 
         PatternViewModel patternViewModel = new PatternViewModel(
                 patapiMock,
-                subject.asObservable(),
-                null
+                subject.asObservable()
         );
         patternSelectionTestSubscriber = new TestSubscriber<>();
         polylinePresenterSubscription = patternViewModel
