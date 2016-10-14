@@ -84,6 +84,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.observables.ConnectableObservable;
 import rx.schedulers.Schedulers;
+import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
@@ -183,7 +184,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
     private HashMap<Integer, Marker> stops;
 
-    private PublishSubject<Float> zoomSubject;
+    private BehaviorSubject<Float> zoomSubject;
     // endregion
 
     // region Android Fragment LifeCycle
@@ -224,7 +225,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         busMarkers = new ConcurrentHashMap<>();
         routeLines = new ConcurrentHashMap<>();
         stops = new HashMap<>();
-        zoomSubject = PublishSubject.create();
+        zoomSubject = BehaviorSubject.create();
     }
 
     @Override
@@ -232,6 +233,10 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         super.onActivityCreated(inState);
         if (inState == null) return;
         cameraPosition = inState.getParcelable(CAMERA_POSITION);
+        if (cameraPosition != null) {
+            zoomSubject.onNext(cameraPosition.zoom);
+        }
+
 
     }
 
@@ -285,8 +290,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             Timber.d("Pausing Map View");
         }
         pauseMapState();
-        unsubscribeSubscription(polylineSubscription);
-        unsubscribeSubscription(stopSubscription);
         super.onPause();
     }
 
@@ -327,6 +330,8 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             unselectVehicleSubscription = null;
             Timber.d("Unselect Vehicle Event destroyed");
         }
+        unsubscribeSubscription(polylineSubscription);
+        unsubscribeSubscription(stopSubscription);
 
         if (selectionSubscription != null) {
             selectionSubscription.unsubscribe();
@@ -458,6 +463,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         if (cameraPosition != null) {
             Timber.d("map was instantiated from a recreation (orientation change, etc.)");
             mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            zoomSubject.onNext(cameraPosition.zoom);
             enableGoogleMapLocation();
         } else {
             Timber.d("Map was instantiated from a clean state. Centering the map on Pittsburgh and possibly on you");
@@ -481,8 +487,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 //                transitStopCollection.checkAllVisibility(zoom, zoomStopVisibility);
             }
         });
-
-        busListInteraction.onBadName();
         // set up observable information
         setupReactiveObjects();
     }
@@ -637,6 +641,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
         resetMapSubscriptions();
         selectionSubscription = selectionObservable.connect();
+        busListInteraction.onBadName();
     }
 
     private void setupPolylineObservable(Observable<Route> routeSelectionObservable) {
@@ -1085,7 +1090,9 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             @Override
             public void onCompleted() {
                 Timber.i("Stops have been unsubscribed");
-                clearStops();
+                if (stops != null) {
+                    stops.clear();
+                }
             }
 
             @Override

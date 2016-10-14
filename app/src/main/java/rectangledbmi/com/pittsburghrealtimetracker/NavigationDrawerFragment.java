@@ -31,6 +31,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rx.Observable;
+import rx.subjects.PublishSubject;
 import rx.subjects.ReplaySubject;
 import timber.log.Timber;
 
@@ -64,7 +65,7 @@ public class NavigationDrawerFragment extends Fragment {
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
 
-    private ReplaySubject<RouteSelection> routeSelectionPublishSubject;
+    private PublishSubject<RouteSelection> routeSelectionPublishSubject;
 
     /**
      * State of selected routes
@@ -90,7 +91,7 @@ public class NavigationDrawerFragment extends Fragment {
                 Collections.synchronizedSet(
                         new HashSet<>(getResources().getInteger(R.integer.max_checked))))));
         busListAdapter = new BusRouteAdapter();
-        routeSelectionPublishSubject = ReplaySubject.create();
+        routeSelectionPublishSubject = PublishSubject.create();
     }
 
     public void reselectRoutes() {
@@ -100,12 +101,14 @@ public class NavigationDrawerFragment extends Fragment {
     private void setSelection(Set<String> selectedRoutes, boolean isSelected) {
         String[] routesArray = selectedRoutes.toArray(new String[selectedRoutes.size()]);
         if (routeSelectionPublishSubject == null || busListAdapter == null) {
-            Timber.i("Cannot multiselect things... Will not work");
+            Timber.w("Cannot multiselect things... Will not work");
             return;
         }
         for (String routeNumber : routesArray) {
             Route route = busListAdapter.getRouteByNumber(routeNumber);
-            toggleRoute(route, isSelected);
+            if (route.isSelected() != isSelected) {
+                toggleRoute(route, isSelected);
+            }
         }
         Timber.d("Finished multiselecting routes");
     }
@@ -347,10 +350,12 @@ public class NavigationDrawerFragment extends Fragment {
             Route currentRoute;
 
             for (int i = 0; i < numbers.length; ++i) {
-                currentRoute = new Route(numbers[i], descriptions[i], colors[i], i, selectedRoutes.contains(numbers[i]));
+                currentRoute = new Route(numbers[i], descriptions[i], colors[i], i, false);
                 routes[i] = currentRoute;
                 routeHashMap.put(currentRoute.getRoute(), currentRoute);
-
+                if (currentRoute.isSelected()) {
+                    Timber.w("Should not be true: %s", currentRoute.getRoute());
+                }
             }
             return routes;
         }
