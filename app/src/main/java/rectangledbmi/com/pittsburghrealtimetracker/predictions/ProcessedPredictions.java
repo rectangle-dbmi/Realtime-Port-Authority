@@ -38,7 +38,7 @@ public class ProcessedPredictions {
     private final static SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT_PRINT, Locale.US);
 
     static {
-        dateFormat.setTimeZone(TimeZone.getTimeZone("EST"));
+        dateFormat.setTimeZone(TimeZone.getTimeZone("America/New_York"));
     }
 
     static ProcessedPredictions create(Marker marker, PredictionsType predictionsType, List<Prd> predictions) {
