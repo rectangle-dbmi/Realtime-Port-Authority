@@ -896,7 +896,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
              * Handle vehicle updates and adds...
              * <ul>
              *     <li>add marker if not on {@link BusMapFragment#busMarkers} - {@link #addMarker(VehicleBitmap)}</li>
-             *     <li>update marker if in {@link BusMapFragment#busMarkers} - {@link #updateMarker(Vehicle, Marker)}</li>
+             *     <li>update marker if in {@link BusMapFragment#busMarkers} - {@link #updateMarker(VehicleBitmap, Marker)}</li>
              * </ul>
              *
              * @since 46
@@ -908,7 +908,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 if (marker == null) {
                     addMarker(vehicleBitmap);
                 } else {
-                    updateMarker(vehicleBitmap.getVehicle(), marker);
+                    updateMarker(vehicleBitmap, marker);
                 }
 
             }
@@ -921,28 +921,36 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             private void addMarker(VehicleBitmap vehicleBitmap) {
                 Vehicle vehicle = vehicleBitmap.getVehicle();
                 Timber.v("marker_add adding_marker %s", Integer.toString(vehicle.getVid()));
-                busMarkers.put(vehicle.getVid(), mMap.addMarker(new MarkerOptions()
-                        .position(new LatLng(vehicle.getLat(), vehicle.getLon()))
-                        .title(vehicle.getRt() + "(" + vehicle.getVid() + ") " + vehicle.getDes() + (vehicle.isDly() ? " - Delayed" : ""))
-                        .draggable(false)
-                        .rotation(vehicle.getHdg())
-                        .icon(BitmapDescriptorFactory.fromBitmap(vehicleBitmap.getBitmap()))
-                        .anchor((float) 0.5, (float) 0.5)
-                        .flat(true)
-                ));
+                Marker marker = mMap.addMarker(new MarkerOptions()
+                                .position(new LatLng(vehicle.getLat(), vehicle.getLon()))
+                                .title(vehicle.getRt() + "(" + vehicle.getVid() + ") " + vehicle.getDes() + (vehicle.isDly() ? " - Delayed" : ""))
+                                .draggable(false)
+                                .rotation(vehicle.getHdg())
+                                .icon(BitmapDescriptorFactory.fromBitmap(vehicleBitmap.getBitmap()))
+                                .anchor((float) 0.5, (float) 0.5)
+                                .flat(true));
+                marker.setTag(vehicleBitmap.getVehicle());
+                busMarkers.put(vehicle.getVid(), marker);
             }
 
             /**
              * Updates marker information on map
              * @since 46
-             * @param vehicle - vehicle to update
+             * @param vehicleBitmap - vehicle to update
              * @param marker - marker to update
              */
-            private void updateMarker(Vehicle vehicle, Marker marker) {
+            private void updateMarker(VehicleBitmap vehicleBitmap, Marker marker) {
+                Vehicle vehicle = vehicleBitmap.getVehicle();
                 Timber.v("marker_update... updating_pointer");
                 marker.setTitle(vehicle.getRt() + "(" + vehicle.getVid() + ") " + vehicle.getDes() + (vehicle.isDly() ? " - Delayed" : ""));
                 marker.setPosition(new LatLng(vehicle.getLat(), vehicle.getLon()));
                 marker.setRotation(vehicle.getHdg());
+                if (!((Vehicle) marker.getTag()).getRt().equals(vehicle.getRt())) {
+                    Timber.d("changing vehicle %d icon from %s to %s", vehicle.getVid(), ((Vehicle) marker.getTag()).getRt(), vehicle.getRt());
+                    marker.setIcon(BitmapDescriptorFactory.fromBitmap(vehicleBitmap.getBitmap()));
+                }
+                marker.setTag(vehicle);
+
             }
         };
     }
