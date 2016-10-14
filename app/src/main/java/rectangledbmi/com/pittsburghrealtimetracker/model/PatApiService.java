@@ -3,11 +3,9 @@ package rectangledbmi.com.pittsburghrealtimetracker.model;
 import java.util.Collection;
 import java.util.List;
 
-import rectangledbmi.com.pittsburghrealtimetracker.world.Prediction;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Prd;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Pt;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Ptr;
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Vehicle;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.VehicleResponse;
 import rx.Observable;
 

@@ -49,10 +49,6 @@
                 android:value="rectangledbmi.com.pittsburghrealtimetracker.SelectTransit" />
         </activity>
 
-        <service
-            android:name=".handlers.BusUpdateIntentService"
-            android:exported="false" >
-        </service>
     </application>
 
 

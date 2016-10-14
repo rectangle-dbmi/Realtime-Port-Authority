@@ -74,7 +74,6 @@ import rectangledbmi.com.pittsburghrealtimetracker.predictions.ProcessedPredicti
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.errors.ErrorMessage;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.vehicles.VehicleBitmap;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
-import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStopCollection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimeVehicleResponse;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Pt;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Vehicle;
@@ -139,8 +138,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     private float zoom = 11.8f;
 
     private ConcurrentMap<Integer, Marker> busMarkers;
-
-    private TransitStopCollection transitStopCollection;
 
     private GoogleApiClient googleApiClient;
 
@@ -228,7 +225,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 .build();
 
         // set up the getStopRenderRequests collection object and its listeners
-        transitStopCollection = new TransitStopCollection();
         busMarkers = new ConcurrentHashMap<>();
         routeLines = new ConcurrentHashMap<>();
         stops = new HashMap<>();
@@ -344,10 +340,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         if (selectionSubscription != null) {
             selectionSubscription.unsubscribe();
             selectionSubscription = null;
-        }
-        if (transitStopCollection != null) {
-            transitStopCollection.destroyStops();
-            Timber.d("Destroying stop object");
         }
 
         if (mMap != null) {
@@ -1051,7 +1043,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
         removeBuses();
         for (Map.Entry<String, List<Polyline>> routeLine : routeLines.entrySet()) {
-            transitStopCollection.removeRoute(routeLine.getKey());
             setVisiblePolylines(routeLine.getValue(), false);
         }
     }
