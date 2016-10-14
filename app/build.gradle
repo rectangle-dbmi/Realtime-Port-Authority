@@ -49,10 +49,10 @@ dependencies {
     }
 
      //google play services maps
-    compile 'com.google.android.gms:play-services-maps:9.6.0'
+    compile 'com.google.android.gms:play-services-maps:9.6.1'
     //google play services location and places
-    compile 'com.google.android.gms:play-services-location:9.6.0'
-    compile 'com.google.android.gms:play-services-places:9.6.0'
+    compile 'com.google.android.gms:play-services-location:9.6.1'
+    compile 'com.google.android.gms:play-services-places:9.6.1'
 
     compile 'com.android.support:support-v4:23.4.0'
     compile 'com.android.support:design:23.4.0'
