@@ -336,6 +336,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         }
         unsubscribeSubscription(polylineSubscription);
         unsubscribeSubscription(stopSubscription);
+        unsubscribeSubscription(predictionsSubscription);
 
         if (selectionSubscription != null) {
             selectionSubscription.unsubscribe();
