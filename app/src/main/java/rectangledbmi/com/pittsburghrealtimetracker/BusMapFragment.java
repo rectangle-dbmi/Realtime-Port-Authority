@@ -949,6 +949,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                                 .title(vehicle.getRt() + "(" + vehicle.getVid() + ") " + vehicle.getDes() + (vehicle.isDly() ? " - Delayed" : ""))
                                 .draggable(false)
                                 .rotation(vehicle.getHdg())
+                                .zIndex(5)
                                 .icon(BitmapDescriptorFactory.fromBitmap(vehicleBitmap.getBitmap()))
                                 .anchor((float) 0.5, (float) 0.5)
                                 .flat(true));
@@ -1150,9 +1151,11 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                                 .title(stopInfo.getTitle())
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_stop))
                                 .visible(true)
+                                .flat(false)
+                                .zIndex(10)
                                 .draggable(false)
                                 .position(new LatLng(stopInfo.getLat(), stopInfo.getLon()))
-                                .flat(true)
+                                .flat(false)
                         );
                         stopMarker.setTag(stopRenderRequest.getStopPt());
                         stops.put(stopRenderRequest.getStopPt().getStpid(), stopMarker);
