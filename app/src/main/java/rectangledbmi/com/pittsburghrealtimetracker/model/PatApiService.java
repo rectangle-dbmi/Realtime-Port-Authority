@@ -22,7 +22,7 @@ public interface PatApiService {
 
     Observable<List<Prd>> getVehiclePredictions(int id);
 
-    Observable<List<Prd>> getStopPredictions(int id);
+    Observable<List<Prd>> getStopPredictions(int id, Collection<String> rts);
 
     Observable<List<Ptr>> getPatterns(String rt);
 

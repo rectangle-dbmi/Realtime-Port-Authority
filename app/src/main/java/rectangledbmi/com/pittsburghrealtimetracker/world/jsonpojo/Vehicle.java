@@ -8,7 +8,7 @@ import java.util.Date;
 
 import javax.annotation.Generated;
 
-import rectangledbmi.com.pittsburghrealtimetracker.predictions.PredictionInfo;
+import rectangledbmi.com.pittsburghrealtimetracker.predictions.PredictionType;
 
 /**
  * Vehicle (bus) Retrofit POJO
@@ -16,7 +16,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.predictions.PredictionInfo;
  * @since 46
  */
 @Generated("org.jsonschema2pojo")
-public class Vehicle implements PredictionInfo {
+public class Vehicle implements PredictionType {
 
     @Expose
     private int vid;
