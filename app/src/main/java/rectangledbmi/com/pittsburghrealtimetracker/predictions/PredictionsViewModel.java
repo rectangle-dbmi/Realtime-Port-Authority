@@ -11,6 +11,8 @@ import timber.log.Timber;
 /**
  * <p>ViewModel for getting predictions.</p>
  * <p>Created by epicstar on 10/13/16.</p>
+ * @author Jeremy Jao
+ * @since 77
  */
 
 public class PredictionsViewModel {

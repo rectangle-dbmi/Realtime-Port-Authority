@@ -8,6 +8,8 @@ import java.util.HashSet;
 /**
  * <p>Container for prediction type and selected routes emission.</p>
  * <p>Created by epicstar on 10/14/16.</p>
+ * @author Jeremy Jao
+ * @since 77
  */
 
 public class PredictionsInfo {

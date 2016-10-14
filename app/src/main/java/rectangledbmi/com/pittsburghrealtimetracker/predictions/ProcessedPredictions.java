@@ -14,9 +14,10 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Pt;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Vehicle;
 
 /**
- * <p>Holds prediction info.</p>
+ * <p>Holds prediction info for the {@link PredictionsView}.</p>
  * <p>Created by epicstar on 10/14/16.</p>
  * @author Jeremy Jao
+ * @since 77
  */
 
 public class ProcessedPredictions {
