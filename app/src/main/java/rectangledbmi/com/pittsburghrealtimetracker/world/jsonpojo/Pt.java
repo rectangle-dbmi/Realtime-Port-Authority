@@ -4,6 +4,8 @@ package rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo;
 import javax.annotation.Generated;
 import com.google.gson.annotations.Expose;
 
+import rectangledbmi.com.pittsburghrealtimetracker.predictions.PredictionInfo;
+
 /**
  * object for each point in a pattern
  *
@@ -11,7 +13,7 @@ import com.google.gson.annotations.Expose;
  * @since 46
  */
 @Generated("org.jsonschema2pojo")
-public class Pt {
+public class Pt implements PredictionInfo {
 
     @Expose
     private int seq;
@@ -29,6 +31,8 @@ public class Pt {
     private double pdist;
     @Expose
     private String msg;
+    @Expose
+    private String rtdir;
 
     /**
      *
@@ -164,6 +168,14 @@ public class Pt {
         this.msg = msg;
     }
 
+    public String getRtdir() {
+        return rtdir;
+    }
+
+    public void setRtdir(String rtdir) {
+        this.rtdir = rtdir;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -199,5 +211,18 @@ public class Pt {
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + (msg != null ? msg.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public int getId() {
+        if (getTyp() == 'S') {
+            return getStpid();
+        }
+        return -1;
+    }
+
+    @Override
+    public String getTitle() {
+        return String.format("(%d) %s - %s", getStpid(), getStpnm(), getRtdir());
     }
 }

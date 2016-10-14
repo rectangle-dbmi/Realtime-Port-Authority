@@ -8,13 +8,15 @@ import java.util.Date;
 
 import javax.annotation.Generated;
 
+import rectangledbmi.com.pittsburghrealtimetracker.predictions.PredictionInfo;
+
 /**
  * Vehicle (bus) Retrofit POJO
  * @author Jeremy Jao
  * @since 46
  */
 @Generated("org.jsonschema2pojo")
-public class Vehicle {
+public class Vehicle implements PredictionInfo {
 
     @Expose
     private int vid;
@@ -317,4 +319,18 @@ public class Vehicle {
         this.msg = msg;
     }
 
+    @Override
+    public int getId() {
+        return getVid();
+    }
+
+    @Override
+    public String getTitle() {
+        StringBuilder st = new StringBuilder();
+        st.append(String.format("%s (%d) %s", getRt(), getVid(), getDes()));
+        if (isDly()) {
+            st.append(" - Delayed");
+        }
+        return st.toString();
+    }
 }

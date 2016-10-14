@@ -68,6 +68,7 @@ public class Ptr {
      *     The rtdir
      */
     public String getRtdir() {
+        setPtrs();
         return rtdir;
     }
 
@@ -78,6 +79,7 @@ public class Ptr {
      */
     public void setRtdir(String rtdir) {
         this.rtdir = rtdir;
+        setPtrs();
     }
 
     /**
@@ -86,6 +88,7 @@ public class Ptr {
      *     The pt
      */
     public List<Pt> getPt() {
+        setPtrs();
         return pt;
     }
 
@@ -96,6 +99,7 @@ public class Ptr {
      */
     public void setPt(List<Pt> pt) {
         this.pt = pt;
+        setPtrs();
     }
 
     public String getMsg() {
@@ -133,5 +137,13 @@ public class Ptr {
         result = 31 * result + (pt != null ? pt.hashCode() : 0);
         result = 31 * result + (msg != null ? msg.hashCode() : 0);
         return result;
+    }
+
+    private void setPtrs() {
+        if (rtdir != null && pt != null) {
+            for (Pt p : pt) {
+                p.setRtdir(rtdir);
+            }
+        }
     }
 }

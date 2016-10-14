@@ -84,8 +84,8 @@ public class PatApiServiceImpl implements PatApiService {
     }
 
     @Override
-    public Observable<List<Prd>> getStopPredictions(int stpid, Collection<String> rts) {
-        return patApiClient.getStopPredictions(stpid, collectionToString(rts))
+    public Observable<List<Prd>> getStopPredictions(int stpid) {
+        return patApiClient.getStopPredictions(stpid)
                 .compose(composePrds());
     }
 
