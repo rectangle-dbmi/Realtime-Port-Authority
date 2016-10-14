@@ -19,6 +19,9 @@ import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternDataManager;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Prediction;
+import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimePredictionResponse;
+import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Prd;
+import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.PredictionResponse;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Pt;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Ptr;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.VehicleResponse;
@@ -81,13 +84,23 @@ public class PatApiServiceImpl implements PatApiService {
     }
 
     @Override
-    public Observable<Prediction> getStopPredictions(int stpid, String... rts) {
-        return null;
+    public Observable<List<Prd>> getStopPredictions(int stpid, Collection<String> rts) {
+        return patApiClient.getStopPredictions(stpid, collectionToString(rts))
+                .compose(composePrds());
     }
 
     @Override
-    public Observable<Prediction> getVehiclePredictions(int vid) {
-        return null;
+    public Observable<List<Prd>> getVehiclePredictions(int vid) {
+        return patApiClient.getBusPrediction(vid)
+                .compose(composePrds());
+
+    }
+
+    private static Observable.Transformer<PredictionResponse, List<Prd>> composePrds() {
+        return predictionRespose -> predictionRespose
+                .map(PredictionResponse::getBustimeResponse)
+                .map(BustimePredictionResponse::getPrd)
+                .compose(applySchedulers());
     }
 
     public PATAPI getPatApiClient() {

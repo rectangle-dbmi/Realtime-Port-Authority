@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import rectangledbmi.com.pittsburghrealtimetracker.world.Prediction;
+import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Prd;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Pt;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Ptr;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Vehicle;
@@ -17,16 +18,14 @@ import rx.Observable;
  * @since 77
  */
 public interface PatApiService {
-    @SuppressWarnings("unused")
     Observable<VehicleResponse> getVehicles(Collection<String> rts);
 
-    @SuppressWarnings("unused")
-    Observable<Prediction> getVehiclePredictions(int id);
+    Observable<List<Prd>> getVehiclePredictions(int id);
 
-    @SuppressWarnings("unused")
-    Observable<Prediction> getStopPredictions(int id, String... rts);
+    Observable<List<Prd>> getStopPredictions(int id, Collection<String> rts);
 
     Observable<List<Ptr>> getPatterns(String rt);
 
+    @SuppressWarnings("unused")
     Observable<List<Pt>> getStops(String rt);
 }
