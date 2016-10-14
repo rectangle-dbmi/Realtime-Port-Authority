@@ -4,7 +4,7 @@ package rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo;
 import javax.annotation.Generated;
 import com.google.gson.annotations.Expose;
 
-import rectangledbmi.com.pittsburghrealtimetracker.predictions.PredictionType;
+import rectangledbmi.com.pittsburghrealtimetracker.predictions.PredictionsType;
 
 /**
  * object for each point in a pattern
@@ -13,7 +13,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.predictions.PredictionType;
  * @since 46
  */
 @Generated("org.jsonschema2pojo")
-public class Pt implements PredictionType {
+public class Pt implements PredictionsType {
 
     @Expose
     private int seq;

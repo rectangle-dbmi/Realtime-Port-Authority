@@ -8,6 +8,6 @@ import rx.Observer;
  * @author Jeremy Jao
  */
 
-public interface PredictionView {
-    Observer<ProcessedPrediction> predictionsObserver();
+public interface PredictionsView {
+    Observer<ProcessedPredictions> predictionsObserver();
 }

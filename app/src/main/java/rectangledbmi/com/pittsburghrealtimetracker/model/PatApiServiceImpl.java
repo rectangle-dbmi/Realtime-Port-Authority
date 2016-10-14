@@ -18,7 +18,6 @@ import okhttp3.Request;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternDataManager;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
-import rectangledbmi.com.pittsburghrealtimetracker.world.Prediction;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimePredictionResponse;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Prd;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.PredictionResponse;
@@ -91,7 +90,7 @@ public class PatApiServiceImpl implements PatApiService {
 
     @Override
     public Observable<List<Prd>> getVehiclePredictions(int vid) {
-        return patApiClient.getBusPrediction(vid)
+        return patApiClient.getBusPredictions(vid)
                 .compose(composePrds());
 
     }

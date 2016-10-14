@@ -2,6 +2,8 @@ package rectangledbmi.com.pittsburghrealtimetracker.predictions;
 
 import android.os.Bundle;
 
+import com.google.android.gms.maps.model.Marker;
+
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
@@ -17,8 +19,8 @@ import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Vehicle;
  * @author Jeremy Jao
  */
 
-class ProcessedPrediction {
-    private final String title;
+public class ProcessedPredictions {
+    private final Marker marker;
     private final String predictions;
 
     /**
@@ -39,16 +41,17 @@ class ProcessedPrediction {
         dateFormat.setTimeZone(TimeZone.getTimeZone("EST"));
     }
 
-    static ProcessedPrediction create(PredictionType predictionType, List<Prd> predictions) {
-        return new ProcessedPrediction(predictionType, predictions);
+    static ProcessedPredictions create(Marker marker, PredictionsType predictionsType, List<Prd> predictions) {
+        return new ProcessedPredictions(marker, predictionsType, predictions);
     }
 
-    private ProcessedPrediction(PredictionType predictionType, List<Prd> predictions) {
-        this.title = predictionType.getTitle();
-        this.predictions = processPrds(predictionType, predictions);
+    private ProcessedPredictions(Marker marker, PredictionsType predictionsType, List<Prd> predictions) {
+        // predictionstype is already in the marker but there's an IllegalStateException if not on main thread when running marker.getTag()...
+        this.marker = marker;
+        this.predictions = processPrds(predictionsType, predictions);
     }
 
-    private static String processPrds(PredictionType predictionType, List<Prd> prds) {
+    private static String processPrds(PredictionsType predictionsType, List<Prd> prds) {
         StringBuilder st = new StringBuilder();
         boolean isFirst = true;
         for (Prd prd : prds) {
@@ -57,11 +60,11 @@ class ProcessedPrediction {
             } else {
                 st.append("\n");
             }
-            if (predictionType instanceof Pt) {
+            if (predictionsType instanceof Pt) {
                 st.append(String.format("%s (%s): %s",
                     prd.getRt(), prd.getVid(), dateFormat.format(prd.getPrdtm()))
                 );
-            } else if (predictionType instanceof Vehicle) {
+            } else if (predictionsType instanceof Vehicle) {
                 st.append(String.format("(%s) %s: %s",
                         prd.getStpid(), prd.getStpnm(), dateFormat.format(prd.getPrdtm()))
                 );
@@ -70,8 +73,8 @@ class ProcessedPrediction {
         return st.toString().length() > 0 ? st.toString() : "No predictions available.";
     }
 
-    public String getTitle() {
-        return title;
+    public Marker getMarker() {
+        return marker;
     }
 
     public String getPredictions() {

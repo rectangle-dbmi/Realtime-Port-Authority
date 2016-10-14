@@ -60,7 +60,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
-import rectangledbmi.com.pittsburghrealtimetracker.handlers.RequestPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.handlers.extend.ETAWindowAdapter;
 import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternViewModel;
@@ -68,6 +67,10 @@ import rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PatternSel
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PolylineView;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopView;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRenderRequest;
+import rectangledbmi.com.pittsburghrealtimetracker.predictions.PredictionsInfo;
+import rectangledbmi.com.pittsburghrealtimetracker.predictions.PredictionsView;
+import rectangledbmi.com.pittsburghrealtimetracker.predictions.PredictionsViewModel;
+import rectangledbmi.com.pittsburghrealtimetracker.predictions.ProcessedPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.errors.ErrorMessage;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.vehicles.VehicleBitmap;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
@@ -85,6 +88,7 @@ import rx.functions.Func1;
 import rx.observables.ConnectableObservable;
 import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
+import rx.subjects.PublishSubject;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
@@ -99,7 +103,7 @@ import timber.log.Timber;
 public class BusMapFragment extends SelectionFragment implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         OnMapReadyCallback, LocationListener, ClearSelection,
-        PolylineView, StopView {
+        PolylineView, StopView, PredictionsView {
 
     private static final String CAMERA_POSITION = "cameraPosition";
 
@@ -184,6 +188,10 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     private HashMap<Integer, Marker> stops;
 
     private BehaviorSubject<Float> zoomSubject;
+
+    private PublishSubject<PredictionsInfo> predictionsSubject;
+
+    private Subscription predictionsSubscription;
     // endregion
 
     // region Android Fragment LifeCycle
@@ -225,6 +233,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         routeLines = new ConcurrentHashMap<>();
         stops = new HashMap<>();
         zoomSubject = BehaviorSubject.create();
+        predictionsSubject = PublishSubject.create();
     }
 
     @Override
@@ -472,8 +481,10 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
         mMap.setInfoWindowAdapter(new ETAWindowAdapter(getActivity().getLayoutInflater()));
         mMap.setOnMarkerClickListener((marker) -> {
-            mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()), 400, null);
-            new RequestPredictions(getContext(), marker, busListInteraction.getSelectedRoutes()).execute(marker.getTitle());
+            mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()), getResources().getInteger(R.integer.marker_camera_delay), null);
+            if (busListInteraction != null) {
+                predictionsSubject.onNext(PredictionsInfo.create(marker, busListInteraction.getSelectedRoutes()));
+            }
             return true;
         });
 
@@ -521,6 +532,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 .observeOn(Schedulers.io());
 
         setupPolylineObservable(toggledRoutesObservable);
+        setupPredictionsObservable();
         ConnectableObservable<Set<String>> selectionObservable = selectedRoutesObservable
                 .replay(1);
         //noinspection Convert2Lambda
@@ -641,6 +653,17 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         resetMapSubscriptions();
         selectionSubscription = selectionObservable.connect();
         busListInteraction.onBadName();
+    }
+
+    private void setupPredictionsObservable() {
+        PredictionsViewModel predictionViewModel = new PredictionsViewModel(
+                patApiService,
+                getResources().getInteger(R.integer.marker_camera_delay)
+        );
+        predictionsSubscription = predictionViewModel
+                .getPredictions(predictionsSubject)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(predictionsObserver());
     }
 
     private void setupPolylineObservable(Observable<Route> routeSelectionObservable) {
@@ -1124,6 +1147,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                     if (stopMarker == null) {
                         stopMarker = mMap.addMarker(new MarkerOptions()
                                 .anchor(.5f, .5f)
+                                .title(stopInfo.getTitle())
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_stop))
                                 .visible(true)
                                 .draggable(false)
@@ -1139,6 +1163,29 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 } else if (stopMarker != null) {
                     stopMarker.setVisible(false);
                 }
+            }
+        };
+    }
+
+    @Override
+    public Observer<ProcessedPredictions> predictionsObserver() {
+        return new Observer<ProcessedPredictions>() {
+            @Override
+            public void onCompleted() {
+                Timber.i("Predictions have been unsubscribed");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Timber.e(e, "Predictions encountered an error");
+            }
+
+            @Override
+            public void onNext(ProcessedPredictions processedPredictions) {
+                Timber.i("Showing predictions");
+                Marker marker = processedPredictions.getMarker();
+                marker.setSnippet(processedPredictions.getPredictions());
+                marker.showInfoWindow();
             }
         };
     }

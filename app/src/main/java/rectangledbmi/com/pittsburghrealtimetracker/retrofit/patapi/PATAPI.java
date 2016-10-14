@@ -42,15 +42,15 @@ public interface PATAPI {
      * @param stpid - the stop id
      * @param rts - the routes
      */
-    @GET("getpredictions?format=json")
+    @GET("getpredictions?format=json&top=10")
     Observable<PredictionResponse> getStopPredictions(@Query("stpid") int stpid, @Query("rt") String rts);
 
     /**
      * Generates a response to get the predictions using the bus id
      * @param vid - the bus id
      */
-    @GET("getpredictions?format=json")
-    Observable<PredictionResponse> getBusPrediction(@Query("vid") int vid);
+    @GET("getpredictions?format=json&top=10")
+    Observable<PredictionResponse> getBusPredictions(@Query("vid") int vid);
 
 
 }

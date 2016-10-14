@@ -6,7 +6,7 @@ package rectangledbmi.com.pittsburghrealtimetracker.predictions;
  * @author Jeremy Jao
  */
 
-public interface PredictionType {
+public interface PredictionsType {
     int getId();
 
     String getTitle();
