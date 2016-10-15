@@ -1,14 +1,16 @@
-package rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines;
+package rectangledbmi.com.pittsburghrealtimetracker.patterns;
 
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PolylineView;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Ptr;
 
 /**
  * <p>Data Transfer Object that transfers meta info for {@link com.google.android.gms.maps.model.Polyline}
- * creation from the {@link PatternViewModel} to the {@link PolylineView}.</p>
+ * creation from the {@link rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternViewModel}
+ * to the {@link PolylineView}.</p>
  *
  * <p>The contract of this class should be that if {@link #isSelected()} is `false`, {@link #getPatterns()}
  * should be `null. Otherwise, it will always not be null.</p>
@@ -25,18 +27,6 @@ public class PatternSelection {
     private final String routeNumber;
     private List<List<LatLng>> latLngs;
     private final int routeColor;
-
-    /**
-     * <p>It is recommended to use this constructor when you want to unselect a polyline for a route
-     * since it keeps {@link #getPatterns()} null. We will not the pattern information when unselecting
-     * a polyline.</p>
-     * <p>Creates a data-transfer object for {@link com.google.android.gms.maps.model.Polyline} creation.</p>
-     * @param isSelected whether or not the pattern is selected
-     * @param routeNumber the route number of the object
-     */
-    public PatternSelection(boolean isSelected, String routeNumber) {
-        this(null, isSelected, routeNumber, 0);
-    }
 
     /**
      * <p>It is recommended to use this constructor when you want to show the polyline of a route number.

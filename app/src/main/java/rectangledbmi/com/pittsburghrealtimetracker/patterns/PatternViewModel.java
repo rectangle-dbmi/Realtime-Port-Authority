@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Set;
 
 import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PatternSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Pt;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Ptr;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either.EitherStopState;

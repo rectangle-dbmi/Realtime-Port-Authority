@@ -66,7 +66,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.PATTrackApplication;
 import rectangledbmi.com.pittsburghrealtimetracker.R;
 import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternViewModel;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PatternSelection;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PolylineView;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopView;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRenderRequest;

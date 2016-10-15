@@ -1,5 +1,6 @@
 package rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines;
 
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternSelection;
 import rx.Observer;
 
 /**
