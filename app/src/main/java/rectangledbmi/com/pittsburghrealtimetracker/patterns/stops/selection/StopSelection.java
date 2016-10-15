@@ -2,7 +2,7 @@ package rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.selection;
 
 import java.util.Collection;
 
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Pt;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Pt;
 
 /**
  * <p>Immediate selection info for getStopRenderRequests.</p>

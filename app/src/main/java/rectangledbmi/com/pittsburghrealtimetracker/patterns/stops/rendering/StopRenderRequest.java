@@ -1,6 +1,6 @@
 package rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering;
 
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Pt;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Pt;
 
 /**
  * <p>Rendering info for getStopRenderRequests</p>

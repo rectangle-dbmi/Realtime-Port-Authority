@@ -1,6 +1,6 @@
 package rectangledbmi.com.pittsburghrealtimetracker.mock;
 
-import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
+import rectangledbmi.com.pittsburghrealtimetracker.selection.Route;
 
 /**
  * <p>Stub route selection for unit testing.</p>

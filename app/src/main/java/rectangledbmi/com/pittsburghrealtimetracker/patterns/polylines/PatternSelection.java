@@ -4,7 +4,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Ptr;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Ptr;
 
 /**
  * <p>Data Transfer Object that transfers meta info for {@link com.google.android.gms.maps.model.Polyline}

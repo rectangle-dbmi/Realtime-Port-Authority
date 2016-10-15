@@ -15,9 +15,9 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.PatternResponse;
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Ptr;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Ptr;
+import rectangledbmi.com.pittsburghrealtimetracker.model.PATAPI;
+import rectangledbmi.com.pittsburghrealtimetracker.model.PatternResponse;
 import rx.Observable;
 import rx.exceptions.Exceptions;
 import timber.log.Timber;

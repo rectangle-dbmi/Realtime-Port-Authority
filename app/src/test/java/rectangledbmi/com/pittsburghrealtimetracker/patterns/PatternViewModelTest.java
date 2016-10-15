@@ -9,7 +9,7 @@ import java.util.List;
 import rectangledbmi.com.pittsburghrealtimetracker.mock.PatApiMock;
 import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PatternSelection;
-import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
+import rectangledbmi.com.pittsburghrealtimetracker.selection.Route;
 import rx.Subscription;
 import rx.observers.TestSubscriber;
 import rx.subjects.BehaviorSubject;

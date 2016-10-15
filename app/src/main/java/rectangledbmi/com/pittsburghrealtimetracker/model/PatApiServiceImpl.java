@@ -15,15 +15,15 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import rectangledbmi.com.pittsburghrealtimetracker.handlers.Constants;
+import rectangledbmi.com.pittsburghrealtimetracker.ui.SelectTransit;
+import rectangledbmi.com.pittsburghrealtimetracker.utils.Constants;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternDataManager;
-import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimePredictionResponse;
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Prd;
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.PredictionResponse;
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Pt;
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Ptr;
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.VehicleResponse;
+import rectangledbmi.com.pittsburghrealtimetracker.predictions.response.BustimePredictionResponse;
+import rectangledbmi.com.pittsburghrealtimetracker.predictions.response.Prd;
+import rectangledbmi.com.pittsburghrealtimetracker.predictions.response.PredictionResponse;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Pt;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Ptr;
+import rectangledbmi.com.pittsburghrealtimetracker.vehicles.response.VehicleResponse;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -46,7 +46,7 @@ public class PatApiServiceImpl implements PatApiService {
 
     /**
      * The default date format to parse... The timezone is set as EST in
-     * {@link rectangledbmi.com.pittsburghrealtimetracker.SelectTransit#onCreate(Bundle)}
+     * {@link SelectTransit#onCreate(Bundle)}
      *
      * @since 46
      */

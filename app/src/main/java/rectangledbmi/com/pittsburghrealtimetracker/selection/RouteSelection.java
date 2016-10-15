@@ -1,10 +1,7 @@
 package rectangledbmi.com.pittsburghrealtimetracker.selection;
 
-import android.support.annotation.NonNull;
-
 import java.util.Set;
 
-import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import timber.log.Timber;
 
 /**

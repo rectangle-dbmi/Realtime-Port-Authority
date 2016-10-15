@@ -9,9 +9,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Prd;
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Pt;
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Vehicle;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Pt;
+import rectangledbmi.com.pittsburghrealtimetracker.predictions.response.Prd;
+import rectangledbmi.com.pittsburghrealtimetracker.ui.SelectTransit;
+import rectangledbmi.com.pittsburghrealtimetracker.vehicles.response.Vehicle;
 
 /**
  * <p>Holds prediction info for the {@link PredictionsView}.</p>
@@ -33,7 +34,7 @@ public class ProcessedPredictions {
 
     /**
      * The default date format to parse... The timezone is set as EST in
-     * {@link rectangledbmi.com.pittsburghrealtimetracker.SelectTransit#onCreate(Bundle)}
+     * {@link SelectTransit#onCreate(Bundle)}
      * @since 46
      */
     private final static SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT_PRINT, Locale.US);

@@ -3,8 +3,8 @@ package rectangledbmi.com.pittsburghrealtimetracker.predictions;
 import java.util.concurrent.TimeUnit;
 
 import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Pt;
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Vehicle;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Pt;
+import rectangledbmi.com.pittsburghrealtimetracker.vehicles.response.Vehicle;
 import rx.Observable;
 import timber.log.Timber;
 

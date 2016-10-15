@@ -1,6 +1,6 @@
 package rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.selection;
 
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Pt;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Pt;
 
 /**
  * <p>Rendering info for holding selection states for stops</p>

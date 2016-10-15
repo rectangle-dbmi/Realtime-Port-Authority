@@ -6,9 +6,9 @@ import com.google.gson.GsonBuilder;
 import java.util.List;
 
 import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
-import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.PatternResponse;
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Ptr;
+import rectangledbmi.com.pittsburghrealtimetracker.model.PATAPI;
+import rectangledbmi.com.pittsburghrealtimetracker.model.PatternResponse;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Ptr;
 import rx.Observable;
 
 import static org.mockito.Mockito.mock;

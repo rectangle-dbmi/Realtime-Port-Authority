@@ -8,8 +8,8 @@ import java.io.File;
 import java.util.List;
 
 import rectangledbmi.com.pittsburghrealtimetracker.mock.PatApiMock;
-import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Ptr;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Ptr;
+import rectangledbmi.com.pittsburghrealtimetracker.model.PATAPI;
 import rx.observers.TestSubscriber;
 
 import static org.junit.Assert.assertEquals;

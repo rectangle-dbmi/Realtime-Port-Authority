@@ -15,6 +15,8 @@ import java.util.Set;
 
 import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PatternSelection;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Pt;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Ptr;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either.EitherStopState;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either.MapState;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRenderRequest;
@@ -22,9 +24,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.selection.Stop
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRequestAccumulator;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.selection.StopSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either.FullStopSelectionState;
-import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Pt;
-import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.Ptr;
+import rectangledbmi.com.pittsburghrealtimetracker.selection.Route;
 import rx.Observable;
 import timber.log.Timber;
 
