@@ -441,7 +441,7 @@ public class MainActivity extends AppCompatActivity implements
         openPermissionsPage();
     }
 
-    public void onBadName() {
+    public void restoreSelection() {
         if (mNavigationDrawerFragment == null) {
             return;
         }

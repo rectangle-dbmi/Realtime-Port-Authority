@@ -71,12 +71,21 @@ public abstract class SelectionFragment extends Fragment implements ClearSelecti
         File getDatadirectory();
 
 
-        // TODO: add documentation
+        /**
+         *
+         * @return the current snapshot of currently selected items
+         */
         Observable<Set<String>> getSelectedRoutesObservable();
 
+        /**
+         *
+         * @return the currently toggled route
+         */
         Observable<Route> getToggledRouteObservable();
 
-        // TODO: change bad name... add documentation
-        void onBadName();
+        /**
+         * Calls on the {@link NavigationDrawerFragment} from another componnt to restore selection
+         */
+        void restoreSelection();
     }
 }

@@ -649,7 +649,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
         resetMapSubscriptions();
         selectionSubscription = selectionObservable.connect();
-        busListInteraction.onBadName();
+        busListInteraction.restoreSelection();
     }
 
     private void setupPredictionsObservable() {
