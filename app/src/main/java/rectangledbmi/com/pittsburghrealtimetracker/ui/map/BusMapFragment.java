@@ -139,12 +139,25 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
     private MapView mapView;
 
+    /**
+     * Default zoom level
+     */
     private float zoom = 11.8f;
 
+    /**
+     * Google map cached bus markers
+     */
     private ConcurrentMap<Integer, Marker> busMarkers;
 
+    /**
+     * client for google map things
+     */
     private GoogleApiClient googleApiClient;
 
+    /**
+     * this is an interface that interacts with the
+     * {@link rectangledbmi.com.pittsburghrealtimetracker.ui.selection.NavigationDrawerFragment}
+     */
     private BusSelectionInteraction busListInteraction;
 
     /**
@@ -184,14 +197,29 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      */
     private Subscription polylineSubscription;
 
+    /**
+     * subscriptions for stops
+     */
     private Subscription stopSubscription;
 
+    /**
+     * Hashmap cached google map stops
+     */
     private HashMap<Integer, Marker> stops;
 
+    /**
+     * Subject for handling zooms
+     */
     private BehaviorSubject<Float> zoomSubject;
 
+    /**
+     * Subject that handles clicking on markers and does something with predictions
+     */
     private PublishSubject<PredictionsInfo> predictionsSubject;
 
+    /**
+     * subscription for predictions
+     */
     private Subscription predictionsSubscription;
     // endregion
 
