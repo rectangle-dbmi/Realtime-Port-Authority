@@ -33,6 +33,7 @@ public interface RetrofitPatApi {
      * Generates a response to get the predictions using the stop id
      * @param stpid - the stop id
      */
+    @SuppressWarnings("unused")
     @GET("getpredictions?format=json")
     Observable<PredictionResponse> getStopPredictions(@Query("stpid") int stpid);
 
