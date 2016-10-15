@@ -7,7 +7,7 @@ import java.util.List;
 
 import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
 import rectangledbmi.com.pittsburghrealtimetracker.model.PATAPI;
-import rectangledbmi.com.pittsburghrealtimetracker.model.PatternResponse;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.PatternResponse;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Ptr;
 import rx.Observable;
 

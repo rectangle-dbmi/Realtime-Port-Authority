@@ -1,5 +1,6 @@
 package rectangledbmi.com.pittsburghrealtimetracker.model;
 
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.PatternResponse;
 import rectangledbmi.com.pittsburghrealtimetracker.predictions.response.PredictionResponse;
 import rectangledbmi.com.pittsburghrealtimetracker.vehicles.response.VehicleResponse;
 import retrofit2.http.GET;
