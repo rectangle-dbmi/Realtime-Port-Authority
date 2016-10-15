@@ -44,7 +44,7 @@ import timber.log.Timber;
 /**
  * This is the main activity of the Realtime Tracker...
  */
-public class SelectTransit extends AppCompatActivity implements
+public class MainActivity extends AppCompatActivity implements
         SelectionFragment.BusSelectionInteraction {
 
     private static final String LINES_LAST_UPDATED = "lines_last_updated";
@@ -116,7 +116,7 @@ public class SelectTransit extends AppCompatActivity implements
     }
 
     /**
-     * In addition to destroying the {@link SelectTransit}, it will also complete the toast subject.
+     * In addition to destroying the {@link MainActivity}, it will also complete the toast subject.
      * @since 70
      */
     @Override
@@ -245,7 +245,7 @@ public class SelectTransit extends AppCompatActivity implements
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Timber.d("Running SelectTransit's onOptionsItemSelected");
+        Timber.d("Running MainActivity's onOptionsItemSelected");
         // TODO: Perhaps we should be using onClick events in the XML like onClickAppDetails()
         if (mNavigationDrawerFragment != null &&
                 mNavigationDrawerFragment.getActionBarDrawerToggle() != null &&
@@ -363,7 +363,7 @@ public class SelectTransit extends AppCompatActivity implements
 
     @Override
     public void showOkDialog(String message, DialogInterface.OnClickListener okListener) {
-        new AlertDialog.Builder(SelectTransit.this)
+        new AlertDialog.Builder(MainActivity.this)
                 .setMessage(message)
                 .setPositiveButton("OK", okListener)
                 .setNegativeButton("Cancel", null)

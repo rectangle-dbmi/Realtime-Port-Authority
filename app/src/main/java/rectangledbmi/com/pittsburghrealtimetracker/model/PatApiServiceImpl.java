@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import rectangledbmi.com.pittsburghrealtimetracker.ui.SelectTransit;
+import rectangledbmi.com.pittsburghrealtimetracker.ui.MainActivity;
 import rectangledbmi.com.pittsburghrealtimetracker.utils.Constants;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternDataManager;
 import rectangledbmi.com.pittsburghrealtimetracker.predictions.response.BustimePredictionResponse;
@@ -46,7 +46,7 @@ public class PatApiServiceImpl implements PatApiService {
 
     /**
      * The default date format to parse... The timezone is set as EST in
-     * {@link SelectTransit#onCreate(Bundle)}
+     * {@link MainActivity#onCreate(Bundle)}
      *
      * @since 46
      */

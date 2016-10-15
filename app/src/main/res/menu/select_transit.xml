@@ -1,6 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".ui.SelectTransit"
+    tools:context=".ui.MainActivity"
     xmlns:appcompat="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/action_clear"
         android:title="@string/action_clear"

@@ -11,7 +11,7 @@ import java.util.TimeZone;
 
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Pt;
 import rectangledbmi.com.pittsburghrealtimetracker.predictions.response.Prd;
-import rectangledbmi.com.pittsburghrealtimetracker.ui.SelectTransit;
+import rectangledbmi.com.pittsburghrealtimetracker.ui.MainActivity;
 import rectangledbmi.com.pittsburghrealtimetracker.vehicles.response.Vehicle;
 
 /**
@@ -34,7 +34,7 @@ public class ProcessedPredictions {
 
     /**
      * The default date format to parse... The timezone is set as EST in
-     * {@link SelectTransit#onCreate(Bundle)}
+     * {@link MainActivity#onCreate(Bundle)}
      * @since 46
      */
     private final static SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT_PRINT, Locale.US);
