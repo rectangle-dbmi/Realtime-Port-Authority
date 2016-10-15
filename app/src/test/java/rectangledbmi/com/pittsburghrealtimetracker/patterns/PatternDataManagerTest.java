@@ -9,7 +9,7 @@ import java.util.List;
 
 import rectangledbmi.com.pittsburghrealtimetracker.mock.PatApiMock;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Ptr;
-import rectangledbmi.com.pittsburghrealtimetracker.model.PATAPI;
+import rectangledbmi.com.pittsburghrealtimetracker.model.RetrofitPatApi;
 import rx.observers.TestSubscriber;
 
 import static org.junit.Assert.assertEquals;
@@ -28,7 +28,7 @@ public class PatternDataManagerTest {
 
     private File dir;
     private PatternDataManager patternDataManager;
-    private PATAPI patapi;
+    private RetrofitPatApi patapi;
 
     @Before
     public void setUp() {

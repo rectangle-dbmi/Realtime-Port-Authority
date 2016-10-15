@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Ptr;
-import rectangledbmi.com.pittsburghrealtimetracker.model.PATAPI;
+import rectangledbmi.com.pittsburghrealtimetracker.model.RetrofitPatApi;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.PatternResponse;
 import rx.Observable;
 import rx.exceptions.Exceptions;
@@ -38,11 +38,11 @@ public class PatternDataManager {
 
     private final static String polylineLocation = "/lineinfo";
     private final File polylineDirectory;
-    private final PATAPI patApiClient;
+    private final RetrofitPatApi patApiClient;
     private final static Type serializationType = new TypeToken<List<Ptr>>() {}.getType();
     private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
 
-    public PatternDataManager(File dataDirectory, PATAPI patApiClient) {
+    public PatternDataManager(File dataDirectory, RetrofitPatApi patApiClient) {
         polylineDirectory = new File(dataDirectory, polylineLocation);
         //noinspection ResultOfMethodCallIgnored
         polylineDirectory.mkdirs();

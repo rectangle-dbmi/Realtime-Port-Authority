@@ -6,7 +6,7 @@ import com.google.gson.GsonBuilder;
 import java.util.List;
 
 import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
-import rectangledbmi.com.pittsburghrealtimetracker.model.PATAPI;
+import rectangledbmi.com.pittsburghrealtimetracker.model.RetrofitPatApi;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.PatternResponse;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Ptr;
 import rx.Observable;
@@ -42,8 +42,8 @@ public class PatApiMock {
         return patApiService;
     }
 
-    public static PATAPI getPatApiMock() {
-        PATAPI patapi = mock(PATAPI.class);
+    public static RetrofitPatApi getPatApiMock() {
+        RetrofitPatApi patapi = mock(RetrofitPatApi.class);
         setupMock(patapi);
         return patapi;
     }
@@ -61,7 +61,7 @@ public class PatApiMock {
                 .thenReturn(Observable.just(patterns));
     }
 
-    private static void setupMock(PATAPI patapi) {
+    private static void setupMock(RetrofitPatApi patapi) {
         when(patapi.getPatterns(testRoute1))
                 .thenReturn(Observable.just(patternResponse));
     }

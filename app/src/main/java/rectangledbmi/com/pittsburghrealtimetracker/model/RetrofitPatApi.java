@@ -14,7 +14,7 @@ import rx.Observable;
  * @author Jeremy Jao
  * @since 46
  */
-public interface PATAPI {
+public interface RetrofitPatApi {
     /**
      * generates a response for patters
      * @param rt - the route

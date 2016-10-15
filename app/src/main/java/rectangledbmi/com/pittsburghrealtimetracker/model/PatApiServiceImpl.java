@@ -53,7 +53,7 @@ public class PatApiServiceImpl implements PatApiService {
     @SuppressWarnings("unused")
     private final static SimpleDateFormat DEFAULT_DATE_PARSE_FORMAT = new SimpleDateFormat(DATE_FORMAT_PARSE, Locale.US);
 
-    private final PATAPI patApiClient;
+    private final RetrofitPatApi patApiClient;
 
     private final PatternDataManager patternDataManager;
 
@@ -102,12 +102,12 @@ public class PatApiServiceImpl implements PatApiService {
                 .compose(applySchedulers());
     }
 
-    public PATAPI getPatApiClient() {
+    public RetrofitPatApi getPatApiClient() {
         return patApiClient;
     }
 
     // region helper methods
-    private static PATAPI createPatApiClient(String baseUrl, String apiKey) {
+    private static RetrofitPatApi createPatApiClient(String baseUrl, String apiKey) {
         // use a date converter
         Gson gson = new GsonBuilder()
                 .setDateFormat(Constants.DATE_FORMAT_PARSE)
@@ -140,7 +140,7 @@ public class PatApiServiceImpl implements PatApiService {
                 .client(okHttpClient)
                 .build();
 
-        return retrofit.create(PATAPI.class);
+        return retrofit.create(RetrofitPatApi.class);
     }
 
     /**
