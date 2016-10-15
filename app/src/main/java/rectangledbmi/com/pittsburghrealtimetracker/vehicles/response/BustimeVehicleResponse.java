@@ -11,7 +11,7 @@ import java.util.List;
 
 import javax.annotation.Generated;
 
-import rectangledbmi.com.pittsburghrealtimetracker.model.Error;
+import rectangledbmi.com.pittsburghrealtimetracker.errors.response.Error;
 
 /**
  * bus time response for the the vehicles

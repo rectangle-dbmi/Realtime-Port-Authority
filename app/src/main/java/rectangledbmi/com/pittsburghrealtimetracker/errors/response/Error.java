@@ -1,5 +1,5 @@
 
-package rectangledbmi.com.pittsburghrealtimetracker.model;
+package rectangledbmi.com.pittsburghrealtimetracker.errors.response;
 
 import javax.annotation.Generated;
 import com.google.gson.annotations.Expose;

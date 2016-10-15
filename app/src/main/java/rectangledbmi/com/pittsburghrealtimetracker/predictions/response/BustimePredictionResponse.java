@@ -6,7 +6,7 @@ import java.util.List;
 import javax.annotation.Generated;
 import com.google.gson.annotations.Expose;
 
-import rectangledbmi.com.pittsburghrealtimetracker.model.Error;
+import rectangledbmi.com.pittsburghrealtimetracker.errors.response.Error;
 
 /**
  * Prediction list container POJO
