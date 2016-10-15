@@ -24,15 +24,14 @@ import java.io.File;
 import java.util.Calendar;
 import java.util.Set;
 
-import rectangledbmi.com.pittsburghrealtimetracker.ui.about.AboutActivity;
 import rectangledbmi.com.pittsburghrealtimetracker.BuildConfig;
-import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.NavigationDrawerFragment;
 import rectangledbmi.com.pittsburghrealtimetracker.R;
 import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
 import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiServiceImpl;
-import rectangledbmi.com.pittsburghrealtimetracker.model.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.NotificationMessage;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.Route;
+import rectangledbmi.com.pittsburghrealtimetracker.ui.about.AboutActivity;
+import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.NavigationDrawerFragment;
 import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.SelectionFragment;
 import rx.Observable;
 import rx.Observer;
@@ -59,16 +58,8 @@ public class MainActivity extends AppCompatActivity implements
      */
     private SelectionFragment selectionFragment;
 
-
     /**
-     * Port Authority API Client made through Retrofit
-     *
-     * @since 46
-     */
-    // TODO: deprecate this class when moving vehicles to a ViewModel class
-    private PATAPI patApiClient;
-
-    /**
+     * Handles retrieving Port Authority data from the internet
      * @since 77
      */
     private PatApiService patApiService;
