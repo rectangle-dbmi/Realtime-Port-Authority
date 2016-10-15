@@ -11,7 +11,7 @@ import rx.Observable;
  *    to store the selection state, map state, and immediate changes for stop visibility.</p>
  * <p>Created by epicstar on 10/8/16.</p>
  * @author Jeremy Jao
- * @since 77
+ * @since 78
  */
 
 public class StopRequestAccumulator {

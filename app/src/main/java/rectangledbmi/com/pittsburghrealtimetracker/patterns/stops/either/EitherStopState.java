@@ -11,7 +11,7 @@ import rx.Observable;
  *
  * @author Jeremy Jao
  * @author Michael Antonacci
- * @since 77
+ * @since 78
  */
 public interface EitherStopState<T> {
     T value();

@@ -33,7 +33,7 @@ import timber.log.Timber;
  *
  * @author Jeremy Jao
  * @author Michael Antonacci
- * @since 77
+ * @since 78
  */
 @SuppressWarnings("Convert2streamapi")
 public class PatternViewModel {

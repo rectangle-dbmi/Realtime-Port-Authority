@@ -18,7 +18,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.vehicles.response.Vehicle;
  * <p>Holds prediction info for the {@link PredictionsView}.</p>
  * <p>Created by epicstar on 10/14/16.</p>
  * @author Jeremy Jao
- * @since 77
+ * @since 78
  */
 
 public class ProcessedPredictions {

@@ -16,7 +16,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Ptr;
  * should be `null. Otherwise, it will always not be null.</p>
  *
  * <p>Created by epicstar on 7/30/16.</p>
- * @since 77
+ * @since 78
  * @author Jeremy Jao
  */
 public class PatternSelection {

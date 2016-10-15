@@ -5,7 +5,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Pt;
 /**
  * <p>Rendering info for holding selection states for stops</p>
  * <p>Created by epicstar on 9/20/16.</p>
- * @since 77
+ * @since 78
  * @author Jeremy Jao
  * @author Michael Antonacci
  */

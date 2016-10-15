@@ -5,7 +5,7 @@ package rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either;
  * <p>Created by epicstar on 10/9/16.</p>
  * @author Jeremy Jao
  * @author Michael Antonacci
- * @since 77
+ * @since 78
  */
 
 public class MapState implements EitherStopState<Boolean> {

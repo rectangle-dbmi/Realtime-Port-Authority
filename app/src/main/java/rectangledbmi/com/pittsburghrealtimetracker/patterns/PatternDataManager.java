@@ -31,7 +31,7 @@ import timber.log.Timber;
  * </ul>
  * <p>Created by epicstar on 9/18/16.</p>
  * @author Jeremy Jao
- * @since 77
+ * @since 78
  */
 // TODO: fix the last thing in the list
 public class PatternDataManager {

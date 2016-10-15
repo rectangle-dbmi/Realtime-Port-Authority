@@ -378,7 +378,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         if (mMap != null) {
 
             mMap.setInfoWindowAdapter(null);
-            mMap.setOnCameraMoveListener(null);
+            mMap.setOnCameraIdleListener(null);
             mMap.setOnMarkerClickListener(null);
             mMap = null;
             Timber.d("Google Map Object destroyed");
@@ -513,7 +513,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             return true;
         });
 
-        mMap.setOnCameraMoveListener(() -> {
+        mMap.setOnCameraIdleListener(() -> {
             cameraPosition = mMap.getCameraPosition();
             if (zoom != cameraPosition.zoom) {
                 Timber.v("Change zoom state: %f", zoom);

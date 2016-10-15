@@ -6,7 +6,7 @@ import rx.Observer;
 /**
  * <p>MVVM View that handles the UI State of Polylines.</p>
  * <p>Created by epicstar on 7/29/16.</p>
- * @since 77
+ * @since 78
  * @author Jeremy Jao and Michael Antonacci
  */
 public interface PolylineView {
