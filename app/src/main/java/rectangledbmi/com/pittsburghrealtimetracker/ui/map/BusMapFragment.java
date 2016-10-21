@@ -1113,7 +1113,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                     polylines.add(mMap.addPolyline(
                             new PolylineOptions()
                                     .addAll(latLngs)
-                                    .width(4.0f)
                                     .color(patternSelection.getRouteColor())
                                     .geodesic(true)
                     ));
