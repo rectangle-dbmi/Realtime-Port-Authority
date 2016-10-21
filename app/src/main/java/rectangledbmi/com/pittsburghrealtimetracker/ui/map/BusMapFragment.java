@@ -1072,11 +1072,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
     @Override
     public void clearSelection() {
-
         removeBuses();
-        for (Map.Entry<String, List<Polyline>> routeLine : routeLines.entrySet()) {
-            setVisiblePolylines(routeLine.getValue(), false);
-        }
     }
 
     @Override
