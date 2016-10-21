@@ -331,7 +331,7 @@
     <string name="git_link"><a href='https://github.com/rectangle-dbmi/Realtime-Port-Authority'>Visit us on Github</a></string>
     <string name="contact_email"><a href='mailto:pat.realtime.tracker@gmail.com'>Send us an email</a></string>
     <string name="directory_in_sdcard">/Data/rectangledbmi.com.pittsburghrealtimetracker</string>
-    <string name="cleared">Map cleared and routes reset.</string>
+    <string name="cleared">Map cleared.</string>
     <string name="disclaimerTitle">Disclaimer</string>
     <string name="linksTitle">Links</string>
     <string name="disclaimerBody">We are not responsible for which buses and routes are being

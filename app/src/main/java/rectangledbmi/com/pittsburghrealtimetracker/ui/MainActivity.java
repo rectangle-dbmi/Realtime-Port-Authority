@@ -262,6 +262,15 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public void clearSelection() {
+        mNavigationDrawerFragment.clearSelection();
+        selectionFragment.clearSelection();
+    }
+
+    /**
+     * <p>Clears out route cache.</p>
+     * @since 79
+     */
+    private void clearCache() {
         File lineInfo = new File(getFilesDir(), "/lineinfo");
         Timber.d("cleared files: %s", lineInfo.getAbsolutePath());
         if (lineInfo.exists()) {
@@ -272,8 +281,6 @@ public class MainActivity extends AppCompatActivity implements
                     file.delete();
             }
         }
-        mNavigationDrawerFragment.clearSelection();
-        selectionFragment.clearSelection();
     }
 
 
