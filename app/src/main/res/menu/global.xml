@@ -13,9 +13,13 @@
         android:orderInCategory="300"
         appcompat:showAsAction="never"
         android:onClick="onClickDetourInfo"/>
+    <item android:id="@+id/clear_cache"
+        android:title="@string/clear_cache"
+        appcompat:showAsAction="never"
+        android:onClick="onClearCache"/>
     <item android:id="@+id/action_appdetails"
         android:title="@string/app_info"
-        android:orderInCategory="400"
+        android:orderInCategory="500"
         appcompat:showAsAction="never"
         android:onClick="onClickAppDetails"/>
 

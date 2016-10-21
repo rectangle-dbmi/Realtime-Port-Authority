@@ -281,6 +281,8 @@ public class MainActivity extends AppCompatActivity implements
                     file.delete();
             }
         }
+        showToast("Cleared route cache. Restart app to take effect.", Toast.LENGTH_SHORT);
+
     }
 
 
@@ -437,6 +439,10 @@ public class MainActivity extends AppCompatActivity implements
      */
     public void onClickAppDetails(MenuItem item) {
         openPermissionsPage();
+    }
+
+    public void onClearCache() {
+        clearCache();
     }
 
     public void restoreSelection() {
