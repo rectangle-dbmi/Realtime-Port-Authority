@@ -441,7 +441,12 @@ public class MainActivity extends AppCompatActivity implements
         openPermissionsPage();
     }
 
-    public void onClearCache() {
+    /**
+     * Click event for the
+     * {@link rectangledbmi.com.pittsburghrealtimetracker.R.menu#select_transit} to clear cache.
+     * @param menuItem the menu item.
+     */
+    public void onClearCache(MenuItem menuItem) {
         clearCache();
     }
 
