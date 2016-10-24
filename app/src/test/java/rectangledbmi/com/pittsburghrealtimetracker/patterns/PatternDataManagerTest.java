@@ -61,8 +61,8 @@ public class PatternDataManagerTest {
         patternDataManager.getPatterns(PatApiMock.testRoute1).subscribe(ts1);
         patternDataManager.getPatterns(PatApiMock.testRoute1).subscribe(ts2);
         verify(patapi, times(1)).getPatterns(PatApiMock.testRoute1);
-        verify(patternDataManager, times(1)).getPolylineFromInternet(PatApiMock.testRoute1);
-        verify(patternDataManager, times(1)).getPolylineFromDisk(PatApiMock.testRoute1);
+        verify(patternDataManager, times(1)).getPatternsFromInternet(PatApiMock.testRoute1);
+        verify(patternDataManager, times(1)).getPatternsFromDisk(PatApiMock.testRoute1);
         assertEquals(1, ts1.getOnNextEvents().size());
         assertEquals(ts1.getOnNextEvents().size(), ts2.getOnNextEvents().size());
         assertEquals(getPatterns(), ts1.getOnNextEvents().get(0));

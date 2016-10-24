@@ -53,9 +53,9 @@ public class PatternDataManager {
         Timber.d("Getting patternSelections");
         File polylineFile = getPolylineFile(rt);
         if (polylineFile.exists() && polylineFile.canWrite()) {
-            return getPolylineFromDisk(rt);
+            return getPatternsFromDisk(rt);
         } else {
-            return getPolylineFromInternet(rt);
+            return getPatternsFromInternet(rt);
         }
     }
 
@@ -67,7 +67,7 @@ public class PatternDataManager {
      * @param rt the route that has the polyline info
      * @return an Observable for the Polyline data transfer object
      */
-    Observable<List<Ptr>> getPolylineFromDisk(String rt) {
+    Observable<List<Ptr>> getPatternsFromDisk(String rt) {
         return Observable.just(new GsonBuilder().create())
                 .map(gson -> {
                     try {
@@ -95,7 +95,7 @@ public class PatternDataManager {
      * @param rt the route number of the polyline info
      * @return an Observable for the polyline data transfer object
      */
-    Observable<List<Ptr>> getPolylineFromInternet(String rt) {
+    Observable<List<Ptr>> getPatternsFromInternet(String rt) {
         return patApiClient.getPatterns(rt)
                 .map(PatternResponse::getPatternResponse)
                 .map(bustimePatternResponse -> {
