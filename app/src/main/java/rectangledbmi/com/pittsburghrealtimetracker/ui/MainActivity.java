@@ -87,7 +87,13 @@ public class MainActivity extends AppCompatActivity implements
         FragmentManager fragmentManager = getSupportFragmentManager();
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 fragmentManager.findFragmentById(R.id.navigation_drawer);
-        checkSDCardData();
+
+        // Update pattern cache
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        Long lastUpdated = sp.getLong(LINES_LAST_UPDATED, -1);
+        lastUpdated = updatePatternCache(System.currentTimeMillis(),lastUpdated);
+        sp.edit().putLong(LINES_LAST_UPDATED, lastUpdated).apply();
+
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
@@ -137,11 +143,10 @@ public class MainActivity extends AppCompatActivity implements
      * saved day of the week is higher than the current day of the week.
      *
      * @since 32
+     * @param lastUpdated
      */
-    private void checkSDCardData() {
+    private Long updatePatternCache(Long currentTime, Long lastUpdated) {
         File data = getFilesDir();
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        Long lastUpdated = sp.getLong(LINES_LAST_UPDATED, -1);
         Timber.d(data.getName());
         if (data.mkdirs())
             Timber.d("Created data storage");
@@ -149,29 +154,24 @@ public class MainActivity extends AppCompatActivity implements
         if (data.mkdirs())
             Timber.d("created line info folder in storage");
         Timber.d(Long.toString(lastUpdated));
-        if (lastUpdated != -1 && ((System.currentTimeMillis() - lastUpdated) / 1000 / 60 / 60) > 24) {
+        if (lastUpdated != -1 && ((currentTime - lastUpdated) / 1000 / 60 / 60) > 24) {
             if (lineInfo.exists()) {
-                Calendar c = Calendar.getInstance();
-                int day = c.get(Calendar.DAY_OF_WEEK);
-                Calendar o = Calendar.getInstance();
-                o.setTimeInMillis(lastUpdated);
-                int oldDay = o.get(Calendar.DAY_OF_WEEK);
-                if (day == Calendar.FRIDAY || oldDay >= day) {
-                    File[] files = lineInfo.listFiles();
-                    sp.edit().putLong(LINES_LAST_UPDATED, System.currentTimeMillis()).apply();
-                    if (files != null) {
-                        for (File file : files) {
-                            if (file.delete())
-                                Timber.d("%s deleted", file.getName());
-                        }
+                File[] files = lineInfo.listFiles();
+                lastUpdated = currentTime;
+                if (files != null) {
+                    for (File file : files) {
+                        if (file.delete())
+                            Timber.d("%s deleted", file.getName());
                     }
                 }
             }
         }
 
         if (lineInfo.listFiles() == null || lineInfo.listFiles().length == 0) {
-            sp.edit().putLong(LINES_LAST_UPDATED, System.currentTimeMillis()).apply();
+            lastUpdated = currentTime;
         }
+
+        return lastUpdated;
     }
 
     private void enableHttpResponseCache() {

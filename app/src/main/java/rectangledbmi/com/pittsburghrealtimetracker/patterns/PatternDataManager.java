@@ -31,6 +31,7 @@ import timber.log.Timber;
  * </ul>
  * <p>Created by epicstar on 9/18/16.</p>
  * @author Jeremy Jao
+ * @author Michael Antonacci
  * @since 78
  */
 // TODO: fix the last thing in the list
@@ -56,6 +57,42 @@ public class PatternDataManager {
             return getPatternsFromDisk(rt);
         } else {
             return getPatternsFromInternet(rt);
+        }
+    }
+
+    /**
+     * Checks if the stored patternSelections directory is present and clears if we hit a friday or if the
+     * saved day of the week is higher than the current day of the week.
+     *
+     * @since 80
+     * @param lastUpdated
+     */
+    public Long updatePatternCache(Long currentTime, Long lastUpdated) {
+        try {
+            rwl.writeLock().lock();
+            File lineInfo = patternsDirectory;
+            Timber.d(Long.toString(lastUpdated));
+            if (lastUpdated != -1 && ((currentTime - lastUpdated) / 1000 / 60 / 60) > 24) {
+                if (lineInfo.exists()) {
+                    File[] files = lineInfo.listFiles();
+                    lastUpdated = currentTime;
+                    if (files != null) {
+                        for (File file : files) {
+                            if (file.delete())
+                                Timber.d("%s deleted", file.getName());
+                        }
+                    }
+                }
+            }
+
+            if (lineInfo.listFiles() == null || lineInfo.listFiles().length == 0) {
+                lastUpdated = currentTime;
+            }
+        }
+        finally {
+            rwl.writeLock().unlock();
+            return lastUpdated;
+
         }
     }
 
