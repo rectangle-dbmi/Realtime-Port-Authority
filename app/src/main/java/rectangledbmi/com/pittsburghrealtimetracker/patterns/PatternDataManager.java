@@ -36,22 +36,22 @@ import timber.log.Timber;
 // TODO: fix the last thing in the list
 public class PatternDataManager {
 
-    private final static String polylineLocation = "/lineinfo";
-    private final File polylineDirectory;
+    private final static String patternsLocation = "/lineinfo";
+    private final File patternsDirectory;
     private final RetrofitPatApi patApiClient;
     private final static Type serializationType = new TypeToken<List<Ptr>>() {}.getType();
     private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
 
     public PatternDataManager(File dataDirectory, RetrofitPatApi patApiClient) {
-        polylineDirectory = new File(dataDirectory, polylineLocation);
+        patternsDirectory = new File(dataDirectory, patternsLocation);
         //noinspection ResultOfMethodCallIgnored
-        polylineDirectory.mkdirs();
+        patternsDirectory.mkdirs();
         this.patApiClient = patApiClient;
     }
 
     public Observable<List<Ptr>> getPatterns(String rt) {
         Timber.d("Getting patternSelections");
-        File polylineFile = getPolylineFile(rt);
+        File polylineFile = getPatternsFile(rt);
         if (polylineFile.exists() && polylineFile.canWrite()) {
             return getPatternsFromDisk(rt);
         } else {
@@ -75,7 +75,7 @@ public class PatternDataManager {
                         try {
                             Timber.d("Getting patternSelections from disk: " + rt);
                             //noinspection UnnecessaryLocalVariable -> Android Studio thinks this is an error
-                            List<Ptr> ptrs = gson.fromJson(new JsonReader(new FileReader(getPolylineFile(rt))), serializationType);
+                            List<Ptr> ptrs = gson.fromJson(new JsonReader(new FileReader(getPatternsFile(rt))), serializationType);
                             Timber.d("Done getting patternSelections from disk: " + rt);
                             return ptrs;
                         } finally {
@@ -105,7 +105,7 @@ public class PatternDataManager {
                         rwl.writeLock().lock();
                         try {
                             Timber.d("Writing patternSelections to disk: " + rt);
-                            JsonWriter writer = new JsonWriter(new FileWriter(getPolylineFile(rt)));
+                            JsonWriter writer = new JsonWriter(new FileWriter(getPatternsFile(rt)));
                             Gson gson = new GsonBuilder().create();
                             gson.toJson(
                                     patterns,
@@ -128,8 +128,8 @@ public class PatternDataManager {
                 });
     }
 
-    private File getPolylineFile(String rt) {
-        return new File(polylineDirectory,
+    private File getPatternsFile(String rt) {
+        return new File(patternsDirectory,
                 String.format("%s.json", rt));
     }
     // endregion
