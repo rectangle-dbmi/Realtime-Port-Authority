@@ -46,10 +46,17 @@ public class ReactiveHelper {
                                 null
                         )
                         .skipWhile(isConnected -> !isConnected)
-                        .doOnNext(reconnectionMessage);
+                        .doOnNext(isConnected -> {
+                            if (isConnected) {
+                                reconnectionMessage.call(true);
+                            }
+                            else {
+                                Timber.i("Internet is still disconnected in retryWhen.");
+                            }
+                        });
             }
             // otherwise, just run normal onError
-            Timber.d(throwable, "Not retrying since something should be wrong on " +
+            Timber.i(throwable, "Not retrying since something should be wrong on " +
                     "Port Authority's end.");
             return Observable.error(throwable);
         });
