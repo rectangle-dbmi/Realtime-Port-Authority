@@ -70,7 +70,9 @@ public class PatternViewModel {
                                             route.getRoute(),
                                             route.getRouteColor()));
 
-                }).share();
+                })
+                .retry()
+                .share();
     }
 
     /**

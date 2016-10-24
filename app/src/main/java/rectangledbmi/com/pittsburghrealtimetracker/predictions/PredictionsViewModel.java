@@ -46,6 +46,8 @@ public class PredictionsViewModel {
                     }
                     Timber.w("Not getting predictions because of unknown prediction info");
                     return Observable.never();
-                }).delay(delay, TimeUnit.MILLISECONDS);
+                })
+                .retry()
+                .delay(delay, TimeUnit.MILLISECONDS);
     }
 }
