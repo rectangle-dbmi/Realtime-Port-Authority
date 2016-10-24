@@ -25,8 +25,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.github.pwittchen.reactivenetwork.library.ConnectivityStatus;
-import com.github.pwittchen.reactivenetwork.library.ReactiveNetwork;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -46,7 +44,6 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.squareup.leakcanary.RefWatcher;
 
-import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -61,25 +58,25 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 import rectangledbmi.com.pittsburghrealtimetracker.BuildConfig;
-import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.ClearSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.PATTrackApplication;
 import rectangledbmi.com.pittsburghrealtimetracker.R;
+import rectangledbmi.com.pittsburghrealtimetracker.errors.ErrorMessage;
 import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternViewModel;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternSelection;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternViewModel;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PolylineView;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Pt;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopView;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRenderRequest;
 import rectangledbmi.com.pittsburghrealtimetracker.predictions.PredictionsInfo;
 import rectangledbmi.com.pittsburghrealtimetracker.predictions.PredictionsView;
 import rectangledbmi.com.pittsburghrealtimetracker.predictions.PredictionsViewModel;
 import rectangledbmi.com.pittsburghrealtimetracker.predictions.ProcessedPredictions;
-import rectangledbmi.com.pittsburghrealtimetracker.errors.ErrorMessage;
+import rectangledbmi.com.pittsburghrealtimetracker.selection.Route;
+import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.ClearSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.SelectionFragment;
 import rectangledbmi.com.pittsburghrealtimetracker.vehicles.VehicleBitmap;
-import rectangledbmi.com.pittsburghrealtimetracker.selection.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.vehicles.response.BustimeVehicleResponse;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Pt;
 import rectangledbmi.com.pittsburghrealtimetracker.vehicles.response.Vehicle;
 import rectangledbmi.com.pittsburghrealtimetracker.vehicles.response.VehicleResponse;
 import retrofit2.adapter.rxjava.HttpException;
@@ -87,6 +84,7 @@ import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.observables.ConnectableObservable;
 import rx.schedulers.Schedulers;
@@ -94,6 +92,9 @@ import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
+
+import static rectangledbmi.com.pittsburghrealtimetracker.utils.ReactiveHelper.isInternetDown;
+import static rectangledbmi.com.pittsburghrealtimetracker.utils.ReactiveHelper.retryIfInternet;
 
 
 /**
@@ -538,6 +539,32 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     }
 
     /**
+     * @return Lambda for displaying connection issues to the user.
+     */
+    private Action1<Throwable> disconnectionMessage() {
+        return throwable -> {
+            if (isInternetDown(throwable)) {
+                Timber.i(throwable, getString(R.string.disconnected_internet));
+                if (busListInteraction != null) {
+                    busListInteraction.showToast(getString(R.string.disconnected_internet), Toast.LENGTH_SHORT);
+                }
+            }
+        };
+    }
+
+    /**
+     * @return Lambda for displaying reconnection to the user.
+     */
+    private Action1<Boolean> reconnectionMessage() {
+        return aBoolean -> {
+            Timber.i(getString(R.string.retrying_vehicles));
+            if (busListInteraction != null) {
+                busListInteraction.showToast(getString(R.string.retrying_vehicles), Toast.LENGTH_SHORT);
+            }
+        };
+    }
+
+    /**
      * <p>Observables created:</p>
      * <ul>
      * <li>{@link #vehicleErrorObservable}</li>
@@ -586,51 +613,8 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                     return patApiService.getVehicles(routes);
                 }).map(VehicleResponse::getBustimeResponse)
                 .retryWhen(attempt -> attempt
-                        .flatMap(throwable -> {
-                            // theoretically, this should only resubscribe when internet is back
-                            if (throwable instanceof IOException) {
-                                if (busListInteraction != null) {
-                                    busListInteraction.showToast(getString(R.string.disconnected_internet), Toast.LENGTH_SHORT);
-                                }
-                                return Observable
-                                        .timer(2, TimeUnit.SECONDS)
-                                        .flatMap(aLong -> new ReactiveNetwork()
-                                                .enableInternetCheck()
-                                                .observeConnectivity(getContext()))
-                                        .skipWhile(connectivityStatus -> {
-                                            // there is a bug here:
-                                            // When on wifi that needs authentication,
-                                            // (ex. Xfinity, Starbucks WIFI)
-                                            // connectivityStatus is going to be
-                                            // connectivityStatus.WIFI_CONNECTED_HAS_INTERNET.
-                                            // This is only a problem if we notify the user....
-                                            // It will just print many toasts since the retryWhen is always
-                                            // activated and deactivated since there is actually no
-                                            // internet. This is ok since it will not
-                                            // leak on the stack. Plus, this is possibly only a rare edge
-                                            // case.
-                                            //
-                                            // This will be fixed in ReactiveNetwork 0.3.0:
-                                            // https://github.com/pwittchen/ReactiveNetwork/issues/51
-                                            if (connectivityStatus == null) {
-                                                return true;
-                                            }
-                                            if ((connectivityStatus == ConnectivityStatus.MOBILE_CONNECTED ||
-                                                    connectivityStatus == ConnectivityStatus.WIFI_CONNECTED_HAS_INTERNET) &&
-                                                    busListInteraction != null) {
-                                                String msg = getString(R.string.retrying_vehicles);
-                                                Timber.d(msg);
-                                                busListInteraction.showToast(msg, Toast.LENGTH_SHORT);
-                                                return false;
-                                            }
-                                            return true;
-                                        }).delay(3, TimeUnit.SECONDS); // add 4 second delay so toasts don't cycle
-                            }
-                            // otherwise, just run normal onError
-                            Timber.d("Not retrying since something should be wrong on " +
-                                    "Port Authority's end.");
-                            return null;
-                        }))
+                        .compose(retryIfInternet(disconnectionMessage(), reconnectionMessage()))
+                )
                 .share()
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread());
