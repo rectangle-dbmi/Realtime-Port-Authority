@@ -67,7 +67,7 @@ public class PatternDataManager {
      * @since 80
      * @param lastUpdated
      */
-    public Long updatePatternCache(Long currentTime, Long lastUpdated) {
+    public long updatePatternCache(long currentTime, long lastUpdated) {
         try {
             rwl.writeLock().lock();
             File lineInfo = patternsDirectory;

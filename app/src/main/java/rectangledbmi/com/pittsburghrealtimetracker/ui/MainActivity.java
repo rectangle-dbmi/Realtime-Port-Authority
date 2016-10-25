@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements
 
         // Update pattern cache
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        Long lastUpdated = sp.getLong(LINES_LAST_UPDATED, -1);
+        long lastUpdated = sp.getLong(LINES_LAST_UPDATED, -1);
         lastUpdated = patApiService.getPatternDataManager().updatePatternCache(System.currentTimeMillis(), lastUpdated);
         sp.edit().putLong(LINES_LAST_UPDATED, lastUpdated).apply();
 

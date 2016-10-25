@@ -32,7 +32,7 @@ public class PatternDataManagerTest {
     private File dir;
     private PatternDataManager patternDataManager;
     private RetrofitPatApi patapi;
-    private Long currentTime;
+    private long currentTime;
 
     @Before
     public void setUp() {
@@ -60,7 +60,7 @@ public class PatternDataManagerTest {
         assertEquals(0, patternDir.listFiles().length);
 
         long current = patternDataManager.updatePatternCache(currentTime, (long)-1);
-        assertEquals(currentTime.longValue(), current);
+        assertEquals(currentTime, current);
     }
 
     /**
@@ -78,11 +78,11 @@ public class PatternDataManagerTest {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(currentTime);
         cal.add(Calendar.HOUR,-50);
-        Long recent = cal.getTimeInMillis();
+        long recent = cal.getTimeInMillis();
 
-        Long current = patternDataManager.updatePatternCache(currentTime, recent).longValue();
+        long current = patternDataManager.updatePatternCache(currentTime, recent);
         assertEquals(0, patternDir.listFiles().length);
-        assertEquals(currentTime.longValue(), current.longValue());
+        assertEquals(currentTime, current);
     }
 
     /**
@@ -100,11 +100,11 @@ public class PatternDataManagerTest {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(currentTime);
         cal.add(Calendar.HOUR,-10);
-        Long recent = cal.getTimeInMillis();
+        long recent = cal.getTimeInMillis();
 
-        Long current = patternDataManager.updatePatternCache(currentTime, recent).longValue();
+        long current = patternDataManager.updatePatternCache(currentTime, recent);
         assertEquals(patternDir.listFiles().length, 1);
-        assertEquals(recent.longValue(), current.longValue());
+        assertEquals(recent, current);
     }
 
 
