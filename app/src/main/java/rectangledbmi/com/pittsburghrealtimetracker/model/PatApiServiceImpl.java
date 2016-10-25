@@ -106,6 +106,9 @@ public class PatApiServiceImpl implements PatApiService {
         return patApiClient;
     }
 
+    @Override
+    public PatternDataManager getPatternDataManager() { return patternDataManager; }
+
     // region helper methods
     private static RetrofitPatApi createPatApiClient(String baseUrl, String apiKey) {
         // use a date converter

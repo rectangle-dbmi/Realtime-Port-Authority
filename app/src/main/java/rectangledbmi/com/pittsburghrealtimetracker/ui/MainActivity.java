@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements
         // Update pattern cache
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         Long lastUpdated = sp.getLong(LINES_LAST_UPDATED, -1);
-        lastUpdated = updatePatternCache(System.currentTimeMillis(),lastUpdated);
+        lastUpdated = patApiService.getPatternDataManager().updatePatternCache(System.currentTimeMillis(), lastUpdated);
         sp.edit().putLong(LINES_LAST_UPDATED, lastUpdated).apply();
 
         // Set up the drawer.
@@ -136,42 +136,6 @@ public class MainActivity extends AppCompatActivity implements
 
     public PatApiService getPatApiService() {
         return patApiService;
-    }
-
-    /**
-     * Checks if the stored patternSelections directory is present and clears if we hit a friday or if the
-     * saved day of the week is higher than the current day of the week.
-     *
-     * @since 32
-     * @param lastUpdated
-     */
-    private Long updatePatternCache(Long currentTime, Long lastUpdated) {
-        File data = getFilesDir();
-        Timber.d(data.getName());
-        if (data.mkdirs())
-            Timber.d("Created data storage");
-        File lineInfo = new File(data, "/lineinfo");
-        if (data.mkdirs())
-            Timber.d("created line info folder in storage");
-        Timber.d(Long.toString(lastUpdated));
-        if (lastUpdated != -1 && ((currentTime - lastUpdated) / 1000 / 60 / 60) > 24) {
-            if (lineInfo.exists()) {
-                File[] files = lineInfo.listFiles();
-                lastUpdated = currentTime;
-                if (files != null) {
-                    for (File file : files) {
-                        if (file.delete())
-                            Timber.d("%s deleted", file.getName());
-                    }
-                }
-            }
-        }
-
-        if (lineInfo.listFiles() == null || lineInfo.listFiles().length == 0) {
-            lastUpdated = currentTime;
-        }
-
-        return lastUpdated;
     }
 
     private void enableHttpResponseCache() {

@@ -1,10 +1,13 @@
 package rectangledbmi.com.pittsburghrealtimetracker.patterns;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.internal.util.reflection.Whitebox;
 
 import java.io.File;
+import java.util.Calendar;
 import java.util.List;
 
 import rectangledbmi.com.pittsburghrealtimetracker.mock.PatApiMock;
@@ -29,6 +32,7 @@ public class PatternDataManagerTest {
     private File dir;
     private PatternDataManager patternDataManager;
     private RetrofitPatApi patapi;
+    private Long currentTime;
 
     @Before
     public void setUp() {
@@ -39,12 +43,70 @@ public class PatternDataManagerTest {
         patternDataManager = spy(new PatternDataManager(
                 dir,
                 patapi));
+        currentTime = System.currentTimeMillis();
     }
 
     @After
     public void tearDown() {
         deleteFiles(dir);
     }
+
+    /**
+     * Testing the pattern cache update method
+     */
+    @Test
+    public void testNoPatternCache() {
+        File patternDir = ((File)Whitebox.getInternalState(patternDataManager,"patternsDirectory"));
+        assertEquals(0, patternDir.listFiles().length);
+
+        long current = patternDataManager.updatePatternCache(currentTime, (long)-1);
+        assertEquals(currentTime.longValue(), current);
+    }
+
+    /**
+     * Testing the pattern cache update method when cache is stale
+     */
+    @Test
+    public void testStalePatternCache() {
+        //put data in cache
+        patternDataManager.getPatterns(PatApiMock.testRoute1).toBlocking().first();
+
+        File patternDir = ((File)Whitebox.getInternalState(patternDataManager,"patternsDirectory"));
+        assertEquals(1, patternDir.listFiles().length);
+
+        // set up times for testing
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(currentTime);
+        cal.add(Calendar.HOUR,-50);
+        Long recent = cal.getTimeInMillis();
+
+        Long current = patternDataManager.updatePatternCache(currentTime, recent).longValue();
+        assertEquals(0, patternDir.listFiles().length);
+        assertEquals(currentTime.longValue(), current.longValue());
+    }
+
+    /**
+     * Testing the pattern cache update method when cache is stale
+     */
+    @Test
+    public void testNewPatternCache() {
+        //put data in cache
+        patternDataManager.getPatterns(PatApiMock.testRoute1).toBlocking().first();
+
+        File patternDir = ((File)Whitebox.getInternalState(patternDataManager,"patternsDirectory"));
+        assertEquals(patternDir.listFiles().length, 1);
+
+        // set up times for testing
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(currentTime);
+        cal.add(Calendar.HOUR,-10);
+        Long recent = cal.getTimeInMillis();
+
+        Long current = patternDataManager.updatePatternCache(currentTime, recent).longValue();
+        assertEquals(patternDir.listFiles().length, 1);
+        assertEquals(recent.longValue(), current.longValue());
+    }
+
 
     /**
      * Testing on retrieving something from "71A":
