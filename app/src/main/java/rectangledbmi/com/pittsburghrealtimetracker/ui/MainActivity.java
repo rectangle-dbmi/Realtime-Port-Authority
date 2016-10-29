@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.util.Calendar;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import rectangledbmi.com.pittsburghrealtimetracker.BuildConfig;
 import rectangledbmi.com.pittsburghrealtimetracker.R;
@@ -90,9 +92,27 @@ public class MainActivity extends AppCompatActivity implements
 
         // Update pattern cache
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        long lastUpdated = sp.getLong(LINES_LAST_UPDATED, -1);
-        lastUpdated = patApiService.getPatternDataManager().updatePatternCache(System.currentTimeMillis(), lastUpdated);
-        sp.edit().putLong(LINES_LAST_UPDATED, lastUpdated).apply();
+        final long lastUpdated = sp.getLong(LINES_LAST_UPDATED, -1);
+        Observable<Long> update = Observable
+                .timer(10,TimeUnit.SECONDS)
+                .map(ignore -> patApiService
+                        .getPatternDataManager()
+                        .updatePatternCache(System.currentTimeMillis(), lastUpdated))
+                .subscribeOn(Schedulers.computation());
+        update.subscribe(
+                t -> {
+                    Timber.d("Writing new lastUpdated %d, replacing %d", t, lastUpdated);
+                    Editor editor = sp.edit();
+                    editor.putLong(LINES_LAST_UPDATED, t.longValue());
+                    editor.commit();
+                },
+                e -> {
+                    Timber.e(e);
+                    Editor editor = sp.edit();
+                    editor.putLong(LINES_LAST_UPDATED, lastUpdated);
+                    editor.commit();
+                }
+                );
 
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
