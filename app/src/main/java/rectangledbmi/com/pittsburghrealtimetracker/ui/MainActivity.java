@@ -91,28 +91,24 @@ public class MainActivity extends AppCompatActivity implements
                 fragmentManager.findFragmentById(R.id.navigation_drawer);
 
         // Update pattern cache
+        // note, when we move to RxJava 2 this Observable can be replaced with a Maybe
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         final long lastUpdated = sp.getLong(LINES_LAST_UPDATED, -1);
-        Observable<Long> update = Observable
-                .timer(10,TimeUnit.SECONDS)
-                .map(ignore -> patApiService
+        Observable.just(lastUpdated)
+                .delay(10,TimeUnit.SECONDS)
+                .map(t -> patApiService
                         .getPatternDataManager()
-                        .updatePatternCache(System.currentTimeMillis(), lastUpdated))
-                .subscribeOn(Schedulers.computation());
-        update.subscribe(
-                t -> {
-                    Timber.d("Writing new lastUpdated %d, replacing %d", t, lastUpdated);
-                    Editor editor = sp.edit();
-                    editor.putLong(LINES_LAST_UPDATED, t.longValue());
-                    editor.commit();
-                },
-                e -> {
-                    Timber.e(e);
-                    Editor editor = sp.edit();
-                    editor.putLong(LINES_LAST_UPDATED, lastUpdated);
-                    editor.commit();
-                }
-                );
+                        .updatePatternCache(System.currentTimeMillis(), t))
+                .filter(t -> t != lastUpdated)
+                .subscribeOn(Schedulers.computation())
+                .subscribe(
+                        t -> {
+                            Timber.d("Writing new lastUpdated %d, replacing %d", t, lastUpdated);
+                            Editor editor = sp.edit();
+                            editor.putLong(LINES_LAST_UPDATED, t);
+                            editor.commit();
+                        },
+                        e -> Timber.e(e));
 
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
