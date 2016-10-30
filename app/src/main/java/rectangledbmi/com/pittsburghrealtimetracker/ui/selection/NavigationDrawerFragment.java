@@ -108,6 +108,7 @@ public class NavigationDrawerFragment extends Fragment {
                 toggleRoute(route, isSelected);
             }
         }
+        busListAdapter.notifyDataSetChanged();
         Timber.d("Finished multiselecting routes");
     }
 
