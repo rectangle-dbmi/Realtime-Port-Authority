@@ -100,15 +100,21 @@ public class MainActivity extends AppCompatActivity implements
                         .getPatternDataManager()
                         .updatePatternCache(System.currentTimeMillis(), t))
                 .filter(t -> t != lastUpdated)
-                .subscribeOn(Schedulers.computation())
+                .subscribeOn(Schedulers.io())
                 .subscribe(
                         t -> {
                             Timber.d("Writing new lastUpdated %d, replacing %d", t, lastUpdated);
                             Editor editor = sp.edit();
                             editor.putLong(LINES_LAST_UPDATED, t);
                             editor.commit();
+                            Observable.from(mNavigationDrawerFragment.getSelectedRoutes())
+                                    .doOnNext(rt -> Timber.d("Refreshing pattern cache: %s", rt))
+                                    .flatMap(rt -> patApiService.getPatterns(rt))
+                                    .subscribeOn(Schedulers.io())
+                                    .doOnError(Timber::e)
+                                    .subscribe();
                         },
-                        e -> Timber.e(e));
+                        Timber::e);
 
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
