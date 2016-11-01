@@ -1,10 +1,13 @@
 package rectangledbmi.com.pittsburghrealtimetracker.ui;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -94,8 +97,12 @@ public class MainActivity extends AppCompatActivity implements
         // note, when we move to RxJava 2 this Observable can be replaced with a Maybe
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         final long lastUpdated = sp.getLong(LINES_LAST_UPDATED, -1);
+        ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
         Observable.just(lastUpdated)
                 .delay(10,TimeUnit.SECONDS)
+                .filter(t -> networkInfo.isConnected()
+                    && networkInfo.getType() == ConnectivityManager.TYPE_WIFI)
                 .map(t -> patApiService
                         .getPatternDataManager()
                         .updatePatternCache(System.currentTimeMillis(), t))
