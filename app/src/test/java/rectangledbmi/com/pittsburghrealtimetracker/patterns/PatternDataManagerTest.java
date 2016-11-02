@@ -59,7 +59,7 @@ public class PatternDataManagerTest {
         File patternDir = ((File)Whitebox.getInternalState(patternDataManager,"patternsDirectory"));
         assertEquals(0, patternDir.listFiles().length);
 
-        long current = patternDataManager.updatePatternCache(currentTime, (long)-1);
+        long current = patternDataManager.clearPatternCache(currentTime, (long)-1);
         assertEquals(currentTime, current);
     }
 
@@ -80,7 +80,7 @@ public class PatternDataManagerTest {
         cal.add(Calendar.HOUR,-50);
         long recent = cal.getTimeInMillis();
 
-        long current = patternDataManager.updatePatternCache(currentTime, recent);
+        long current = patternDataManager.clearPatternCache(currentTime, recent);
         assertEquals(0, patternDir.listFiles().length);
         assertEquals(currentTime, current);
     }
@@ -102,7 +102,7 @@ public class PatternDataManagerTest {
         cal.add(Calendar.HOUR,-10);
         long recent = cal.getTimeInMillis();
 
-        long current = patternDataManager.updatePatternCache(currentTime, recent);
+        long current = patternDataManager.clearPatternCache(currentTime, recent);
         assertEquals(patternDir.listFiles().length, 1);
         assertEquals(recent, current);
     }

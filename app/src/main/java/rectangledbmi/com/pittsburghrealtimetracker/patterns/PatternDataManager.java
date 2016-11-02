@@ -13,6 +13,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Ptr;
@@ -20,6 +22,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.model.RetrofitPatApi;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.PatternResponse;
 import rx.Observable;
 import rx.exceptions.Exceptions;
+import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
 /**
@@ -65,9 +68,10 @@ public class PatternDataManager {
      * saved day of the week is higher than the current day of the week.
      *
      * @since 80
+     * @param currentTime
      * @param lastUpdated
      */
-    public long updatePatternCache(long currentTime, long lastUpdated) {
+    public long clearPatternCache(long currentTime, long lastUpdated) {
         try {
             rwl.writeLock().lock();
             File lineInfo = patternsDirectory;
@@ -94,6 +98,30 @@ public class PatternDataManager {
             return lastUpdated;
 
         }
+    }
+
+    /**
+     * Observable to update the pattern cache if needed
+     *
+     * @since 80
+     * @param lastUpdated
+     * @param routes
+     * @return an Observable that may emit the new lastUpdated time if changed
+     */
+    public Observable<Long> updatePatternCache(long lastUpdated, Set<String> routes) {
+        return Observable.just(lastUpdated)
+                .delay(10, TimeUnit.SECONDS)
+                .map(t -> clearPatternCache(System.currentTimeMillis(), t))
+                .filter(t -> t != lastUpdated)
+                .doOnNext(t -> {
+                    Observable.from(routes)
+                            .doOnNext(rt -> Timber.d("Refreshing pattern cache: %s", rt))
+                            .flatMap(rt -> getPatternsFromInternet(rt))
+                            .subscribeOn(Schedulers.io())
+                            .doOnError(Timber::e)
+                            .subscribe();
+                })
+                .subscribeOn(Schedulers.io());
     }
 
     // region helper methods
