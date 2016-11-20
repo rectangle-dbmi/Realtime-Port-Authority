@@ -49,6 +49,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -68,7 +69,6 @@ import rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PolylineVi
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Pt;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopView;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRenderRequest;
-import rectangledbmi.com.pittsburghrealtimetracker.predictions.PredictionsInfo;
 import rectangledbmi.com.pittsburghrealtimetracker.predictions.PredictionsView;
 import rectangledbmi.com.pittsburghrealtimetracker.predictions.PredictionsViewModel;
 import rectangledbmi.com.pittsburghrealtimetracker.predictions.ProcessedPredictions;
@@ -82,6 +82,8 @@ import rectangledbmi.com.pittsburghrealtimetracker.vehicles.response.VehicleResp
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Observable;
 import rx.Observer;
+import rx.Single;
+import rx.SingleSubscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -89,7 +91,6 @@ import rx.functions.Func1;
 import rx.observables.ConnectableObservable;
 import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
-import rx.subjects.PublishSubject;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
@@ -104,6 +105,7 @@ import static rectangledbmi.com.pittsburghrealtimetracker.utils.ReactiveHelper.r
  * @author Jeremy Jao
  * @author Michael Antonacci
  */
+@SuppressWarnings("Convert2streamapi") // remove this suppressed warning when we can start using the stream APIs
 public class BusMapFragment extends SelectionFragment implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         OnMapReadyCallback, LocationListener, ClearSelection,
@@ -214,11 +216,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     private BehaviorSubject<Float> zoomSubject;
 
     /**
-     * Subject that handles clicking on markers and does something with predictions
-     */
-    private PublishSubject<PredictionsInfo> predictionsSubject;
-
-    /**
      * subscription for predictions
      */
     private Subscription predictionsSubscription;
@@ -262,7 +259,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         routeLines = new ConcurrentHashMap<>();
         stops = new HashMap<>();
         zoomSubject = BehaviorSubject.create();
-        predictionsSubject = PublishSubject.create();
     }
 
     @Override
@@ -506,13 +502,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         }
 
         mMap.setInfoWindowAdapter(new ETAWindowAdapter(getActivity().getLayoutInflater()));
-        mMap.setOnMarkerClickListener((marker) -> {
-            mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()), getResources().getInteger(R.integer.marker_camera_delay), null);
-            if (busListInteraction != null) {
-                predictionsSubject.onNext(PredictionsInfo.create(marker, busListInteraction.getSelectedRoutes()));
-            }
-            return true;
-        });
 
         mMap.setOnCameraIdleListener(() -> {
             cameraPosition = mMap.getCameraPosition();
@@ -524,6 +513,26 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         });
         // set up observable information
         setupReactiveObjects();
+
+        // set up predictions onClick
+        PredictionsViewModel predictionsViewModel = new PredictionsViewModel(patApiService, getResources().getInteger(R.integer.marker_camera_delay));
+        mMap.setOnMarkerClickListener((marker) -> {
+            mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()), getResources().getInteger(R.integer.marker_camera_delay), null);
+            if (busListInteraction == null) {
+                Timber.w("Marker was clicked but cannot interact with bus list fragment");
+                return false;
+            }
+            Single<ProcessedPredictions> predictionsSingle = predictionsViewModel
+                    .getPredictions(marker, new HashSet<>(busListInteraction.getSelectedRoutes()));
+            if (predictionsSingle == null) {
+                Timber.w("Marker clicked but no single given");
+                return false;
+            }
+            predictionsSubscription = predictionsSingle
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(predictionsObserver());
+            return true;
+        });
     }
 
     /**
@@ -583,7 +592,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 .observeOn(Schedulers.io());
 
         setupPolylineObservable(toggledRoutesObservable);
-        setupPredictionsObservable();
         ConnectableObservable<Set<String>> selectionObservable = selectedRoutesObservable
                 .replay(1);
         //noinspection Convert2Lambda
@@ -661,17 +669,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         resetMapSubscriptions();
         selectionSubscription = selectionObservable.connect();
         busListInteraction.restoreSelection();
-    }
-
-    private void setupPredictionsObservable() {
-        PredictionsViewModel predictionViewModel = new PredictionsViewModel(
-                patApiService,
-                getResources().getInteger(R.integer.marker_camera_delay)
-        );
-        predictionsSubscription = predictionViewModel
-                .getPredictions(predictionsSubject)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(predictionsObserver());
     }
 
     private void setupPolylineObservable(Observable<Route> routeSelectionObservable) {
@@ -1173,12 +1170,8 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     }
 
     @Override
-    public Observer<ProcessedPredictions> predictionsObserver() {
-        return new Observer<ProcessedPredictions>() {
-            @Override
-            public void onCompleted() {
-                Timber.i("Predictions have been unsubscribed");
-            }
+    public SingleSubscriber<ProcessedPredictions> predictionsObserver() {
+        return new SingleSubscriber<ProcessedPredictions>() {
 
             @Override
             public void onError(Throwable e) {
@@ -1186,8 +1179,8 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             }
 
             @Override
-            public void onNext(ProcessedPredictions processedPredictions) {
-                Timber.i("Showing predictions");
+            public void onSuccess(ProcessedPredictions processedPredictions) {
+                Timber.i("Showing predictions:\n%s", processedPredictions.getPredictions());
                 Marker marker = processedPredictions.getMarker();
                 marker.setSnippet(processedPredictions.getPredictions());
                 marker.showInfoWindow();

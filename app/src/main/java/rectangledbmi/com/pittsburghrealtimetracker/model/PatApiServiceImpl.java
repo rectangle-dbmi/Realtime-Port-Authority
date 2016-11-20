@@ -28,6 +28,7 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
+import rx.Single;
 import rx.schedulers.Schedulers;
 
 /**
@@ -83,23 +84,23 @@ public class PatApiServiceImpl implements PatApiService {
     }
 
     @Override
-    public Observable<List<Prd>> getStopPredictions(int stpid, Collection<String> rts) {
+    public Single<List<Prd>> getStopPredictions(int stpid, Collection<String> rts) {
         return patApiClient.getStopPredictions(stpid, collectionToString(rts))
                 .compose(composePrds());
     }
 
     @Override
-    public Observable<List<Prd>> getVehiclePredictions(int vid) {
+    public Single<List<Prd>> getVehiclePredictions(int vid) {
         return patApiClient.getBusPredictions(vid)
                 .compose(composePrds());
 
     }
 
-    private static Observable.Transformer<PredictionResponse, List<Prd>> composePrds() {
+    private static Single.Transformer<PredictionResponse, List<Prd>> composePrds() {
         return predictionRespose -> predictionRespose
                 .map(PredictionResponse::getBustimeResponse)
                 .map(BustimePredictionResponse::getPrd)
-                .compose(applySchedulers());
+                .compose(applySchedulersSingle());
     }
 
     // region helper methods
@@ -147,6 +148,18 @@ public class PatApiServiceImpl implements PatApiService {
      */
     private static <T> Observable.Transformer<T, T> applySchedulers() {
         return observable -> observable
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation());
+    }
+
+    /**
+     * Sets IO above and computation schedulers below. This is fine because this class will only be mocked
+     * in unit tests.
+     * @param <T> any value
+     * @return a transformer anonymous class
+     */
+    private static <T> Single.Transformer<T, T> applySchedulersSingle() {
+        return single -> single
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation());
     }

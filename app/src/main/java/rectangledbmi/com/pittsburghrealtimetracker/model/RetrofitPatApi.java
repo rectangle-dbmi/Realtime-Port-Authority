@@ -6,6 +6,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.vehicles.response.VehicleResp
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 import rx.Observable;
+import rx.Single;
 
 /**
  * This is the general api that sets the retrofit api. You must have the class
@@ -43,14 +44,14 @@ public interface RetrofitPatApi {
      * @param rts - the routes
      */
     @GET("getpredictions?format=json&top=10")
-    Observable<PredictionResponse> getStopPredictions(@Query("stpid") int stpid, @Query("rt") String rts);
+    Single<PredictionResponse> getStopPredictions(@Query("stpid") int stpid, @Query("rt") String rts);
 
     /**
      * Generates a response to get the predictions using the bus id
      * @param vid - the bus id
      */
     @GET("getpredictions?format=json&top=10")
-    Observable<PredictionResponse> getBusPredictions(@Query("vid") int vid);
+    Single<PredictionResponse> getBusPredictions(@Query("vid") int vid);
 
 
 }

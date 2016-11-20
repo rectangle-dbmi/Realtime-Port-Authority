@@ -1,6 +1,6 @@
 package rectangledbmi.com.pittsburghrealtimetracker.predictions;
 
-import rx.Observer;
+import rx.SingleSubscriber;
 
 /**
  * <p>Defines the View for Predictions</p>
@@ -10,5 +10,5 @@ import rx.Observer;
  */
 
 public interface PredictionsView {
-    Observer<ProcessedPredictions> predictionsObserver();
+    SingleSubscriber<ProcessedPredictions> predictionsObserver();
 }

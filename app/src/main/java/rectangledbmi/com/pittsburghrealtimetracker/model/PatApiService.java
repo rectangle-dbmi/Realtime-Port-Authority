@@ -8,6 +8,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Pt;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Ptr;
 import rectangledbmi.com.pittsburghrealtimetracker.vehicles.response.VehicleResponse;
 import rx.Observable;
+import rx.Single;
 
 /**
  * <p>Service interface to get data from the Port Authority Trueime API and process it to be useable.</p>
@@ -18,9 +19,9 @@ import rx.Observable;
 public interface PatApiService {
     Observable<VehicleResponse> getVehicles(Collection<String> rts);
 
-    Observable<List<Prd>> getVehiclePredictions(int id);
+    Single<List<Prd>> getVehiclePredictions(int id);
 
-    Observable<List<Prd>> getStopPredictions(int id, Collection<String> rts);
+    Single<List<Prd>> getStopPredictions(int id, Collection<String> rts);
 
     Observable<List<Ptr>> getPatterns(String rt);
 

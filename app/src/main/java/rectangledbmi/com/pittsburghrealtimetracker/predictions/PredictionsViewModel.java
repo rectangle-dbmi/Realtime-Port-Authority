@@ -1,11 +1,14 @@
 package rectangledbmi.com.pittsburghrealtimetracker.predictions;
 
+import com.google.android.gms.maps.model.Marker;
+
+import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Pt;
 import rectangledbmi.com.pittsburghrealtimetracker.vehicles.response.Vehicle;
-import rx.Observable;
+import rx.Single;
 import timber.log.Timber;
 
 /**
@@ -26,28 +29,31 @@ public class PredictionsViewModel {
         this.delay = delay;
     }
 
-    public Observable<ProcessedPredictions> getPredictions(Observable<PredictionsInfo> predictionInfoObservable) {
-        if (predictionInfoObservable == null) {
+    /**
+     * Creates a single emission assuming that a marker and selected routes are fed
+     * @param marker the marker
+     * @param selectedRoutes the selected routes
+     * @return a single emission to get predictions
+     */
+    public Single<ProcessedPredictions> getPredictions(Marker marker, HashSet<String> selectedRoutes) {
+        if (marker == null || selectedRoutes == null) {
             Timber.w("No prediction info available");
             return null;
         }
-        return predictionInfoObservable
-                .flatMap(predictionInfo -> {
-                    PredictionsType predictionsType = predictionInfo.getPredictionType();
-                    int id = predictionsType.getId();
-                    if (predictionsType instanceof Vehicle) {
-                        Timber.d("Getting vehicle predictions");
-                        return patApiService.getVehiclePredictions(id)
-                                .map(prds -> ProcessedPredictions.create(predictionInfo.getMarker(), predictionsType, prds));
-                    } else if (predictionsType instanceof Pt) {
-                        Timber.d("Getting stop predictions");
-                        return patApiService.getStopPredictions(id, predictionInfo.getSelectedRoutes())
-                                .map(prds -> ProcessedPredictions.create(predictionInfo.getMarker(), predictionsType, prds));
-                    }
-                    Timber.w("Not getting predictions because of unknown prediction info");
-                    return Observable.never();
-                })
-                .retry()
-                .delay(delay, TimeUnit.MILLISECONDS);
+        PredictionsType predictionsType = (PredictionsType) marker.getTag();
+        int id = predictionsType.getId();
+        if (predictionsType instanceof Vehicle) { // get vehicle predictions if marker is a vehicle
+            Timber.d("Getting vehicle predictions");
+            return patApiService.getVehiclePredictions(id)
+                    .map(prds -> ProcessedPredictions.create(marker, predictionsType, prds))
+                    .delay(delay, TimeUnit.MILLISECONDS);
+        } else if (predictionsType instanceof Pt) { // get stop predictions if marker is a Stop/Pt
+            Timber.d("Getting stop predictions");
+            return patApiService.getStopPredictions(id, selectedRoutes)
+                    .map(prds -> ProcessedPredictions.create(marker, predictionsType, prds))
+                    .delay(delay, TimeUnit.MILLISECONDS);
+        }
+        Timber.w("Not getting predictions because of unknown prediction info");
+        return null;
     }
 }
