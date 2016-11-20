@@ -102,10 +102,6 @@ public class PatApiServiceImpl implements PatApiService {
                 .compose(applySchedulers());
     }
 
-    public RetrofitPatApi getPatApiClient() {
-        return patApiClient;
-    }
-
     // region helper methods
     private static RetrofitPatApi createPatApiClient(String baseUrl, String apiKey) {
         // use a date converter
