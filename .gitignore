@@ -12,3 +12,4 @@ apks/
 /build/
 /local.properties
 /captures
+/secrets.properties

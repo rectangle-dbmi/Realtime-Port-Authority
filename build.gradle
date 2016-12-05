@@ -38,4 +38,6 @@ subprojects {
      * This has to be generated from a signed keystore's SHA1 with similar instructions above
      */
     ext.googleMapsApiKeyRelease = "\"$google_maps_api_release\"" ?: '"Define Google Maps Release API Key in gradle.properties"';
+
+
 }
