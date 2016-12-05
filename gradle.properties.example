@@ -16,11 +16,20 @@
 # This option should only be used with decoupled projects. More details, visit
 # http://www.gradle.org/docs/current/userguide/multi_project_builds.html#sec:decoupled_projects
 # org.gradle.parallel=true
-# 
+
 ########################################################################################
-#
-# Please copy this file first to `gradle.properties`
-# Then replace YOUR_API_KEY_HERE with a Port Authority API Key.
+
+# Please copy this file first to `gradle.properties`. Add this to the top of the file: # suppress inspection "UnusedProperty" for whole file
+
+# Then replace YOUR_API_KEY_HERE with the correct keys.
+
+# This is the Port Authority TrueTime API key.
 # This can be retrieved by going to
 # http://www.portauthority.org/paac/CompanyInfoProjects/DeveloperResources.aspx
 pat_api=YOUR_API_KEY_HERE
+
+# The following are Google Maps API keys.... One for debug and one for release.
+# Please follow these instructions to get your API keys: https://developers.google.com/maps/documentation/android-api/signup
+# Instructions to get your SHA1 keys from your keystores for debug and release can be found at the bottom of the page.
+google_maps_api_debug=YOUR_API_KEY_HERE
+google_maps_api_release=YOUR_API_KEY_HERE
