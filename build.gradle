@@ -18,26 +18,37 @@ allprojects {
     }
 }
 
+// load secrets.properties for properties that should be part of app but not in source control
+// maybe shouldn't be done in-line but somewhere else.
+def secretProperties = new Properties()
+def secretPropertiesFile = file('secrets.properties')
+if (!secretPropertiesFile.exists()) {
+    logger.error("App will not work as expected. Please copy-paste 'secrets.example.properties'" +
+            " to a new file called 'secrets.properties' and add API keys to it")
+} else {
+    secretProperties.load(secretPropertiesFile.newReader())
+}
+
 subprojects {
-    /**
+    /*
      * must define PAT_API_KEY in gradle.properties by adding pat_api=<KEY>
      */
-    ext.patApiKey = "\"$pat_api\"" ?: '"Define Port Authority TrueTime API Key in gradle.properties"';
+    ext.patApiKey = "\"${secretProperties['pat_api']}\"" ?: '"Define Port Authority TrueTime API Key in gradle.properties#pat_api"';
 
-    /**
+    /*
      * must define Google Maps API Debug Key in gradle.properties by adding google_maps_api_debug=<KEY>
      * must have a project in Google Console Developers and add the correct key: https://console.developers.google.com
      * The SHA1 key from Android Studio's debug keystore. Find this in by the following in the command line:
      * `keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android`
      */
-    ext.googleMapsApiKeyDebug = "\"$google_maps_api_debug\"" ?: '"Define Google Maps Debug API Key in gradle.properties"';
+    ext.googleMapsApiKeyDebug = "\"${secretProperties['google_maps_api_debug']}\"" ?: '"Define Google Maps Debug API Key in gradle.properties#google_maps_api_debug"';
 
-    /**
+    /*
      * must define Google Maps API Release Key in gradle.properties by adding google_maps_api_release=<KEY>
      * must have a project in Google Console Developers and add the correct key: https://console.developers.google.com
      * This has to be generated from a signed keystore's SHA1 with similar instructions above
      */
-    ext.googleMapsApiKeyRelease = "\"$google_maps_api_release\"" ?: '"Define Google Maps Release API Key in gradle.properties"';
+    ext.googleMapsApiKeyRelease = "\"${secretProperties['google_maps_api_release']}\"" ?: '"Define Google Maps Release API Key in gradle.properties#google_maps_api_release"';
 
 
 }
