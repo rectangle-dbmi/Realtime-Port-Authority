@@ -58,6 +58,7 @@ subprojects {
 
     // code language versions
     ext.javaVersion = JavaVersion.VERSION_1_8
+    ext.kotlinVersion = '1.0.5-2'
 
     // google and android dependencies
     ext.androidMinSdkVersion = 16
@@ -81,6 +82,7 @@ subprojects {
     // versions for other dependencies
     ext.javaAnnotationVersion = '10.0-b28'
     ext.gradleVersionsVersion = '0.12.0'
+    ext.geotoolsVersion = '16.0'
 
     // versions for test dependencies
     ext.junitVersion = '4.12'
