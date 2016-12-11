@@ -26,7 +26,7 @@ to the new buses as soon as possible!
 
 #Android Development
 
-Please refer to [this wiki page](https://github.com/rectangle-dbmi/Realtime-Port-Authority/wiki/Contributing-to-to-PAT-Realtime-Tracker) for instructions to install and use the project.
+Please refer to [this wiki page](https://github.com/rectangle-dbmi/Realtime-Port-Authority/wiki/Contributing-to-to-PAT-Track) for instructions to install and use the project.
 
 This will be done using [Android Studio](https://developer.android.com/sdk/installing/studio.html) 1.0 as of 12-09-2014.
 
