@@ -1,7 +1,7 @@
 apply plugin: 'kotlin'
 
 buildscript {
-    ext.kotlin_version = '1.0.5-2'
+    ext.kotlin_version = '1.0.5-2' // see #311... should be putting kotlin version somewhere else
 
     repositories {
         mavenCentral()
@@ -14,4 +14,11 @@ buildscript {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    repositories {
+        mavenCentral()
+        maven {
+            url "http://download.osgeo.org/webdav/geotools"
+        }
+    }
+    compile "org.geotools:gt-shapefile:16.0"
 }
