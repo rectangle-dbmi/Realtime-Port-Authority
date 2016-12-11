@@ -2,11 +2,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'com.github.ben-manes.versions'
 
-//must define PAT_API_KEY in gradle.properties by adding pat_api=<KEY> on
-def PAT_API_KEY = "\"$pat_api\"" ?: '"Define Port Authority TrueTime API Key in gradle.properties"';
-
 android.buildTypes.each { type ->
-    type.buildConfigField 'String', 'PAT_API_KEY', PAT_API_KEY
+    type.buildConfigField 'String', 'PAT_API_KEY', patApiKey // variable defined in `../build.gradle`
 }
 
 android {
@@ -25,9 +22,13 @@ android {
     }
     buildTypes {
 
+        debug {
+            resValue "string", "google_maps_key", googleMapsApiKeyDebug // variable defined in `../build.gradle`
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            resValue "string", "google_maps_key", googleMapsApiKeyRelease // variable defined in `../build.gradle`
         }
     }
     compileOptions {

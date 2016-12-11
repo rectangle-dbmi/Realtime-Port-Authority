@@ -1,5 +1,4 @@
 .gradle
-gradle.properties
 *.iml
 /.idea/*
 .DS_Store
@@ -12,3 +11,4 @@ apks/
 /build/
 /local.properties
 /captures
+/secrets.properties
