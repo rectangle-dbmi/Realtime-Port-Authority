@@ -12,7 +12,6 @@ buildscript {
         // in the individual module build.gradle files
     }
 }
-apply plugin: 'kotlin'
 
 allprojects {
     repositories {
