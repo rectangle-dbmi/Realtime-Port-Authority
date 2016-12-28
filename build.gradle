@@ -1,6 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
+    ext.kotlin_version = '1.0.6'
     repositories {
         jcenter()
     }
@@ -11,6 +12,7 @@ buildscript {
         // in the individual module build.gradle files
     }
 }
+apply plugin: 'kotlin'
 
 allprojects {
     repositories {
@@ -58,7 +60,6 @@ subprojects {
 
     // code language versions
     ext.javaVersion = JavaVersion.VERSION_1_8
-    ext.kotlinVersion = '1.0.5-2'
 
     // google and android dependencies
     ext.androidMinSdkVersion = 16
