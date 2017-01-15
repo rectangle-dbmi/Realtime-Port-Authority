@@ -12,19 +12,12 @@ buildscript {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    repositories {
-        mavenCentral()
-        maven {
-            url "http://download.osgeo.org/webdav/geotools"
-        }
-    }
+
     compile "org.geotools:gt-shapefile:${geotoolsVersion}"
     testCompile "junit:junit:${junitVersion}"
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
-repositories {
-    mavenCentral()
-}
+
 sourceSets {
     main.java.srcDirs += 'src/main/kotlin'
 }

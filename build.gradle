@@ -1,7 +1,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.0.6'
     repositories {
         jcenter()
     }
@@ -15,6 +14,9 @@ buildscript {
 
 allprojects {
     repositories {
+        maven {
+            url "http://download.osgeo.org/webdav/geotools/"
+        }
         jcenter()
     }
 }
@@ -33,6 +35,7 @@ if (!secretPropertiesFile.exists()) {
 subprojects {
 
     //region secret variables
+    ext.kotlin_version = '1.0.6'
     /*
      * must define PAT_API_KEY in gradle.properties by adding pat_api=<KEY>
      */
@@ -82,7 +85,7 @@ subprojects {
     // versions for other dependencies
     ext.javaAnnotationVersion = '10.0-b28'
     ext.gradleVersionsVersion = '0.12.0'
-    ext.geotoolsVersion = '16.0'
+    ext.geotoolsVersion = '16.1'
 
     // versions for test dependencies
     ext.junitVersion = '4.12'
