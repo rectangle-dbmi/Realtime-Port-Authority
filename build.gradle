@@ -87,6 +87,8 @@ subprojects {
     ext.gradleVersionsVersion = '0.12.0'
     ext.geotoolsVersion = '16.1'
 
+    ext.apacheCommonsVersion = "2.5"
+
     // versions for test dependencies
     ext.junitVersion = '4.12'
     ext.mockitoVersion = '1.9.5'

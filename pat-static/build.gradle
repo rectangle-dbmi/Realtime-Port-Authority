@@ -14,6 +14,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
     compile "org.geotools:gt-shapefile:${geotoolsVersion}"
+    compile "commons-io:commons-io:${apacheCommonsVersion}"
     testCompile "junit:junit:${junitVersion}"
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
