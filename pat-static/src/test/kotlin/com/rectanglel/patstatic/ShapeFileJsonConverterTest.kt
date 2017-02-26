@@ -11,7 +11,7 @@ class ShapeFileJsonConverterTest {
     //region static setup
     companion object {
         val outFolder = File("testOut")
-        val testURL = "https://data.wprdc.org/dataset/6be8185a-7fc3-48c7-9b8d-716602ea03f0/resource/018d8051-1bec-4210-bc04-c9fcc5d9da94/download/paacroutes1611.zip"
+        val testURL = "https://data.wprdc.org/dataset/6be8185a-7fc3-48c7-9b8d-716602ea03f0/resource/018d8051-1bec-4210-bc04-c9fcc5d9da94/download/"
 
         fun deleteFiles(file: File) {
             if (file.isDirectory) {

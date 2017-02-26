@@ -78,6 +78,8 @@ subprojects {
     ext.timberVersion = '4.3.1'
     ext.leakCanaryVersion = '1.5'
 
+    ext.rxJava2Version = '2.0.6'
+
     // build versions for retrolambda
     ext.retrolambdaConfigVersion = '2.3.0'
     ext.retrolambdaPluginVersion = '3.3.1'

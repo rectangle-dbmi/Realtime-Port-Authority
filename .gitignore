@@ -1,6 +1,7 @@
 .gradle
 *.iml
 /.idea/*
+!/.idea/libraries/shapefilereader_1_0.xml
 .DS_Store
 /app/.DS_Store
 apks/

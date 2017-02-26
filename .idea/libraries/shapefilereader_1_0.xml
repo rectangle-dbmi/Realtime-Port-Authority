@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="shapefilereader-1.0">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/pat-static/libs/shapefilereader-1.0.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/pat-static/docs/shapefilereader-1.0-docs.zip!/" />
+    </JAVADOC>
+    <SOURCES />
+  </library>
+</component>
