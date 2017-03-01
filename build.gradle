@@ -29,62 +29,69 @@ if (!secretPropertiesFile.exists()) {
     secretProperties.load(secretPropertiesFile.newReader())
 }
 
-subprojects {
+ext {
+    // set keys from secretProperties
+    keys = [
 
-    //region secret variables
-    /*
-     * must define PAT_API_KEY in gradle.properties by adding pat_api=<KEY>
-     */
-    ext.patApiKey = "\"${secretProperties['pat_api']}\"" ?: '"Define Port Authority TrueTime API Key in secrets.properties#pat_api"';
+            google: [
+                    /*
+                     * must define Google Maps API Debug Key in gradle.properties by adding google_maps_api_debug=<KEY>
+                     * must have a project in Google Console Developers and add the correct key: https://console.developers.google.com
+                     * The SHA1 key from Android Studio's debug keystore. Find this in by the following in the command line:
+                     * `keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android`
+                     */
+                    maps: [
+                            debug: "\"${secretProperties['google_maps_api_debug']}\"" ?: '"Define Google Maps Debug API Key in secrets.properties#google_maps_api_debug"',
+                            release: "\"${secretProperties['google_maps_api_release']}\"" ?: '"Define Google Maps Release API Key in secrets.properties#google_maps_api_release"'
+                    ]
+            ],
+            /*
+             * must define PAT_API_KEY in gradle.properties by adding pat_api=<KEY>
+             */
+            truetime: [
+                    debug: "\"${secretProperties['pat_api_debug']}\"" ?: '"Define Port Authority TrueTime API Key in secrets.properties#pat_api_debug"',
+                    release: "\"${secretProperties['pat_api']}\"" ?: '"Define Port Authority TrueTime API Key in secrets.properties#pat_api"'
+            ]
+    ]
 
-    /*
-     * must define Google Maps API Debug Key in gradle.properties by adding google_maps_api_debug=<KEY>
-     * must have a project in Google Console Developers and add the correct key: https://console.developers.google.com
-     * The SHA1 key from Android Studio's debug keystore. Find this in by the following in the command line:
-     * `keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android`
-     */
-    ext.googleMapsApiKeyDebug = "\"${secretProperties['google_maps_api_debug']}\"" ?: '"Define Google Maps Debug API Key in secrets.properties#google_maps_api_debug"';
+    // versions for all dependencies
+    versions = [
+            kotlin: '1.0.6',
+            java: [
+                    annotation: '10.0-b28',
+                    target: JavaVersion.VERSION_1_8,
+            ],
+            android: [
+                    buildTools: '23.0.3',
+                    minSdk: 16,
+                    support: '23.4.0',
+                    targetSdk: 23
+            ],
+            google: [
+                    play: '10.0.1'
+            ],
 
-    /*
-     * must define Google Maps API Release Key in gradle.properties by adding google_maps_api_release=<KEY>
-     * must have a project in Google Console Developers and add the correct key: https://console.developers.google.com
-     * This has to be generated from a signed keystore's SHA1 with similar instructions above
-     */
-    ext.googleMapsApiKeyRelease = "\"${secretProperties['google_maps_api_release']}\"" ?: '"Define Google Maps Release API Key in secrets.properties#google_maps_api_release"';
-    // endregion
+            gradleVersions: '0.12.0',
 
-    // region versions for dependencies
-    // perhaps we should actually create these as gradle properties? I'm thinking this is ok.
+            retrolambda: [
+                    config: '2.3.0',
+                    plugin: '3.3.1'
+            ],
+            rx: [
+                    java: '1.2.1',
+                    network: '0.6.0'
+            ],
+            square: [
+                    leakCanary: '1.5',
+                    okHttp: '3.4.1',
+                    retrofit: '2.2.0',
+                    timber: '4.3.1',
+            ],
 
-    // code language versions
-    ext.javaVersion = JavaVersion.VERSION_1_8
+            test: [
+                    junit: '4.12',
+                    mockito: '1.9.5'
+            ]
 
-    // google and android dependencies
-    ext.androidMinSdkVersion = 16
-    ext.androidTargetSdkVersion = 23
-    ext.androidBuildVersion = '23.0.3'
-    ext.googlePlayVersion = '10.0.1'
-    ext.androidDependencyVersion = '23.4.0'
-
-    // buildVersion for square dependencies and rxjava
-    ext.rxJavaVersion = '1.2.1'
-    ext.reactiveNetworkVersion = '0.6.0'
-    ext.retrofitVersion = '2.1.0'
-    ext.okHttpVersion = '3.4.1'
-    ext.timberVersion = '4.3.1'
-    ext.leakCanaryVersion = '1.5'
-
-    // build versions for retrolambda
-    ext.retrolambdaConfigVersion = '2.3.0'
-    ext.retrolambdaPluginVersion = '3.3.1'
-
-    // versions for other dependencies
-    ext.javaAnnotationVersion = '10.0-b28'
-    ext.gradleVersionsVersion = '0.12.0'
-
-    // versions for test dependencies
-    ext.junitVersion = '4.12'
-    ext.mockitoVersion = '1.9.5'
-    // endregion
-
+    ]
 }
