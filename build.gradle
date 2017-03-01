@@ -82,6 +82,7 @@ ext {
             ],
             rx: [
                     java: '1.2.1',
+                    java2: '2.0.6',
                     network: '0.6.0'
             ],
             square: [
@@ -94,7 +95,11 @@ ext {
             test: [
                     junit: '4.12',
                     mockito: '1.9.5'
-            ]
+            ],
 
+            apache: [
+                    commons: '2.5'
+            ],
+            geotools: '16.1'
     ]
 }

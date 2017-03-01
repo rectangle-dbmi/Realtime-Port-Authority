@@ -7,19 +7,19 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
     }
 }
 
 dependencies {
     compile files('libs/shapefilereader-1.0.jar')
-    compile "org.geotools:gt-shapefile:${geotoolsVersion}"
-    compile "commons-io:commons-io:${apacheCommonsVersion}"
-    compile "io.reactivex.rxjava2:rxjava:${rxJava2Version}"
+    compile "org.geotools:gt-shapefile:${versions.geotools}"
+    compile "commons-io:commons-io:${versions.apache.commons}"
+    compile "io.reactivex.rxjava2:rxjava:${versions.rx.java2}"
 
-    testCompile "junit:junit:${junitVersion}"
+    testCompile "junit:junit:${versions.test.junit}"
 
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin"
 
 }
 
