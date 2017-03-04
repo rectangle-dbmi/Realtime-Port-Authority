@@ -1,9 +1,13 @@
 package rectangledbmi.com.pittsburghrealtimetracker.ui;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -23,6 +27,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.util.Calendar;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import rectangledbmi.com.pittsburghrealtimetracker.BuildConfig;
 import rectangledbmi.com.pittsburghrealtimetracker.R;
@@ -87,7 +92,27 @@ public class MainActivity extends AppCompatActivity implements
         FragmentManager fragmentManager = getSupportFragmentManager();
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 fragmentManager.findFragmentById(R.id.navigation_drawer);
-        checkSDCardData();
+
+        // Update pattern cache
+        // note, when we move to RxJava 2 this Observable can be replaced with a Maybe
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        final long lastUpdated = sp.getLong(LINES_LAST_UPDATED, -1);
+        ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        if (networkInfo.isConnected() && networkInfo.getType() == ConnectivityManager.TYPE_WIFI){
+            patApiService.getPatternDataManager()
+                    .updatePatternCache(lastUpdated,mNavigationDrawerFragment.getSelectedRoutes())
+                    .subscribe(
+                        t -> {
+                            Timber.d("Writing new lastUpdated %d, replacing %d", t, lastUpdated);
+                            Editor editor = sp.edit();
+                            editor.putLong(LINES_LAST_UPDATED, t);
+                            editor.commit();
+                        },
+                     Timber::e);;
+        }
+
+
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
@@ -130,48 +155,6 @@ public class MainActivity extends AppCompatActivity implements
 
     public PatApiService getPatApiService() {
         return patApiService;
-    }
-
-    /**
-     * Checks if the stored patternSelections directory is present and clears if we hit a friday or if the
-     * saved day of the week is higher than the current day of the week.
-     *
-     * @since 32
-     */
-    private void checkSDCardData() {
-        File data = getFilesDir();
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        Long lastUpdated = sp.getLong(LINES_LAST_UPDATED, -1);
-        Timber.d(data.getName());
-        if (data.mkdirs())
-            Timber.d("Created data storage");
-        File lineInfo = new File(data, "/lineinfo");
-        if (data.mkdirs())
-            Timber.d("created line info folder in storage");
-        Timber.d(Long.toString(lastUpdated));
-        if (lastUpdated != -1 && ((System.currentTimeMillis() - lastUpdated) / 1000 / 60 / 60) > 24) {
-            if (lineInfo.exists()) {
-                Calendar c = Calendar.getInstance();
-                int day = c.get(Calendar.DAY_OF_WEEK);
-                Calendar o = Calendar.getInstance();
-                o.setTimeInMillis(lastUpdated);
-                int oldDay = o.get(Calendar.DAY_OF_WEEK);
-                if (day == Calendar.FRIDAY || oldDay >= day) {
-                    File[] files = lineInfo.listFiles();
-                    sp.edit().putLong(LINES_LAST_UPDATED, System.currentTimeMillis()).apply();
-                    if (files != null) {
-                        for (File file : files) {
-                            if (file.delete())
-                                Timber.d("%s deleted", file.getName());
-                        }
-                    }
-                }
-            }
-        }
-
-        if (lineInfo.listFiles() == null || lineInfo.listFiles().length == 0) {
-            sp.edit().putLong(LINES_LAST_UPDATED, System.currentTimeMillis()).apply();
-        }
     }
 
     private void enableHttpResponseCache() {
