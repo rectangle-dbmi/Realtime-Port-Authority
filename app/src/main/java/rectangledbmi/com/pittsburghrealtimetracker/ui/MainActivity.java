@@ -20,14 +20,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.rectanglel.patstatic.model.PatApiService;
+import com.rectanglel.patstatic.model.PatApiServiceImpl;
+
 import java.io.File;
 import java.util.Calendar;
 import java.util.Set;
 
 import rectangledbmi.com.pittsburghrealtimetracker.BuildConfig;
 import rectangledbmi.com.pittsburghrealtimetracker.R;
-import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
-import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiServiceImpl;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.NotificationMessage;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.ui.about.AboutActivity;

@@ -1,4 +1,4 @@
-package rectangledbmi.com.pittsburghrealtimetracker.mock;
+package com.rectanglel.patstatic.mock;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

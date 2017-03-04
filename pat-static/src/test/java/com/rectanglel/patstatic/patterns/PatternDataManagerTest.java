@@ -1,24 +1,22 @@
-package rectangledbmi.com.pittsburghrealtimetracker.patterns;
+package com.rectanglel.patstatic.patterns;
+
+import com.rectanglel.patstatic.TestHelperMethods;
+import com.rectanglel.patstatic.mock.PatApiMock;
+import com.rectanglel.patstatic.model.RetrofitPatApi;
+import com.rectanglel.patstatic.patterns.response.Ptr;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.File;
 import java.util.List;
 
-import rectangledbmi.com.pittsburghrealtimetracker.mock.PatApiMock;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Ptr;
-import rectangledbmi.com.pittsburghrealtimetracker.model.RetrofitPatApi;
 import rx.observers.TestSubscriber;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static rectangledbmi.com.pittsburghrealtimetracker.TestHelperMethods.deleteFiles;
-import static rectangledbmi.com.pittsburghrealtimetracker.mock.PatApiMock.getPatApiMock;
-import static rectangledbmi.com.pittsburghrealtimetracker.mock.PatApiMock.getPatterns;
 
 /**
  * <p>Tests the {@link PatternDataManager} class</p>
@@ -35,15 +33,15 @@ public class PatternDataManagerTest {
         dir = new File("testDirectory");
         //noinspection ResultOfMethodCallIgnored
         dir.mkdirs();
-        patapi = getPatApiMock();
-        patternDataManager = spy(new PatternDataManager(
+        patapi = PatApiMock.getPatApiMock();
+        patternDataManager = Mockito.spy(new PatternDataManager(
                 dir,
                 patapi));
     }
 
     @After
     public void tearDown() {
-        deleteFiles(dir);
+        TestHelperMethods.deleteFiles(dir);
     }
 
     /**
@@ -60,13 +58,13 @@ public class PatternDataManagerTest {
         TestSubscriber<List<Ptr>> ts2 = new TestSubscriber<>();
         patternDataManager.getPatterns(PatApiMock.testRoute1).subscribe(ts1);
         patternDataManager.getPatterns(PatApiMock.testRoute1).subscribe(ts2);
-        verify(patapi, times(1)).getPatterns(PatApiMock.testRoute1);
-        verify(patternDataManager, times(1)).getPatternsFromInternet(PatApiMock.testRoute1);
-        verify(patternDataManager, times(1)).getPatternsFromDisk(PatApiMock.testRoute1);
+        Mockito.verify(patapi, Mockito.times(1)).getPatterns(PatApiMock.testRoute1);
+        Mockito.verify(patternDataManager, Mockito.times(1)).getPatternsFromInternet(PatApiMock.testRoute1);
+        Mockito.verify(patternDataManager, Mockito.times(1)).getPatternsFromDisk(PatApiMock.testRoute1);
         assertEquals(1, ts1.getOnNextEvents().size());
         assertEquals(ts1.getOnNextEvents().size(), ts2.getOnNextEvents().size());
-        assertEquals(getPatterns(), ts1.getOnNextEvents().get(0));
-        assertEquals(getPatterns(), ts2.getOnNextEvents().get(0));
+        Assert.assertEquals(PatApiMock.getPatterns(), ts1.getOnNextEvents().get(0));
+        Assert.assertEquals(PatApiMock.getPatterns(), ts2.getOnNextEvents().get(0));
     }
 
 

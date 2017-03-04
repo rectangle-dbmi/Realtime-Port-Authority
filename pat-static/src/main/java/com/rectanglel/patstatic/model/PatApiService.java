@@ -1,12 +1,14 @@
-package rectangledbmi.com.pittsburghrealtimetracker.model;
+package com.rectanglel.patstatic.model;
+
+import com.rectanglel.patstatic.patterns.response.Pt;
+import com.rectanglel.patstatic.patterns.response.Ptr;
+import com.rectanglel.patstatic.predictions.response.Prd;
+import com.rectanglel.patstatic.routes.BusRoute;
+import com.rectanglel.patstatic.vehicles.response.VehicleResponse;
 
 import java.util.Collection;
 import java.util.List;
 
-import rectangledbmi.com.pittsburghrealtimetracker.predictions.response.Prd;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Pt;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Ptr;
-import rectangledbmi.com.pittsburghrealtimetracker.vehicles.response.VehicleResponse;
 import rx.Observable;
 import rx.Single;
 
@@ -27,4 +29,6 @@ public interface PatApiService {
 
     @SuppressWarnings("unused")
     Observable<List<Pt>> getStops(String rt);
+
+    Observable<List<BusRoute>> getRoutes();
 }

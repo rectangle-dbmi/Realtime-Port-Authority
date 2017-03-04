@@ -1,4 +1,4 @@
-package rectangledbmi.com.pittsburghrealtimetracker;
+package com.rectanglel.patstatic;
 
 import java.io.File;
 

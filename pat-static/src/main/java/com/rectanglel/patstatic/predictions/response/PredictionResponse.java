@@ -1,29 +1,29 @@
 
-package rectangledbmi.com.pittsburghrealtimetracker.vehicles.response;
+package com.rectanglel.patstatic.predictions.response;
 
 import javax.annotation.Generated;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * First retrofit object to get vehicles
+ * Stop predictions Starting POJO
  *
  * @author Jeremy Jao
  * @since 46
  */
 @Generated("org.jsonschema2pojo")
-public class VehicleResponse {
+public class PredictionResponse {
 
     @SerializedName("bustime-response")
     @Expose
-    private BustimeVehicleResponse bustimeResponse;
+    private BustimePredictionResponse bustimeResponse;
 
     /**
      *
      * @return
      *     The bustimeResponse
      */
-    public BustimeVehicleResponse getBustimeResponse() {
+    public BustimePredictionResponse getBustimeResponse() {
         return bustimeResponse;
     }
 
@@ -32,7 +32,7 @@ public class VehicleResponse {
      * @param bustimeResponse
      *     The bustime-response
      */
-    public void setBustimeResponse(BustimeVehicleResponse bustimeResponse) {
+    public void setBustimeResponse(BustimePredictionResponse bustimeResponse) {
         this.bustimeResponse = bustimeResponse;
     }
 

@@ -1,15 +1,14 @@
 package rectangledbmi.com.pittsburghrealtimetracker.patterns;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.rectanglel.patstatic.patterns.polylines.PolylineView;
+import com.rectanglel.patstatic.patterns.response.Ptr;
 
 import java.util.List;
 
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PolylineView;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Ptr;
-
 /**
  * <p>Data Transfer Object that transfers meta info for {@link com.google.android.gms.maps.model.Polyline}
- * creation from the {@link rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternViewModel}
+ * creation from the {@link PatternViewModel}
  * to the {@link PolylineView}.</p>
  *
  * <p>The contract of this class should be that if {@link #isSelected()} is `false`, {@link #getPatterns()}

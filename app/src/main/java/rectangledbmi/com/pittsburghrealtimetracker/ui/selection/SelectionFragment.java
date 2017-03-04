@@ -14,7 +14,7 @@ import android.view.View;
 import java.io.File;
 import java.util.Set;
 
-import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
+import com.rectanglel.patstatic.model.PatApiService;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.Route;
 import rx.Observable;
 

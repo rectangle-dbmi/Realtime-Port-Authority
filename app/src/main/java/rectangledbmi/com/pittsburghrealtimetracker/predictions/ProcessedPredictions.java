@@ -9,10 +9,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Pt;
-import rectangledbmi.com.pittsburghrealtimetracker.predictions.response.Prd;
+import com.rectanglel.patstatic.patterns.response.Pt;
+import com.rectanglel.patstatic.predictions.PredictionsType;
+import com.rectanglel.patstatic.predictions.PredictionsView;
+import com.rectanglel.patstatic.predictions.response.Prd;
+import com.rectanglel.patstatic.vehicles.response.Vehicle;
+
 import rectangledbmi.com.pittsburghrealtimetracker.ui.MainActivity;
-import rectangledbmi.com.pittsburghrealtimetracker.vehicles.response.Vehicle;
 
 /**
  * <p>Holds prediction info for the {@link PredictionsView}.</p>

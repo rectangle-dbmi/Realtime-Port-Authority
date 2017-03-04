@@ -1,4 +1,4 @@
-package rectangledbmi.com.pittsburghrealtimetracker.errors;
+package com.rectanglel.patstatic.errors;
 
 import java.util.ArrayList;
 import java.util.Collections;

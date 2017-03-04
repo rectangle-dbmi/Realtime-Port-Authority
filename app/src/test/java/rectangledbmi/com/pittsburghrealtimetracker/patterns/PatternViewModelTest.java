@@ -1,5 +1,7 @@
 package rectangledbmi.com.pittsburghrealtimetracker.patterns;
 
+import com.rectanglel.patstatic.model.PatApiService;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -7,7 +9,6 @@ import org.junit.Test;
 import java.util.List;
 
 import rectangledbmi.com.pittsburghrealtimetracker.mock.PatApiMock;
-import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.Route;
 import rx.Subscription;
 import rx.observers.TestSubscriber;
@@ -15,7 +16,6 @@ import rx.subjects.BehaviorSubject;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.verify;
 import static rectangledbmi.com.pittsburghrealtimetracker.TestHelperMethods.noErrorsAndNotCompleted;
 import static rectangledbmi.com.pittsburghrealtimetracker.mock.PatApiMock.getPatApiServiceMock;

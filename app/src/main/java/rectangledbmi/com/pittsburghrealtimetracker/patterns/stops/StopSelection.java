@@ -1,8 +1,8 @@
-package rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.selection;
+package rectangledbmi.com.pittsburghrealtimetracker.patterns.stops;
+
+import com.rectanglel.patstatic.patterns.response.Pt;
 
 import java.util.Collection;
-
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Pt;
 
 /**
  * <p>Immediate selection info for getStopRenderRequests.</p>

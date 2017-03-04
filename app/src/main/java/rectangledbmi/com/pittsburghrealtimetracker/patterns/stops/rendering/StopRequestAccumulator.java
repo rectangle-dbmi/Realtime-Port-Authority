@@ -4,10 +4,9 @@ import java.util.List;
 
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either.FullStopSelectionState;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either.MapState;
-import rx.Observable;
 
 /**
- * <p>DTO for {@link rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternViewModel#getStopRenderRequests(Observable)}
+ * <p>DTO for a pattern view model
  *    to store the selection state, map state, and immediate changes for stop visibility.</p>
  * <p>Created by epicstar on 10/8/16.</p>
  * @author Jeremy Jao

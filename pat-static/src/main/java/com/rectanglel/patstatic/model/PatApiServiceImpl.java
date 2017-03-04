@@ -1,9 +1,16 @@
-package rectangledbmi.com.pittsburghrealtimetracker.model;
-
-import android.os.Bundle;
+package com.rectanglel.patstatic.model;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.rectanglel.patstatic.patterns.PatternDataManager;
+import com.rectanglel.patstatic.patterns.response.Pt;
+import com.rectanglel.patstatic.patterns.response.Ptr;
+import com.rectanglel.patstatic.predictions.response.BustimePredictionResponse;
+import com.rectanglel.patstatic.predictions.response.Prd;
+import com.rectanglel.patstatic.predictions.response.PredictionResponse;
+import com.rectanglel.patstatic.routes.BusRoute;
+import com.rectanglel.patstatic.utils.Constants;
+import com.rectanglel.patstatic.vehicles.response.VehicleResponse;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -15,15 +22,7 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import rectangledbmi.com.pittsburghrealtimetracker.ui.MainActivity;
-import rectangledbmi.com.pittsburghrealtimetracker.utils.Constants;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternDataManager;
-import rectangledbmi.com.pittsburghrealtimetracker.predictions.response.BustimePredictionResponse;
-import rectangledbmi.com.pittsburghrealtimetracker.predictions.response.Prd;
-import rectangledbmi.com.pittsburghrealtimetracker.predictions.response.PredictionResponse;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Pt;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Ptr;
-import rectangledbmi.com.pittsburghrealtimetracker.vehicles.response.VehicleResponse;
+
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -46,8 +45,7 @@ public class PatApiServiceImpl implements PatApiService {
     private final static String DATE_FORMAT_PARSE = "yyyyMMdd HH:mm";
 
     /**
-     * The default date format to parse... The timezone is set as EST in
-     * {@link MainActivity#onCreate(Bundle)}
+     * The default date format to parse... The timezone is set as EST
      *
      * @since 46
      */
@@ -74,6 +72,11 @@ public class PatApiServiceImpl implements PatApiService {
 
     @Override
     public Observable<List<Pt>> getStops(String rt) {
+        return null;
+    }
+
+    @Override
+    public Observable<List<BusRoute>> getRoutes() {
         return null;
     }
 

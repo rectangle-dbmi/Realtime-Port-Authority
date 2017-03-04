@@ -42,6 +42,15 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.rectanglel.patstatic.errors.ErrorMessage;
+import com.rectanglel.patstatic.patterns.polylines.PolylineView;
+import com.rectanglel.patstatic.patterns.response.Pt;
+import com.rectanglel.patstatic.patterns.stops.StopView;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRenderRequest;
+import com.rectanglel.patstatic.predictions.PredictionsView;
+import com.rectanglel.patstatic.vehicles.response.BustimeVehicleResponse;
+import com.rectanglel.patstatic.vehicles.response.Vehicle;
+import com.rectanglel.patstatic.vehicles.response.VehicleResponse;
 import com.squareup.leakcanary.RefWatcher;
 
 import java.net.SocketTimeoutException;
@@ -61,24 +70,17 @@ import java.util.concurrent.TimeUnit;
 import rectangledbmi.com.pittsburghrealtimetracker.BuildConfig;
 import rectangledbmi.com.pittsburghrealtimetracker.PATTrackApplication;
 import rectangledbmi.com.pittsburghrealtimetracker.R;
-import rectangledbmi.com.pittsburghrealtimetracker.errors.ErrorMessage;
-import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
+import com.rectanglel.patstatic.model.PatApiService;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternViewModel;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PolylineView;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Pt;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopView;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRenderRequest;
-import rectangledbmi.com.pittsburghrealtimetracker.predictions.PredictionsView;
+
 import rectangledbmi.com.pittsburghrealtimetracker.predictions.PredictionsViewModel;
 import rectangledbmi.com.pittsburghrealtimetracker.predictions.ProcessedPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.ClearSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.SelectionFragment;
 import rectangledbmi.com.pittsburghrealtimetracker.vehicles.VehicleBitmap;
-import rectangledbmi.com.pittsburghrealtimetracker.vehicles.response.BustimeVehicleResponse;
-import rectangledbmi.com.pittsburghrealtimetracker.vehicles.response.Vehicle;
-import rectangledbmi.com.pittsburghrealtimetracker.vehicles.response.VehicleResponse;
+
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Observable;
 import rx.Observer;
@@ -109,7 +111,7 @@ import static rectangledbmi.com.pittsburghrealtimetracker.utils.ReactiveHelper.r
 public class BusMapFragment extends SelectionFragment implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         OnMapReadyCallback, LocationListener, ClearSelection,
-        PolylineView, StopView, PredictionsView {
+        PolylineView<PatternSelection>, StopView<StopRenderRequest>, PredictionsView<ProcessedPredictions> {
 
     private static final String CAMERA_POSITION = "cameraPosition";
 

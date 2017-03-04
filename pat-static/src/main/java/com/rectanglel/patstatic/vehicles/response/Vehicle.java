@@ -1,14 +1,13 @@
 
-package rectangledbmi.com.pittsburghrealtimetracker.vehicles.response;
+package com.rectanglel.patstatic.vehicles.response;
 
 import com.google.gson.annotations.Expose;
+import com.rectanglel.patstatic.predictions.PredictionsType;
 
 import java.text.ParseException;
 import java.util.Date;
 
 import javax.annotation.Generated;
-
-import rectangledbmi.com.pittsburghrealtimetracker.predictions.PredictionsType;
 
 /**
  * Vehicle (bus) Retrofit POJO

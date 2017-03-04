@@ -12,12 +12,23 @@ buildscript {
 }
 
 dependencies {
+    repositories {
+        mavenCentral()
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    }
+
     compile files('libs/shapefilereader-1.0.jar')
     compile "org.geotools:gt-shapefile:${versions.geotools}"
     compile "commons-io:commons-io:${versions.apache.commons}"
-    compile "io.reactivex.rxjava2:rxjava:${versions.rx.java2}"
+    compile "io.reactivex:rxjava:${versions.rx.java}"
+
+    compile "com.squareup.retrofit2:retrofit:${versions.square.retrofit}"
+    compile "com.squareup.retrofit2:converter-gson:${versions.square.retrofit}"
+    compile "com.squareup.retrofit2:adapter-rxjava:${versions.square.retrofit}"
+    compile "com.squareup.okhttp3:okhttp:${versions.square.okHttp}"
 
     testCompile "junit:junit:${versions.test.junit}"
+    testCompile "org.mockito:mockito-core:${versions.test.mockito}"
 
     compile "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin"
 

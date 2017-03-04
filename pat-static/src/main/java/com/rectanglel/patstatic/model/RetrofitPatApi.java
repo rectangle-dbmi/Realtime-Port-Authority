@@ -1,12 +1,14 @@
-package rectangledbmi.com.pittsburghrealtimetracker.model;
+package com.rectanglel.patstatic.model;
 
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.PatternResponse;
-import rectangledbmi.com.pittsburghrealtimetracker.predictions.response.PredictionResponse;
-import rectangledbmi.com.pittsburghrealtimetracker.vehicles.response.VehicleResponse;
+import com.rectanglel.patstatic.patterns.response.PatternResponse;
+import com.rectanglel.patstatic.predictions.response.PredictionResponse;
+import com.rectanglel.patstatic.vehicles.response.VehicleResponse;
+
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 import rx.Observable;
 import rx.Single;
+
 
 /**
  * This is the general api that sets the retrofit api. You must have the class

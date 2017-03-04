@@ -2,7 +2,7 @@ package rectangledbmi.com.pittsburghrealtimetracker.vehicles;
 
 import android.graphics.Bitmap;
 
-import rectangledbmi.com.pittsburghrealtimetracker.vehicles.response.Vehicle;
+import com.rectanglel.patstatic.vehicles.response.Vehicle;
 
 /**
  * This is a container that contains a {@link Vehicle} and a {@link Bitmap}

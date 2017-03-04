@@ -1,4 +1,4 @@
-package rectangledbmi.com.pittsburghrealtimetracker.utils;
+package com.rectanglel.patstatic.utils;
 
 /**
  * Global constants available to everyone
