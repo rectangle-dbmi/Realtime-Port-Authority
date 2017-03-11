@@ -9,6 +9,7 @@ import com.rectanglel.patstatic.predictions.response.BustimePredictionResponse;
 import com.rectanglel.patstatic.predictions.response.Prd;
 import com.rectanglel.patstatic.predictions.response.PredictionResponse;
 import com.rectanglel.patstatic.routes.BusRoute;
+import com.rectanglel.patstatic.routes.RoutesDataManager;
 import com.rectanglel.patstatic.utils.Constants;
 import com.rectanglel.patstatic.vehicles.response.VehicleResponse;
 
@@ -22,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -56,12 +56,15 @@ public class PatApiServiceImpl implements PatApiService {
 
     private final PatternDataManager patternDataManager;
 
+    private final RoutesDataManager routesDataManager;
+
     public PatApiServiceImpl(String baseUrl,
                              String apiKey,
                              File dataDirectory) {
 
         patApiClient = createPatApiClient(baseUrl, apiKey);
         patternDataManager = new PatternDataManager(dataDirectory, patApiClient);
+        routesDataManager = new RoutesDataManager(dataDirectory, patApiClient);
     }
 
     @Override
@@ -72,11 +75,6 @@ public class PatApiServiceImpl implements PatApiService {
 
     @Override
     public Observable<List<Pt>> getStops(String rt) {
-        return null;
-    }
-
-    @Override
-    public Observable<List<BusRoute>> getRoutes() {
         return null;
     }
 
@@ -97,6 +95,11 @@ public class PatApiServiceImpl implements PatApiService {
         return patApiClient.getBusPredictions(vid)
                 .compose(composePrds());
 
+    }
+
+    @Override
+    public Single<List<BusRoute>> getRoutes() {
+        return routesDataManager.getRoutes();
     }
 
     private static Single.Transformer<PredictionResponse, List<Prd>> composePrds() {

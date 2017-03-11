@@ -8,6 +8,7 @@ apply plugin: 'com.github.ben-manes.versions'
 
 android.buildTypes.each { type ->
     type.buildConfigField 'String', 'PAT_API_KEY', keys.truetime.release // variable defined in `../build.gradle`
+    type.buildConfigField 'String', "PAT_API_BASE_URL", "\"${baseUrls.truetime}\""
 }
 
 android {

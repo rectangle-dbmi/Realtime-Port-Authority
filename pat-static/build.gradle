@@ -1,4 +1,3 @@
-apply plugin: 'kotlin'
 apply plugin: 'java'
 apply plugin: 'me.tatarka.retrolambda'
 
@@ -9,9 +8,6 @@ buildscript {
         mavenCentral()
     }
 
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
-    }
     dependencies {
         // use some java 8 syntax in the project
         classpath "me.tatarka:gradle-retrolambda:${versions.retrolambda.plugin}"
@@ -45,3 +41,17 @@ dependencies {
 sourceSets {
     main.java.srcDirs += 'src/main/kotlin'
 }
+
+def assetsCachePath = "${project(':app').projectDir}/src/main/assets/cache"
+
+task cacheRoutes(type: JavaExec) {
+    main = 'com.rectanglel.patstatic.TrueTimeDataCacher'
+    classpath = sourceSets.main.runtimeClasspath
+    args baseUrls.truetime, keys.truetime.debug, assetsCachePath
+}
+
+task cleanCachedRoutes(type: Delete) {
+    delete assetsCachePath
+}
+
+jar.dependsOn cacheRoutes

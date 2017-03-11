@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements
      */
     private void buildPATAPI() {
         patApiService = new PatApiServiceImpl(
-                getString(R.string.api_url),
+                BuildConfig.PAT_API_BASE_URL,
                 BuildConfig.PAT_API_KEY,
                 getDatadirectory());
     }

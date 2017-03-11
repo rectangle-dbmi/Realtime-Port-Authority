@@ -303,8 +303,6 @@
         <item name="Y47">Curry Flyer</item>
         <item name="Y49">Prospect Flyer</item>
     </string-array>
-
-    <string name="api_url">http://truetime.portauthority.org/bustime/api/v2/</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <!-- <string name="action_example">Select Location</string> -->

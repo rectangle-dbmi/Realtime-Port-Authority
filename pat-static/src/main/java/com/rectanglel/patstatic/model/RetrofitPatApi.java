@@ -2,6 +2,7 @@ package com.rectanglel.patstatic.model;
 
 import com.rectanglel.patstatic.patterns.response.PatternResponse;
 import com.rectanglel.patstatic.predictions.response.PredictionResponse;
+import com.rectanglel.patstatic.routes.response.BusRouteResponse;
 import com.rectanglel.patstatic.vehicles.response.VehicleResponse;
 
 import retrofit2.http.GET;
@@ -54,6 +55,13 @@ public interface RetrofitPatApi {
      */
     @GET("getpredictions?format=json&top=10")
     Single<PredictionResponse> getBusPredictions(@Query("vid") int vid);
+
+    /**
+     * Generates a response to get routes from the API
+     * @return the list of routes available from the TrueTime API
+     */
+    @GET("getroutes?format=json")
+    Single<BusRouteResponse> getRoutes();
 
 
 }

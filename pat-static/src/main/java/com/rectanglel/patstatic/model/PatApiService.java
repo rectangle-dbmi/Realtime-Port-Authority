@@ -30,5 +30,5 @@ public interface PatApiService {
     @SuppressWarnings("unused")
     Observable<List<Pt>> getStops(String rt);
 
-    Observable<List<BusRoute>> getRoutes();
+    Single<List<BusRoute>> getRoutes();
 }
