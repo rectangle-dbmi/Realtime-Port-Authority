@@ -2,7 +2,7 @@
 *.iml
 /.idea/*
 !/.idea/libraries/shapefilereader_1_0.xml
-assets/cache
+*assets/cache
 .DS_Store
 /app/.DS_Store
 apks/
