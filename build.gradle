@@ -14,9 +14,6 @@ buildscript {
 
 allprojects {
     repositories {
-        maven {
-            url "http://download.osgeo.org/webdav/geotools/"
-        }
         jcenter()
     }
 }
@@ -102,7 +99,6 @@ ext {
 
             apache: [
                     commons: '2.5'
-            ],
-            geotools: '16.1'
+            ]
     ]
 }
