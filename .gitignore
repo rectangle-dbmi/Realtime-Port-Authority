@@ -1,7 +1,6 @@
 .gradle
 *.iml
 /.idea/*
-!/.idea/libraries/shapefilereader_1_0.xml
 *assets/cache
 .DS_Store
 /app/.DS_Store
@@ -9,8 +8,7 @@ apks/
 /app/apks
 /app/src/debug/res/values/google_maps_api.xml
 /app/src/release/res/values/google_maps_api.xml
-/app/build/
-/build/
+build/
 /local.properties
 /captures
 /secrets.properties

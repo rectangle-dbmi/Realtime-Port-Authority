@@ -80,8 +80,8 @@ ext {
             gradleVersions: '0.12.0',
 
             retrolambda: [
-                    config: '2.3.0',
-                    plugin: '3.3.1'
+                    config: '2.5.1',
+                    plugin: '3.5.0'
             ],
             rx: [
                     java: '1.2.1',
