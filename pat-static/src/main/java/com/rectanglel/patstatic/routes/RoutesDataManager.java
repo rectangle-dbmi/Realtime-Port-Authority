@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.rectanglel.patstatic.model.RetrofitPatApi;
+import com.rectanglel.patstatic.model.SourceOfTruth;
 import com.rectanglel.patstatic.routes.response.BusRouteResponse;
 
 import java.io.File;
@@ -39,14 +40,16 @@ public class RoutesDataManager {
 
     private final File routesDirectory;
     private final RetrofitPatApi patApiClient;
+    private final SourceOfTruth sourceOfTruth;
+
     private final ReentrantReadWriteLock rwl;
 
-    public RoutesDataManager(File dataDirectory, RetrofitPatApi patApiClient) {
+    public RoutesDataManager(File dataDirectory, RetrofitPatApi patApiClient, SourceOfTruth sourceOfTruth) {
         this.routesDirectory = new File(dataDirectory, routesLocation);
         //noinspection ResultOfMethodCallIgnored
         routesDirectory.mkdirs();
         this.patApiClient = patApiClient;
-
+        this.sourceOfTruth = sourceOfTruth;
         rwl = new ReentrantReadWriteLock();
     }
 
@@ -56,7 +59,7 @@ public class RoutesDataManager {
 
     public Single<List<BusRoute>> getRoutes() {
         File routesFile = getRoutesFile();
-        if (routesFile.exists() && routesFile.canWrite()) {
+        if (routesFile.exists()) {
             return getRoutesFromDisk();
         } else {
             return getRoutesFromInternet();

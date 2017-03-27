@@ -24,7 +24,7 @@ public class TrueTimeDataCacher {
 
     public TrueTimeDataCacher(String baseUrl, String apiKey, File cacheDirectory) {
         this.cacheDirectory = cacheDirectory;
-        patApiService = new PatApiServiceImpl(baseUrl, apiKey, this.cacheDirectory);
+        patApiService = new PatApiServiceImpl(baseUrl, apiKey, this.cacheDirectory, null);
     }
 
     /**

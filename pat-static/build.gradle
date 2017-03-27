@@ -23,7 +23,6 @@ dependencies {
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     }
 
-    compile files('libs/shapefilereader-1.0.jar')
     compile "io.reactivex:rxjava:${versions.rx.java}"
 
     compile "com.squareup.retrofit2:retrofit:${versions.square.retrofit}"
@@ -33,20 +32,21 @@ dependencies {
 
     testCompile "junit:junit:${versions.test.junit}"
     testCompile "org.mockito:mockito-core:${versions.test.mockito}"
-
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin"
-
 }
 
 sourceSets {
     main.java.srcDirs += 'src/main/kotlin'
 }
 
+retrolambda {
+    javaVersion JavaVersion.VERSION_1_7 // NOTE: must set JAVA7_HOME variable following this!
+}
+
 def assetsCachePath = "${project(':app').projectDir}/src/main/assets/cache"
 
 task cacheRoutes(type: JavaExec) {
     main = 'com.rectanglel.patstatic.TrueTimeDataCacher'
-    classpath = sourceSets.main.runtimeClasspath
+    classpath = sourceSets.test.runtimeClasspath
     args baseUrls.truetime, keys.truetime.debug, assetsCachePath
 }
 
