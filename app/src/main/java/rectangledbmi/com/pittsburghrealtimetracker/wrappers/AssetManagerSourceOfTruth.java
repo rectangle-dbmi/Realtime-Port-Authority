@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 public class AssetManagerSourceOfTruth implements SourceOfTruth {
 
     private AssetManager assetManager;
+    private static final String cachePath = "cache/%s";
 
     public AssetManagerSourceOfTruth(AssetManager assetManager) {
         this.assetManager = assetManager;
@@ -25,6 +26,7 @@ public class AssetManagerSourceOfTruth implements SourceOfTruth {
 
     @Override
     public InputStreamReader getInputStreamForFileName(String filename) throws IOException {
-        return new InputStreamReader(assetManager.open(filename));
+        String realFileName = String.format(cachePath, filename);
+        return new InputStreamReader(assetManager.open(realFileName));
     }
 }
