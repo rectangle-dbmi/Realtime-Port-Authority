@@ -81,7 +81,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.ClearSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.SelectionFragment;
 import rectangledbmi.com.pittsburghrealtimetracker.vehicles.VehicleBitmap;
 
-import retrofit2.adapter.rxjava.HttpException;
+import retrofit2.HttpException;
 import rx.Observable;
 import rx.Observer;
 import rx.Single;
