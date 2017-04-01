@@ -77,6 +77,6 @@ public class PatternDataManager extends AbstractDataManager<List<Ptr>> {
                     } catch (IOException e) {
                         throw Exceptions.propagate(e);
                     }
-                });
+                }).onErrorResumeNext(throwable -> getPatternsFromDisk(rt));
     }
 }
