@@ -223,7 +223,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     @Override
     public void onResume() {
         super.onResume();
-        ServerDownDialogFragment.newInstance().show(getFragmentManager(), getString(R.string.servers_down_title));
+//        ServerDownDialogFragment.newInstance().show(getFragmentManager(), getString(R.string.servers_down_title));
         Timber.d("resuming map fragment");
         if (mapView != null) {
             mapView.onResume();

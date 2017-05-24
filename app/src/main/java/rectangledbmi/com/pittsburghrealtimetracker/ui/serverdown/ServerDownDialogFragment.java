@@ -18,6 +18,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.R;
 
 public class ServerDownDialogFragment extends AppCompatDialogFragment {
 
+    @SuppressWarnings("unused")
     public static ServerDownDialogFragment newInstance() {
         return new ServerDownDialogFragment();
     }
