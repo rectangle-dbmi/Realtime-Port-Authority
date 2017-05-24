@@ -1,9 +1,10 @@
 package rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either;
 
+
 import java.util.HashMap;
 import java.util.Map;
 
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.selection.StopRenderState;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopRenderState;
 
 /**
  * <p>DTO for the full selection state for stops.</p>

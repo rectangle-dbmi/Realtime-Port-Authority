@@ -2,13 +2,13 @@ package rectangledbmi.com.pittsburghrealtimetracker.mock;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.rectanglel.patstatic.model.PatApiService;
+import com.rectanglel.patstatic.model.RetrofitPatApi;
+import com.rectanglel.patstatic.patterns.response.PatternResponse;
+import com.rectanglel.patstatic.patterns.response.Ptr;
 
 import java.util.List;
 
-import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
-import rectangledbmi.com.pittsburghrealtimetracker.model.RetrofitPatApi;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.PatternResponse;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Ptr;
 import rx.Observable;
 
 import static org.mockito.Mockito.mock;

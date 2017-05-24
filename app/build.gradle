@@ -8,6 +8,7 @@ apply plugin: 'com.github.ben-manes.versions'
 
 android.buildTypes.each { type ->
     type.buildConfigField 'String', 'PAT_API_KEY', keys.truetime.release // variable defined in `../build.gradle`
+    type.buildConfigField 'String', "PAT_API_BASE_URL", "\"${baseUrls.truetime}\""
 }
 
 android {
@@ -48,6 +49,8 @@ repositories {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile project(path: ':pat-static')
+
     repositories {
         mavenCentral()
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
@@ -70,13 +73,6 @@ dependencies {
     compile "io.reactivex:rxandroid:${versions.rx.java}"
     compile "io.reactivex:rxjava:${versions.rx.java}"
     compile "com.github.pwittchen:reactivenetwork:${versions.rx.network}"
-
-    compile "com.squareup.retrofit2:retrofit:${versions.square.retrofit}"
-    compile "com.squareup.retrofit2:converter-gson:${versions.square.retrofit}"
-    compile "com.squareup.retrofit2:adapter-rxjava:${versions.square.retrofit}"
-    compile "org.glassfish:javax.annotation:${versions.java.annotation}"
-    compile "com.squareup.okhttp3:okhttp:${versions.square.okHttp}"
-
     compile "com.jakewharton.timber:timber:${versions.square.timber}"
 
     debugCompile "com.squareup.leakcanary:leakcanary-android:${versions.square.leakCanary}"

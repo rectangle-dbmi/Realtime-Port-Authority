@@ -5,9 +5,11 @@ import com.google.android.gms.maps.model.Marker;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
-import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Pt;
-import rectangledbmi.com.pittsburghrealtimetracker.vehicles.response.Vehicle;
+import com.rectanglel.patstatic.model.PatApiService;
+import com.rectanglel.patstatic.patterns.response.Pt;
+import com.rectanglel.patstatic.predictions.PredictionsType;
+import com.rectanglel.patstatic.vehicles.response.Vehicle;
+
 import rx.Single;
 import timber.log.Timber;
 

@@ -13,22 +13,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Pt;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.response.Ptr;
+import com.rectanglel.patstatic.model.PatApiService;
+import com.rectanglel.patstatic.patterns.polylines.PolylineView;
+import com.rectanglel.patstatic.patterns.response.Pt;
+import com.rectanglel.patstatic.patterns.response.Ptr;
+import com.rectanglel.patstatic.patterns.stops.StopView;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either.EitherStopState;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either.MapState;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRenderRequest;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.selection.StopRenderState;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRequestAccumulator;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.selection.StopSelection;
+
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either.MapState;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either.FullStopSelectionState;
+
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopRenderState;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.Route;
 import rx.Observable;
 import timber.log.Timber;
 
 /**
- * <p>Contains the logic of the {@link rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PolylineView} for pre-processing the patternSelections.</p>
+ * <p>Contains the logic of the {@link PolylineView} for pre-processing the patternSelections.</p>
  * <p>Created by epicstar on 7/18/16.</p>
  *
  * @author Jeremy Jao
@@ -76,7 +80,7 @@ public class PatternViewModel {
     }
 
     /**
-     * <p>Gets an observable so the {@link rectangledbmi.com.pittsburghrealtimetracker.patterns.polylines.PolylineView} can listen to actions to create, show,
+     * <p>Gets an observable so the {@link PolylineView} can listen to actions to create, show,
      * or make a {@link com.google.android.gms.maps.model.Polyline} disappear.</p>
      * <p>{@link PatternSelection#getPatterns()} will be `null` if {@link PatternSelection#isSelected()}
      * is `false`. Otherwise, it will be not be `null` unless the polyline data was unable to </p>
@@ -104,7 +108,7 @@ public class PatternViewModel {
     }
 
     /**
-     * <p>Gets an observable so the {@link rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopView} only needs
+     * <p>Gets an observable so the {@link StopView} only needs
      *    to implement an {@link rx.Observer} can listen to changes to the state of visible stops.</p>
      * <p>Internally, this will store state changes to map camera and selection changes such that
      *    the only items being emitted will be whether or not a stop will show or not.</p>

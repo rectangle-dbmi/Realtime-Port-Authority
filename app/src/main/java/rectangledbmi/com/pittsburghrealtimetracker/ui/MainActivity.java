@@ -20,19 +20,21 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.rectanglel.patstatic.model.PatApiService;
+import com.rectanglel.patstatic.model.PatApiServiceImpl;
+
 import java.io.File;
 import java.util.Calendar;
 import java.util.Set;
 
 import rectangledbmi.com.pittsburghrealtimetracker.BuildConfig;
 import rectangledbmi.com.pittsburghrealtimetracker.R;
-import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiService;
-import rectangledbmi.com.pittsburghrealtimetracker.model.PatApiServiceImpl;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.NotificationMessage;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.ui.about.AboutActivity;
 import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.NavigationDrawerFragment;
 import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.SelectionFragment;
+import rectangledbmi.com.pittsburghrealtimetracker.wrappers.AssetManagerStaticData;
 import rx.Observable;
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
@@ -82,6 +84,8 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
 
         restoreActionBar();
+
+
         buildPATAPI();
         setContentView(R.layout.activity_select_transit);
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -123,9 +127,11 @@ public class MainActivity extends AppCompatActivity implements
      */
     private void buildPATAPI() {
         patApiService = new PatApiServiceImpl(
-                getString(R.string.api_url),
+                BuildConfig.PAT_API_BASE_URL,
                 BuildConfig.PAT_API_KEY,
-                getDatadirectory());
+                getDatadirectory(),
+                new AssetManagerStaticData(getAssets())
+        );
     }
 
     public PatApiService getPatApiService() {
