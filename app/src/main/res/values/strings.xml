@@ -368,7 +368,7 @@
     <string name="clear_cache">Clear Route Cache</string>
     <string name="detour_url">http://www.portauthority.org/paac/SchedulesMaps/Detours.aspx</string>
     <string name="servers_down_title">No buses?</string>
-    <string name="servers_down_description">Wondering why no buses have been on the map for the past 4 weeks?\n\nThis is because Port Authority\'s realtime data servers have been down.\n\nWhile this issue is out of our control, we\'ll give you an update ASAP.</string>
+    <string name="servers_down_description">Wondering why there may be no buses on the map right now?\n\nThat is because Port Authority\'s servers may be down.\n\nWhile this issue is out of our control, we\'ll give you a status update ASAP.</string>
     <string name="servers_down_tell_me_more_button">What? Tell me more!</string>
     <string name="servers_down_dismiss">OK</string>
 </resources>
