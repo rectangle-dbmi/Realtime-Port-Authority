@@ -6,7 +6,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.rectanglel.patstatic.model.RetrofitPatApi;
-import com.rectanglel.patstatic.model.SourceOfTruth;
+import com.rectanglel.patstatic.model.StaticData;
 import com.rectanglel.patstatic.routes.response.BusRouteResponse;
 
 import java.io.File;
@@ -40,16 +40,16 @@ public class RoutesDataManager {
 
     private final File routesDirectory;
     private final RetrofitPatApi patApiClient;
-    private final SourceOfTruth sourceOfTruth;
+    private final StaticData staticData;
 
     private final ReentrantReadWriteLock rwl;
 
-    public RoutesDataManager(File dataDirectory, RetrofitPatApi patApiClient, SourceOfTruth sourceOfTruth) {
+    public RoutesDataManager(File dataDirectory, RetrofitPatApi patApiClient, StaticData staticData) {
         this.routesDirectory = new File(dataDirectory, routesLocation);
         //noinspection ResultOfMethodCallIgnored
         routesDirectory.mkdirs();
         this.patApiClient = patApiClient;
-        this.sourceOfTruth = sourceOfTruth;
+        this.staticData = staticData;
         rwl = new ReentrantReadWriteLock();
     }
 

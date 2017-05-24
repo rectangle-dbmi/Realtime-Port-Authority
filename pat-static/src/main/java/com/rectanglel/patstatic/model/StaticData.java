@@ -10,8 +10,7 @@ import java.io.InputStreamReader;
  * Created by epicstar on 3/11/17.
  * @author Jeremy Jao
  */
-// TODO: name subject to change!
-public interface SourceOfTruth {
+public interface StaticData {
     /**
      * Gets an input stream for a certain filename
      * @param filename the name of the file

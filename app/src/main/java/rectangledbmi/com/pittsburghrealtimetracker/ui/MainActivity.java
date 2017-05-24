@@ -34,7 +34,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.selection.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.ui.about.AboutActivity;
 import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.NavigationDrawerFragment;
 import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.SelectionFragment;
-import rectangledbmi.com.pittsburghrealtimetracker.wrappers.AssetManagerSourceOfTruth;
+import rectangledbmi.com.pittsburghrealtimetracker.wrappers.AssetManagerStaticData;
 import rx.Observable;
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements
                 BuildConfig.PAT_API_BASE_URL,
                 BuildConfig.PAT_API_KEY,
                 getDatadirectory(),
-                new AssetManagerSourceOfTruth(getAssets())
+                new AssetManagerStaticData(getAssets())
         );
     }
 

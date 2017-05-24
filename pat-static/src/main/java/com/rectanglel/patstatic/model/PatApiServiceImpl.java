@@ -61,11 +61,11 @@ public class PatApiServiceImpl implements PatApiService {
     public PatApiServiceImpl(String baseUrl,
                              String apiKey,
                              File dataDirectory,
-                             SourceOfTruth sourceOfTruth) {
+                             StaticData staticData) {
 
         patApiClient = createPatApiClient(baseUrl, apiKey);
-        patternDataManager = new PatternDataManager(dataDirectory, patApiClient, sourceOfTruth);
-        routesDataManager = new RoutesDataManager(dataDirectory, patApiClient, sourceOfTruth);
+        patternDataManager = new PatternDataManager(dataDirectory, patApiClient, staticData);
+        routesDataManager = new RoutesDataManager(dataDirectory, patApiClient, staticData);
     }
 
     @Override

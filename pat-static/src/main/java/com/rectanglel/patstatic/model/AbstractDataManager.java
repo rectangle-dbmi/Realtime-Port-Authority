@@ -24,15 +24,15 @@ public abstract class AbstractDataManager<T> {
 
     private final ReentrantReadWriteLock rwl;
     private final File dataDirectory;
-    private final SourceOfTruth sourceOfTruth;
+    private final StaticData staticData;
     private Type serializedType;
 
-    public AbstractDataManager(File dataDirectory, SourceOfTruth sourceOfTruth, Type serializationType) {
+    public AbstractDataManager(File dataDirectory, StaticData staticData, Type serializationType) {
         rwl = new ReentrantReadWriteLock();
         this.dataDirectory = new File(dataDirectory, getCacheFolderName());
         //noinspection ResultOfMethodCallIgnored
         this.dataDirectory.mkdirs();
-        this.sourceOfTruth = sourceOfTruth;
+        this.staticData = staticData;
         this.serializedType = serializationType;
 
     }
@@ -97,7 +97,7 @@ public abstract class AbstractDataManager<T> {
         }
         // if file doesn't exist, save bundled file from installation to disk
         String fileName = String.format("%s/%s", getCacheFolderName(), file.getName());
-        copyStreamToFile(sourceOfTruth.getInputStreamForFileName(fileName), file);
+        copyStreamToFile(staticData.getInputStreamForFileName(fileName), file);
         return getFromDisk(file);
     }
 

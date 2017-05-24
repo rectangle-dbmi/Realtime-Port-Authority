@@ -3,7 +3,7 @@ package com.rectanglel.patstatic.patterns;
 import com.google.gson.reflect.TypeToken;
 import com.rectanglel.patstatic.model.AbstractDataManager;
 import com.rectanglel.patstatic.model.RetrofitPatApi;
-import com.rectanglel.patstatic.model.SourceOfTruth;
+import com.rectanglel.patstatic.model.StaticData;
 import com.rectanglel.patstatic.patterns.response.PatternResponse;
 import com.rectanglel.patstatic.patterns.response.Ptr;
 
@@ -30,8 +30,8 @@ public class PatternDataManager extends AbstractDataManager<List<Ptr>> {
 
     private RetrofitPatApi patApiClient;
 
-    public PatternDataManager(File dataDirectory, RetrofitPatApi patApiClient, SourceOfTruth sourceOfTruth) {
-        super(dataDirectory, sourceOfTruth, new TypeToken<List<Ptr>>() {}.getType());
+    public PatternDataManager(File dataDirectory, RetrofitPatApi patApiClient, StaticData staticData) {
+        super(dataDirectory, staticData, new TypeToken<List<Ptr>>() {}.getType());
         this.patApiClient = patApiClient;
     }
 

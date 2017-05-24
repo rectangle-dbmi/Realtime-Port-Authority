@@ -2,7 +2,7 @@ package rectangledbmi.com.pittsburghrealtimetracker.wrappers;
 
 import android.content.res.AssetManager;
 
-import com.rectanglel.patstatic.model.SourceOfTruth;
+import com.rectanglel.patstatic.model.StaticData;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,12 +15,12 @@ import java.io.InputStreamReader;
  * @since 80
  */
 
-public class AssetManagerSourceOfTruth implements SourceOfTruth {
+public class AssetManagerStaticData implements StaticData {
 
     private AssetManager assetManager;
     private static final String cachePath = "cache/%s";
 
-    public AssetManagerSourceOfTruth(AssetManager assetManager) {
+    public AssetManagerStaticData(AssetManager assetManager) {
         this.assetManager = assetManager;
     }
 

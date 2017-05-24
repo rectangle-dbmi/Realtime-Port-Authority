@@ -3,7 +3,7 @@ package com.rectanglel.patstatic.patterns;
 import com.rectanglel.patstatic.TestHelperMethods;
 import com.rectanglel.patstatic.mock.PatApiMock;
 import com.rectanglel.patstatic.model.RetrofitPatApi;
-import com.rectanglel.patstatic.model.SourceOfTruth;
+import com.rectanglel.patstatic.model.StaticData;
 import com.rectanglel.patstatic.patterns.response.Ptr;
 
 import org.junit.After;
@@ -31,7 +31,7 @@ public class PatternDataManagerTest {
     private File dir;
     private PatternDataManager patternDataManager;
     private RetrofitPatApi patapi;
-    private SourceOfTruth sourceOfTruth;
+    private StaticData staticData;
 
     @Before
     public void setUp() {
@@ -39,11 +39,11 @@ public class PatternDataManagerTest {
         //noinspection ResultOfMethodCallIgnored
         dir.mkdirs();
         patapi = PatApiMock.getPatApiMock();
-        sourceOfTruth = Mockito.mock(SourceOfTruth.class);
+        staticData = Mockito.mock(StaticData.class);
         patternDataManager = Mockito.spy(new PatternDataManager(
                 dir,
                 patapi,
-                sourceOfTruth)
+                staticData)
         );
     }
 
@@ -82,12 +82,12 @@ public class PatternDataManagerTest {
         TestSubscriber<List<Ptr>> ts2 = new TestSubscriber<>();
         String filename = String.format(Locale.US, "lineinfo/%s.json", PatApiMock.testRoute1);
         File file = new File("testFiles", filename);
-        Mockito.when(sourceOfTruth.getInputStreamForFileName(filename))
+        Mockito.when(staticData.getInputStreamForFileName(filename))
                 .thenReturn(new InputStreamReader(new FileInputStream(file)));
 
         patternDataManager.getPatternsFromDisk(PatApiMock.testRoute1).subscribe(ts1);
         patternDataManager.getPatternsFromDisk(PatApiMock.testRoute1).subscribe(ts2);
-        Mockito.verify(sourceOfTruth, Mockito.times(1)).getInputStreamForFileName(filename);
+        Mockito.verify(staticData, Mockito.times(1)).getInputStreamForFileName(filename);
         assertEquals(1, ts1.getOnNextEvents().size());
         assertEquals(ts1.getOnNextEvents().size(), ts2.getOnNextEvents().size());
         assertEquals(ts1.getOnNextEvents().get(0), ts2.getOnNextEvents().get(0));
@@ -98,7 +98,7 @@ public class PatternDataManagerTest {
         TestSubscriber<List<Ptr>> ts1 = new TestSubscriber<>();
         String filename = String.format(Locale.US, "lineinfo/%s.json", "71C");
         IOException ex = new IOException("error");
-        Mockito.when(sourceOfTruth.getInputStreamForFileName(filename))
+        Mockito.when(staticData.getInputStreamForFileName(filename))
                 .thenThrow(ex);
 
         patternDataManager.getPatternsFromDisk("71C").subscribe(ts1);
