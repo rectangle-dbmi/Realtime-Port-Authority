@@ -19,8 +19,8 @@ android {
         applicationId "rectangledbmi.com.pittsburghrealtimetracker"
         minSdkVersion versions.android.minSdk
         targetSdkVersion versions.android.targetSdk
-        versionCode 81
-        versionName "8.0.0b3"
+        versionCode 160080001
+        versionName "8.0.1-beta"
     }
     lintOptions {
         warning 'InvalidPackage'

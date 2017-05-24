@@ -30,7 +30,7 @@
         appcompat:showAsAction="never" />
     <item android:id="@+id/no_buses"
         android:title="@string/servers_down_title"
-        android:orderInCategory="500"
+        android:orderInCategory="700"
         appcompat:showAsAction="never"
         android:onClick="onClickNoBuses"/>
 
