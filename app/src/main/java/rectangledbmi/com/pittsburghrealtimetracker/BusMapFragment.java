@@ -1,6 +1,7 @@
 package rectangledbmi.com.pittsburghrealtimetracker;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -65,6 +66,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.PATAPI;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.errors.ErrorMessage;
 import rectangledbmi.com.pittsburghrealtimetracker.retrofit.patapi.containers.vehicles.VehicleBitmap;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
+import rectangledbmi.com.pittsburghrealtimetracker.ui.serverdown.ServerDownDialogFragment;
 import rectangledbmi.com.pittsburghrealtimetracker.world.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.world.TransitStopCollection;
 import rectangledbmi.com.pittsburghrealtimetracker.world.jsonpojo.BustimeVehicleResponse;
@@ -221,6 +223,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     @Override
     public void onResume() {
         super.onResume();
+        ServerDownDialogFragment.newInstance().show(getFragmentManager(), getString(R.string.servers_down_title));
         Timber.d("resuming map fragment");
         if (mapView != null) {
             mapView.onResume();
