@@ -23,5 +23,10 @@
         android:title="@string/action_about"
         android:orderInCategory="400"
         appcompat:showAsAction="never" />
+    <item android:id="@+id/no_buses"
+        android:title="@string/servers_down_title"
+        android:orderInCategory="500"
+        appcompat:showAsAction="never"
+        android:onClick="onClickNoBuses"/>
 
 </menu>

@@ -460,4 +460,14 @@ public class SelectTransit extends AppCompatActivity implements
     public void onClickAppDetails(MenuItem item) {
         openPermissionsPage();
     }
+
+    private void openNoBusesWebpage() {
+        Uri url = Uri.parse("https://github.com/rectangle-dbmi/Realtime-Port-Authority/wiki/Port-Authority-Server-Downtimes");
+        Intent internetBrowser = new Intent(Intent.ACTION_VIEW, url);
+        startActivity(internetBrowser);
+    }
+
+    public void onClickNoBuses(MenuItem item) {
+        openNoBusesWebpage();
+    }
 }
