@@ -79,6 +79,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.predictions.ProcessedPredicti
 import rectangledbmi.com.pittsburghrealtimetracker.selection.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.ClearSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.SelectionFragment;
+import rectangledbmi.com.pittsburghrealtimetracker.ui.serverdown.ServerDownDialogFragment;
 import rectangledbmi.com.pittsburghrealtimetracker.vehicles.VehicleBitmap;
 
 import retrofit2.HttpException;
@@ -287,6 +288,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     @Override
     public void onResume() {
         super.onResume();
+        ServerDownDialogFragment.newInstance().show(getFragmentManager(), getString(R.string.servers_down_title));
         Timber.d("resuming map fragment");
         if (mapView != null) {
             mapView.onResume();
