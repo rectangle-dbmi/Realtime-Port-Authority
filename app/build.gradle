@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'com.github.ben-manes.versions'
 
@@ -19,7 +20,7 @@ android {
         applicationId "rectangledbmi.com.pittsburghrealtimetracker"
         minSdkVersion versions.android.minSdk
         targetSdkVersion versions.android.targetSdk
-        versionCode 160080001
+        versionCode 160080002
         versionName "8.0.1-beta"
     }
     lintOptions {
@@ -39,6 +40,9 @@ android {
     compileOptions {
         sourceCompatibility versions.java.target
         targetCompatibility versions.java.target
+    }
+    sourceSets {
+        main.java.srcDirs += "src/main/kotlin"
     }
 
 }
@@ -83,6 +87,7 @@ dependencies {
 
     testCompile "junit:junit:${versions.test.junit}"
     testCompile "org.mockito:mockito-core:${versions.test.mockito}"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 }
 
 buildscript {
