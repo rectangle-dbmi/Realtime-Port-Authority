@@ -37,6 +37,7 @@ public class StopRenderState {
 
         StopRenderState that = (StopRenderState) o;
 
+        //noinspection SimplifiableIfStatement
         if (routeCount != that.routeCount) return false;
         return stopPt != null ? stopPt.equals(that.stopPt) : that.stopPt == null;
 
