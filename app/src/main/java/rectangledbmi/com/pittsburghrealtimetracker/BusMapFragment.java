@@ -191,8 +191,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
         googleApiClient = new GoogleApiClient.Builder(getContext())
                 .addApi(LocationServices.API)
-                .addApi(Places.GEO_DATA_API)
-                .addApi(Places.PLACE_DETECTION_API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
