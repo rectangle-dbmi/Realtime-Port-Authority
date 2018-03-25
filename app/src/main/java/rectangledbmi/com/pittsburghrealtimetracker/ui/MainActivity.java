@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.rectanglel.patstatic.model.PatApiService;
 import com.rectanglel.patstatic.model.PatApiServiceImpl;
+import com.rectanglel.pattrack.wrappers.AndroidWifiChecker;
 
 import java.io.File;
 import java.util.Calendar;
@@ -130,7 +131,8 @@ public class MainActivity extends AppCompatActivity implements
                 BuildConfig.PAT_API_BASE_URL,
                 BuildConfig.PAT_API_KEY,
                 getDatadirectory(),
-                new AssetManagerStaticData(getAssets())
+                new AssetManagerStaticData(getAssets()),
+                new AndroidWifiChecker(getApplicationContext())
         );
     }
 
