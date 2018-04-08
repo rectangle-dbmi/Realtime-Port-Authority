@@ -14,7 +14,6 @@ android.buildTypes.each { type ->
 android {
 
     compileSdkVersion versions.android.targetSdk
-    buildToolsVersion versions.android.buildTools
     defaultConfig {
         applicationId "rectangledbmi.com.pittsburghrealtimetracker"
         minSdkVersion versions.android.minSdk
@@ -44,6 +43,7 @@ android {
     sourceSets {
         main.java.srcDirs += "src/main/kotlin"
     }
+    buildToolsVersion '27.0.3'
 }
 
 repositories {
