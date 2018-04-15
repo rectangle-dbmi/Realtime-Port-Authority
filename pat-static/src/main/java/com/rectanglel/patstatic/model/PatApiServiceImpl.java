@@ -12,6 +12,7 @@ import com.rectanglel.patstatic.routes.BusRoute;
 import com.rectanglel.patstatic.routes.RoutesDataManager;
 import com.rectanglel.patstatic.utils.Constants;
 import com.rectanglel.patstatic.vehicles.response.VehicleResponse;
+import com.rectanglel.patstatic.wrappers.WifiChecker;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -61,10 +62,11 @@ public class PatApiServiceImpl implements PatApiService {
     public PatApiServiceImpl(String baseUrl,
                              String apiKey,
                              File dataDirectory,
-                             StaticData staticData) {
+                             StaticData staticData,
+                             WifiChecker wifiChecker) {
 
         patApiClient = createPatApiClient(baseUrl, apiKey);
-        patternDataManager = new PatternDataManager(dataDirectory, patApiClient, staticData);
+        patternDataManager = new PatternDataManager(dataDirectory, patApiClient, staticData, wifiChecker);
         routesDataManager = new RoutesDataManager(dataDirectory, patApiClient, staticData);
     }
 

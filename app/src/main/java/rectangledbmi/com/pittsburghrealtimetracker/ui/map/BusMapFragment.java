@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.TypedValue;
@@ -30,7 +31,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -43,10 +43,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.rectanglel.patstatic.errors.ErrorMessage;
+import com.rectanglel.patstatic.model.PatApiService;
 import com.rectanglel.patstatic.patterns.polylines.PolylineView;
 import com.rectanglel.patstatic.patterns.response.Pt;
 import com.rectanglel.patstatic.patterns.stops.StopView;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRenderRequest;
 import com.rectanglel.patstatic.predictions.PredictionsView;
 import com.rectanglel.patstatic.vehicles.response.BustimeVehicleResponse;
 import com.rectanglel.patstatic.vehicles.response.Vehicle;
@@ -62,6 +62,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -70,18 +71,15 @@ import java.util.concurrent.TimeUnit;
 import rectangledbmi.com.pittsburghrealtimetracker.BuildConfig;
 import rectangledbmi.com.pittsburghrealtimetracker.PATTrackApplication;
 import rectangledbmi.com.pittsburghrealtimetracker.R;
-import com.rectanglel.patstatic.model.PatApiService;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternViewModel;
-
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRenderRequest;
 import rectangledbmi.com.pittsburghrealtimetracker.predictions.PredictionsViewModel;
 import rectangledbmi.com.pittsburghrealtimetracker.predictions.ProcessedPredictions;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.Route;
 import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.ClearSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.SelectionFragment;
-import rectangledbmi.com.pittsburghrealtimetracker.ui.serverdown.ServerDownDialogFragment;
 import rectangledbmi.com.pittsburghrealtimetracker.vehicles.VehicleBitmap;
-
 import retrofit2.HttpException;
 import rx.Observable;
 import rx.Observer;
@@ -102,13 +100,14 @@ import static rectangledbmi.com.pittsburghrealtimetracker.utils.ReactiveHelper.r
 
 
 /**
- * <p>Fragment that holds a map for the buses. This currrently holds all logic related to displaying
+ * <p>Fragment that holds a map for the buses. This currently holds all logic related to displaying
  * the buses, getStopRenderRequests, and patternSelections on a {@link GoogleMap} instance</p>
  *
  * @author Jeremy Jao
  * @author Michael Antonacci
  */
-@SuppressWarnings("Convert2streamapi") // remove this suppressed warning when we can start using the stream APIs
+@SuppressWarnings("Convert2streamapi")
+// remove this suppressed warning when we can start using the stream APIs
 public class BusMapFragment extends SelectionFragment implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         OnMapReadyCallback, LocationListener, ClearSelection,
@@ -439,8 +438,11 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                                 getString(R.string.center_permissions_action),
                                 (view) -> busListInteraction.openPermissionsPage());
                         if (mMap != null && mMap.isMyLocationEnabled()) {
-                            //noinspection MissingPermission
-                            mMap.setMyLocationEnabled(false);
+                            // ensure that the the map location is disabled. Android Lint says this is an error so I have to do this extra check to remove the lint check
+                            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                                mMap.setMyLocationEnabled(false);
+                            }
+
                         }
                     }
                 }
@@ -535,18 +537,6 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                     .subscribe(predictionsObserver());
             return true;
         });
-    }
-
-    /**
-     * sets a visible or invisible patternSelections for a route
-     *
-     * @param polylines  list of patternSelections
-     * @param visibility whether or not the patternSelections are visible or not
-     */
-    private void setVisiblePolylines(List<Polyline> polylines, boolean visibility) {
-        for (Polyline polyline : polylines) {
-            polyline.setVisible(visibility);
-        }
     }
 
     /**
@@ -976,7 +966,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 marker.setTitle(vehicle.getRt() + "(" + vehicle.getVid() + ") " + vehicle.getDes() + (vehicle.isDly() ? " - Delayed" : ""));
                 marker.setPosition(new LatLng(vehicle.getLat(), vehicle.getLon()));
                 marker.setRotation(vehicle.getHdg());
-                if (!((Vehicle) marker.getTag()).getRt().equals(vehicle.getRt())) {
+                if (!((Vehicle) Objects.requireNonNull(marker.getTag())).getRt().equals(vehicle.getRt())) {
                     Timber.d("changing vehicle %d icon from %s to %s", vehicle.getVid(), ((Vehicle) marker.getTag()).getRt(), vehicle.getRt());
                     marker.setIcon(BitmapDescriptorFactory.fromBitmap(vehicleBitmap.getBitmap()));
                 }
@@ -1058,6 +1048,18 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         removeBuses();
     }
 
+    /**
+     * sets a visible or invisible patternSelections for a route
+     *
+     * @param polylines  list of patternSelections
+     * @param visibility whether or not the patternSelections are visible or not
+     */
+    private void setVisiblePolylines(List<Polyline> polylines, boolean visibility) {
+        for (Polyline polyline : polylines) {
+            polyline.setVisible(visibility);
+        }
+    }
+
     @Override
     public Observer<PatternSelection> polylineObserver() {
         return new Observer<PatternSelection>() {
@@ -1078,10 +1080,17 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                     return;
                 }
                 List<Polyline> routeLine = routeLines.get(patternSelection.getRouteNumber());
-                if (routeLine != null) {
-                    setVisiblePolylines(routeLine, patternSelection.isSelected());
-                } else if (patternSelection.isSelected()) {
-                    createRouteLine(patternSelection);
+                if (patternSelection.isSelected()) {
+                    if (routeLine != null) {
+                        setVisiblePolylines(routeLine, patternSelection.isSelected());
+                    } else {
+                        createRouteLine(patternSelection);
+                    }
+                } else { // is not selected... so remove the polyline
+                    for (Polyline lineInRoute : routeLine) {
+                        lineInRoute.remove();
+                    }
+                    routeLines.remove(patternSelection.getRouteNumber());
                 }
             }
 
@@ -1165,7 +1174,8 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                         stopMarker.setVisible(true);
                     }
                 } else if (stopMarker != null) {
-                    stopMarker.setVisible(false);
+                    stopMarker.remove();
+                    stops.remove(stopInfo.getStpid());
                 }
             }
         };

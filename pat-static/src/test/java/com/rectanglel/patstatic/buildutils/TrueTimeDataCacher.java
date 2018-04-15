@@ -1,4 +1,4 @@
-package com.rectanglel.patstatic;
+package com.rectanglel.patstatic.buildutils;
 
 import com.rectanglel.patstatic.model.PatApiService;
 import com.rectanglel.patstatic.model.PatApiServiceImpl;
@@ -24,7 +24,7 @@ public class TrueTimeDataCacher {
 
     public TrueTimeDataCacher(String baseUrl, String apiKey, File cacheDirectory) {
         this.cacheDirectory = cacheDirectory;
-        patApiService = new PatApiServiceImpl(baseUrl, apiKey, this.cacheDirectory, null);
+        patApiService = new PatApiServiceImpl(baseUrl, apiKey, this.cacheDirectory, new StubStaticData(), new StubWifiDataChecker());
     }
 
     /**

@@ -5,8 +5,10 @@ import android.net.ConnectivityManager
 import com.rectanglel.patstatic.wrappers.WifiChecker
 
 /**
- * <p>Android implementation of checking to see if wifi is on.
- * <p>Created by epicstar on 8/13/17.
+ * Android implementation of checking to see if wifi is on.
+ *
+ * Created by epicstar on 8/13/17.
+ *
  * @author Jeremy Jao
  * @since 160080002
  */
