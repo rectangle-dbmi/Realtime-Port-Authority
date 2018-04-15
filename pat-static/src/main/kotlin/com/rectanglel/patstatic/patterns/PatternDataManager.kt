@@ -1,18 +1,15 @@
 package com.rectanglel.patstatic.patterns
 
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import com.google.gson.stream.JsonReader
-import com.google.gson.stream.JsonWriter
+import com.rectanglel.patstatic.model.AbstractDataManager
 import com.rectanglel.patstatic.model.RetrofitPatApi
 import com.rectanglel.patstatic.model.StaticData
 import com.rectanglel.patstatic.patterns.response.Ptr
 import com.rectanglel.patstatic.wrappers.WifiChecker
 import rx.Observable
 import rx.exceptions.Exceptions
-import java.io.*
-import java.util.concurrent.locks.ReentrantReadWriteLock
+import java.io.File
+import java.io.IOException
 
 private val dataType = object : TypeToken<List<Ptr>>() {}.type!!
 private const val maxFileAge = 24 * 60 * 1000 * 1000 // 24 hours
@@ -30,16 +27,17 @@ private const val maxFileAge = 24 * 60 * 1000 * 1000 // 24 hours
  */
 class PatternDataManager(dataDirectory : File,
                                  private val patApiClient: RetrofitPatApi,
-                                 val staticData: StaticData,
-                                 private val wifiChecker: WifiChecker) {
-
-    private val cacheFolderName = "lineinfo"
-    private val serializedType = dataType
-
+                                 staticData: StaticData,
+                                 private val wifiChecker: WifiChecker)
+    : AbstractDataManager<List<Ptr>>(
+        dataDirectory,
+        staticData,
+        dataType,
+        "lineinfo") {
 
     fun getPatterns(rt: String) : Observable<List<Ptr>> {
         val polylineFile = getPatternsFile(rt)
-        // 1. if doesn't exist, get from internet
+        // 1. if doesn't exist, get from internet (merely a fallback to when a pattern doesn't yet exist in source control)
         // 2. if off wifi, always get from disk
         // 3. if age is past 24 hours and there is wifi, retrieve from the internet
         // 4. otherwise,
@@ -54,7 +52,7 @@ class PatternDataManager(dataDirectory : File,
         return if (getNowDate - polylineAge >= maxFileAge) {
             getPatternsFromInternet(rt)
         } else {
-            getPatternsFromInternet(rt)
+            getPatternsFromDisk(rt)
         }
     }
 
@@ -71,7 +69,9 @@ class PatternDataManager(dataDirectory : File,
                 }
     }
 
-    internal fun getPatternsFromInternet(rt: String) : Observable<List<Ptr>> {
+    // TODO: remove this warning suppression when ViewModel has fixed
+    @Suppress("RedundantVisibilityModifier")
+    public fun getPatternsFromInternet(rt: String) : Observable<List<Ptr>> {
         return patApiClient.getPatterns(rt)
                 .map { response -> response.patternResponse }
                 .map { bustimePatternResponse ->
@@ -87,80 +87,5 @@ class PatternDataManager(dataDirectory : File,
                 .onErrorResumeNext { getPatternsFromDisk(rt) }
     }
 
-    private val rwl: ReentrantReadWriteLock = ReentrantReadWriteLock()
-    protected val dataDirectory: File = File(dataDirectory, cacheFolderName)
-    private val readLock: ReentrantReadWriteLock.ReadLock
-        get() = rwl.readLock()
-
-    private val writeLock: ReentrantReadWriteLock.WriteLock
-        get() = rwl.writeLock()
-
-    protected val gson: Gson
-        get() = GsonBuilder().create()
-
-    init {
-        this.dataDirectory.mkdirs()
-    }
-
-    /**
-     * Save the object to disk as JSON into the file
-     * @param obj the object to save
-     * @param file the file to save to
-     * @throws IOException if the serialization fails
-     */
-    @Throws(IOException::class)
-    protected fun saveAsJson(obj: Any, file: File) {
-        writeLock.lock()
-        val fileWriter = FileWriter(file)
-        val writer = JsonWriter(fileWriter)
-        try {
-            val gson = gson
-            gson.toJson(obj, serializedType, writer)
-        } finally {
-            writer.flush()
-            fileWriter.close()
-            writer.close()
-            writeLock.unlock()
-        }
-    }
-
-    @Throws(IOException::class)
-    protected fun getFromDisk(file: File): List<Ptr> {
-        // file exists... get from disk
-        if (file.exists()) {
-            readLock.lock()
-            val fileReader = FileReader(file)
-            val jsonReader = JsonReader(fileReader)
-            try {
-                return gson.fromJson(jsonReader, serializedType)
-            } finally {
-                fileReader.close()
-                jsonReader.close()
-                readLock.unlock()
-            }
-        }
-        // if file doesn't exist, save bundled file from installation to disk
-        val fileName = String.format("%s/%s", cacheFolderName, file.name)
-        copyStreamToFile(staticData.getInputStreamForFileName(fileName), file)
-        return getFromDisk(file)
-    }
-
-    @Throws(IOException::class)
-    protected fun copyStreamToFile(reader: InputStreamReader, file: File) {
-        writeLock.lock()
-
-
-        try {
-            reader.use { input ->
-                val fileWriter = FileWriter(file)
-                fileWriter.use {
-                    input.copyTo(it)
-                }
-            }
-        } finally {
-            writeLock.unlock()
-        }
-
-    }
 
 }

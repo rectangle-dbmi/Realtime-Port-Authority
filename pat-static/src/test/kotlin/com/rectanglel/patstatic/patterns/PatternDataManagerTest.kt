@@ -1,6 +1,5 @@
 package com.rectanglel.patstatic.patterns
 
-import com.rectanglel.patstatic.HelloWorld
 import com.rectanglel.patstatic.TestHelperMethods
 import com.rectanglel.patstatic.mock.PatApiMock
 import com.rectanglel.patstatic.model.RetrofitPatApi
@@ -44,6 +43,12 @@ class PatternDataManagerTest {
                 staticData,
                 wifiChecker
         ))
+//        patternDataManager = PatternDataManager(
+//                dir,
+//                patapi,
+//                staticData,
+//                wifiChecker
+//        )
     }
 
     @After
@@ -61,7 +66,7 @@ class PatternDataManagerTest {
      * </ul>
      */
     @Test
-    fun `testGetPatterns - get from internet then get from disk`() {
+    fun `testGetPatterns - get from internet then get from disk when wifi is on`() {
         // region setup
         val ts1 = TestSubscriber<List<Ptr>>()
         val ts2 = TestSubscriber<List<Ptr>>()
@@ -95,6 +100,15 @@ class PatternDataManagerTest {
     @Test
     fun `testGetPatterns - always get from disk if no wifi`() {
         // region setup
+
+        // make sure that we are populating the disk first
+        PatternDataManager(
+                dir,
+                patapi,
+                staticData,
+                wifiChecker
+        ).getPatterns(PatApiMock.testRoute1).subscribe()
+
         val ts1 = TestSubscriber<List<Ptr>>()
         val ts2 = TestSubscriber<List<Ptr>>()
         Mockito.`when`(wifiChecker.isOnWifi()).thenReturn(false)
@@ -105,7 +119,7 @@ class PatternDataManagerTest {
         //region verify
         Mockito.verify(patapi, Mockito.times(1)).getPatterns(PatApiMock.testRoute1)
         Mockito.verify(patternDataManager, Mockito.times(0)).getPatternsFromInternet(PatApiMock.testRoute1)
-        Mockito.verify(patternDataManager, Mockito.times(1)).getPatternsFromDisk(PatApiMock.testRoute1)
+        Mockito.verify(patternDataManager, Mockito.times(2)).getPatternsFromDisk(PatApiMock.testRoute1)
         //endregion verify
 
         //region assert
@@ -121,7 +135,7 @@ class PatternDataManagerTest {
      * Reads route json from disk using the StaticData class.
      */
     @Test
-    fun `testGetPatterns - get from internet if wifi then from disk`() {
+    fun `testGetPatterns - always get from internet`() {
         //region setup
         val ts1 = TestSubscriber<List<Ptr>>()
         val ts2 = TestSubscriber<List<Ptr>>()
@@ -134,14 +148,15 @@ class PatternDataManagerTest {
         Mockito.`when`(staticData.getInputStreamForFileName(filename))
                 .thenReturn(InputStreamReader(FileInputStream(file)))
 
-        patternDataManager.getPatterns(PatApiMock.testRoute1).subscribe(ts1)
-        patternDataManager.getPatterns(PatApiMock.testRoute1).subscribe(ts2)
+        patternDataManager.getPatternsFromInternet(PatApiMock.testRoute1).subscribe(ts1)
+        patternDataManager.getPatternsFromInternet(PatApiMock.testRoute1).subscribe(ts2)
         //endregion setup
 
         //region verify
-        Mockito.verify(staticData, Mockito.times(1)).getInputStreamForFileName(filename)
-        Mockito.verify(patternDataManager, Mockito.times(1)).getPatternsFromInternet(PatApiMock.testRoute1)
-        Mockito.verify(patternDataManager, Mockito.times(1)).getPatternsFromDisk(PatApiMock.testRoute1)
+        Mockito.verify(patapi, Mockito.times(2)).getPatterns(PatApiMock.testRoute1)
+        Mockito.verify(staticData, Mockito.times(0)).getInputStreamForFileName(filename)
+        Mockito.verify(patternDataManager, Mockito.times(2)).getPatternsFromInternet(PatApiMock.testRoute1)
+        Mockito.verify(patternDataManager, Mockito.times(0)).getPatternsFromDisk(PatApiMock.testRoute1)
 
         //endregion verify
 
@@ -172,11 +187,5 @@ class PatternDataManagerTest {
         Assert.assertEquals(1, ts1.onErrorEvents.size)
         Assert.assertEquals(mockedException, ts1.onErrorEvents[0].cause)
         //endregion assert
-    }
-
-    @Test
-    fun `hello world`() {
-        val helloWorld = HelloWorld()
-        Assert.assertEquals("Hello World", helloWorld.hello())
     }
 }
