@@ -13,9 +13,11 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -53,6 +55,8 @@ import com.rectanglel.patstatic.vehicles.response.Vehicle;
 import com.rectanglel.patstatic.vehicles.response.VehicleResponse;
 import com.squareup.leakcanary.RefWatcher;
 
+import org.reactivestreams.Subscription;
+
 import java.net.SocketTimeoutException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -68,6 +72,23 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableSubscriber;
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.Single;
+import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.flowables.ConnectableFlowable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subscribers.DisposableSubscriber;
+import io.reactivex.subscribers.ResourceSubscriber;
 import rectangledbmi.com.pittsburghrealtimetracker.BuildConfig;
 import rectangledbmi.com.pittsburghrealtimetracker.PATTrackApplication;
 import rectangledbmi.com.pittsburghrealtimetracker.R;
@@ -81,18 +102,6 @@ import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.ClearSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.SelectionFragment;
 import rectangledbmi.com.pittsburghrealtimetracker.vehicles.VehicleBitmap;
 import retrofit2.HttpException;
-import rx.Observable;
-import rx.Observer;
-import rx.Single;
-import rx.SingleSubscriber;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.observables.ConnectableObservable;
-import rx.schedulers.Schedulers;
-import rx.subjects.BehaviorSubject;
-import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 import static rectangledbmi.com.pittsburghrealtimetracker.utils.ReactiveHelper.isInternetDown;
@@ -168,12 +177,12 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     /**
      * The vehicles subscriptions
      */
-    private CompositeSubscription vehicleSubscriptions;
+    private CompositeDisposable vehicleSubscriptions;
 
     /**
      * The subscription to unselect a vehicle from the map
      */
-    private Subscription unselectVehicleSubscription;
+    private ResourceSubscriber unselectVehicleSubscription;
 
     private ConcurrentMap<String, List<Polyline>> routeLines;
 
@@ -181,13 +190,13 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      * Observable that emits individual vehicles onto the map.
      * Instantiated on {@link #onMapReady(GoogleMap)} -> {@link #setupReactiveObjects()}
      */
-    private Observable<VehicleBitmap> vehicleUpdateObservable;
+    private Flowable<VehicleBitmap> vehicleUpdateFlowable;
 
     /**
      * Observable that emits errors from the vehicle updates
      * Instantiated on {@link #onMapReady(GoogleMap)} -> {@link #setupReactiveObjects()}
      */
-    private Observable<ErrorMessage> vehicleErrorObservable;
+    private Flowable<ErrorMessage> vehicleErrorFlowable;
 
     /**
      * The {@link retrofit2.Retrofit} instance of the Port Authority TrueTime API
@@ -195,17 +204,17 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     // TODO: take this out and use the PatApiService instead
     private PatApiService patApiService;
 
-    private Subscription selectionSubscription;
+    private Disposable selectionSubscription;
 
     /**
      * Subscription for the patternSelections
      */
-    private Subscription polylineSubscription;
+    private Disposable polylineSubscription;
 
     /**
      * subscriptions for stops
      */
-    private Subscription stopSubscription;
+    private Disposable stopSubscription;
 
     /**
      * Hashmap cached google map stops
@@ -220,7 +229,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     /**
      * subscription for predictions
      */
-    private Subscription predictionsSubscription;
+    private ResourceSubscriber predictionsSubscription;
     // endregion
 
     // region Android Fragment LifeCycle
@@ -329,7 +338,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
     private void pauseMapState() {
         if (vehicleSubscriptions != null) {
-            vehicleSubscriptions.unsubscribe();
+            vehicleSubscriptions.dispose();
             Timber.d("vehicle updater unsubscribed");
         }
         removeBuses();
@@ -345,9 +354,9 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         super.onStop();
     }
 
-    private static void unsubscribeSubscription(Subscription subscription) {
-        if (subscription != null && !subscription.isUnsubscribed()) {
-            subscription.unsubscribe();
+    private static void unsubscribeSubscription(Disposable subscription) {
+        if (subscription != null && !subscription.isDisposed()) {
+            subscription.dispose();
         }
     }
 
@@ -360,7 +369,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             refWatcher.watch(this);
         }
         if (unselectVehicleSubscription != null) {
-            unselectVehicleSubscription.unsubscribe();
+            unselectVehicleSubscription.dispose();
             unselectVehicleSubscription = null;
             Timber.d("Unselect Vehicle Event destroyed");
         }
@@ -369,7 +378,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         unsubscribeSubscription(predictionsSubscription);
 
         if (selectionSubscription != null) {
-            selectionSubscription.unsubscribe();
+            selectionSubscription.dispose();
             selectionSubscription = null;
         }
 
@@ -534,7 +543,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             }
             predictionsSubscription = predictionsSingle
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(predictionsObserver());
+                    .subscribeWith(predictionsObserver());
             return true;
         });
     }
@@ -542,7 +551,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     /**
      * @return Lambda for displaying connection issues to the user.
      */
-    private Action1<Throwable> disconnectionMessage() {
+    private Consumer<Throwable> disconnectionMessage() {
         return throwable -> {
             if (isInternetDown(throwable)) {
                 Timber.i(throwable, getString(R.string.disconnected_internet));
@@ -556,7 +565,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     /**
      * @return Lambda for displaying reconnection to the user.
      */
-    private Action1<Boolean> reconnectionMessage() {
+    private Consumer<Boolean> reconnectionMessage() {
         return aBoolean -> {
             Timber.i(getString(R.string.retrying_vehicles));
             if (busListInteraction != null) {
@@ -568,8 +577,8 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     /**
      * <p>Observables created:</p>
      * <ul>
-     * <li>{@link #vehicleErrorObservable}</li>
-     * <li>{@link #vehicleErrorObservable}</li>
+     * <li>{@link #vehicleErrorFlowable}</li>
+     * <li>{@link #vehicleErrorFlowable}</li>
      * </ul>
      * <p>Subscriptions created:</p>
      * <ul>
@@ -578,32 +587,32 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      * </ul>
      */
     private void setupReactiveObjects() {
-        Observable<Set<String>> selectedRoutesObservable = busListInteraction.getSelectedRoutesObservable()
+        Flowable<Set<String>> selectedRoutesFlowable = busListInteraction.getSelectedRoutesObservable()
                 .observeOn(Schedulers.io());
-        Observable<Route> toggledRoutesObservable = busListInteraction.getToggledRouteObservable()
+        Flowable<Route> toggledRoutesFlowable = busListInteraction.getToggledRouteObservable()
                 .observeOn(Schedulers.io());
 
-        setupPolylineObservable(toggledRoutesObservable);
-        ConnectableObservable<Set<String>> selectionObservable = selectedRoutesObservable
+        setupPolylineObservable(toggledRoutesFlowable);
+        ConnectableFlowable<Set<String>> selectionObservable = selectedRoutesFlowable
                 .replay(1);
         //noinspection Convert2Lambda
-        Observable<BustimeVehicleResponse> vehicleIntervalObservable = selectionObservable
+        Flowable<BustimeVehicleResponse> vehicleIntervalObservable = selectionObservable
                 .debounce(400, TimeUnit.MILLISECONDS)
-                .switchMap(new Func1<Set<String>, Observable<Set<String>>>() {
+                .switchMap(new Function<Set<String>, Flowable<Set<String>>>() {
                     @Override
-                    public Observable<Set<String>> call(Set<String> routes) {
+                    public Flowable<Set<String>> apply(Set<String> routes) throws Exception {
                         Timber.d("Selecting vehicle observable");
                         if (routes.isEmpty()) {
-                            return Observable.just(routes);
+                            return Flowable.just(routes);
                         }
-                        return Observable.interval(0, 10, TimeUnit.SECONDS)
-                                .map(aLong -> {
-                                    if (BuildConfig.DEBUG) {
-                                        String msg = String.format(Locale.US, "Calling x%d", aLong);
-                                        Timber.d(msg);
-                                    }
-                                    return routes;
-                                });
+                        return Flowable.interval(0, 10, TimeUnit.SECONDS)
+                            .map(aLong -> {
+                                if (BuildConfig.DEBUG) {
+                                    String msg = String.format(Locale.US, "Calling x%d", aLong);
+                                    Timber.d(msg);
+                                }
+                                return routes;
+                            });
                     }
                 }).flatMap(routes -> {
                     if (BuildConfig.DEBUG) {
@@ -619,36 +628,36 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread());
 
-        vehicleUpdateObservable = vehicleIntervalObservable
+        vehicleUpdateFlowable = vehicleIntervalObservable
                 .flatMap(bustimeVehicleResponse -> {
                     Timber.d("Iterating through all vehicles to add");
-                    return Observable.from(bustimeVehicleResponse.getVehicle());
+                    return Flowable.fromIterable(bustimeVehicleResponse.getVehicle());
                 }).map(makeBitmaps());
 
-        vehicleErrorObservable = vehicleIntervalObservable
+        vehicleErrorFlowable = vehicleIntervalObservable
                 .map(BustimeVehicleResponse::getProcessedErrors)
                 .distinctUntilChanged()
-                .flatMap(errorMap -> Observable.from(errorMap.entrySet()))
+                .flatMap(errorMap -> Flowable.fromIterable(errorMap.entrySet()))
                 .map(transformSingleMessage());
 
-        unselectVehicleSubscription = toggledRoutesObservable
+        unselectVehicleSubscription = toggledRoutesFlowable
                 .skipWhile(Route::isSelected)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(route -> {
                     Timber.d("removing all %s's", route.getRoute());
-                    return Observable.from(busMarkers.entrySet())
+                    return Flowable.fromIterable(busMarkers.entrySet())
                             .filter(busMarker -> busMarker.getValue().getTitle().contains(route.getRoute()));
                 })
-                .subscribe(new Observer<Map.Entry<Integer, Marker>>() {
-                    @Override
-                    public void onCompleted() {
-                        Timber.d("No longer listening to deselections");
-                    }
-
+                .subscribeWith(new DisposableSubscriber<Map.Entry<Integer,Marker>>() {
                     @Override
                     public void onError(Throwable e) {
                         Timber.e(e, "Error happened while trying to unselect");
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Timber.d("No longer listening to deselections");
                     }
 
                     @Override
@@ -663,7 +672,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
         busListInteraction.restoreSelection();
     }
 
-    private void setupPolylineObservable(Observable<Route> routeSelectionObservable) {
+    private void setupPolylineObservable(Flowable<Route> routeSelectionObservable) {
         /*
       Creates a stream for the polyline observable
      */
@@ -672,12 +681,14 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 routeSelectionObservable
         );
         polylineSubscription = patternViewModel.getPatternSelections()
+                .toFlowable(BackpressureStrategy.BUFFER)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(polylineObserver());
+                .subscribeWith(polylineObserver());
 
-        stopSubscription = patternViewModel.getStopRenderRequests(zoomSubject.asObservable())
+        stopSubscription = patternViewModel.getStopRenderRequests(zoomSubject.toFlowable(BackpressureStrategy.BUFFER))
+                .toFlowable(BackpressureStrategy.BUFFER)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(stopObserver());
+                .subscribeWith(stopObserver());
 
     }
 
@@ -749,10 +760,10 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      */
     private void resetMapSubscriptions() {
         Timber.d("Resetting vehicle subscriptions in bus fragment");
-        if (vehicleSubscriptions == null || vehicleSubscriptions.isUnsubscribed()) {
-            vehicleSubscriptions = new CompositeSubscription(
-                    vehicleUpdateObservable.subscribe(vehicleUpdateObserver()),
-                    vehicleErrorObservable.subscribe(vehicleErrorObserver())
+        if (vehicleSubscriptions == null || vehicleSubscriptions.isDisposed()) {
+            vehicleSubscriptions = new CompositeDisposable(
+                    vehicleUpdateFlowable.subscribeWith(vehicleUpdateObserver()),
+                    vehicleErrorFlowable.subscribeWith(vehicleErrorObserver())
             );
             Timber.d("Vehicle subscriptions subscribed");
         } else if (BuildConfig.DEBUG) {
@@ -769,13 +780,13 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      *
      * @return the anonymous vehicle information with its associated bitmap
      */
-    private Func1<Vehicle, VehicleBitmap> makeBitmaps() {
-        return new Func1<Vehicle, VehicleBitmap>() {
+    private Function<Vehicle, VehicleBitmap> makeBitmaps() {
+        return new Function<Vehicle, VehicleBitmap>() {
 
             private HashMap<String, Bitmap> busIconCache = new HashMap<>(busListInteraction.getSelectedRoutes().size());
 
             @Override
-            public VehicleBitmap call(Vehicle vehicle) {
+            public VehicleBitmap apply(Vehicle vehicle) {
                 String routeName = vehicle.getRt();
                 if (busIconCache.containsKey(routeName)) {
                     Timber.v("using cached bitmap %s", routeName);
@@ -834,8 +845,8 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      * @return a closure to create a human-readable {@link ErrorMessage}
      * @since 55
      */
-    private Func1<Map.Entry<String, ArrayList<String>>, ErrorMessage> transformSingleMessage() {
-        return new Func1<Map.Entry<String, ArrayList<String>>, ErrorMessage>() {
+    private Function<Map.Entry<String, ArrayList<String>>, ErrorMessage> transformSingleMessage() {
+        return new Function<Map.Entry<String, ArrayList<String>>, ErrorMessage>() {
 
             /**
              * Transforms the original message to a user-readable message.
@@ -857,7 +868,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             }
 
             @Override
-            public ErrorMessage call(Map.Entry<String, ArrayList<String>> processedMessage) {
+            public ErrorMessage apply(Map.Entry<String, ArrayList<String>> processedMessage) {
                 return new ErrorMessage(transformMessage(processedMessage.getKey()), processedMessage.getValue());
             }
         };
@@ -872,17 +883,10 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      * @return the vehicle update observer
      * @since 55
      */
-    private Observer<VehicleBitmap> vehicleUpdateObserver() {
-        return new Observer<VehicleBitmap>() {
+    private DisposableSubscriber<VehicleBitmap> vehicleUpdateObserver() {
+        return new DisposableSubscriber<VehicleBitmap>() {
 
             private boolean showedErrors = false;
-
-            @Override
-            public void onCompleted() {
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZZZ", Locale.ENGLISH);
-                String cDateTime = dateFormat.format(new Date());
-                Timber.d("Bus map updates finished updates at %s", cDateTime);
-            }
 
             @Override
             public void onError(Throwable e) {
@@ -908,6 +912,14 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
             }
 
             @Override
+            public void onComplete() {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZZZ", Locale.ENGLISH);
+                String cDateTime = dateFormat.format(new Date());
+                Timber.d("Bus map updates finished updates at %s", cDateTime);
+            }
+
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+            @Override
             public void onNext(VehicleBitmap vehicleBitmap) {
                 addOrUpdateMarkers(vehicleBitmap);
             }
@@ -922,6 +934,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
              * @since 46
              * @param vehicleBitmap - vehicle to be added
              */
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             private void addOrUpdateMarkers(VehicleBitmap vehicleBitmap) {
                 int vid = vehicleBitmap.getVehicle().getVid();
                 Marker marker = busMarkers.get(vid);
@@ -960,6 +973,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
              * @param vehicleBitmap - vehicle to update
              * @param marker - marker to update
              */
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             private void updateMarker(VehicleBitmap vehicleBitmap, Marker marker) {
                 Vehicle vehicle = vehicleBitmap.getVehicle();
                 Timber.v("marker_update... updating_pointer");
@@ -983,18 +997,18 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
      * @return the vehicle update observer
      * @since 55
      */
-    private Observer<ErrorMessage> vehicleErrorObserver() {
-        return new Observer<ErrorMessage>() {
-            @Override
-            public void onCompleted() {
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZZZ", Locale.ENGLISH);
-                String dateTime = dateFormat.format(new Date());
-                Timber.d("Bus map error updates finished at %s", dateTime);
-            }
-
+    private DisposableSubscriber<ErrorMessage> vehicleErrorObserver() {
+        return new DisposableSubscriber<ErrorMessage>() {
             @Override
             public void onError(Throwable e) {
                 Timber.e(e, "error in vehicle error observer");
+            }
+
+            @Override
+            public void onComplete() {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZZZ", Locale.ENGLISH);
+                String dateTime = dateFormat.format(new Date());
+                Timber.d("Bus map error updates finished at %s", dateTime);
             }
 
             @Override
@@ -1061,16 +1075,16 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     }
 
     @Override
-    public Observer<PatternSelection> polylineObserver() {
-        return new Observer<PatternSelection>() {
-            @Override
-            public void onCompleted() {
-                Timber.d("Completed observing on PatternSelection");
-            }
-
+    public DisposableSubscriber<PatternSelection> polylineObserver() {
+        return new DisposableSubscriber<PatternSelection>() {
             @Override
             public void onError(Throwable e) {
                 Timber.e(e, "Problem with polyline creation.");
+            }
+
+            @Override
+            public void onComplete() {
+                Timber.d("Completed observing on PatternSelection");
             }
 
             @Override
@@ -1126,20 +1140,20 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     }
 
     @Override
-    public Observer<StopRenderRequest> stopObserver() {
-        return new Observer<StopRenderRequest>() {
-            @Override
-            public void onCompleted() {
-                Timber.i("Stops have been unsubscribed");
-                if (stops != null) {
-                    stops.clear();
-                }
-            }
-
+    public DisposableSubscriber<StopRenderRequest> stopObserver() {
+        return new DisposableSubscriber<StopRenderRequest>() {
             @Override
             public void onError(Throwable e) {
                 Timber.e(e, "Stop observer encountered an error");
                 clearStops();
+            }
+
+            @Override
+            public void onComplete() {
+                Timber.i("Stops have been unsubscribed");
+                if (stops != null) {
+                    stops.clear();
+                }
             }
 
             @Override
@@ -1182,8 +1196,11 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     }
 
     @Override
-    public SingleSubscriber<ProcessedPredictions> predictionsObserver() {
-        return new SingleSubscriber<ProcessedPredictions>() {
+    public SingleObserver<ProcessedPredictions> predictionsObserver() {
+        return new SingleObserver<ProcessedPredictions>() {
+
+            @Override
+            public void onSubscribe(Disposable d) { }
 
             @Override
             public void onError(Throwable e) {

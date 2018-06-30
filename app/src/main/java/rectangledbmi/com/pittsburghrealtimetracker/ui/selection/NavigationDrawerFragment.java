@@ -26,12 +26,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.subjects.PublishSubject;
 import rectangledbmi.com.pittsburghrealtimetracker.PATTrackApplication;
 import rectangledbmi.com.pittsburghrealtimetracker.R;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.Route;
-import rx.Observable;
-import rx.subjects.PublishSubject;
 import timber.log.Timber;
 
 /**
@@ -469,23 +470,21 @@ public class NavigationDrawerFragment extends Fragment {
 
     }
 
-    public Observable<Set<String>> getSelectedRoutesObservable() {
+    public Flowable<Set<String>> getSelectedRoutesObservable() {
         if (routeSelectionPublishSubject == null) {
             return null;
         }
         return routeSelectionPublishSubject
-                .asObservable()
-                .onBackpressureBuffer()
+                .toFlowable(BackpressureStrategy.BUFFER)
                 .map(RouteSelection::getSelectedRoutes);
     }
 
-    public Observable<Route> getToggledRouteObservable() {
+    public Flowable<Route> getToggledRouteObservable() {
         if (routeSelectionPublishSubject == null) {
             return null;
         }
         return routeSelectionPublishSubject
-                .asObservable()
-                .onBackpressureBuffer()
+                .toFlowable(BackpressureStrategy.BUFFER)
                 .map(RouteSelection::getToggledRoute);
     }
 

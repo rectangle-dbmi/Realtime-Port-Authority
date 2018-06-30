@@ -2,7 +2,7 @@ package rectangledbmi.com.pittsburghrealtimetracker;
 
 import java.io.File;
 
-import rx.observers.TestSubscriber;
+import io.reactivex.subscribers.TestSubscriber;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -20,7 +20,7 @@ public class TestHelperMethods {
     public static <N> void noErrorsAndNotCompleted(TestSubscriber<N> testSubscriber) {
         assertNotNull(testSubscriber);
         testSubscriber.assertNoErrors();
-        testSubscriber.assertNotCompleted();
+        testSubscriber.assertNotComplete();
     }
 
     public static void deleteFiles(File file) {

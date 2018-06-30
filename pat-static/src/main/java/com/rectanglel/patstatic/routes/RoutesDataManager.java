@@ -18,8 +18,8 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import rx.Single;
-import rx.exceptions.Exceptions;
+import io.reactivex.Single;
+import io.reactivex.exceptions.Exceptions;
 
 /**
  * A data mananger for getting a full list of routes that will handle:
@@ -80,7 +80,7 @@ public class RoutesDataManager {
                 });
     }
 
-    Single<List<BusRoute>> getRoutesFromInternet() {
+    private Single<List<BusRoute>> getRoutesFromInternet() {
         return patApiClient.getRoutes()
                 .map(BusRouteResponse::getBusTimeRoutesResponse)
                 .map(busTimeRoutesResponse -> {

@@ -21,15 +21,17 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableTransformer;
+import io.reactivex.Single;
+import io.reactivex.SingleTransformer;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
-import rx.Observable;
-import rx.Single;
-import rx.schedulers.Schedulers;
 
 /**
  * Implemented service that retrieves data.
@@ -105,7 +107,7 @@ public class PatApiServiceImpl implements PatApiService {
         return routesDataManager.getRoutes();
     }
 
-    private static Single.Transformer<PredictionResponse, List<Prd>> composePrds() {
+    private static SingleTransformer<PredictionResponse, List<Prd>> composePrds() {
         return predictionRespose -> predictionRespose
                 .map(PredictionResponse::getBustimeResponse)
                 .map(BustimePredictionResponse::getPrd)
@@ -155,7 +157,7 @@ public class PatApiServiceImpl implements PatApiService {
      * @param <T> any value
      * @return a transformer anonymous class
      */
-    private static <T> Observable.Transformer<T, T> applySchedulers() {
+    private static <T> ObservableTransformer<T, T> applySchedulers() {
         return observable -> observable
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation());
@@ -167,7 +169,7 @@ public class PatApiServiceImpl implements PatApiService {
      * @param <T> any value
      * @return a transformer anonymous class
      */
-    private static <T> Single.Transformer<T, T> applySchedulersSingle() {
+    private static <T> SingleTransformer<T, T> applySchedulersSingle() {
         return single -> single
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation());

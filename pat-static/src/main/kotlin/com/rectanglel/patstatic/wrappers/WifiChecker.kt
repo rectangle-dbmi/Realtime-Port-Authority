@@ -9,5 +9,5 @@ public interface WifiChecker {
     /**
      * Checks if wifi is on.
      */
-    fun isOnWifi() : Boolean
+    fun isWifiOn() : Boolean
 }

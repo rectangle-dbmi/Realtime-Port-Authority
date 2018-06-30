@@ -1,6 +1,6 @@
 package com.rectanglel.patstatic.patterns.polylines;
 
-import rx.Observer;
+import io.reactivex.subscribers.DisposableSubscriber;
 
 /**
  * <p>MVVM View that handles the UI State of Polylines.</p>
@@ -10,8 +10,8 @@ import rx.Observer;
  */
 public interface PolylineView<R> {
     /**
-     * Creates a an {@link Observer} for observing GUI changes for patterns
+     * Creates a an {@link DisposableSubscriber} for observing GUI changes for patterns
      * @return an Observer for polyline creation.
      */
-    Observer<R> polylineObserver();
+    DisposableSubscriber<R> polylineObserver();
 }

@@ -28,6 +28,12 @@ import java.io.File;
 import java.util.Calendar;
 import java.util.Set;
 
+import io.reactivex.Flowable;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 import rectangledbmi.com.pittsburghrealtimetracker.BuildConfig;
 import rectangledbmi.com.pittsburghrealtimetracker.R;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.NotificationMessage;
@@ -36,11 +42,6 @@ import rectangledbmi.com.pittsburghrealtimetracker.ui.about.AboutActivity;
 import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.NavigationDrawerFragment;
 import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.SelectionFragment;
 import rectangledbmi.com.pittsburghrealtimetracker.wrappers.AssetManagerStaticData;
-import rx.Observable;
-import rx.Observer;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
 import timber.log.Timber;
 
 /**
@@ -103,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements
 
         // create a publish subject for displaying toasts
         toastSubject = PublishSubject.create();
-        toastSubject.asObservable()
+        toastSubject
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(toastMessageObserver());
@@ -117,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements
      */
     @Override
     protected void onDestroy() {
-        toastSubject.onCompleted();
+        toastSubject.onComplete();
         super.onDestroy();
     }
 
@@ -325,14 +326,17 @@ public class MainActivity extends AppCompatActivity implements
     private Observer<NotificationMessage> toastMessageObserver() {
         return new Observer<NotificationMessage>() {
             @Override
-            public void onCompleted() {
+            public void onError(Throwable e) {
+                Timber.e(e, "Toast Observable encountered an error");
+            }
+
+            @Override
+            public void onComplete() {
                 Timber.i("Completed toast observer");
             }
 
             @Override
-            public void onError(Throwable e) {
-                Timber.e(e, "Toast Observable encountered an error");
-            }
+            public void onSubscribe(Disposable d) { }
 
             @Override
             public void onNext(NotificationMessage notificationMessage) {
@@ -407,12 +411,12 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public Observable<Set<String>> getSelectedRoutesObservable() {
+    public Flowable<Set<String>> getSelectedRoutesObservable() {
         return mNavigationDrawerFragment.getSelectedRoutesObservable();
     }
 
     @Override
-    public Observable<Route> getToggledRouteObservable() {
+    public Flowable<Route> getToggledRouteObservable() {
         return mNavigationDrawerFragment.getToggledRouteObservable();
     }
 

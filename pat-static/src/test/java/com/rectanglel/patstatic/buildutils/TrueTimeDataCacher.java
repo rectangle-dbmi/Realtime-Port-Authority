@@ -7,8 +7,6 @@ import com.rectanglel.patstatic.routes.BusRoute;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
-import rx.Observable;
-
 /**
  * Cache all routes to a folder
  * <p>
@@ -34,23 +32,22 @@ public class TrueTimeDataCacher {
         patApiService.getRoutes()
                 .toObservable()
                 .flatMap(routes ->
-                        Observable.from(routes)
+                        io.reactivex.Observable.fromIterable(routes)
                                 .skipWhile(route -> {
                                     String routeNumber = route.getRouteNumber();
                                     return new File(cacheDirectory, String.format("lineinfo/%s.json", routeNumber)).exists();
                                 })
-                                .zipWith(Observable.interval(0, 500, TimeUnit.MILLISECONDS), (stuff, aLong) -> stuff)
+                                .zipWith(io.reactivex.Observable.interval(0, 500, TimeUnit.MILLISECONDS), (stuff, aLong) -> stuff)
                 )
                 .buffer(8)
-                .zipWith(Observable.interval(0, 5, TimeUnit.SECONDS), (stuff, aLong) -> stuff)
+                .zipWith(io.reactivex.Observable.interval(0, 5, TimeUnit.SECONDS), (stuff, aLong) -> stuff)
                 .flatMapIterable(routes1 -> routes1)
                 .map(BusRoute::getRouteNumber)
                 .flatMap(routeNumber -> patApiService
                         .getPatterns(routeNumber)
-                        .onErrorResumeNext(Observable.empty())
+                        .onErrorResumeNext(io.reactivex.Observable.empty())
                         .doOnNext((pattern) -> System.out.println(String.format("Saving route number: %s", routeNumber)))
-                )
-                .toCompletable().await();
+                );
     }
 
     public static void main(String[] args) {

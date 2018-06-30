@@ -19,6 +19,7 @@ apply plugin: 'kotlin'
 allprojects {
     repositories {
         jcenter()
+        google()
     }
 }
 
@@ -70,8 +71,8 @@ ext {
             android: [
                     buildTools: '27.0.3',
                     minSdk: 16,
-                    support: '25.2.0',
-                    targetSdk: 25
+                    support: '27.1.1',
+                    targetSdk: 27
             ],
             google: [
                     play: '10.2.0'
@@ -84,9 +85,9 @@ ext {
                     plugin: '3.5.0'
             ],
             rx: [
-                    java: '1.2.1',
-                    java2: '2.0.6',
-                    network: '0.6.0'
+                    android: '2.0.2',
+                    java2: '2.1.16',
+                    network: '1.0.0'
             ],
             square: [
                     leakCanary: '1.5',
@@ -105,7 +106,4 @@ ext {
                     commons: '2.5'
             ]
     ]
-}
-repositories {
-    mavenCentral()
 }

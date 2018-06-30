@@ -17,7 +17,7 @@ class AndroidWifiChecker constructor(context: Context): WifiChecker {
     private val connectivityManager : ConnectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-    override fun isOnWifi(): Boolean {
+    override fun isWifiOn(): Boolean {
         val networkInfo = connectivityManager.activeNetworkInfo
         return networkInfo.type == ConnectivityManager.TYPE_WIFI
     }

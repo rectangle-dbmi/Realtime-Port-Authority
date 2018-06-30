@@ -25,15 +25,16 @@ dependencies {
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     }
 
-    compile "io.reactivex:rxjava:${versions.rx.java}"
+    implementation "io.reactivex.rxjava2:rxjava:${versions.rx.java2}"
 
-    compile "com.squareup.retrofit2:retrofit:${versions.square.retrofit}"
-    compile "com.squareup.retrofit2:converter-gson:${versions.square.retrofit}"
-    compile "com.squareup.retrofit2:adapter-rxjava:${versions.square.retrofit}"
-    compile "com.squareup.okhttp3:okhttp:${versions.square.okHttp}"
+    implementation "com.squareup.retrofit2:retrofit:${versions.square.retrofit}"
+    implementation "com.squareup.retrofit2:converter-gson:${versions.square.retrofit}"
+    implementation "com.squareup.retrofit2:adapter-rxjava:${versions.square.retrofit}"
+    implementation "com.squareup.okhttp3:okhttp:${versions.square.okHttp}"
 
-    testCompile "junit:junit:${versions.test.junit}"
-    testCompile "org.mockito:mockito-core:${versions.test.mockito}"
+    testImplementation "junit:junit:${versions.test.junit}"
+    testImplementation "org.mockito:mockito-core:${versions.test.mockito}"
+
     implementation  "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 

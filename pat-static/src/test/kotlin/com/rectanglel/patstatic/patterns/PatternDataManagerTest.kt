@@ -6,12 +6,12 @@ import com.rectanglel.patstatic.model.RetrofitPatApi
 import com.rectanglel.patstatic.model.StaticData
 import com.rectanglel.patstatic.patterns.response.Ptr
 import com.rectanglel.patstatic.wrappers.WifiChecker
+import io.reactivex.subscribers.TestSubscriber
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
-import rx.observers.TestSubscriber
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
@@ -70,7 +70,7 @@ class PatternDataManagerTest {
         // region setup
         val ts1 = TestSubscriber<List<Ptr>>()
         val ts2 = TestSubscriber<List<Ptr>>()
-        Mockito.`when`(wifiChecker.isOnWifi()).thenReturn(true)
+        Mockito.`when`(wifiChecker.isWifiOn()).thenReturn(true)
         patternDataManager.getPatterns(PatApiMock.testRoute1).subscribe(ts1)
         patternDataManager.getPatterns(PatApiMock.testRoute1).subscribe(ts2)
         // endregion setup
@@ -111,7 +111,7 @@ class PatternDataManagerTest {
 
         val ts1 = TestSubscriber<List<Ptr>>()
         val ts2 = TestSubscriber<List<Ptr>>()
-        Mockito.`when`(wifiChecker.isOnWifi()).thenReturn(false)
+        Mockito.`when`(wifiChecker.isWifiOn()).thenReturn(false)
         patternDataManager.getPatterns(PatApiMock.testRoute1).subscribe(ts1)
         patternDataManager.getPatterns(PatApiMock.testRoute1).subscribe(ts2)
         // endregion setup
@@ -144,7 +144,7 @@ class PatternDataManagerTest {
         val file = File("testFiles", filename)
         // jeremy.... RIP backticks for when because kotlin has
         // a keyword called when that replaces switch cases
-        Mockito.`when`(wifiChecker.isOnWifi()).thenReturn(true)
+        Mockito.`when`(wifiChecker.isWifiOn()).thenReturn(true)
         Mockito.`when`(staticData.getInputStreamForFileName(filename))
                 .thenReturn(InputStreamReader(FileInputStream(file)))
 

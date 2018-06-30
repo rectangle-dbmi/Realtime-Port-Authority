@@ -18,6 +18,9 @@ import com.rectanglel.patstatic.patterns.polylines.PolylineView;
 import com.rectanglel.patstatic.patterns.response.Pt;
 import com.rectanglel.patstatic.patterns.response.Ptr;
 import com.rectanglel.patstatic.patterns.stops.StopView;
+
+import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either.EitherStopState;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRenderRequest;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRequestAccumulator;
@@ -28,7 +31,6 @@ import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either.FullSto
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopRenderState;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopSelection;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.Route;
-import rx.Observable;
 import timber.log.Timber;
 
 /**
@@ -42,7 +44,7 @@ import timber.log.Timber;
 @SuppressWarnings("Convert2streamapi")
 public class PatternViewModel {
 
-    private final Observable<PatternSelection> patternSelections;
+    private final Flowable<PatternSelection> patternSelections;
 
     private final float zoomThreshold = 15.0f;
 
@@ -53,17 +55,17 @@ public class PatternViewModel {
      * @param selectionObservable the observable for bus route selection
      */
     public PatternViewModel(PatApiService service,
-                            Observable<Route> selectionObservable) {
+                            Flowable<Route> selectionObservable) {
         patternSelections = createPatternSelection(service, selectionObservable);
     }
 
-    private static Observable<PatternSelection> createPatternSelection(PatApiService service,
-                                                                Observable<Route> selectionObservable) {
-        if (selectionObservable == null) {
+    private static Flowable<PatternSelection> createPatternSelection(PatApiService service,
+                                                                       Flowable<Route> selectionFlowable) {
+        if (selectionFlowable == null) {
             Timber.i("Selection observable is null. Returning null.");
             return null;
         }
-        return selectionObservable
+        return selectionFlowable
                 .flatMap(route -> {
                     Timber.d("Getting patternSelections: %s", route.getRoute());
                     return service.getPatterns(route.getRoute())
@@ -94,9 +96,9 @@ public class PatternViewModel {
                         return Observable.just(patternSelection);
                     }
                     return Observable
-                            .from(patternSelection.getPatterns())
-                            .flatMap(patterns -> Observable
-                                    .from(patterns.getPt())
+                            .fromIterable(patternSelection.getPatterns())
+                            .flatMapIterable(patterns -> Observable
+                                    .fromIterable(patterns.getPt())
                                     .map(pt -> new LatLng(pt.getLat(), pt.getLon()))
                                     .toList()
                             ).toList()
@@ -115,7 +117,7 @@ public class PatternViewModel {
      * @param zoomObservable the zoom observable
      * @return an observable that emits any change to change in stop visibility
      */
-    public Observable<StopRenderRequest> getStopRenderRequests(Observable<Float> zoomObservable) {
+    public Observable<StopRenderRequest> getStopRenderRequests(Flowable<Float> zoomObservable) {
         // NOTE: Will have to make our own StopViewModel and move this there when
         // we start creating our Trip Planner.
         if (zoomObservable == null) {
@@ -234,11 +236,12 @@ public class PatternViewModel {
 
     /**
      * Simplified zoom state
-     * @param zoomObservable the original map state observable
+     * @param zoomFlowable the original map state flowable
      * @return the zoom observable
      */
-    private Observable<EitherStopState<?>> getZoomState(Observable<Float> zoomObservable) {
-        return zoomObservable
+    private Observable<EitherStopState<?>> getZoomState(Flowable<Float> zoomFlowable) {
+        return zoomFlowable
+                .toObservable()
                 .map(zoomLevel -> zoomLevel >= zoomThreshold)
                 .map(MapState::create);
     }
@@ -250,15 +253,15 @@ public class PatternViewModel {
     @SuppressLint("UseSparseArrays")
     private Observable<EitherStopState<?>> getStopSelectionState() {
         return patternSelections
-                .flatMap(patternSelection -> Observable.from(patternSelection.getPatterns())
-                        .flatMapIterable(Ptr::getPt)
+                .flatMap(patternSelection -> Observable.fromIterable(patternSelection.getPatterns())
+                        .flatMapIterable(ptr -> ptr.getPt())
                         .filter(pt -> 'S' == pt.getTyp())
                         .toList()
                         .map(pts -> StopSelection.create(pts,
                                 patternSelection.getRouteNumber(),
                                 patternSelection.isSelected()))
                 ).scan(FullStopSelectionState.create(Collections.emptyMap()), (accumulator, routeStops) -> {
-                    Map<Integer, StopRenderState> current = new HashMap<>((Map<Integer, StopRenderState>) accumulator.value());
+                    Map<Integer, StopRenderState> current = new HashMap<>(accumulator.value());
                     for (Pt pt : routeStops.getStopPts()) {
                         Integer stpid = pt.getStpid();
                         if (!current.containsKey(stpid)) {

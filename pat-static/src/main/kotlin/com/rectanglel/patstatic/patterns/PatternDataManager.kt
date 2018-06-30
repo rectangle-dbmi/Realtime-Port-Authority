@@ -6,8 +6,8 @@ import com.rectanglel.patstatic.model.RetrofitPatApi
 import com.rectanglel.patstatic.model.StaticData
 import com.rectanglel.patstatic.patterns.response.Ptr
 import com.rectanglel.patstatic.wrappers.WifiChecker
-import rx.Observable
-import rx.exceptions.Exceptions
+import io.reactivex.Observable
+import io.reactivex.exceptions.Exceptions
 import java.io.File
 import java.io.IOException
 
@@ -44,7 +44,7 @@ class PatternDataManager(dataDirectory : File,
         if (!polylineFile.exists()) {
             return getPatternsFromInternet(rt)
         }
-        if (!wifiChecker.isOnWifi()) {
+        if (!wifiChecker.isWifiOn()) {
             return getPatternsFromDisk(rt)
         }
         val polylineAge = polylineFile.lastModified()
@@ -84,7 +84,7 @@ class PatternDataManager(dataDirectory : File,
                         throw Exceptions.propagate(e)
                     }
                 }
-                .onErrorResumeNext { getPatternsFromDisk(rt) }
+                .onErrorResumeNext(getPatternsFromDisk(rt))
     }
 
 

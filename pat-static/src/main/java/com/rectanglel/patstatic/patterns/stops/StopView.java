@@ -1,6 +1,6 @@
 package com.rectanglel.patstatic.patterns.stops;
 
-import rx.Observer;
+import io.reactivex.subscribers.DisposableSubscriber;
 
 /**
  * <p>View for handling UI things for the getStopRenderRequests on the Port Authority API</p>
@@ -8,5 +8,5 @@ import rx.Observer;
  */
 
 public interface StopView<R> {
-    Observer<R> stopObserver();
+    DisposableSubscriber<R> stopObserver();
 }

@@ -1,6 +1,6 @@
 package com.rectanglel.patstatic.predictions;
 
-import rx.SingleSubscriber;
+import io.reactivex.SingleObserver;
 
 /**
  * <p>Defines the View for Predictions</p>
@@ -10,5 +10,5 @@ import rx.SingleSubscriber;
  */
 
 public interface PredictionsView<R> {
-    SingleSubscriber<R> predictionsObserver();
+        SingleObserver<R> predictionsObserver();
 }

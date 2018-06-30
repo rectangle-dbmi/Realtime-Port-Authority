@@ -5,8 +5,8 @@ import org.junit.Test;
 
 import java.util.List;
 
-import rx.observers.TestSubscriber;
-import rx.subjects.ReplaySubject;
+import io.reactivex.subjects.ReplaySubject;
+import io.reactivex.subscribers.TestSubscriber;
 
 import static org.junit.Assert.assertEquals;
 
@@ -37,7 +37,7 @@ public class SubjectTest {
         }
         TestSubscriber<Integer> testSubscriber = new TestSubscriber<>();
         testSubject.subscribe(testSubscriber);
-        List<Integer> events = testSubscriber.getOnNextEvents();
+        List<Integer> events = testSubscriber.values();
         assertEquals(maxEmissions, events.size());
         for (int i=0;i<maxEmissions;++i) {
             Integer event = events.get(i);
