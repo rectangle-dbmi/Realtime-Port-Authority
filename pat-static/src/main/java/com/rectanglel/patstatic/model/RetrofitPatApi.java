@@ -5,6 +5,7 @@ import com.rectanglel.patstatic.predictions.response.PredictionResponse;
 import com.rectanglel.patstatic.routes.response.BusRouteResponse;
 import com.rectanglel.patstatic.vehicles.response.VehicleResponse;
 
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import retrofit2.http.GET;
@@ -24,14 +25,14 @@ public interface RetrofitPatApi {
      * @param rt - the route
      */
     @GET("getpatterns?format=json" )
-    Observable<PatternResponse> getPatterns(@Query("rt") String rt);
+    Flowable<PatternResponse> getPatterns(@Query("rt") String rt);
 
     /**
      * Generates a response to get vehicles
      * @param routes - the routes
      */
     @GET("getvehicles?format=json")
-    Observable<VehicleResponse> getVehicles(@Query("rt") String routes);
+    Flowable<VehicleResponse> getVehicles(@Query("rt") String routes);
 
     /**
      * Generates a response to get the predictions using the stop id
@@ -39,7 +40,7 @@ public interface RetrofitPatApi {
      */
     @SuppressWarnings("unused")
     @GET("getpredictions?format=json")
-    Observable<PredictionResponse> getStopPredictions(@Query("stpid") int stpid);
+    Flowable<PredictionResponse> getStopPredictions(@Query("stpid") int stpid);
 
     /**
      * Generates a response to get the predictions using the stop id

@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableTransformer;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableTransformer;
 import io.reactivex.Single;
 import io.reactivex.SingleTransformer;
 import io.reactivex.schedulers.Schedulers;
@@ -30,7 +30,7 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
@@ -73,18 +73,18 @@ public class PatApiServiceImpl implements PatApiService {
     }
 
     @Override
-    public Observable<List<Ptr>> getPatterns(String rt) {
+    public Flowable<List<Ptr>> getPatterns(String rt) {
         return patternDataManager.getPatterns(rt)
                 .compose(applySchedulers());
     }
 
     @Override
-    public Observable<List<Pt>> getStops(String rt) {
+    public Flowable<List<Pt>> getStops(String rt) {
         return null;
     }
 
     @Override
-    public Observable<VehicleResponse> getVehicles(Collection<String> routes) {
+    public Flowable<VehicleResponse> getVehicles(Collection<String> routes) {
         return patApiClient.getVehicles(collectionToString(routes))
                 .compose(applySchedulers());
     }
@@ -144,7 +144,7 @@ public class PatApiServiceImpl implements PatApiService {
         final Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create(gson))
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(okHttpClient)
                 .build();
 
@@ -157,7 +157,7 @@ public class PatApiServiceImpl implements PatApiService {
      * @param <T> any value
      * @return a transformer anonymous class
      */
-    private static <T> ObservableTransformer<T, T> applySchedulers() {
+    private static <T> FlowableTransformer<T, T> applySchedulers() {
         return observable -> observable
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation());

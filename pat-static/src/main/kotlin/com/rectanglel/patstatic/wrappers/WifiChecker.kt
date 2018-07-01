@@ -5,7 +5,7 @@ package com.rectanglel.patstatic.wrappers
  * <p>Created by epicstar on 8/13/17.
  * @author Jeremy Jao
  */
-public interface WifiChecker {
+interface WifiChecker {
     /**
      * Checks if wifi is on.
      */

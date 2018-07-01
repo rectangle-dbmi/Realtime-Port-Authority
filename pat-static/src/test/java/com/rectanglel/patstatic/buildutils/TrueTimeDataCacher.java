@@ -7,6 +7,9 @@ import com.rectanglel.patstatic.routes.BusRoute;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+
 /**
  * Cache all routes to a folder
  * <p>
@@ -45,8 +48,9 @@ public class TrueTimeDataCacher {
                 .map(BusRoute::getRouteNumber)
                 .flatMap(routeNumber -> patApiService
                         .getPatterns(routeNumber)
-                        .onErrorResumeNext(io.reactivex.Observable.empty())
-                        .doOnNext((pattern) -> System.out.println(String.format("Saving route number: %s", routeNumber)))
+                        .onErrorResumeNext(Flowable.empty())
+                        .toObservable()
+                        .doOnNext(pattern -> System.out.println(String.format("Saving route number: %s", routeNumber)))
                 );
     }
 

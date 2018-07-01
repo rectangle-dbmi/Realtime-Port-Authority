@@ -6,6 +6,8 @@ import com.rectanglel.patstatic.model.RetrofitPatApi
 import com.rectanglel.patstatic.model.StaticData
 import com.rectanglel.patstatic.patterns.response.Ptr
 import com.rectanglel.patstatic.wrappers.WifiChecker
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.exceptions.Exceptions
 import java.io.File
@@ -35,7 +37,7 @@ class PatternDataManager(dataDirectory : File,
         dataType,
         "lineinfo") {
 
-    fun getPatterns(rt: String) : Observable<List<Ptr>> {
+    fun getPatterns(rt: String) : Flowable<List<Ptr>> {
         val polylineFile = getPatternsFile(rt)
         // 1. if doesn't exist, get from internet (merely a fallback to when a pattern doesn't yet exist in source control)
         // 2. if off wifi, always get from disk
@@ -58,8 +60,8 @@ class PatternDataManager(dataDirectory : File,
 
     private fun getPatternsFile(rt: String) : File = File(dataDirectory, "$rt.json")
 
-    internal fun getPatternsFromDisk(rt: String) : Observable<List<Ptr>> {
-        return Observable.just(getPatternsFile(rt))
+    internal fun getPatternsFromDisk(rt: String) : Flowable<List<Ptr>> {
+        return Flowable.just(getPatternsFile(rt))
                 .map { file ->
                     try {
                         getFromDisk(file)
@@ -71,7 +73,7 @@ class PatternDataManager(dataDirectory : File,
 
     // TODO: remove this warning suppression when ViewModel has fixed
     @Suppress("RedundantVisibilityModifier")
-    public fun getPatternsFromInternet(rt: String) : Observable<List<Ptr>> {
+    public fun getPatternsFromInternet(rt: String) : Flowable<List<Ptr>> {
         return patApiClient.getPatterns(rt)
                 .map { response -> response.patternResponse }
                 .map { bustimePatternResponse ->

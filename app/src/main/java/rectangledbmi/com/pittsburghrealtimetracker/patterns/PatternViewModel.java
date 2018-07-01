@@ -3,6 +3,11 @@ package rectangledbmi.com.pittsburghrealtimetracker.patterns;
 import android.annotation.SuppressLint;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.rectanglel.patstatic.model.PatApiService;
+import com.rectanglel.patstatic.patterns.polylines.PolylineView;
+import com.rectanglel.patstatic.patterns.response.Pt;
+import com.rectanglel.patstatic.patterns.response.Ptr;
+import com.rectanglel.patstatic.patterns.stops.StopView;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,23 +18,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.rectanglel.patstatic.model.PatApiService;
-import com.rectanglel.patstatic.patterns.polylines.PolylineView;
-import com.rectanglel.patstatic.patterns.response.Pt;
-import com.rectanglel.patstatic.patterns.response.Ptr;
-import com.rectanglel.patstatic.patterns.stops.StopView;
-
 import io.reactivex.Flowable;
-import io.reactivex.Observable;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either.EitherStopState;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRenderRequest;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRequestAccumulator;
-
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either.MapState;
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either.FullStopSelectionState;
-
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopRenderState;
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopSelection;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either.EitherStopState;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either.FullStopSelectionState;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either.MapState;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRenderRequest;
+import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRequestAccumulator;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.Route;
 import timber.log.Timber;
 
@@ -52,17 +48,17 @@ public class PatternViewModel {
      * Dependencies for the View Model.
      *
      * @param service             the service that retrieves data from the Port Authority API
-     * @param selectionObservable the observable for bus route selection
+     * @param selectionFlowable the flowable for bus route selection
      */
     public PatternViewModel(PatApiService service,
-                            Flowable<Route> selectionObservable) {
-        patternSelections = createPatternSelection(service, selectionObservable);
+                            Flowable<Route> selectionFlowable) {
+        patternSelections = createPatternSelection(service, selectionFlowable);
     }
 
     private static Flowable<PatternSelection> createPatternSelection(PatApiService service,
                                                                        Flowable<Route> selectionFlowable) {
         if (selectionFlowable == null) {
-            Timber.i("Selection observable is null. Returning null.");
+            Timber.i("Selection flowable is null. Returning null.");
             return null;
         }
         return selectionFlowable
@@ -82,50 +78,51 @@ public class PatternViewModel {
     }
 
     /**
-     * <p>Gets an observable so the {@link PolylineView} can listen to actions to create, show,
+     * <p>Gets a flowable so the {@link PolylineView} can listen to actions to create, show,
      * or make a {@link com.google.android.gms.maps.model.Polyline} disappear.</p>
      * <p>{@link PatternSelection#getPatterns()} will be `null` if {@link PatternSelection#isSelected()}
      * is `false`. Otherwise, it will be not be `null` unless the polyline data was unable to </p>
      *
-     * @return an observable for patternSelections
+     * @return a flowable for patternSelections
      */
-    public Observable<PatternSelection> getPatternSelections() {
+    public Flowable<PatternSelection> getPatternSelections() {
         return patternSelections
-                .flatMap(patternSelection -> {
-                    if (patternSelection.getPatterns() == null) {
-                        return Observable.just(patternSelection);
-                    }
-                    return Observable
-                            .fromIterable(patternSelection.getPatterns())
-                            .flatMapIterable(patterns -> Observable
-                                    .fromIterable(patterns.getPt())
-                                    .map(pt -> new LatLng(pt.getLat(), pt.getLon()))
-                                    .toList()
-                            ).toList()
-                            .map(latLngs -> {
-                                patternSelection.setLatLngs(latLngs);
-                                return patternSelection;
-                            });
-                });
+            .flatMap(patternSelection -> {
+                if (patternSelection.getPatterns() == null) {
+                    return patternSelection;
+                }
+                return Flowable
+                    .fromIterable(patternSelection.getPatterns())
+                    .flatMap(patterns -> Flowable
+                        .fromIterable(patterns.getPt())
+                        .map(pt -> new LatLng(pt.getLat(), pt.getLon()))
+                        .toList()
+                    )
+                    .toList()
+                    .map(latLngs -> {
+                        patternSelection.setLatLngs(latLngs);
+                        return patternSelection;
+                    });
+            });
     }
 
     /**
-     * <p>Gets an observable so the {@link StopView} only needs
-     *    to implement an {@link rx.Observer} can listen to changes to the state of visible stops.</p>
+     * <p>Gets a flowable so the {@link StopView} only needs
+     *    to implement an {@link io.reactivex.Observer} can listen to changes to the state of visible stops.</p>
      * <p>Internally, this will store state changes to map camera and selection changes such that
      *    the only items being emitted will be whether or not a stop will show or not.</p>
-     * @param zoomObservable the zoom observable
-     * @return an observable that emits any change to change in stop visibility
+     * @param zoomFlowable the zoom flowable
+     * @return a flowable that emits any change to change in stop visibility
      */
-    public Observable<StopRenderRequest> getStopRenderRequests(Flowable<Float> zoomObservable) {
+    public Flowable<StopRenderRequest> getStopRenderRequests(Flowable<Float> zoomFlowable) {
         // NOTE: Will have to make our own StopViewModel and move this there when
         // we start creating our Trip Planner.
-        if (zoomObservable == null) {
+        if (zoomFlowable == null) {
             return null;
         }
 
-        Observable<EitherStopState<?>> stopSelectionState = getStopSelectionState();
-        Observable<EitherStopState<?>> mapState = getZoomState(zoomObservable);
+        Flowable<EitherStopState<?>> stopSelectionState = getStopSelectionState();
+        Flowable<EitherStopState<?>> mapState = getZoomState(zoomFlowable);
         return stopSelectionState.mergeWith(mapState)
                 .scan(StopRequestAccumulator.create(null, null, Collections.emptyList()), // initial val
                         ((stopRequestAccumulator, eitherStopState) -> { // scan lambda
@@ -237,31 +234,31 @@ public class PatternViewModel {
     /**
      * Simplified zoom state
      * @param zoomFlowable the original map state flowable
-     * @return the zoom observable
+     * @return the zoom flowable
      */
-    private Observable<EitherStopState<?>> getZoomState(Flowable<Float> zoomFlowable) {
+    private Flowable<EitherStopState<?>> getZoomState(Flowable<Float> zoomFlowable) {
         return zoomFlowable
-                .toObservable()
                 .map(zoomLevel -> zoomLevel >= zoomThreshold)
                 .map(MapState::create);
     }
 
     /**
-     * Creates an {@link Observable} of a selection
+     * Creates a {@link Flowable} of a selection
      * @return the stop selection state
      */
     @SuppressLint("UseSparseArrays")
-    private Observable<EitherStopState<?>> getStopSelectionState() {
+    private Flowable<EitherStopState<?>> getStopSelectionState() {
         return patternSelections
-                .flatMap(patternSelection -> Observable.fromIterable(patternSelection.getPatterns())
-                        .flatMapIterable(ptr -> ptr.getPt())
+                .flatMap(patternSelection -> Flowable.fromIterable(patternSelection.getPatterns())
+                        .flatMapIterable(Ptr::getPt)
                         .filter(pt -> 'S' == pt.getTyp())
                         .toList()
                         .map(pts -> StopSelection.create(pts,
                                 patternSelection.getRouteNumber(),
                                 patternSelection.isSelected()))
+                        .toFlowable()
                 ).scan(FullStopSelectionState.create(Collections.emptyMap()), (accumulator, routeStops) -> {
-                    Map<Integer, StopRenderState> current = new HashMap<>(accumulator.value());
+                    Map<Integer, StopRenderState> current = new HashMap<>((Map<Integer, StopRenderState>)(accumulator.value()));
                     for (Pt pt : routeStops.getStopPts()) {
                         Integer stpid = pt.getStpid();
                         if (!current.containsKey(stpid)) {

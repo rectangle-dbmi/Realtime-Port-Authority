@@ -6,6 +6,7 @@ import com.rectanglel.patstatic.model.RetrofitPatApi
 import com.rectanglel.patstatic.model.StaticData
 import com.rectanglel.patstatic.patterns.response.Ptr
 import com.rectanglel.patstatic.wrappers.WifiChecker
+import io.reactivex.observers.TestObserver
 import io.reactivex.subscribers.TestSubscriber
 import org.junit.After
 import org.junit.Assert
@@ -82,10 +83,10 @@ class PatternDataManagerTest {
         //endregion verify
 
         //region assert
-        Assert.assertEquals(1, ts1.onNextEvents.size)
-        Assert.assertEquals(ts1.onNextEvents.size, ts2.onNextEvents.size)
-        Assert.assertEquals(PatApiMock.getPatterns(), ts1.onNextEvents[0])
-        Assert.assertEquals(PatApiMock.getPatterns(), ts2.onNextEvents[0])
+        Assert.assertEquals(1, ts1.values().size)
+        Assert.assertEquals(ts1.values().size, ts2.values().size)
+        Assert.assertEquals(PatApiMock.getPatterns(), ts1.values()[0])
+        Assert.assertEquals(PatApiMock.getPatterns(), ts2.values()[0])
         //endregion assert
     }
 
@@ -123,10 +124,10 @@ class PatternDataManagerTest {
         //endregion verify
 
         //region assert
-        Assert.assertEquals(1, ts1.onNextEvents.size)
-        Assert.assertEquals(ts1.onNextEvents.size, ts2.onNextEvents.size)
-        Assert.assertEquals(PatApiMock.getPatterns(), ts1.onNextEvents[0])
-        Assert.assertEquals(PatApiMock.getPatterns(), ts2.onNextEvents[0])
+        Assert.assertEquals(1, ts1.values().size)
+        Assert.assertEquals(ts1.values().size, ts2.values().size)
+        Assert.assertEquals(PatApiMock.getPatterns(), ts1.values()[0])
+        Assert.assertEquals(PatApiMock.getPatterns(), ts2.values()[0])
         //endregion assert
     }
 
@@ -161,9 +162,9 @@ class PatternDataManagerTest {
         //endregion verify
 
         //region assert
-        Assert.assertEquals(1, ts1.onNextEvents.size)
-        Assert.assertEquals(ts1.onNextEvents.size, ts2.onNextEvents.size)
-        Assert.assertEquals(ts1.onNextEvents[0], ts2.onNextEvents[0])
+        Assert.assertEquals(1, ts1.values().size)
+        Assert.assertEquals(ts1.values().size, ts2.values().size)
+        Assert.assertEquals(ts1.values()[0], ts2.values()[0])
         //endregion assert
     }
 
@@ -183,9 +184,9 @@ class PatternDataManagerTest {
         //endregion setup
 
         //region assert
-        Assert.assertEquals(0, ts1.onNextEvents.size)
-        Assert.assertEquals(1, ts1.onErrorEvents.size)
-        Assert.assertEquals(mockedException, ts1.onErrorEvents[0].cause)
+        Assert.assertEquals(0, ts1.values().size)
+        Assert.assertEquals(1, ts1.values().size)
+        Assert.assertEquals(mockedException, ts1.errors()[0].cause)
         //endregion assert
     }
 }

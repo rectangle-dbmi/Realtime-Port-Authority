@@ -93,6 +93,7 @@ ext {
                     leakCanary: '1.5',
                     okHttp: '3.4.1',
                     retrofit: '2.2.0',
+                    rxjava2Adapter: '2.4.0',
                     timber: '4.3.1',
             ],
 

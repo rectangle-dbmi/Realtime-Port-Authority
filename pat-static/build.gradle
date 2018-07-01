@@ -29,7 +29,7 @@ dependencies {
 
     implementation "com.squareup.retrofit2:retrofit:${versions.square.retrofit}"
     implementation "com.squareup.retrofit2:converter-gson:${versions.square.retrofit}"
-    implementation "com.squareup.retrofit2:adapter-rxjava:${versions.square.retrofit}"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:${versions.square.rxjava2Adapter}"
     implementation "com.squareup.okhttp3:okhttp:${versions.square.okHttp}"
 
     testImplementation "junit:junit:${versions.test.junit}"

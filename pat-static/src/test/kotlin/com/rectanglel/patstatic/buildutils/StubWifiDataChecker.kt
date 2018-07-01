@@ -9,6 +9,5 @@ import com.rectanglel.patstatic.wrappers.WifiChecker
  * @author Jeremy Jao
  */
 class StubWifiDataChecker : WifiChecker {
-    override fun isOnWifi(): Boolean = true
-
+    override fun isWifiOn(): Boolean = true
 }

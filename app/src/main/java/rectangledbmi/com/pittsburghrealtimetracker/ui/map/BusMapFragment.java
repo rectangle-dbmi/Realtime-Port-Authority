@@ -85,6 +85,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.flowables.ConnectableFlowable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
+import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subscribers.DisposableSubscriber;
@@ -182,7 +183,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     /**
      * The subscription to unselect a vehicle from the map
      */
-    private ResourceSubscriber unselectVehicleSubscription;
+    private DisposableSubscriber unselectVehicleSubscription;
 
     private ConcurrentMap<String, List<Polyline>> routeLines;
 
@@ -229,7 +230,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     /**
      * subscription for predictions
      */
-    private ResourceSubscriber predictionsSubscription;
+    private Disposable predictionsSubscription;
     // endregion
 
     // region Android Fragment LifeCycle
@@ -681,12 +682,10 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
                 routeSelectionObservable
         );
         polylineSubscription = patternViewModel.getPatternSelections()
-                .toFlowable(BackpressureStrategy.BUFFER)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(polylineObserver());
 
         stopSubscription = patternViewModel.getStopRenderRequests(zoomSubject.toFlowable(BackpressureStrategy.BUFFER))
-                .toFlowable(BackpressureStrategy.BUFFER)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(stopObserver());
 
@@ -776,7 +775,7 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
 
     /**
      * This is an anonymous function that attaches a route's bitmap to its information
-     * from {@link Vehicle}. This will make an {@link rx.Observable} emit a {@link VehicleBitmap}.
+     * from {@link Vehicle}. This will make an {@link Observable} emit a {@link VehicleBitmap}.
      *
      * @return the anonymous vehicle information with its associated bitmap
      */
@@ -1196,12 +1195,8 @@ public class BusMapFragment extends SelectionFragment implements GoogleApiClient
     }
 
     @Override
-    public SingleObserver<ProcessedPredictions> predictionsObserver() {
-        return new SingleObserver<ProcessedPredictions>() {
-
-            @Override
-            public void onSubscribe(Disposable d) { }
-
+    public DisposableSingleObserver<ProcessedPredictions> predictionsObserver() {
+        return new DisposableSingleObserver<ProcessedPredictions>() {
             @Override
             public void onError(Throwable e) {
                 Timber.e(e, "Predictions encountered an error");

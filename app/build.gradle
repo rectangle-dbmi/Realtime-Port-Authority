@@ -70,6 +70,9 @@ dependencies {
     implementation "com.android.support:mediarouter-v7:${versions.android.support}"
 
     //3rd party android libraries
+    implementation "com.squareup.retrofit2:retrofit:${versions.square.retrofit}"
+    implementation "com.squareup.retrofit2:converter-gson:${versions.square.retrofit}"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:${versions.square.rxjava2Adapter}"
     implementation "io.reactivex.rxjava2:rxandroid:${versions.rx.android}"
     implementation "io.reactivex.rxjava2:rxjava:${versions.rx.java2}"
     implementation "com.github.pwittchen:reactivenetwork-rx2:${versions.rx.network}"

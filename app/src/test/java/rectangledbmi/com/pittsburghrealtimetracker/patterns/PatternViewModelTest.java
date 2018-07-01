@@ -48,7 +48,6 @@ public class PatternViewModelTest {
         patternSelectionTestSubscriber = new TestSubscriber<>();
         polylinePresenterSubscription = patternViewModel
                 .getPatternSelections()
-                .toFlowable(BackpressureStrategy.BUFFER)
                 .subscribeWith(patternSelectionTestSubscriber);
     }
 
