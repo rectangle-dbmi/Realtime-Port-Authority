@@ -15,12 +15,6 @@ import timber.log.Timber;
  * Created by epicstar on 3/11/16.
  */
 public class PATTrackApplication extends Application {
-    private static PATTrackApplication instance;
-
-    public PATTrackApplication() {
-        instance = this;
-    }
-
     /**
      * Use this for {@link android.support.v4.app.Fragment}s to add a {@link RefWatcher} to look for
      * leaks in {@link LeakCanary}.
