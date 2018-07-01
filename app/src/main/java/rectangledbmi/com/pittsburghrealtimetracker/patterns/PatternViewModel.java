@@ -89,11 +89,11 @@ public class PatternViewModel {
         return patternSelections
             .flatMap(patternSelection -> {
                 if (patternSelection.getPatterns() == null) {
-                    return patternSelection;
+                    return Flowable.just(patternSelection);
                 }
                 return Flowable
                     .fromIterable(patternSelection.getPatterns())
-                    .flatMap(patterns -> Flowable
+                    .flatMapSingle(patterns -> Flowable
                         .fromIterable(patterns.getPt())
                         .map(pt -> new LatLng(pt.getLat(), pt.getLon()))
                         .toList()
@@ -102,7 +102,8 @@ public class PatternViewModel {
                     .map(latLngs -> {
                         patternSelection.setLatLngs(latLngs);
                         return patternSelection;
-                    });
+                    })
+                    .toFlowable();
             });
     }
 
