@@ -1,6 +1,7 @@
 package com.rectanglel.patstatic.patterns
 
 import com.rectanglel.patstatic.TestHelperMethods
+import com.rectanglel.patstatic.buildutils.getTestFilesFolder
 import com.rectanglel.patstatic.mock.PatApiMock
 import com.rectanglel.patstatic.model.RetrofitPatApi
 import com.rectanglel.patstatic.model.StaticData
@@ -142,7 +143,7 @@ class PatternDataManagerTest {
         val ts2 = TestSubscriber<List<Ptr>>()
 
         val filename = "lineinfo/${PatApiMock.testRoute1}.json"
-        val file = File("testFiles", filename)
+        val file = File(getTestFilesFolder(), filename)
         // jeremy.... RIP backticks for when because kotlin has
         // a keyword called when that replaces switch cases
         Mockito.`when`(wifiChecker.isWifiOn()).thenReturn(true)
@@ -185,7 +186,7 @@ class PatternDataManagerTest {
 
         //region assert
         Assert.assertEquals(0, ts1.values().size)
-        Assert.assertEquals(1, ts1.values().size)
+        Assert.assertEquals(1, ts1.errorCount())
         Assert.assertEquals(mockedException, ts1.errors()[0].cause)
         //endregion assert
     }

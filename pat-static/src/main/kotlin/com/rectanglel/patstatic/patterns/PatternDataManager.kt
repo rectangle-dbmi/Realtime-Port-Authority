@@ -39,7 +39,7 @@ class PatternDataManager(dataDirectory : File,
 
     fun getPatterns(rt: String) : Flowable<List<Ptr>> {
         val polylineFile = getPatternsFile(rt)
-        // 1. if doesn't exist, get from internet (merely a fallback to when a pattern doesn't yet exist in source control)
+        // 1. if doesn't exist, get from internet (merely a fallback to when a pattern isn't yet saved to disk)
         // 2. if off wifi, always get from disk
         // 3. if age is past 24 hours and there is wifi, retrieve from the internet
         // 4. otherwise,
@@ -86,7 +86,8 @@ class PatternDataManager(dataDirectory : File,
                         throw Exceptions.propagate(e)
                     }
                 }
-                .onErrorResumeNext(getPatternsFromDisk(rt))
+                .onErrorResumeNext { _: Throwable ->  getPatternsFromDisk(rt) }
+//                .onErrorResumeNext(t -> return getPatternsFromDisk(rt))
     }
 
 
