@@ -8,11 +8,12 @@ import org.junit.Test;
 
 import java.util.List;
 
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subscribers.TestSubscriber;
 import rectangledbmi.com.pittsburghrealtimetracker.mock.PatApiMock;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.Route;
-import rx.Subscription;
-import rx.observers.TestSubscriber;
-import rx.subjects.BehaviorSubject;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -30,7 +31,7 @@ import static rectangledbmi.com.pittsburghrealtimetracker.mock.ToggledRouteMockM
  */
 public class PatternViewModelTest {
 
-    private Subscription polylinePresenterSubscription;
+    private Disposable polylinePresenterSubscription;
     private TestSubscriber<PatternSelection> patternSelectionTestSubscriber;
     private PatApiService patapiMock;
     private static BehaviorSubject<Route> subject = BehaviorSubject.create();
@@ -42,18 +43,18 @@ public class PatternViewModelTest {
 
         PatternViewModel patternViewModel = new PatternViewModel(
                 patapiMock,
-                subject.asObservable()
+                subject.toFlowable(BackpressureStrategy.BUFFER)
         );
         patternSelectionTestSubscriber = new TestSubscriber<>();
         polylinePresenterSubscription = patternViewModel
                 .getPatternSelections()
-                .subscribe(patternSelectionTestSubscriber);
+                .subscribeWith(patternSelectionTestSubscriber);
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @After
     public void tearDown() {
-        polylinePresenterSubscription.unsubscribe();
+        polylinePresenterSubscription.dispose();
     }
 
 
@@ -76,7 +77,7 @@ public class PatternViewModelTest {
         subject.onNext(firstRouteSelection);
         noErrorsAndNotCompleted(patternSelectionTestSubscriber);
 
-        for (PatternSelection patternSelection : patternSelectionTestSubscriber.getOnNextEvents()) {
+        for (PatternSelection patternSelection : patternSelectionTestSubscriber.values()) {
             assertEquals(PatApiMock.getPatterns(), patternSelection.getPatterns());
             assertEquals(firstRouteSelection.isSelected(), patternSelection.isSelected());
             assertEquals(firstRouteSelection.getRoute(), patternSelection.getRouteNumber());
@@ -85,7 +86,7 @@ public class PatternViewModelTest {
         Route unselectedSelection = getUnselectedRouteSelection();
         subject.onNext(unselectedSelection);
         noErrorsAndNotCompleted(patternSelectionTestSubscriber);
-        List<PatternSelection> onNextEvents = patternSelectionTestSubscriber.getOnNextEvents();
+        List<PatternSelection> onNextEvents = patternSelectionTestSubscriber.values();
         PatternSelection unselectedOnNextEvent = onNextEvents.get(onNextEvents.size() - 1);
         assertFalse(unselectedOnNextEvent.isSelected());
         assertEquals(unselectedSelection.getRoute(), unselectedOnNextEvent.getRouteNumber());

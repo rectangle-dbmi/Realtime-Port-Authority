@@ -9,8 +9,8 @@ import com.rectanglel.patstatic.vehicles.response.VehicleResponse;
 import java.util.Collection;
 import java.util.List;
 
-import rx.Observable;
-import rx.Single;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
 
 /**
  * <p>Service interface to get data from the Port Authority Trueime API and process it to be useable.</p>
@@ -19,16 +19,16 @@ import rx.Single;
  * @since 78
  */
 public interface PatApiService {
-    Observable<VehicleResponse> getVehicles(Collection<String> rts);
+    Flowable<VehicleResponse> getVehicles(Collection<String> rts);
 
     Single<List<Prd>> getVehiclePredictions(int id);
 
     Single<List<Prd>> getStopPredictions(int id, Collection<String> rts);
 
-    Observable<List<Ptr>> getPatterns(String rt);
+    Flowable<List<Ptr>> getPatterns(String rt);
 
     @SuppressWarnings("unused")
-    Observable<List<Pt>> getStops(String rt);
+    Flowable<List<Pt>> getStops(String rt);
 
     Single<List<BusRoute>> getRoutes();
 }

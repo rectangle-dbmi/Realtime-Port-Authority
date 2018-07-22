@@ -1,17 +1,19 @@
 package com.rectanglel.patstatic.patterns
 
 import com.rectanglel.patstatic.TestHelperMethods
+import com.rectanglel.patstatic.buildutils.getTestFilesFolder
 import com.rectanglel.patstatic.mock.PatApiMock
 import com.rectanglel.patstatic.model.RetrofitPatApi
 import com.rectanglel.patstatic.model.StaticData
 import com.rectanglel.patstatic.patterns.response.Ptr
 import com.rectanglel.patstatic.wrappers.WifiChecker
+import io.reactivex.observers.TestObserver
+import io.reactivex.subscribers.TestSubscriber
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
-import rx.observers.TestSubscriber
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
@@ -70,7 +72,7 @@ class PatternDataManagerTest {
         // region setup
         val ts1 = TestSubscriber<List<Ptr>>()
         val ts2 = TestSubscriber<List<Ptr>>()
-        Mockito.`when`(wifiChecker.isOnWifi()).thenReturn(true)
+        Mockito.`when`(wifiChecker.isWifiOn()).thenReturn(true)
         patternDataManager.getPatterns(PatApiMock.testRoute1).subscribe(ts1)
         patternDataManager.getPatterns(PatApiMock.testRoute1).subscribe(ts2)
         // endregion setup
@@ -82,10 +84,10 @@ class PatternDataManagerTest {
         //endregion verify
 
         //region assert
-        Assert.assertEquals(1, ts1.onNextEvents.size)
-        Assert.assertEquals(ts1.onNextEvents.size, ts2.onNextEvents.size)
-        Assert.assertEquals(PatApiMock.getPatterns(), ts1.onNextEvents[0])
-        Assert.assertEquals(PatApiMock.getPatterns(), ts2.onNextEvents[0])
+        Assert.assertEquals(1, ts1.values().size)
+        Assert.assertEquals(ts1.values().size, ts2.values().size)
+        Assert.assertEquals(PatApiMock.getPatterns(), ts1.values()[0])
+        Assert.assertEquals(PatApiMock.getPatterns(), ts2.values()[0])
         //endregion assert
     }
 
@@ -111,7 +113,7 @@ class PatternDataManagerTest {
 
         val ts1 = TestSubscriber<List<Ptr>>()
         val ts2 = TestSubscriber<List<Ptr>>()
-        Mockito.`when`(wifiChecker.isOnWifi()).thenReturn(false)
+        Mockito.`when`(wifiChecker.isWifiOn()).thenReturn(false)
         patternDataManager.getPatterns(PatApiMock.testRoute1).subscribe(ts1)
         patternDataManager.getPatterns(PatApiMock.testRoute1).subscribe(ts2)
         // endregion setup
@@ -123,10 +125,10 @@ class PatternDataManagerTest {
         //endregion verify
 
         //region assert
-        Assert.assertEquals(1, ts1.onNextEvents.size)
-        Assert.assertEquals(ts1.onNextEvents.size, ts2.onNextEvents.size)
-        Assert.assertEquals(PatApiMock.getPatterns(), ts1.onNextEvents[0])
-        Assert.assertEquals(PatApiMock.getPatterns(), ts2.onNextEvents[0])
+        Assert.assertEquals(1, ts1.values().size)
+        Assert.assertEquals(ts1.values().size, ts2.values().size)
+        Assert.assertEquals(PatApiMock.getPatterns(), ts1.values()[0])
+        Assert.assertEquals(PatApiMock.getPatterns(), ts2.values()[0])
         //endregion assert
     }
 
@@ -141,10 +143,10 @@ class PatternDataManagerTest {
         val ts2 = TestSubscriber<List<Ptr>>()
 
         val filename = "lineinfo/${PatApiMock.testRoute1}.json"
-        val file = File("testFiles", filename)
+        val file = File(getTestFilesFolder(), filename)
         // jeremy.... RIP backticks for when because kotlin has
         // a keyword called when that replaces switch cases
-        Mockito.`when`(wifiChecker.isOnWifi()).thenReturn(true)
+        Mockito.`when`(wifiChecker.isWifiOn()).thenReturn(true)
         Mockito.`when`(staticData.getInputStreamForFileName(filename))
                 .thenReturn(InputStreamReader(FileInputStream(file)))
 
@@ -161,9 +163,9 @@ class PatternDataManagerTest {
         //endregion verify
 
         //region assert
-        Assert.assertEquals(1, ts1.onNextEvents.size)
-        Assert.assertEquals(ts1.onNextEvents.size, ts2.onNextEvents.size)
-        Assert.assertEquals(ts1.onNextEvents[0], ts2.onNextEvents[0])
+        Assert.assertEquals(1, ts1.values().size)
+        Assert.assertEquals(ts1.values().size, ts2.values().size)
+        Assert.assertEquals(ts1.values()[0], ts2.values()[0])
         //endregion assert
     }
 
@@ -183,9 +185,9 @@ class PatternDataManagerTest {
         //endregion setup
 
         //region assert
-        Assert.assertEquals(0, ts1.onNextEvents.size)
-        Assert.assertEquals(1, ts1.onErrorEvents.size)
-        Assert.assertEquals(mockedException, ts1.onErrorEvents[0].cause)
+        Assert.assertEquals(0, ts1.values().size)
+        Assert.assertEquals(1, ts1.errorCount())
+        Assert.assertEquals(mockedException, ts1.errors()[0].cause)
         //endregion assert
     }
 }

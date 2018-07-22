@@ -6,8 +6,10 @@ import com.rectanglel.patstatic.model.RetrofitPatApi
 import com.rectanglel.patstatic.model.StaticData
 import com.rectanglel.patstatic.patterns.response.Ptr
 import com.rectanglel.patstatic.wrappers.WifiChecker
-import rx.Observable
-import rx.exceptions.Exceptions
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
+import io.reactivex.Observable
+import io.reactivex.exceptions.Exceptions
 import java.io.File
 import java.io.IOException
 
@@ -35,16 +37,16 @@ class PatternDataManager(dataDirectory : File,
         dataType,
         "lineinfo") {
 
-    fun getPatterns(rt: String) : Observable<List<Ptr>> {
+    fun getPatterns(rt: String) : Flowable<List<Ptr>> {
         val polylineFile = getPatternsFile(rt)
-        // 1. if doesn't exist, get from internet (merely a fallback to when a pattern doesn't yet exist in source control)
+        // 1. if doesn't exist, get from internet (merely a fallback to when a pattern isn't yet saved to disk)
         // 2. if off wifi, always get from disk
         // 3. if age is past 24 hours and there is wifi, retrieve from the internet
         // 4. otherwise,
         if (!polylineFile.exists()) {
             return getPatternsFromInternet(rt)
         }
-        if (!wifiChecker.isOnWifi()) {
+        if (!wifiChecker.isWifiOn()) {
             return getPatternsFromDisk(rt)
         }
         val polylineAge = polylineFile.lastModified()
@@ -58,8 +60,8 @@ class PatternDataManager(dataDirectory : File,
 
     private fun getPatternsFile(rt: String) : File = File(dataDirectory, "$rt.json")
 
-    internal fun getPatternsFromDisk(rt: String) : Observable<List<Ptr>> {
-        return Observable.just(getPatternsFile(rt))
+    internal fun getPatternsFromDisk(rt: String) : Flowable<List<Ptr>> {
+        return Flowable.just(getPatternsFile(rt))
                 .map { file ->
                     try {
                         getFromDisk(file)
@@ -71,7 +73,7 @@ class PatternDataManager(dataDirectory : File,
 
     // TODO: remove this warning suppression when ViewModel has fixed
     @Suppress("RedundantVisibilityModifier")
-    public fun getPatternsFromInternet(rt: String) : Observable<List<Ptr>> {
+    public fun getPatternsFromInternet(rt: String) : Flowable<List<Ptr>> {
         return patApiClient.getPatterns(rt)
                 .map { response -> response.patternResponse }
                 .map { bustimePatternResponse ->
@@ -84,7 +86,8 @@ class PatternDataManager(dataDirectory : File,
                         throw Exceptions.propagate(e)
                     }
                 }
-                .onErrorResumeNext { getPatternsFromDisk(rt) }
+                .onErrorResumeNext { _: Throwable ->  getPatternsFromDisk(rt) }
+//                .onErrorResumeNext(t -> return getPatternsFromDisk(rt))
     }
 
 

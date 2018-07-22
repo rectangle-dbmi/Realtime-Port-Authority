@@ -7,7 +7,8 @@ import com.rectanglel.patstatic.routes.BusRoute;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
-import rx.Observable;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
 
 /**
  * Cache all routes to a folder
@@ -34,23 +35,23 @@ public class TrueTimeDataCacher {
         patApiService.getRoutes()
                 .toObservable()
                 .flatMap(routes ->
-                        Observable.from(routes)
+                        io.reactivex.Observable.fromIterable(routes)
                                 .skipWhile(route -> {
                                     String routeNumber = route.getRouteNumber();
                                     return new File(cacheDirectory, String.format("lineinfo/%s.json", routeNumber)).exists();
                                 })
-                                .zipWith(Observable.interval(0, 500, TimeUnit.MILLISECONDS), (stuff, aLong) -> stuff)
+                                .zipWith(io.reactivex.Observable.interval(0, 500, TimeUnit.MILLISECONDS), (stuff, aLong) -> stuff)
                 )
                 .buffer(8)
-                .zipWith(Observable.interval(0, 5, TimeUnit.SECONDS), (stuff, aLong) -> stuff)
+                .zipWith(io.reactivex.Observable.interval(0, 5, TimeUnit.SECONDS), (stuff, aLong) -> stuff)
                 .flatMapIterable(routes1 -> routes1)
                 .map(BusRoute::getRouteNumber)
                 .flatMap(routeNumber -> patApiService
                         .getPatterns(routeNumber)
-                        .onErrorResumeNext(Observable.empty())
-                        .doOnNext((pattern) -> System.out.println(String.format("Saving route number: %s", routeNumber)))
-                )
-                .toCompletable().await();
+                        .onErrorResumeNext(Flowable.empty())
+                        .toObservable()
+                        .doOnNext(pattern -> System.out.println(String.format("Saving route number: %s", routeNumber)))
+                );
     }
 
     public static void main(String[] args) {

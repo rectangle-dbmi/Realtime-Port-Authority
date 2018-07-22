@@ -15,8 +15,9 @@ import java.io.File;
 import java.util.Set;
 
 import com.rectanglel.patstatic.model.PatApiService;
+
+import io.reactivex.Flowable;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.Route;
-import rx.Observable;
 
 public abstract class SelectionFragment extends Fragment implements ClearSelection {
 
@@ -73,13 +74,13 @@ public abstract class SelectionFragment extends Fragment implements ClearSelecti
          *
          * @return the current snapshot of currently selected items
          */
-        Observable<Set<String>> getSelectedRoutesObservable();
+        Flowable<Set<String>> getSelectedRoutesObservable();
 
         /**
          *
          * @return the currently toggled route
          */
-        Observable<Route> getToggledRouteObservable();
+        Flowable<Route> getToggledRouteObservable();
 
         /**
          * Calls on the {@link NavigationDrawerFragment} from another componnt to restore selection

@@ -1,13 +1,19 @@
 package rectangledbmi.com.pittsburghrealtimetracker.utils;
 
-import com.github.pwittchen.reactivenetwork.library.ReactiveNetwork;
+import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork;
+import com.github.pwittchen.reactivenetwork.library.rx2.internet.observing.InternetObservingSettings;
+import com.github.pwittchen.reactivenetwork.library.rx2.internet.observing.strategy.WalledGardenInternetObservingStrategy;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 
-import rx.Observable;
-import rx.functions.Action1;
-import rx.functions.Func1;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableTransformer;
+import io.reactivex.Observable;
+import io.reactivex.ObservableTransformer;
+import io.reactivex.functions.Consumer;
+import rectangledbmi.com.pittsburghrealtimetracker.PATTrackApplication;
 import timber.log.Timber;
 
 /**
@@ -20,15 +26,15 @@ import timber.log.Timber;
 public class ReactiveHelper {
 
     /**
-     * <p>Use in a {@link Observable#compose(Observable.Transformer)} when listening to state to reconnect
-     *    from the internet using {@link Observable#retryWhen(Func1)}</p>
+     * <p>Use in a {@link Observable#compose(ObservableTransformer)} when listening to state to reconnect
+     *    from the internet using {@link Observable#retryWhen(io.reactivex.functions.Function)}</p>
      * @param disconnectionMessage lambda that should print out a disconnection message
      * @param reconnectionMessage lambda that should print out a reconnection message
      * @return a transformer for composing retrying internet
      */
-    public static Observable.Transformer<Throwable, Boolean> retryIfInternet(
-            Action1<Throwable> disconnectionMessage,
-            Action1<Boolean> reconnectionMessage
+    public static FlowableTransformer<Throwable, Boolean> retryIfInternet(
+            Consumer<Throwable> disconnectionMessage,
+            Consumer<Boolean> reconnectionMessage
     ) {
         return throwableObservable -> throwableObservable
                 .doOnNext(disconnectionMessage)
@@ -36,29 +42,30 @@ public class ReactiveHelper {
             // theoretically, this should only resubscribe when internet is back
             if (isInternetDown(throwable)) {
                 return ReactiveNetwork
-                        .observeInternetConnectivity(
-                                new WalledInternetStrategy(),
-                                2000,
-                                2000,
-                                "http://clients3.google.com/generate_204",
-                                80,
-                                2000,
-                                null
-                        )
-                        .skipWhile(isConnected -> !isConnected)
+                        .observeInternetConnectivity(InternetObservingSettings
+                            .strategy(new WalledGardenInternetObservingStrategy())
+                            .initialInterval(2000)
+                            .interval(2000)
+                            .port(80)
+                            .timeout(2000)
+                            .errorHandler(null)
+                            .host("http://clients3.google.com/generate_204")
+                            .build())
+                    .skipWhile(isConnected -> !isConnected)
                         .doOnNext(isConnected -> {
                             if (isConnected) {
-                                reconnectionMessage.call(true);
+                                reconnectionMessage.accept(true);
                             }
                             else {
                                 Timber.i("Internet is still disconnected in retryWhen.");
                             }
-                        });
+                        })
+                        .toFlowable(BackpressureStrategy.BUFFER);
             }
             // otherwise, just run normal onError
             Timber.i(throwable, "Not retrying since something should be wrong on " +
                     "Port Authority's end.");
-            return Observable.error(throwable);
+            return Flowable.error(throwable);
         });
     }
 

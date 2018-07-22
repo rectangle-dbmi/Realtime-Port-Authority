@@ -9,7 +9,8 @@ import com.rectanglel.patstatic.patterns.response.Ptr;
 
 import java.util.List;
 
-import rx.Observable;
+import io.reactivex.Flowable;
+import io.reactivex.Observable;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -58,11 +59,11 @@ public class PatApiMock {
 
     private static void setupService(PatApiService patApiService) {
         when(patApiService.getPatterns(testRoute1))
-                .thenReturn(Observable.just(patterns));
+                .thenReturn(Flowable.just(patterns));
     }
 
     private static void setupMock(RetrofitPatApi patapi) {
         when(patapi.getPatterns(testRoute1))
-                .thenReturn(Observable.just(patternResponse));
+                .thenReturn(Flowable.just(patternResponse));
     }
 }

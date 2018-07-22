@@ -10,7 +10,7 @@ import com.rectanglel.patstatic.patterns.response.Pt;
 import com.rectanglel.patstatic.predictions.PredictionsType;
 import com.rectanglel.patstatic.vehicles.response.Vehicle;
 
-import rx.Single;
+import io.reactivex.Single;
 import timber.log.Timber;
 
 /**
