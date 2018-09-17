@@ -1,7 +1,7 @@
 .gradle
 *.iml
 /.idea/*
-*assets/cache
+**/assets/cache
 .DS_Store
 /app/.DS_Store
 apks/
