@@ -161,5 +161,7 @@ public class DateExtensionsTest {
     }
 }
 
+// region data classes for unit tests
 private data class PastOneDayDatum(val dateToTest : Date, val currentDate: Date, val isPastOneDay: Boolean)
 private data class QuarterDatum(val dateToTest: Date, val currentDate : Date, val isCurrentDatePassedComparedDateQuarter: Boolean)
+// endregion
