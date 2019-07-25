@@ -4,11 +4,11 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.selection.NavigationDrawerFragment"
+    tools:context="com.rectanglel.pattrack.routes.ui.RouteSelectionFragment"
     android:theme="@style/AppTheme"
     android:id="@+id/new_navigation_drawer"
     >
-
+    <!-- tools:context=".ui.selection.NavigationDrawerFragment" -->
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"

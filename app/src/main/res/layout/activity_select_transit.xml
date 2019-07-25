@@ -37,11 +37,17 @@
          android:layout_gravity="left" instead. -->
     <!-- The drawer is given a fixed width in dp and extends the full height of
          the container. -->
+    <!--<fragment android:id="@+id/navigation_drawer"-->
+        <!--android:layout_width="@dimen/navigation_drawer_width"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_gravity="start"-->
+        <!--android:name="rectangledbmi.com.pittsburghrealtimetracker.ui.selection.NavigationDrawerFragment"-->
+        <!--tools:layout="@layout/navigation_drawer_layout" />-->
     <fragment android:id="@+id/navigation_drawer"
         android:layout_width="@dimen/navigation_drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:name="rectangledbmi.com.pittsburghrealtimetracker.ui.selection.NavigationDrawerFragment"
+        class="com.rectanglel.pattrack.routes.ui.RouteSelectionFragment"
         tools:layout="@layout/navigation_drawer_layout" />
 
 </android.support.v4.widget.DrawerLayout>

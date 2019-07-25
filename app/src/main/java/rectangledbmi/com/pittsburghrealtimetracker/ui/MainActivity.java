@@ -1,6 +1,7 @@
 package rectangledbmi.com.pittsburghrealtimetracker.ui;
 
 import android.app.AlertDialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,6 +23,11 @@ import android.widget.Toast;
 
 import com.rectanglel.patstatic.model.PatApiService;
 import com.rectanglel.patstatic.model.PatApiServiceImpl;
+import com.rectanglel.patstatic.routes.RoutesDataManager;
+import com.rectanglel.pattrack.routes.RoutesViewModel;
+import com.rectanglel.pattrack.routes.RoutesViewModelFactory;
+import com.rectanglel.pattrack.routes.SharedPrefsSelectionStateRepository;
+import com.rectanglel.pattrack.routes.ui.RouteSelectionFragment;
 import com.rectanglel.pattrack.wrappers.AndroidWifiChecker;
 
 import java.io.File;
@@ -55,7 +61,8 @@ public class MainActivity extends AppCompatActivity implements
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
-    private NavigationDrawerFragment mNavigationDrawerFragment;
+//    private NavigationDrawerFragment mNavigationDrawerFragment;
+    private RouteSelectionFragment mNavigationDrawerFragment;
 
     /**
      * Fragment that contains data from navigation drawer
@@ -81,23 +88,39 @@ public class MainActivity extends AppCompatActivity implements
      */
     private PublishSubject<NotificationMessage> toastSubject;
 
+    private RoutesViewModelFactory routesViewModelFactory;
+
+    public RoutesViewModelFactory getRoutesViewModelFactory() {
+        return routesViewModelFactory;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         restoreActionBar();
-
-
         buildPATAPI();
+
+        // initialize RoutesViewModel but dont' do anything with it
+
+        routesViewModelFactory = new RoutesViewModelFactory(
+                new SharedPrefsSelectionStateRepository(getApplicationContext()),
+                patApiService
+        );
+        ViewModelProviders.of(this, routesViewModelFactory).get(RoutesViewModel.class);
+
         setContentView(R.layout.activity_select_transit);
         FragmentManager fragmentManager = getSupportFragmentManager();
-        mNavigationDrawerFragment = (NavigationDrawerFragment)
-                fragmentManager.findFragmentById(R.id.navigation_drawer);
-        checkSDCardData();
+//        mNavigationDrawerFragment = (NavigationDrawerFragment)
+//                fragmentManager.findFragmentById(R.id.navigation_drawer);
+//        checkSDCardData();
         // Set up the drawer.
+
+        mNavigationDrawerFragment = (RouteSelectionFragment)
+                fragmentManager.findFragmentById(R.id.navigation_drawer);
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
-                (DrawerLayout) findViewById(R.id.drawer_layout));
+                findViewById(R.id.drawer_layout));
 
         mainLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         selectionFragment = (SelectionFragment) fragmentManager.findFragmentById(R.id.map);

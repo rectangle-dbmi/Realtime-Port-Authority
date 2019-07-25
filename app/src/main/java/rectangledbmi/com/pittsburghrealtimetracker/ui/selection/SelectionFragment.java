@@ -34,7 +34,7 @@ public abstract class SelectionFragment extends Fragment implements ClearSelecti
         Route getSelectedRoute(String routeNumber);
 
         /**
-         * @return the selected routes from the {@link NavigationDrawerFragment}
+         * @return the selected items from the {@link NavigationDrawerFragment}
          */
         Set<String> getSelectedRoutes();
 

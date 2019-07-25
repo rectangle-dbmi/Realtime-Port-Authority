@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.github.ben-manes.versions'
 
 // version dependnecies should be added via ../build.gradle -> `region versions for dependencies`
@@ -43,7 +44,7 @@ android {
     sourceSets {
         main.java.srcDirs += "src/main/kotlin"
     }
-    buildToolsVersion '27.0.3'
+    buildToolsVersion versions.android.buildTools
 }
 
 dependencies {
@@ -68,6 +69,9 @@ dependencies {
     implementation "com.android.support:recyclerview-v7:${versions.android.support}"
 
     implementation "com.android.support:mediarouter-v7:${versions.android.support}"
+    implementation "android.arch.lifecycle:reactivestreams:1.1.1"
+    implementation "android.arch.lifecycle:viewmodel:1.1.1"
+    implementation "android.arch.lifecycle:extensions:1.1.1"
 
     //3rd party android libraries
     implementation "com.github.pwittchen:reactivenetwork-rx2:${versions.rx.network}"

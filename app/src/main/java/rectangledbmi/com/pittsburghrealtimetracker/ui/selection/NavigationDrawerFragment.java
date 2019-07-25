@@ -7,6 +7,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -31,7 +32,7 @@ import io.reactivex.Flowable;
 import io.reactivex.subjects.PublishSubject;
 import rectangledbmi.com.pittsburghrealtimetracker.PATTrackApplication;
 import rectangledbmi.com.pittsburghrealtimetracker.R;
-import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection;
+import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelectionState;
 import rectangledbmi.com.pittsburghrealtimetracker.selection.Route;
 import timber.log.Timber;
 
@@ -65,10 +66,10 @@ public class NavigationDrawerFragment extends Fragment {
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
 
-    private PublishSubject<RouteSelection> routeSelectionPublishSubject;
+    private PublishSubject<RouteSelectionState> routeSelectionPublishSubject;
 
     /**
-     * State of selected routes
+     * State of selected items
      * <p>
      * public because we want to clear this list...
      */
@@ -110,7 +111,7 @@ public class NavigationDrawerFragment extends Fragment {
             }
         }
         busListAdapter.notifyDataSetChanged();
-        Timber.d("Finished multiselecting routes");
+        Timber.d("Finished multiselecting items");
     }
 
     @Override
@@ -122,12 +123,12 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
         View v = inflater.inflate(R.layout.navigation_drawer_layout, container, false);
-        RecyclerView busListRecyclerView = (RecyclerView) v.findViewById(R.id.bus_list_recyclerview);
+        RecyclerView busListRecyclerView = v.findViewById(R.id.bus_list_recyclerview);
         busListRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         busListAdapter.setHasStableIds(true);
         busListRecyclerView.setHasFixedSize(true);
@@ -313,7 +314,7 @@ public class NavigationDrawerFragment extends Fragment {
         } else {
             selectedRoutes.remove(route.getRoute());
         }
-        routeSelectionPublishSubject.onNext(RouteSelection.create(new Route(route), selectedRoutes));
+        routeSelectionPublishSubject.onNext(RouteSelectionState.create(new Route(route), selectedRoutes));
     }
 
     private class BusRouteAdapter extends RecyclerView.Adapter<BusRouteAdapter.BusRouteHolder> {
@@ -324,7 +325,7 @@ public class NavigationDrawerFragment extends Fragment {
         private Route[] routes;
 
         /**
-         * Map of routes by hashmap
+         * Map of items by hashmap
          */
         private HashMap<String, Route> routeHashMap;
 
@@ -334,11 +335,11 @@ public class NavigationDrawerFragment extends Fragment {
         }
 
         /**
-         * Creates an array of routes for the recycler view and a reverse mapping
+         * Creates an array of items for the recycler view and a reverse mapping
          * <p>
          * TODO: This is rather slow and takes up some time according to the Android Studio debugger
          *
-         * @return the routes to be made for the recycler view
+         * @return the items to be made for the recycler view
          */
         private Route[] createRoutes() {
             String[] numbers, descriptions, colors;
@@ -368,7 +369,7 @@ public class NavigationDrawerFragment extends Fragment {
         }
 
         /**
-         * @return a set of currently selected routes from the recycler view
+         * @return a set of currently selected items from the recycler view
          */
         public Set<String> getSelectedRoutes() {
             return selectedRoutes;
@@ -422,8 +423,8 @@ public class NavigationDrawerFragment extends Fragment {
                 super(itemView);
                 this.itemView = itemView;
                 itemView.setOnClickListener(this);
-                routeDescription = (TextView) itemView.findViewById(R.id.bus_route_text);
-                routeIcon = (TextView) itemView.findViewById(R.id.bus_route_icon);
+                routeDescription = itemView.findViewById(R.id.bus_route_text);
+                routeIcon = itemView.findViewById(R.id.bus_route_icon);
             }
 
             public void onClick(View v) {
@@ -476,7 +477,7 @@ public class NavigationDrawerFragment extends Fragment {
         }
         return routeSelectionPublishSubject
                 .toFlowable(BackpressureStrategy.BUFFER)
-                .map(RouteSelection::getSelectedRoutes);
+                .map(RouteSelectionState::getSelectedRoutes);
     }
 
     public Flowable<Route> getToggledRouteObservable() {
@@ -485,7 +486,7 @@ public class NavigationDrawerFragment extends Fragment {
         }
         return routeSelectionPublishSubject
                 .toFlowable(BackpressureStrategy.BUFFER)
-                .map(RouteSelection::getToggledRoute);
+                .map(RouteSelectionState::getToggledRoute);
     }
 
 }

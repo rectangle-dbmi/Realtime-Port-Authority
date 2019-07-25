@@ -5,26 +5,26 @@ import java.util.Set;
 import timber.log.Timber;
 
 /**
- * An object that contains the selected route and/or all selected routes.
+ * An object that contains the selected route and/or all selected items.
  *
  * Primarily used in the selection subject
  *
  * @author Jeremy Jao
  */
-public class RouteSelection {
+public class RouteSelectionState {
 
-    public static RouteSelection create(Route route, Set<String> selectedRoutes) {
-        return new RouteSelection(route, selectedRoutes);
+    public static RouteSelectionState create(Route route, Set<String> selectedRoutes) {
+        return new RouteSelectionState(route, selectedRoutes);
     }
 
     private Route toggledRoute;
 
     private Set<String> selectedRoutes;
 
-    private RouteSelection(Route route, Set<String> selectedRoutes) {
+    public RouteSelectionState(Route route, Set<String> selectedRoutes) {
         toggledRoute = route;
         this.selectedRoutes = selectedRoutes;
-        Timber.d("getting both routes: %s, %s", route.getRoute(), selectedRoutes.toString());
+        Timber.d("getting both items: %s, %s", route.getRoute(), selectedRoutes.toString());
     }
 
     /**

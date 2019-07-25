@@ -32,9 +32,9 @@ public class PredictionsViewModel {
     }
 
     /**
-     * Creates a single emission assuming that a marker and selected routes are fed
+     * Creates a single emission assuming that a marker and selected items are fed
      * @param marker the marker
-     * @param selectedRoutes the selected routes
+     * @param selectedRoutes the selected items
      * @return a single emission to get predictions
      */
     public Single<ProcessedPredictions> getPredictions(Marker marker, HashSet<String> selectedRoutes) {
