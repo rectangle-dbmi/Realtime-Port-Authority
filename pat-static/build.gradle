@@ -58,7 +58,7 @@ task cleanCachedRoutes(type: Delete) {
     delete assetsCachePath
 }
 
-jar.dependsOn cacheRoutes
+//jar.dependsOn cacheRoutes
 repositories {
     mavenCentral()
 }
