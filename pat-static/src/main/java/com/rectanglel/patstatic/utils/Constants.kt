@@ -1,4 +1,4 @@
-package com.rectanglel.patstatic.utils;
+package com.rectanglel.patstatic.utils
 
 /**
  * Global constants available to everyone
@@ -6,7 +6,7 @@ package com.rectanglel.patstatic.utils;
  * @author Jeremy Jao
  * @since 46
  */
-public class Constants {
+object Constants {
 
 
     /**
@@ -14,6 +14,6 @@ public class Constants {
      *
      * @since 46
      */
-    public final static String DATE_FORMAT_PARSE = "yyyyMMdd HH:mm";
+    const val DATE_FORMAT_PARSE = "yyyyMMdd HH:mm"
 
 }
