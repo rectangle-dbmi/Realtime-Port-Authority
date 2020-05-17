@@ -100,7 +100,7 @@ class NaturalOrderComparator<T> : Comparator<T> // epicstar: change to abide by 
             }
 
             // process run of digits
-            if (Character.isDigit(ca) && Character.isDigit(cb)) {
+            if (ca.isDigit() && cb.isDigit()) {
                 result = compareRight(a.substring(ia), b.substring(ib))
                 if (result != 0) {
                     return result
