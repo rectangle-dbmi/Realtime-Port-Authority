@@ -62,7 +62,7 @@ class ProcessedPredictions private constructor(val marker: Marker, predictionsTy
                 when (predictionsType) {
                     is Pt -> "${it.rt} (${it.vid}): ${dateFormat.format(it.prdtm)}"
                     is Vehicle -> "(${it.stpid}) ${it.stpnm}: ${dateFormat.format(it.prdtm)}"
-                    else -> ""
+                    else -> it.toString() // this should never happen
                 }
             })
             return if (str.isNotEmpty()) str else "No predictions available."

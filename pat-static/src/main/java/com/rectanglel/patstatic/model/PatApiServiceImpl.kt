@@ -70,12 +70,12 @@ class PatApiServiceImpl(baseUrl: String,
     }
 
     override fun getVehicles(routes: Collection<String>): Flowable<VehicleResponse> {
-        return patApiClient.getVehicles(routes.joinToString())
+        return patApiClient.getVehicles(routes.joinToString(","))
                 .compose(applySchedulers())
     }
 
     override fun getStopPredictions(stpid: Int, rts: Collection<String>): Single<List<Prd>> {
-        return patApiClient.getStopPredictions(stpid, rts.joinToString())
+        return patApiClient.getStopPredictions(stpid, rts.joinToString(","))
                 .compose(composePrds())
     }
 
