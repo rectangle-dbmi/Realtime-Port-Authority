@@ -37,8 +37,8 @@ class NaturalOrderComparator<T> : Comparator<T> // epicstar: change to abide by 
         // both numbers to know that they have the same magnitude, so we
         // remember it in BIAS.
         while (true) {
-            val ca = a.getOrElse(ia) { return 0 }
-            val cb = b.getOrElse(ib) { return 0 }
+            val ca = a.getOrElse(ia) { 0.toChar() }
+            val cb = b.getOrElse(ib) { 0.toChar() }
 
             bias = when {
                 !ca.isDigit() && !cb.isDigit()     -> return bias
@@ -72,8 +72,9 @@ class NaturalOrderComparator<T> : Comparator<T> // epicstar: change to abide by 
             nzb = 0
             nza = nzb
 
-            ca = a.getOrElse(ia) { return 0 }
-            cb = b.getOrElse(ib) { return 0 }
+            ca = a.getOrElse(ia) { 0.toChar() }
+            cb = b.getOrElse(ib) { 0.toChar() }
+
 
             // skip over leading spaces or zeros
             while (Character.isSpaceChar(ca) || ca == '0') {
@@ -84,7 +85,7 @@ class NaturalOrderComparator<T> : Comparator<T> // epicstar: change to abide by 
                     nza = 0
                 }
 
-                ca = a.getOrElse(++ia) { return 0 }
+                ca = a.getOrElse(++ia) { 0.toChar() }
             }
 
             while (Character.isSpaceChar(cb) || cb == '0') {
@@ -95,7 +96,7 @@ class NaturalOrderComparator<T> : Comparator<T> // epicstar: change to abide by 
                     nzb = 0
                 }
 
-                cb = b.getOrElse(++ib) { return 0 }
+                cb = b.getOrElse(++ib) { 0.toChar() }
             }
 
             // process run of digits
