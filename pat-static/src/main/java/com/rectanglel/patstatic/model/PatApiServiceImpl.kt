@@ -70,12 +70,12 @@ class PatApiServiceImpl(baseUrl: String,
     }
 
     override fun getVehicles(routes: Collection<String>): Flowable<VehicleResponse> {
-        return patApiClient.getVehicles(collectionToString(routes))
+        return patApiClient.getVehicles(routes.joinToString())
                 .compose(applySchedulers())
     }
 
     override fun getStopPredictions(stpid: Int, rts: Collection<String>): Single<List<Prd>> {
-        return patApiClient.getStopPredictions(stpid, collectionToString(rts))
+        return patApiClient.getStopPredictions(stpid, rts.joinToString())
                 .compose(composePrds())
     }
 
@@ -83,24 +83,6 @@ class PatApiServiceImpl(baseUrl: String,
         return patApiClient.getBusPredictions(vid)
                 .compose(composePrds())
 
-    }
-
-    /**
-     * @param data - the data in a collection to add
-     * @param <T>  - Any Object that extends [Object]
-     * @return a comma-delim strings of data
-     * @since 46
-    </T> */
-    private fun <T> collectionToString(data: Collection<T>): String {
-        val size = data.size
-        var i = 0
-        val buf = StringBuilder()
-        for (datum in data) {
-            buf.append(datum)
-            if (++i < size)
-                buf.append(',')
-        }
-        return buf.toString()
     }
 
     companion object {
