@@ -17,11 +17,11 @@ class StopRequestAccumulator private constructor(
         /**
          * @return The most recent selection state for stops
          */
-        val fullStopSelectionState: FullStopSelectionState,
+        val fullStopSelectionState: FullStopSelectionState?,
         /**
          * @return The most recent map state
          */
-        val mapState: MapState,
+        val mapState: MapState?,
         /**
          * @return the processed list of stops to change
          */
@@ -30,8 +30,8 @@ class StopRequestAccumulator private constructor(
 
         @JvmStatic
         fun create(
-                fullStopSelectionState: FullStopSelectionState,
-                mapState: MapState,
+                fullStopSelectionState: FullStopSelectionState?,
+                mapState: MapState?,
                 stopsToChange: List<StopRenderRequest>): StopRequestAccumulator {
             return StopRequestAccumulator(fullStopSelectionState, mapState, stopsToChange)
         }
