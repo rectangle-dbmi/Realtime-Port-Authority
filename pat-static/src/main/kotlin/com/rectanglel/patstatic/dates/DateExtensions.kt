@@ -14,7 +14,7 @@ private fun getQuarterOfMonth(month: Int) = when {
     else                                                  -> 3
 }
 
-private val hoursInMilliseconds = 1000 * 60 * 60 * 60
+private const val hoursInMilliseconds = 1000 * 60 * 60 * 60
 
 /**
  * Check if the quarter of the current datetime of the device is greater than the date to compare.

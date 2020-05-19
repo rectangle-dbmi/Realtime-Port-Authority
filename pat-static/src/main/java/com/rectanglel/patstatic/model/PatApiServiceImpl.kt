@@ -91,7 +91,7 @@ class PatApiServiceImpl(baseUrl: String,
          *
          * @since 46
          */
-        private val DATE_FORMAT_PARSE = "yyyyMMdd HH:mm"
+        private const val DATE_FORMAT_PARSE = "yyyyMMdd HH:mm"
 
         /**
          * The default date format to parse... The timezone is set as EST

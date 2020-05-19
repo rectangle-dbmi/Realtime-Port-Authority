@@ -39,7 +39,7 @@ class ProcessedPredictions private constructor(val marker: Marker, predictionsTy
          *
          * @since 46
          */
-        private val DATE_FORMAT_PRINT = "hh:mm a"
+        private const val DATE_FORMAT_PRINT = "hh:mm a"
 
         /**
          * The default date format to parse... The timezone is set as EST in
