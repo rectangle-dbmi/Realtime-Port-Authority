@@ -17,19 +17,18 @@ import rectangledbmi.com.pittsburghrealtimetracker.R
 
 class ServerDownDialogFragment : AppCompatDialogFragment() {
 
-    override fun onCreateDialog(savedInstance: Bundle?): Dialog {
-        val dialog = AlertDialog.Builder(context!!, R.style.Theme_AppCompat_Dialog_Alert).apply {
-            this.setTitle(R.string.servers_down_title)
-            this.setMessage(R.string.servers_down_description)
-            this.setNegativeButton(R.string.servers_down_dismiss) { _, _ -> dismiss() }
-            this.setPositiveButton(R.string.servers_down_tell_me_more_button) { _, _ ->
-                val url = Uri.parse("https://github.com/rectangle-dbmi/Realtime-Port-Authority/wiki/Port-Authority-Server-Downtimes")
-                val internetBrowser = Intent(Intent.ACTION_VIEW, url)
-                startActivity(internetBrowser)
+    override fun onCreateDialog(savedInstance: Bundle?): Dialog =
+            AlertDialog.Builder(context!!, R.style.Theme_AppCompat_Dialog_Alert).run {
+                this.setTitle(R.string.servers_down_title)
+                this.setMessage(R.string.servers_down_description)
+                this.setNegativeButton(R.string.servers_down_dismiss) { _, _ -> dismiss() }
+                this.setPositiveButton(R.string.servers_down_tell_me_more_button) { _, _ ->
+                    val url = Uri.parse("https://github.com/rectangle-dbmi/Realtime-Port-Authority/wiki/Port-Authority-Server-Downtimes")
+                    val internetBrowser = Intent(Intent.ACTION_VIEW, url)
+                    startActivity(internetBrowser)
+                }
+                this.create()
             }
-        }
-        return dialog.create()
-    }
 
     override fun onPause() {
         super.onPause()
