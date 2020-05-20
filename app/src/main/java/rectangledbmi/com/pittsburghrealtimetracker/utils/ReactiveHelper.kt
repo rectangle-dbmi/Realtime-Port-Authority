@@ -36,8 +36,8 @@ object ReactiveHelper {
      * @return a transformer for composing retrying internet
      */
     @JvmStatic
-    fun retryIfInternet(disconnectionMessage: Consumer<Throwable>, reconnectionMessage: Consumer<Boolean>) =
-            FlowableTransformer<Throwable, Boolean> { throwableObservable: Flowable<Throwable> ->
+    fun retryIfInternet(disconnectionMessage: Consumer<Throwable>?, reconnectionMessage: Consumer<Boolean>) =
+            FlowableTransformer { throwableObservable: Flowable<Throwable> ->
                 throwableObservable
                         .doOnNext(disconnectionMessage)
                         .flatMap { throwable: Throwable ->
