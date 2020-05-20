@@ -47,7 +47,6 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
 import io.reactivex.functions.Function
-import io.reactivex.functions.Predicate
 import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
@@ -344,7 +343,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
     // endregion
     // region Permission Request Handling
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        if (grantResults.size == 0) return
+        if (grantResults.isEmpty()) return
         when (requestCode) {
             CENTER_MAP_LOCATION_CODE -> {
                 Timber.d("Requesting permissions to center the map")
@@ -438,7 +437,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
         // set up predictions onClick
         val predictionsViewModel = PredictionsViewModel((patApiService)!!, resources.getInteger(R.integer.marker_camera_delay))
         mMap?.setOnMarkerClickListener { marker: Marker ->
-            mMap?.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()), getResources().getInteger(R.integer.marker_camera_delay), null)
+            mMap?.animateCamera(CameraUpdateFactory.newLatLng(marker.position), resources.getInteger(R.integer.marker_camera_delay), null)
             if (busListInteraction == null) {
                 Timber.w("Marker was clicked but cannot interact with bus list fragment")
                 return@setOnMarkerClickListener false
@@ -545,7 +544,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                 ?.flatMap { route: Route ->
                     Timber.d("removing all %s's", route.route)
                     Flowable.fromIterable<Map.Entry<Int, Marker>>(busMarkers?.entries)
-                            .filter { busMarker: Map.Entry<Int, Marker> -> busMarker.value.getTitle().contains((route.route)!!) }
+                            .filter { busMarker: Map.Entry<Int, Marker> -> busMarker.value.title.contains((route.route)!!) }
                 }
                 ?.subscribeWith(object : DisposableSubscriber<Map.Entry<Int?, Marker?>?>() {
                     override fun onError(e: Throwable) {
@@ -683,13 +682,13 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
             }
 
             private fun makeBitmap(route: Route?): Bitmap {
-                val bus_icon = BitmapFactory.decodeResource(resources, R.drawable.bus_icon)
-                val busicon = Bitmap.createBitmap(bus_icon.width, bus_icon.height, bus_icon.config)
+                val busIcon = BitmapFactory.decodeResource(resources, R.drawable.bus_icon)
+                val busicon = Bitmap.createBitmap(busIcon.width, busIcon.height, busIcon.config)
                 val canvas = Canvas(busicon)
                 val paint = Paint(Paint.ANTI_ALIAS_FLAG)
                 paint.colorFilter = PorterDuffColorFilter(route!!.routeColor, PorterDuff.Mode.MULTIPLY)
-                canvas.drawBitmap(bus_icon, 0f, 0f, paint)
-                drawText(canvas, bus_icon, resources.displayMetrics.density, route.route, route.colorAsString)
+                canvas.drawBitmap(busIcon, 0f, 0f, paint)
+                drawText(canvas, busIcon, resources.displayMetrics.density, route.route, route.colorAsString)
                 return busicon
             }
 
@@ -737,16 +736,18 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
              * @return a user-readable message from the original API message
              */
             private fun transformMessage(originalMessage: String?): String? {
-                if (originalMessage != null) {
-                    if (originalMessage.contains("No data found for parameter")) {
-                        return getString(R.string.no_vehicle_error)
-                    } else if (originalMessage.contains("specified") && originalMessage.contains("rt")) {
-                        return getString(R.string.no_routes_selected)
-                    } else return if (originalMessage.contains("Transaction limit for current day has been exceeded")) {
+                return when {
+                    originalMessage?.contains("No data found for parameter") == true -> {
+                        getString(R.string.no_vehicle_error)
+                    }
+                    originalMessage?.contains("specified") == true && originalMessage.contains("rt") -> {
+                        getString(R.string.no_routes_selected)
+                    }
+                    originalMessage?.contains("Transaction limit for current day has been exceeded") == true -> {
                         getString(R.string.pat_api_exceeded)
-                    } else originalMessage
+                    }
+                    else -> originalMessage
                 }
-                return null
             }
 
             override fun apply(processedMessage: Map.Entry<String, ArrayList<String>>): ErrorMessage {
@@ -828,7 +829,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
              */
             private fun addMarker(vehicleBitmap: VehicleBitmap) {
                 val vehicle = vehicleBitmap.vehicle
-                Timber.v("marker_add adding_marker %s", Integer.toString(vehicle.vid))
+                Timber.v("marker_add adding_marker %s", vehicle.vid.toString())
                 val marker = mMap?.addMarker(MarkerOptions()
                         .position(LatLng(vehicle.lat, vehicle.lon))
                         .title(vehicle.rt + "(" + vehicle.vid + ") " + vehicle.des + (if (vehicle.isDly) " - Delayed" else ""))
@@ -852,8 +853,8 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
             private fun updateMarker(vehicleBitmap: VehicleBitmap, marker: Marker) {
                 val vehicle = vehicleBitmap.vehicle
                 Timber.v("marker_update... updating_pointer")
-                marker.setTitle(vehicle.rt + "(" + vehicle.vid + ") " + vehicle.des + (if (vehicle.isDly) " - Delayed" else ""))
-                marker.setPosition(LatLng(vehicle.lat, vehicle.lon))
+                marker.title = vehicle.rt + "(" + vehicle.vid + ") " + vehicle.des + (if (vehicle.isDly) " - Delayed" else "")
+                marker.position = LatLng(vehicle.lat, vehicle.lon)
                 marker.rotation = vehicle.hdg.toFloat()
                 if ((Objects.requireNonNull(marker.tag) as Vehicle).rt != vehicle.rt) {
                     Timber.d("changing vehicle %d icon from %s to %s", vehicle.vid, (marker.tag as Vehicle?)?.rt, vehicle.rt)
@@ -1062,12 +1063,12 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
     } // endregion
 
     companion object {
-        private val CAMERA_POSITION = "cameraPosition"
+        private const val CAMERA_POSITION = "cameraPosition"
 
         /**
          * The permissions request code to unsubscribe the map
          */
-        private val CENTER_MAP_LOCATION_CODE = 123
+        private const val CENTER_MAP_LOCATION_CODE = 123
 
         /**
          * The latitude and longitude of Pittsburgh... used if the app doesn't have a saved state of the camera
