@@ -443,7 +443,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                 return@setOnMarkerClickListener false
             }
             val predictionsSingle: Single<ProcessedPredictions>? = predictionsViewModel
-                    .getPredictions(marker, HashSet(busListInteraction?.selectedRoutes!!))
+                    .getPredictions(marker, HashSet(busListInteraction?.selectedRoutes?.filterNotNull()!!))
             if (predictionsSingle == null) {
                 Timber.w("Marker clicked but no single given")
                 return@setOnMarkerClickListener false

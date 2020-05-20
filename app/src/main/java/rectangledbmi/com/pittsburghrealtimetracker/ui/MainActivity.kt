@@ -75,13 +75,13 @@ class MainActivity : AppCompatActivity(), SelectionFragment.BusSelectionInteract
     private var toastSubject: PublishSubject<NotificationMessage>? = null
 
 
-    override val selectedRoutes: Set<String>?
+    override val selectedRoutes: Set<String?>?
         get() = mNavigationDrawerFragment?.selectedRoutes
 
     override val datadirectory: File
         get() = filesDir
 
-    override val selectedRoutesObservable: Flowable<Set<String>>?
+    override val selectedRoutesObservable: Flowable<Set<String?>?>?
         get() = mNavigationDrawerFragment?.selectedRoutesObservable
 
     override val toggledRouteObservable: Flowable<Route>?

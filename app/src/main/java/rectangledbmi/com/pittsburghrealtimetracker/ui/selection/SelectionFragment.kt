@@ -28,7 +28,7 @@ abstract class SelectionFragment : Fragment(), ClearSelection {
         /**
          * @return the selected routes from the [NavigationDrawerFragment]
          */
-        val selectedRoutes: Set<String>?
+        val selectedRoutes: Set<String?>?
 
         /**
          *
@@ -49,7 +49,7 @@ abstract class SelectionFragment : Fragment(), ClearSelection {
          *
          * @return the current snapshot of currently selected items
          */
-        val selectedRoutesObservable: Flowable<Set<String>>?
+        val selectedRoutesObservable: Flowable<Set<String?>?>?
 
         /**
          *

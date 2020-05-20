@@ -9,7 +9,7 @@ import timber.log.Timber
  *
  * @author Jeremy Jao
  */
-class RouteSelection private constructor(val toggledRoute: Route, val selectedRoutes: Set<String>) {
+class RouteSelection private constructor(val toggledRoute: Route, val selectedRoutes: Set<String?>?) {
 
     init {
         Timber.d("getting both routes: %s, %s", toggledRoute.route, selectedRoutes.toString())
@@ -18,7 +18,7 @@ class RouteSelection private constructor(val toggledRoute: Route, val selectedRo
     companion object {
 
         @JvmStatic
-        fun create(route: Route, selectedRoutes: Set<String>): RouteSelection {
+        fun create(route: Route, selectedRoutes: Set<String?>?): RouteSelection {
             return RouteSelection(route, selectedRoutes)
         }
     }
