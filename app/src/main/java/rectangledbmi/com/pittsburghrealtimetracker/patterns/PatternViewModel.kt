@@ -118,7 +118,7 @@ class PatternViewModel(service: PatApiService,
      */
     private fun getZoomState(zoomFlowable: Flowable<Float>): Flowable<EitherStopState<*>?>? {
         return zoomFlowable
-                .map<Boolean?> { zoomLevel: Float -> zoomLevel >= zoomThreshold }
+                .map { zoomLevel: Float -> zoomLevel >= zoomThreshold }
                 .map<EitherStopState<*>?>(MapState.Companion::create)
     }
 
