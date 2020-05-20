@@ -126,6 +126,7 @@ class PatternViewModel(service: PatApiService,
      * Creates a [Flowable] of a selection
      * @return the stop selection state
      */
+    @Suppress("UNCHECKED_CAST")
     @get:SuppressLint("UseSparseArrays")
     private val stopSelectionState: Flowable<EitherStopState<*>>?
         get() = patternSelections

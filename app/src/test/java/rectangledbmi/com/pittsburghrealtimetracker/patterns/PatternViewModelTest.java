@@ -39,7 +39,6 @@ public class PatternViewModelTest {
     @Before
     public void setUp() {
         patapiMock = getPatApiServiceMock();
-        //noinspection ResultOfMethodCallIgnored
 
         PatternViewModel patternViewModel = new PatternViewModel(
                 patapiMock,
@@ -51,7 +50,6 @@ public class PatternViewModelTest {
                 .subscribeWith(patternSelectionTestSubscriber);
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     @After
     public void tearDown() {
         polylinePresenterSubscription.dispose();

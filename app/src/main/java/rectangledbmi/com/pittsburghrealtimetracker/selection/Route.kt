@@ -35,7 +35,7 @@ class Route
          *
          * @since 43
          */
-        val listPosition: Int,
+        private val listPosition: Int,
         /**
          * Whether or not the route is selected
          */
@@ -104,6 +104,7 @@ class Route
      * @return true if the route becomes selected; false if it becomes unselected
      * @since 58
      */
+    @Suppress("LiftReturnOrAssignment")
     fun toggleSelection(): Boolean {
         if (isSelected) {
             deselectRoute()

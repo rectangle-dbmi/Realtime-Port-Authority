@@ -9,6 +9,7 @@ import com.rectanglel.patstatic.patterns.response.Pt
  * Created by epicstar on 9/20/16.
  * @author Jeremy Jao
  */
+@Suppress("MemberVisibilityCanBePrivate")
 class StopSelection private constructor(val stopPts: Collection<Pt>?, val routeNumber: String?, val isSelected: Boolean) {
 
     override fun equals(other: Any?): Boolean {

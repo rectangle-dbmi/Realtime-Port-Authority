@@ -772,8 +772,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                 } else if ((e.message != null) && (e.localizedMessage != null) && !showedErrors) {
                     showedErrors = true
                     if (e is HttpException) {
-                        val http = e
-                        busListInteraction?.showToast((http.code().toString() + " " + http.message() + ": "
+                        busListInteraction?.showToast((e.code().toString() + " " + e.message() + ": "
                                 + getString(R.string.retrofit_http_error)), Toast.LENGTH_SHORT)
                     } else {
                         Timber.e("Vehicle error not handled.")

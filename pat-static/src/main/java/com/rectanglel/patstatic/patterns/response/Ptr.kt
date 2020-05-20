@@ -50,11 +50,13 @@ class Ptr {
 
         val ptr = other as Ptr?
 
-        if (pid != ptr!!.pid) return false
-        if (ptr.ln.compareTo(ln) != 0) return false
-        if (if (rtdir != null) rtdir != ptr.rtdir else ptr.rtdir != null) return false
-        if (if (pt != null) pt != ptr.pt else ptr.pt != null) return false
-        return if (if (msg != null) msg != ptr.msg else ptr.msg != null) false else true
+        return when {
+            pid != ptr!!.pid -> false
+            ptr.ln.compareTo(ln) != 0 -> false
+            if (rtdir != null) rtdir != ptr.rtdir else ptr.rtdir != null -> false
+            if (pt != null) pt != ptr.pt else ptr.pt != null -> false
+            else -> !if (msg != null) msg != ptr.msg else ptr.msg != null
+        }
 
     }
 

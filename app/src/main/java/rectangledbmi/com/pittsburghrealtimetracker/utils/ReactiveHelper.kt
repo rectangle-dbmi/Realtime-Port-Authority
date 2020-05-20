@@ -1,5 +1,6 @@
 package rectangledbmi.com.pittsburghrealtimetracker.utils
 
+import android.annotation.SuppressLint
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
 import com.github.pwittchen.reactivenetwork.library.rx2.internet.observing.InternetObservingSettings
 import com.github.pwittchen.reactivenetwork.library.rx2.internet.observing.strategy.WalledGardenInternetObservingStrategy
@@ -65,6 +66,7 @@ object ReactiveHelper {
                             }
                             // otherwise, just run normal onError
                             Timber.i(throwable, "Not retrying since something should be wrong on " + "Port Authority's end.")
+                            @Suppress("RemoveExplicitTypeArguments")
                             Flowable.error<Boolean>(throwable)
                         }
             }

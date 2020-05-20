@@ -52,7 +52,7 @@ class RoutesDataManager(dataDirectory: File, private val patApiClient: RetrofitP
             }
         }
 
-    internal val routesFromDisk: Single<List<BusRoute>>
+    private val routesFromDisk: Single<List<BusRoute>>
         get() = Single.just(GsonBuilder().create())
                 .map { gson ->
                     rwl.readLock().lock()

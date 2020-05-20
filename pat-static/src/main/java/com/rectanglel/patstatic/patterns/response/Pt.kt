@@ -56,14 +56,16 @@ class Pt : PredictionsType {
 
         val pt = other as Pt?
 
-        if (seq != pt!!.seq) return false
-        if (pt.lat.compareTo(lat) != 0) return false
-        if (pt.lon.compareTo(lon) != 0) return false
-        if (typ != pt.typ) return false
-        if (stpid != pt.stpid) return false
-        if (pt.pdist.compareTo(pdist) != 0) return false
-        if (if (stpnm != null) stpnm != pt.stpnm else pt.stpnm != null) return false
-        return if (if (msg != null) msg != pt.msg else pt.msg != null) false else true
+        return when {
+            seq != pt!!.seq -> false
+            pt.lat.compareTo(lat) != 0 -> false
+            pt.lon.compareTo(lon) != 0 -> false
+            typ != pt.typ -> false
+            stpid != pt.stpid -> false
+            pt.pdist.compareTo(pdist) != 0 -> false
+            if (stpnm != null) stpnm != pt.stpnm else pt.stpnm != null -> false
+            else -> !if (msg != null) msg != pt.msg else pt.msg != null
+        }
 
     }
 

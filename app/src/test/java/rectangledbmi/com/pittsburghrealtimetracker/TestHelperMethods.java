@@ -25,7 +25,6 @@ public class TestHelperMethods {
 
     public static void deleteFiles(File file) {
         if (file.isDirectory()) {
-            //noinspection ConstantConditions
             for (File f : file.listFiles()) {
                 deleteFiles(f);
             }

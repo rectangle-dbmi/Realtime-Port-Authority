@@ -247,7 +247,7 @@ class NavigationDrawerFragment : Fragment() {
         return if (busListAdapter != null) busListAdapter!!.routeMap!![rt] else null
     }
 
-    fun getSelectedRoutes(): Set<String?>? {
+    private fun getSelectedRoutes(): Set<String?>? {
         return if (busListAdapter != null) busListAdapter!!.getSelectedRoutes() else null
     }
 
@@ -364,7 +364,7 @@ class NavigationDrawerFragment : Fragment() {
                 mRoute = busRoute
                 routeDescription.text = busRoute!!.routeInfo
                 generateIcon()
-                itemView.setActivated(mRoute!!.isSelected)
+                itemView.isActivated = mRoute!!.isSelected
             }
 
             /**
