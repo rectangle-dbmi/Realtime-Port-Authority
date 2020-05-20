@@ -305,10 +305,10 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
             selectionSubscription = null
         }
         if (mMap != null) {
-            with(mMap!!) {
-                setInfoWindowAdapter(null)
-                setOnCameraIdleListener(null)
-                setOnMarkerClickListener(null)
+            with(mMap) {
+                this?.setInfoWindowAdapter(null)
+                this?.setOnCameraIdleListener(null)
+                this?.setOnMarkerClickListener(null)
             }
             mMap = null
             Timber.d("Google Map Object destroyed")
@@ -323,7 +323,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        mapView!!.onSaveInstanceState(outState)
+        mapView?.onSaveInstanceState(outState)
         if (mMap != null) {
             outState.putParcelable(CAMERA_POSITION, mMap!!.cameraPosition)
         }
@@ -443,7 +443,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                 return@setOnMarkerClickListener false
             }
             val predictionsSingle: Single<ProcessedPredictions>? = predictionsViewModel
-                    .getPredictions(marker, HashSet(busListInteraction?.selectedRoutes?.filterNotNull()!!))
+                    .getPredictions(marker, HashSet(busListInteraction?.selectedRoutes?.filterNotNull().orEmpty()))
             if (predictionsSingle == null) {
                 Timber.w("Marker clicked but no single given")
                 return@setOnMarkerClickListener false
@@ -688,17 +688,17 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                 val paint = Paint(Paint.ANTI_ALIAS_FLAG)
                 paint.colorFilter = PorterDuffColorFilter(route!!.routeColor, PorterDuff.Mode.MULTIPLY)
                 canvas.drawBitmap(busIcon, 0f, 0f, paint)
-                drawText(canvas, busIcon, resources.displayMetrics.density, route.route, route.colorAsString)
+                drawText(canvas, busIcon, resources.displayMetrics.density, route.route!!, route.colorAsString)
                 return busicon
             }
 
-            private fun drawText(canvas: Canvas, bus_icon: Bitmap, fontScale: Float, routeNumber: String?, routeColor: String) {
+            private fun drawText(canvas: Canvas, bus_icon: Bitmap, fontScale: Float, routeNumber: String, routeColor: String) {
                 val currentColor = Color.parseColor(routeColor)
                 val paint = Paint(Paint.ANTI_ALIAS_FLAG)
                 paint.color = if (isLight(currentColor)) Color.BLACK else Color.WHITE
                 paint.textSize = 8 * fontScale
                 val fontBounds = Rect()
-                paint.getTextBounds(routeNumber, 0, routeNumber!!.length, fontBounds)
+                paint.getTextBounds(routeNumber, 0, routeNumber.length, fontBounds)
                 val x = bus_icon.width / 2
                 val y = (bus_icon.height.toDouble() / 1.25).toInt()
                 paint.textAlign = Paint.Align.CENTER
@@ -958,7 +958,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                         createRouteLine(patternSelection)
                     }
                 } else { // is not selected... so remove the polyline
-                    for (lineInRoute: Polyline in routeLine!!) {
+                    for (lineInRoute: Polyline in routeLine.orEmpty()) {
                         lineInRoute.remove()
                     }
                     routeLines?.remove(patternSelection?.routeNumber)
@@ -972,7 +972,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                     return
                 }
                 val polylines: MutableList<Polyline> = ArrayList(patternSelection.latLngs?.size ?: 0)
-                for (latLngs: List<LatLng> in latLngList!!) {
+                for (latLngs: List<LatLng> in latLngList.orEmpty()) {
                     polylines.add(mMap!!.addPolyline(
                             PolylineOptions()
                                     .addAll(latLngs)
@@ -1019,7 +1019,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                     return
                 }
                 val stopInfo = stopRenderRequest?.stopPt
-                var stopMarker = stops!![stopInfo?.stpid]
+                var stopMarker = stops?.get(stopInfo?.stpid)
                 if (stopRenderRequest?.isVisible == true) {
                     if (stopMarker == null) {
                         stopMarker = mMap?.addMarker(MarkerOptions()
