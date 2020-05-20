@@ -35,7 +35,7 @@ abstract class SelectionFragment : Fragment(), ClearSelection {
          * @return the service class that gets Port Authority objects
          * @since 78
          */
-        val patApiService: PatApiService
+        val patApiService: PatApiService?
 
         /**
          * Gets Android's default data directory... Eventually will want the API that accepts an external
