@@ -75,17 +75,17 @@ class MainActivity : AppCompatActivity(), SelectionFragment.BusSelectionInteract
     private var toastSubject: PublishSubject<NotificationMessage>? = null
 
 
-    override val selectedRoutes: Set<String>
-        get() = mNavigationDrawerFragment!!.selectedRoutes
+    override val selectedRoutes: Set<String>?
+        get() = mNavigationDrawerFragment?.selectedRoutes
 
     override val datadirectory: File
         get() = filesDir
 
-    override val selectedRoutesObservable: Flowable<Set<String>>
-        get() = mNavigationDrawerFragment!!.selectedRoutesObservable
+    override val selectedRoutesObservable: Flowable<Set<String>>?
+        get() = mNavigationDrawerFragment?.selectedRoutesObservable
 
-    override val toggledRouteObservable: Flowable<Route>
-        get() = mNavigationDrawerFragment!!.toggledRouteObservable
+    override val toggledRouteObservable: Flowable<Route>?
+        get() = mNavigationDrawerFragment?.toggledRouteObservable
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,7 +99,7 @@ class MainActivity : AppCompatActivity(), SelectionFragment.BusSelectionInteract
         mNavigationDrawerFragment = fragmentManager.findFragmentById(R.id.navigation_drawer) as NavigationDrawerFragment
         checkSDCardData()
         // Set up the drawer.
-        mNavigationDrawerFragment!!.setUp(
+        mNavigationDrawerFragment?.setUp(
                 R.id.navigation_drawer,
                 findViewById<View>(R.id.drawer_layout) as DrawerLayout)
 
@@ -108,10 +108,10 @@ class MainActivity : AppCompatActivity(), SelectionFragment.BusSelectionInteract
 
         // create a publish subject for displaying toasts
         toastSubject = PublishSubject.create()
-        toastSubject!!
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(toastMessageObserver())
+        toastSubject
+                ?.subscribeOn(Schedulers.io())
+                ?.observeOn(AndroidSchedulers.mainThread())
+                ?.subscribe(toastMessageObserver())
 
         enableHttpResponseCache()
     }
@@ -121,7 +121,7 @@ class MainActivity : AppCompatActivity(), SelectionFragment.BusSelectionInteract
      * @since 70
      */
     override fun onDestroy() {
-        toastSubject!!.onComplete()
+        toastSubject?.onComplete()
         super.onDestroy()
     }
 
@@ -185,10 +185,7 @@ class MainActivity : AppCompatActivity(), SelectionFragment.BusSelectionInteract
     private fun enableHttpResponseCache() {
         try {
             val httpCacheSize: Long = 10485760 // 10 MiB
-            var fetch = externalCacheDir
-            if (fetch == null) {
-                fetch = cacheDir
-            }
+            val fetch = externalCacheDir ?: cacheDir
             val httpCacheDir = File(fetch, "http")
             Class.forName("android.net.http.HttpResponseCache")
                     .getMethod("install", File::class.java, Long::class.javaPrimitiveType)
@@ -199,7 +196,7 @@ class MainActivity : AppCompatActivity(), SelectionFragment.BusSelectionInteract
 
     }
 
-    fun restoreActionBar() {
+    private fun restoreActionBar() {
         val toolbar = findViewById<View>(R.id.toolbar) as Toolbar?
         if (toolbar != null) {
             try {
@@ -223,7 +220,7 @@ class MainActivity : AppCompatActivity(), SelectionFragment.BusSelectionInteract
 
     //dunno...
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        if (!mNavigationDrawerFragment!!.isDrawerOpen) {
+        if (mNavigationDrawerFragment?.isDrawerOpen == false) {
             // Only show items in the action bar relevant to this screen
             // if the drawer is not showing. Otherwise, let the drawer
             // decide what to show in the action bar.
@@ -244,16 +241,14 @@ class MainActivity : AppCompatActivity(), SelectionFragment.BusSelectionInteract
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         Timber.d("Running MainActivity's onOptionsItemSelected")
         // TODO: Perhaps we should be using onClick events in the XML like onClickAppDetails()
-        if (mNavigationDrawerFragment != null &&
-                mNavigationDrawerFragment!!.actionBarDrawerToggle != null &&
-                mNavigationDrawerFragment!!.actionBarDrawerToggle.onOptionsItemSelected(item)) {
+        if (mNavigationDrawerFragment?.actionBarDrawerToggle?.onOptionsItemSelected(item) == true) {
             Timber.d("Hamburger menu selected - will either close or open drawer")
             return true
         }
         val id = item.itemId
         if (id == R.id.action_select_buses && mNavigationDrawerFragment != null) {
             Timber.d("Select Buses in Menu Dropdown clicked - opens the drawer")
-            mNavigationDrawerFragment!!.openDrawer()
+            mNavigationDrawerFragment?.openDrawer()
             return true
         } else if (id == R.id.action_about) {
             Timber.d("About Button Clicked. Will open the about page")
@@ -267,9 +262,9 @@ class MainActivity : AppCompatActivity(), SelectionFragment.BusSelectionInteract
         return super.onOptionsItemSelected(item)
     }
 
-    fun clearSelection() {
-        mNavigationDrawerFragment!!.clearSelection()
-        selectionFragment!!.clearSelection()
+    private fun clearSelection() {
+        mNavigationDrawerFragment?.clearSelection()
+        selectionFragment?.clearSelection()
     }
 
     /**
@@ -355,7 +350,7 @@ class MainActivity : AppCompatActivity(), SelectionFragment.BusSelectionInteract
 
 
     override fun onBackPressed() {
-        if (!mNavigationDrawerFragment!!.closeDrawer())
+        if (mNavigationDrawerFragment?.closeDrawer() == false)
             super.onBackPressed()
     }
 
@@ -368,8 +363,8 @@ class MainActivity : AppCompatActivity(), SelectionFragment.BusSelectionInteract
                 .show()
     }
 
-    override fun getSelectedRoute(routeNumber: String): Route {
-        return mNavigationDrawerFragment!!.getSelectedRoute(routeNumber)
+    override fun getSelectedRoute(routeNumber: String): Route? {
+        return mNavigationDrawerFragment?.getSelectedRoute(routeNumber)
     }
 
     override fun openPermissionsPage() {
@@ -392,6 +387,7 @@ class MainActivity : AppCompatActivity(), SelectionFragment.BusSelectionInteract
      *
      * @param item the application details item
      */
+    @Suppress("UNUSED_PARAMETER")
     fun onClickDetourInfo(item: MenuItem) {
         val browserIntent = Intent(Intent.ACTION_VIEW,
                 Uri.parse(getString(R.string.detour_url)))
@@ -409,6 +405,7 @@ class MainActivity : AppCompatActivity(), SelectionFragment.BusSelectionInteract
      *
      * @param item the application details item
      */
+    @Suppress("UNUSED_PARAMETER")
     fun onClickAppDetails(item: MenuItem) {
         openPermissionsPage()
     }
@@ -416,17 +413,15 @@ class MainActivity : AppCompatActivity(), SelectionFragment.BusSelectionInteract
     /**
      * Click event for the
      * [rectangledbmi.com.pittsburghrealtimetracker.R.menu.select_transit] to clear cache.
-     * @param menuItem the menu item.
+     * @param item the menu item.
      */
-    fun onClearCache(menuItem: MenuItem) {
+    @Suppress("UNUSED_PARAMETER")
+    fun onClearCache(item: MenuItem) {
         clearCache()
     }
 
     override fun restoreSelection() {
-        if (mNavigationDrawerFragment == null) {
-            return
-        }
-        mNavigationDrawerFragment!!.reselectRoutes()
+        mNavigationDrawerFragment?.reselectRoutes()
     }
 
     private fun openNoBusesPage() {
@@ -435,6 +430,7 @@ class MainActivity : AppCompatActivity(), SelectionFragment.BusSelectionInteract
         startActivity(internetBrowser)
     }
 
+    @Suppress("UNUSED_PARAMETER")
     fun onClickNoBuses(item: MenuItem) {
         openNoBusesPage()
     }

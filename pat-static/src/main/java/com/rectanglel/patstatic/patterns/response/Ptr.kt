@@ -51,7 +51,7 @@ class Ptr {
         val ptr = other as Ptr?
 
         if (pid != ptr!!.pid) return false
-        if (java.lang.Double.compare(ptr.ln, ln) != 0) return false
+        if (ptr.ln.compareTo(ln) != 0) return false
         if (if (rtdir != null) rtdir != ptr.rtdir else ptr.rtdir != null) return false
         if (if (pt != null) pt != ptr.pt else ptr.pt != null) return false
         return if (if (msg != null) msg != ptr.msg else ptr.msg != null) false else true
@@ -59,10 +59,8 @@ class Ptr {
     }
 
     override fun hashCode(): Int {
-        var result: Int
-        val temp: Long
-        result = pid
-        temp = java.lang.Double.doubleToLongBits(ln)
+        var result: Int = pid
+        val temp: Long = java.lang.Double.doubleToLongBits(ln)
         result = 31 * result + (temp xor temp.ushr(32)).toInt()
         result = 31 * result + if (rtdir != null) rtdir!!.hashCode() else 0
         result = 31 * result + if (pt != null) pt!!.hashCode() else 0

@@ -25,6 +25,6 @@ class AssetManagerStaticData(private val assetManager: AssetManager) : StaticDat
     }
 
     companion object {
-        private val cachePath = "cache/%s"
+        private const val cachePath = "cache/%s"
     }
 }

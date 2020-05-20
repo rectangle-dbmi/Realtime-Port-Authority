@@ -52,7 +52,7 @@ class WalledInternetStrategy : InternetObservingStrategy {
                         }
                         urlConnection.inputStream
                         // We got a valid response, but not from the real google
-                        return@map urlConnection.getResponseCode() == 204
+                        return@map urlConnection.responseCode == 204
                     } catch (e: IOException) {
                         return@map false
                     } finally {

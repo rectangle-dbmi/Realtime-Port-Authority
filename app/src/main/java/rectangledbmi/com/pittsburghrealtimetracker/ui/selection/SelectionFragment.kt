@@ -28,7 +28,7 @@ abstract class SelectionFragment : Fragment(), ClearSelection {
         /**
          * @return the selected routes from the [NavigationDrawerFragment]
          */
-        val selectedRoutes: Set<String>
+        val selectedRoutes: Set<String>?
 
         /**
          *
@@ -49,19 +49,19 @@ abstract class SelectionFragment : Fragment(), ClearSelection {
          *
          * @return the current snapshot of currently selected items
          */
-        val selectedRoutesObservable: Flowable<Set<String>>
+        val selectedRoutesObservable: Flowable<Set<String>>?
 
         /**
          *
          * @return the currently toggled route
          */
-        val toggledRouteObservable: Flowable<Route>
+        val toggledRouteObservable: Flowable<Route>?
 
         /**
          * @param routeNumber the route number
          * @return the selected route from the [NavigationDrawerFragment]
          */
-        fun getSelectedRoute(routeNumber: String): Route
+        fun getSelectedRoute(routeNumber: String): Route?
 
         /**
          * Shows a toast message
