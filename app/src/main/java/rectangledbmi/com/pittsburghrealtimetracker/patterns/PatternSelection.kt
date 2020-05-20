@@ -44,7 +44,7 @@ class PatternSelection
          * always not be `null`.
          * @return a list of Patterns for [com.google.android.gms.maps.model.Polyline] creation
          */
-        val patterns: List<Ptr>?,
+        val patterns: List<Ptr?>?,
         /**
          *
          * Tells the [PolylineView] whether or not to show the

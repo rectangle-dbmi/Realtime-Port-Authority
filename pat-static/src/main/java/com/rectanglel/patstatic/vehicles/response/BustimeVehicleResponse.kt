@@ -37,10 +37,12 @@ class BustimeVehicleResponse {
         for (err in error) {
             var listOfParams: ArrayList<String>? = processedErrors[err.msg]
             if (listOfParams == null) {
-                listOfParams = ArrayList()
-                processedErrors[err.msg] = listOfParams
+                listOfParams = ArrayList<String>()
+                processedErrors[err.msg!!] = listOfParams
             }
-            listOfParams.add(err.rt)
+            if (err.rt != null) {
+                listOfParams.add(err.rt!!)
+            }
         }
         return processedErrors
     }
