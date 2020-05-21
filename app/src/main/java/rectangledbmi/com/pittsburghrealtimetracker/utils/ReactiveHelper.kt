@@ -46,7 +46,7 @@ object ReactiveHelper {
                             if (isInternetDown(throwable)) {
                                 return@flatMap ReactiveNetwork
                                         .observeInternetConnectivity(InternetObservingSettings
-                                                .strategy(WalledGardenInternetObservingStrategy())
+                                                .strategy(WalledInternetStrategy())
                                                 .initialInterval(2000)
                                                 .interval(2000)
                                                 .port(80)

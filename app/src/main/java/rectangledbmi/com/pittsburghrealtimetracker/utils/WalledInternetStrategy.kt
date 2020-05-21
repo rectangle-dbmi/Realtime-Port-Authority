@@ -31,7 +31,7 @@ class WalledInternetStrategy : InternetObservingStrategy {
             host: String,
             port: Int,
             timeoutInMs: Int,
-            socketErrorHandler: ErrorHandler): Observable<Boolean> {
+            socketErrorHandler: ErrorHandler?): Observable<Boolean> {
         Preconditions.checkGreaterOrEqualToZero(initialIntervalInMs,
                 "initialIntervalInMs is not a positive number")
         Preconditions.checkGreaterThanZero(intervalInMs, "intervalInMs is not a positive number")
