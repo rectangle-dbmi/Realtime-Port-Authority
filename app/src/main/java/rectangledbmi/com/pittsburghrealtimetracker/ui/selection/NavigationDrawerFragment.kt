@@ -63,9 +63,9 @@ class NavigationDrawerFragment : Fragment() {
         if (savedInstanceState != null) {
             mFromSavedInstanceState = true
         }
-        selectedRoutes = Collections.synchronizedSet(HashSet(sp.getStringSet(BUS_SELECT_STATE,
-                Collections.synchronizedSet(
-                        HashSet(resources.getInteger(R.integer.max_checked))))!!))
+        sp.getStringSet(BUS_SELECT_STATE, Collections.synchronizedSet( HashSet(resources.getInteger(R.integer.max_checked))))?.let{set ->
+            selectedRoutes = Collections.synchronizedSet(HashSet(set))
+        }
         busListAdapter = BusRouteAdapter()
         routeSelectionPublishSubject = PublishSubject.create()
     }
@@ -75,18 +75,18 @@ class NavigationDrawerFragment : Fragment() {
     }
 
     private fun setSelection(selectedRoutes: Set<String?>?, isSelected: Boolean) {
-        val routesArray = selectedRoutes!!.toTypedArray()
+        val routesArray = selectedRoutes?.toTypedArray()
         if (routeSelectionPublishSubject == null || busListAdapter == null) {
             Timber.w("Cannot multiselect things... Will not work")
             return
         }
-        for (routeNumber in routesArray) {
-            val route = busListAdapter!!.getRouteByNumber(routeNumber)
-            if (route!!.isSelected != isSelected) {
+        for (routeNumber in routesArray.orEmpty()) {
+            val route = busListAdapter?.getRouteByNumber(routeNumber)
+            if (route?.isSelected != isSelected) {
                 toggleRoute(route, isSelected)
             }
         }
-        busListAdapter!!.notifyDataSetChanged()
+        busListAdapter?.notifyDataSetChanged()
         Timber.d("Finished multiselecting routes")
     }
 
@@ -102,7 +102,7 @@ class NavigationDrawerFragment : Fragment() {
         val v = inflater.inflate(R.layout.navigation_drawer_layout, container, false)
         val busListRecyclerView = v.findViewById<View>(R.id.bus_list_recyclerview) as RecyclerView
         busListRecyclerView.layoutManager = LinearLayoutManager(activity)
-        busListAdapter!!.setHasStableIds(true)
+        busListAdapter?.setHasStableIds(true)
         busListRecyclerView.setHasFixedSize(true)
         busListRecyclerView.adapter = busListAdapter
         return v
@@ -113,15 +113,17 @@ class NavigationDrawerFragment : Fragment() {
     }
 
     override fun onDestroy() {
-        if (activity != null) {
-            val refWatcher = getRefWatcher(activity!!)
-            refWatcher!!.watch(this)
+        activity?.let { activity ->
+            val refWatcher = getRefWatcher(activity)
+            refWatcher?.watch(this)
         }
         super.onDestroy()
     }
 
     val isDrawerOpen: Boolean
-        get() = mDrawerLayout != null && mDrawerLayout!!.isDrawerOpen(mFragmentContainerView!!)
+        get() = mFragmentContainerView?.let{ mFragmentContainerView: View ->
+             mDrawerLayout?.isDrawerOpen(mFragmentContainerView)
+        } == true
 
     /**
      * Users of this fragment must call this method to set up the navigation drawer interactions.
@@ -130,11 +132,11 @@ class NavigationDrawerFragment : Fragment() {
      * @param drawerLayout The DrawerLayout containing this fragment's UI.
      */
     fun setUp(fragmentId: Int, drawerLayout: DrawerLayout?) {
-        mFragmentContainerView = activity!!.findViewById(fragmentId)
+        mFragmentContainerView = activity?.findViewById(fragmentId)
         mDrawerLayout = drawerLayout
 
         // set a custom shadow that overlays the main content when the drawer opens
-        mDrawerLayout!!.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START)
+        mDrawerLayout?.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START)
 
 
         // ActionBarDrawerToggle ties together the the proper interactions
@@ -150,7 +152,7 @@ class NavigationDrawerFragment : Fragment() {
                 if (!isAdded) {
                     return
                 }
-                activity!!.invalidateOptionsMenu() // calls onPrepareOptionsMenu()
+                activity?.invalidateOptionsMenu() // calls onPrepareOptionsMenu()
             }
 
             override fun onDrawerOpened(drawerView: View) {
@@ -166,19 +168,19 @@ class NavigationDrawerFragment : Fragment() {
                             .getDefaultSharedPreferences(activity)
                     sp.edit().putBoolean(PREF_USER_LEARNED_DRAWER, true).apply()
                 }
-                activity!!.invalidateOptionsMenu() // calls onPrepareOptionsMenu()
+                activity?.invalidateOptionsMenu() // calls onPrepareOptionsMenu()
             }
         }
 
         // If the user hasn't 'learned' about the drawer, open it to introduce them to the drawer,
         // per the navigation drawer design guidelines.
         if (!mUserLearnedDrawer && !mFromSavedInstanceState) {
-            mDrawerLayout!!.openDrawer(mFragmentContainerView as View)
+            mDrawerLayout?.openDrawer(mFragmentContainerView as View)
         }
 
         // Defer code dependent on restoration of previous instance state.
-        mDrawerLayout!!.post { (actionBarDrawerToggle as ActionBarDrawerToggle).syncState() }
-        mDrawerLayout!!.addDrawerListener(actionBarDrawerToggle as ActionBarDrawerToggle)
+        mDrawerLayout?.post { (actionBarDrawerToggle as ActionBarDrawerToggle).syncState() }
+        mDrawerLayout?.addDrawerListener(actionBarDrawerToggle as ActionBarDrawerToggle)
     }
 
     override fun onAttach(context: Context) {
@@ -187,7 +189,9 @@ class NavigationDrawerFragment : Fragment() {
 
     fun closeDrawer(): Boolean {
         if (isDrawerOpen) {
-            mDrawerLayout!!.closeDrawer(mFragmentContainerView!!)
+            mFragmentContainerView?.let{ mFragmentContainerView ->
+                mDrawerLayout?.closeDrawer(mFragmentContainerView)
+            }
             return true
         }
         return false
@@ -195,8 +199,10 @@ class NavigationDrawerFragment : Fragment() {
 
     fun openDrawer(): Boolean {
         if (!isDrawerOpen) {
-            mDrawerLayout!!.openDrawer(mFragmentContainerView!!)
-            return true
+            mFragmentContainerView?.let{ mFragmentContainerView ->
+                mDrawerLayout?.openDrawer(mFragmentContainerView)
+                return true
+            }
         }
         return false
     }
@@ -208,17 +214,19 @@ class NavigationDrawerFragment : Fragment() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         // Forward the new configuration the drawer toggle component.
-        actionBarDrawerToggle!!.onConfigurationChanged(newConfig)
+        actionBarDrawerToggle?.onConfigurationChanged(newConfig)
     }
 
     /**
      * If the Clear Buses button is clicked, clears the selection and the selected buses
      */
     fun clearSelection() {
-        val selectedRoutes: Set<String?> = HashSet(getSelectedRoutes()!!)
-        setSelection(selectedRoutes, false)
-        busListAdapter!!.clearSelection()
-        Toast.makeText(activity, getString(R.string.cleared), Toast.LENGTH_SHORT).show()
+        getSelectedRoutes()?.let{ routes ->
+            val selectedRoutes: Set<String?> = HashSet(routes)
+            setSelection(selectedRoutes, false)
+            busListAdapter?.clearSelection()
+            Toast.makeText(activity, getString(R.string.cleared), Toast.LENGTH_SHORT).show()
+        }
     }
 
     /**
@@ -228,8 +236,16 @@ class NavigationDrawerFragment : Fragment() {
         if (activity != null && busListAdapter != null) {
             val sp = PreferenceManager.getDefaultSharedPreferences(activity)
             val spe = sp.edit()
-            spe.putStringSet(BUS_SELECT_STATE, busListAdapter!!.getSelectedRoutes())
+            spe.putStringSet(BUS_SELECT_STATE, busListAdapter?.getSelectedRoutes())
             spe.apply()
+        }
+        activity?.let{ activity ->
+            busListAdapter?.let{ busListAdapter ->
+                val sp = PreferenceManager.getDefaultSharedPreferences(activity)
+                val spe = sp.edit()
+                spe.putStringSet(BUS_SELECT_STATE, busListAdapter.getSelectedRoutes())
+                spe.apply()
+            }
         }
     }
 
@@ -243,22 +259,20 @@ class NavigationDrawerFragment : Fragment() {
      * @return the route information by rt
      * @since 43
      */
-    fun getSelectedRoute(rt: String?): Route? {
-        return if (busListAdapter != null) busListAdapter!!.routeMap!![rt] else null
-    }
+    fun getSelectedRoute(rt: String?): Route? = busListAdapter?.routeMap?.get(rt)
 
-    private fun getSelectedRoutes(): Set<String?>? {
-        return if (busListAdapter != null) busListAdapter!!.getSelectedRoutes() else null
-    }
+    private fun getSelectedRoutes(): Set<String?>? = busListAdapter?.getSelectedRoutes()
 
-    private fun toggleRoute(route: Route?, isSelected: Boolean = route!!.toggleSelection()) {
-        route!!.isSelected = isSelected
-        if (isSelected) {
-            selectedRoutes!!.add(route.route)
-        } else {
-            selectedRoutes!!.remove(route.route)
+    private fun toggleRoute(route: Route?, isSelected: Boolean? = route?.toggleSelection()) {
+        route?.let { rt ->
+            rt.isSelected = isSelected == true
+            if (isSelected == true) {
+                selectedRoutes?.add(rt.route)
+            } else {
+                selectedRoutes?.remove(rt.route)
+            }
+            routeSelectionPublishSubject?.onNext(create(Route(rt), selectedRoutes))
         }
-        routeSelectionPublishSubject!!.onNext(create(Route(route), selectedRoutes))
     }
 
     private inner class BusRouteAdapter internal constructor() : RecyclerView.Adapter<BusRouteHolder>() {
@@ -290,8 +304,8 @@ class NavigationDrawerFragment : Fragment() {
             var currentRoute: Route
             for (i in numbers.indices) {
                 currentRoute = Route(numbers[i], descriptions[i], colors[i], i, false)
-                routes!![i] = currentRoute
-                routeMap!![currentRoute.route] = currentRoute
+                routes?.set(i, currentRoute)
+                routeMap?.set(currentRoute.route, currentRoute)
                 if (currentRoute.isSelected) {
                     Timber.w("Should not be true: %s", currentRoute.route)
                 }
@@ -303,7 +317,7 @@ class NavigationDrawerFragment : Fragment() {
             if (routeMap == null) {
                 Timber.i("Route hashmap not yet created...")
             }
-            return routeMap!![routeNumber]
+            return routeMap?.get(routeNumber)
         }
 
         /**
@@ -320,7 +334,7 @@ class NavigationDrawerFragment : Fragment() {
         }
 
         override fun onBindViewHolder(holder: BusRouteHolder, position: Int) {
-            holder.bindBusRoute(routes!![position])
+            routes?.get(position)?.let(holder::bindBusRoute)
         }
 
         override fun getItemCount(): Int {
@@ -328,15 +342,15 @@ class NavigationDrawerFragment : Fragment() {
         }
 
         fun clearSelection() {
-            for (s in selectedRoutes!!) {
-                routeMap!![s]!!.isSelected = false
+            for (s in selectedRoutes.orEmpty()) {
+                routeMap?.get(s)?.isSelected = false
             }
-            selectedRoutes!!.clear()
+            selectedRoutes?.clear()
             notifyDataSetChanged()
         }
 
         override fun getItemId(position: Int): Long {
-            return routes!![position]!!.route.hashCode().toLong()
+            return routes?.get(position)?.route.hashCode().toLong()
         }
 
         inner class BusRouteHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
@@ -345,8 +359,7 @@ class NavigationDrawerFragment : Fragment() {
             private val routeDescription: TextView
             override fun onClick(v: View) {
                 if (mRoute == null) return
-                if (!mRoute!!.isSelected &&
-                        selectedRoutes!!.size == resources.getInteger(R.integer.max_checked)) {
+                if (mRoute?.isSelected == false && selectedRoutes?.size == resources.getInteger(R.integer.max_checked)) {
                     Toast.makeText(activity, getString(R.string.max_selected_routes), Toast.LENGTH_SHORT).show()
                     return
                 }
@@ -355,16 +368,20 @@ class NavigationDrawerFragment : Fragment() {
             }
 
             private fun generateIcon() {
-                routeIcon.setBackgroundColor(mRoute!!.routeColor)
-                routeIcon.text = mRoute!!.route
-                routeIcon.setTextColor(if (isLight(mRoute!!.routeColor)) Color.BLACK else Color.WHITE)
+                mRoute?.let {mRoute ->
+                    routeIcon.setBackgroundColor(mRoute.routeColor)
+                    routeIcon.text = mRoute.route
+                    routeIcon.setTextColor(if (isLight(mRoute.routeColor)) Color.BLACK else Color.WHITE)
+                }
             }
 
-            fun bindBusRoute(busRoute: Route?) {
+            fun bindBusRoute(busRoute: Route) {
                 mRoute = busRoute
-                routeDescription.text = busRoute!!.routeInfo
-                generateIcon()
-                itemView.isActivated = mRoute!!.isSelected
+                mRoute?.let{mRoute ->
+                    routeDescription.text = busRoute.routeInfo
+                    generateIcon()
+                    itemView.isActivated = mRoute.isSelected
+                }
             }
 
             /**
@@ -395,18 +412,14 @@ class NavigationDrawerFragment : Fragment() {
     }
 
     val selectedRoutesObservable: Flowable<Set<String?>?>?
-        get() = if (routeSelectionPublishSubject == null) {
-            null
-        } else routeSelectionPublishSubject!!
-                .toFlowable(BackpressureStrategy.BUFFER)
-                .map(RouteSelection::selectedRoutes)
+        get() = routeSelectionPublishSubject
+                ?.toFlowable(BackpressureStrategy.BUFFER)
+                ?.map(RouteSelection::selectedRoutes)
 
     val toggledRouteObservable: Flowable<Route>?
-        get() = if (routeSelectionPublishSubject == null) {
-            null
-        } else routeSelectionPublishSubject!!
-                .toFlowable(BackpressureStrategy.BUFFER)
-                .map(RouteSelection::toggledRoute)
+        get() = routeSelectionPublishSubject
+                ?.toFlowable(BackpressureStrategy.BUFFER)
+                ?.map(RouteSelection::toggledRoute)
 
     companion object {
         /**

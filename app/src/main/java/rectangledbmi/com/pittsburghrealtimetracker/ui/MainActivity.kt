@@ -202,9 +202,10 @@ class MainActivity : AppCompatActivity(), SelectionFragment.BusSelectionInteract
             try {
                 setSupportActionBar(toolbar)
             } catch (e: Throwable) {
-                Snackbar.make(mainLayout!!,
+                mainLayout?.let {mainLayout ->
+                    Snackbar.make(mainLayout,
                         "Material Design bugged out on your device. Please report this to the " + "Play Store Email if this pops up.", Snackbar.LENGTH_SHORT).show()
-                //                Toast.makeText(this, "Material Design bugged out on your device. Please report this to the Play Store Email if this pops up.", Toast.LENGTH_SHORT).show();
+                }
             }
 
         }
@@ -212,8 +213,10 @@ class MainActivity : AppCompatActivity(), SelectionFragment.BusSelectionInteract
             val t = supportActionBar
             t?.setDisplayHomeAsUpEnabled(true)
         } catch (e: NullPointerException) {
-            Snackbar.make(mainLayout!!,
-                    "Material Design bugged out on your device. Please report this to the " + "Play Store Email if this pops up.", Snackbar.LENGTH_SHORT).show()
+            mainLayout?.let { mainLayout ->
+                Snackbar.make(mainLayout,
+                        "Material Design bugged out on your device. Please report this to the " + "Play Store Email if this pops up.", Snackbar.LENGTH_SHORT).show()
+            }
         }
 
     }
@@ -298,7 +301,7 @@ class MainActivity : AppCompatActivity(), SelectionFragment.BusSelectionInteract
         if (toastSubject == null) {
             return
         }
-        toastSubject!!.onNext(NotificationMessage.create(message, length))
+        toastSubject?.onNext(NotificationMessage.create(message, length))
     }
 
     /**
@@ -343,9 +346,11 @@ class MainActivity : AppCompatActivity(), SelectionFragment.BusSelectionInteract
                               action: String,
                               listener: View.OnClickListener) {
         if (message.isEmpty()) return
-        Snackbar.make(mainLayout!!, message, length)
-                .setAction(action, listener)
-                .show()
+        mainLayout?.let {mainLayout ->
+            Snackbar.make(mainLayout, message, length)
+                    .setAction(action, listener)
+                    .show()
+        }
     }
 
 

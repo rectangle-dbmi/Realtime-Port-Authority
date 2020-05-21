@@ -136,14 +136,14 @@ class PatternViewModel(service: PatApiService,
                             .filter { pt: Pt -> 'S' == pt.typ }
                             .toList()
                             .map { pts: List<Pt>? ->
-                                create(pts!!,
+                                create(pts.orEmpty(),
                                         patternSelection.routeNumber,
                                         patternSelection.isSelected)
                             }
                             .toFlowable()
                 }?.scan(create(emptyMap()), { accumulator: EitherStopState<*>, routeStops: StopSelection ->
                     val current: MutableMap<Int, StopRenderState> = HashMap<Int, StopRenderState>(accumulator.value() as Map<Int, StopRenderState>?)
-                    for (pt in routeStops.stopPts!!) {
+                    for (pt in routeStops.stopPts.orEmpty()) {
                         val stpid = pt.stpid
                         if (!current.containsKey(stpid)) {
                             current[stpid] = create(pt, 1)
@@ -167,17 +167,19 @@ class PatternViewModel(service: PatApiService,
                 return null
             }
             return selectionFlowable
-                    .flatMap(Function<Route, Publisher<out PatternSelection>> { route: Route ->
+                    .flatMap { route: Route ->
                         Timber.d("Getting patternSelections: %s", route.route)
-                        service.getPatterns(route.route!!)
-                                .map { patterns: List<Ptr?>? ->
-                                    PatternSelection(
-                                            patterns,
-                                            route.isSelected,
-                                            route.route!!,
-                                            route.routeColor)
-                                }
-                    })
+                        return@flatMap route.route?.let{ rt ->
+                            service.getPatterns(rt)
+                                    .map { patterns: List<Ptr?>? ->
+                                        PatternSelection(
+                                                patterns,
+                                                route.isSelected,
+                                                rt,
+                                                route.routeColor)
+                                    }
+                        }
+                    }
                     .retry()
                     .share()
         }
@@ -203,18 +205,25 @@ class PatternViewModel(service: PatApiService,
                         stopsToChange)
             }
             Timber.d("Changing stop selection state")
-            val diff: Collection<StopRenderState> = getDiffList(
-                    previousAccumulator.fullStopSelectionState!!.value().values,
-                    fullStopSelectionState.value().values
-            )
-            for (stopRenderState in diff) {
-                if (stopRenderState.routeCount() <= 0) {
-                    if (stopRenderState.routeCount() < 0) {
-                        Timber.v("Bug in app: Stop routeCount should never be < 0 for %d: %d", stopRenderState.stopPt!!.stpid, stopRenderState.routeCount())
+            val diff = previousAccumulator.fullStopSelectionState?.let{
+                getDiffList(
+                        previousAccumulator.fullStopSelectionState.value().values,
+                        fullStopSelectionState.value().values)
+            }
+            for (stopRenderState in diff.orEmpty()) {
+                stopRenderState.stopPt?.let {
+                    when {
+                        stopRenderState.routeCount() <= 0 -> {
+                            if (stopRenderState.routeCount() < 0) {
+                                Timber.v("Bug in app: Stop routeCount should never be < 0 for %d: %d", stopRenderState.stopPt.stpid, stopRenderState.routeCount())
+                            }
+                            stopsToChange.add(create(stopRenderState.stopPt, false))
+                        }
+                        previousAccumulator.mapState.value() -> {
+                            stopsToChange.add(create(stopRenderState.stopPt, true))
+                        }
+                        else -> Unit
                     }
-                    stopsToChange.add(create(stopRenderState.stopPt!!, false))
-                } else if (previousAccumulator.mapState.value()) {
-                    stopsToChange.add(create(stopRenderState.stopPt!!, true))
                 }
             }
             return create(
@@ -253,7 +262,9 @@ class PatternViewModel(service: PatApiService,
             Timber.v("Changing stop map state")
             for (stopRenderState in previousAccumulator.fullStopSelectionState.value().values) {
                 if (stopRenderState.routeCount() > 0) {
-                    stopsToChange.add(create(stopRenderState.stopPt!!, mapState.value()))
+                    stopRenderState.stopPt?.let {
+                        stopsToChange.add(create(stopRenderState.stopPt, mapState.value()))
+                    }
                 }
             }
             return create(

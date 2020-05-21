@@ -84,7 +84,7 @@ class PatternDataManager(dataDirectory : File,
                         throw Exceptions.propagate(e)
                     }
                 }
-                .onErrorResumeNext { _: Throwable ->  getPatternsFromDisk(rt) }
+                .onErrorResumeNext { _: Throwable -> getPatternsFromDisk(rt) }
 //                .onErrorResumeNext(t -> return getPatternsFromDisk(rt))
     }
 
