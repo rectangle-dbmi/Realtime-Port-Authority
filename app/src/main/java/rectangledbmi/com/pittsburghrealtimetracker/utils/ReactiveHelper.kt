@@ -3,6 +3,7 @@ package rectangledbmi.com.pittsburghrealtimetracker.utils
 import android.annotation.SuppressLint
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
 import com.github.pwittchen.reactivenetwork.library.rx2.internet.observing.InternetObservingSettings
+import com.github.pwittchen.reactivenetwork.library.rx2.internet.observing.error.DefaultErrorHandler
 import com.github.pwittchen.reactivenetwork.library.rx2.internet.observing.strategy.WalledGardenInternetObservingStrategy
 
 import java.io.IOException
@@ -46,12 +47,12 @@ object ReactiveHelper {
                             if (isInternetDown(throwable)) {
                                 return@flatMap ReactiveNetwork
                                         .observeInternetConnectivity(InternetObservingSettings
-                                                .strategy(WalledInternetStrategy())
+                                                .strategy(WalledGardenInternetObservingStrategy())
                                                 .initialInterval(2000)
                                                 .interval(2000)
                                                 .port(80)
                                                 .timeout(2000)
-                                                .errorHandler(null)
+                                                .errorHandler(DefaultErrorHandler())
                                                 .host("http://clients3.google.com/generate_204")
                                                 .build())
                                         .skipWhile { isConnected: Boolean -> !isConnected }
