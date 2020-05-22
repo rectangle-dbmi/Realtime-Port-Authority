@@ -15,6 +15,7 @@ import android.widget.TextView
 import rectangledbmi.com.pittsburghrealtimetracker.R
 
 
+@Suppress("RedundantOverride")
 class AboutActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -1,22 +1,17 @@
 package rectangledbmi.com.pittsburghrealtimetracker.utils
 
-import android.annotation.SuppressLint
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
 import com.github.pwittchen.reactivenetwork.library.rx2.internet.observing.InternetObservingSettings
 import com.github.pwittchen.reactivenetwork.library.rx2.internet.observing.error.DefaultErrorHandler
 import com.github.pwittchen.reactivenetwork.library.rx2.internet.observing.strategy.WalledGardenInternetObservingStrategy
-
-import java.io.IOException
-import java.net.SocketTimeoutException
-
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.FlowableTransformer
 import io.reactivex.Observable
-import io.reactivex.ObservableTransformer
 import io.reactivex.functions.Consumer
-import rectangledbmi.com.pittsburghrealtimetracker.PATTrackApplication
 import timber.log.Timber
+import java.io.IOException
+import java.net.SocketTimeoutException
 
 /**
  *

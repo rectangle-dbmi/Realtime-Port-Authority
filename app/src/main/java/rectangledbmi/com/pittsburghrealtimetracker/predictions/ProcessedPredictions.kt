@@ -1,20 +1,14 @@
 package rectangledbmi.com.pittsburghrealtimetracker.predictions
 
-import android.os.Bundle
-
 import com.google.android.gms.maps.model.Marker
-
-import java.text.SimpleDateFormat
-import java.util.Locale
-import java.util.TimeZone
-
 import com.rectanglel.patstatic.patterns.response.Pt
 import com.rectanglel.patstatic.predictions.PredictionsType
 import com.rectanglel.patstatic.predictions.PredictionsView
 import com.rectanglel.patstatic.predictions.response.Prd
 import com.rectanglel.patstatic.vehicles.response.Vehicle
-
 import rectangledbmi.com.pittsburghrealtimetracker.ui.MainActivity
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  *

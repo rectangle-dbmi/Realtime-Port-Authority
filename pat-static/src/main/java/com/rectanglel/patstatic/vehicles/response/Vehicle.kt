@@ -2,10 +2,7 @@ package com.rectanglel.patstatic.vehicles.response
 
 import com.google.gson.annotations.Expose
 import com.rectanglel.patstatic.predictions.PredictionsType
-
-import java.text.ParseException
-import java.util.Date
-
+import java.util.*
 import javax.annotation.Generated
 
 /**

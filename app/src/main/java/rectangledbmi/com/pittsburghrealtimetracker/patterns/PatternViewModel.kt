@@ -6,9 +6,6 @@ import com.rectanglel.patstatic.model.PatApiService
 import com.rectanglel.patstatic.patterns.response.Pt
 import com.rectanglel.patstatic.patterns.response.Ptr
 import io.reactivex.Flowable
-import io.reactivex.functions.BiFunction
-import io.reactivex.functions.Function
-import org.reactivestreams.Publisher
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopRenderState
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopRenderState.Companion.create
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopSelection

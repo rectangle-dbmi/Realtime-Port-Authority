@@ -1,6 +1,5 @@
 package com.rectanglel.patstatic.routes
 
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
@@ -9,17 +8,10 @@ import com.rectanglel.patstatic.model.RetrofitPatApi
 import com.rectanglel.patstatic.model.StaticData
 import com.rectanglel.patstatic.routes.response.BusRouteResponse
 import com.rectanglel.patstatic.routes.response.BusTimeRoutesResponse
-
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.FileReader
-import java.io.FileWriter
-import java.io.IOException
-import java.lang.reflect.Type
-import java.util.concurrent.locks.ReentrantReadWriteLock
-
 import io.reactivex.Single
 import io.reactivex.exceptions.Exceptions
+import java.io.*
+import java.util.concurrent.locks.ReentrantReadWriteLock
 
 /**
  * A data mananger for getting a full list of routes that will handle:

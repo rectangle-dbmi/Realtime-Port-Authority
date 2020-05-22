@@ -1,6 +1,5 @@
 package rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either
 
-import io.reactivex.Flowable
 import io.reactivex.Observable
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternViewModel
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopRenderState

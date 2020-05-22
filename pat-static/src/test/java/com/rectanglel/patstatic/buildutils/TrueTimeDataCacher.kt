@@ -2,7 +2,6 @@ package com.rectanglel.patstatic.buildutils
 
 import com.rectanglel.patstatic.model.PatApiService
 import com.rectanglel.patstatic.model.PatApiServiceImpl
-import com.rectanglel.patstatic.patterns.response.Ptr
 import com.rectanglel.patstatic.routes.BusRoute
 import io.reactivex.Flowable
 import io.reactivex.Observable

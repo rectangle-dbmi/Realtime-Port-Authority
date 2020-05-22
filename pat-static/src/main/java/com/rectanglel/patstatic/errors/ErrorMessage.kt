@@ -1,8 +1,5 @@
 package com.rectanglel.patstatic.errors
 
-import java.util.ArrayList
-import java.util.Collections
-
 import io.paour.github.natorder.NaturalOrderComparator
 
 /**

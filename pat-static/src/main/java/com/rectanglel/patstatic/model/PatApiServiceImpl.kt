@@ -1,11 +1,9 @@
 package com.rectanglel.patstatic.model
 
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.rectanglel.patstatic.patterns.PatternDataManager
 import com.rectanglel.patstatic.patterns.response.Pt
 import com.rectanglel.patstatic.patterns.response.Ptr
-import com.rectanglel.patstatic.predictions.response.BustimePredictionResponse
 import com.rectanglel.patstatic.predictions.response.Prd
 import com.rectanglel.patstatic.predictions.response.PredictionResponse
 import com.rectanglel.patstatic.routes.BusRoute
@@ -13,24 +11,17 @@ import com.rectanglel.patstatic.routes.RoutesDataManager
 import com.rectanglel.patstatic.utils.Constants
 import com.rectanglel.patstatic.vehicles.response.VehicleResponse
 import com.rectanglel.patstatic.wrappers.WifiChecker
-
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Locale
-import java.util.concurrent.TimeUnit
-
 import io.reactivex.Flowable
-import io.reactivex.FlowableTransformer
 import io.reactivex.Single
-import io.reactivex.SingleTransformer
 import io.reactivex.schedulers.Schedulers
-import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
-import okhttp3.Request
-import org.intellij.lang.annotations.Flow
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 /**
  * Implemented service that retrieves data.

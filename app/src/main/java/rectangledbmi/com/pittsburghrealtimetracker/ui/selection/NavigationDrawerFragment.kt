@@ -33,6 +33,7 @@ import java.util.*
  * See the [
  * design guidelines](https://developer.android.com/design/patterns/navigation-drawer.html#Interaction) for a complete explanation of the behaviors implemented here.
  */
+@Suppress("RedundantOverride")
 class NavigationDrawerFragment : Fragment() {
     /**
      * Helper component that ties the action bar to the navigation drawer.

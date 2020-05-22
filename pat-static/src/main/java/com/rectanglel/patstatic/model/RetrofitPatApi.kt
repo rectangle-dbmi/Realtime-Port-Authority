@@ -4,9 +4,7 @@ import com.rectanglel.patstatic.patterns.response.PatternResponse
 import com.rectanglel.patstatic.predictions.response.PredictionResponse
 import com.rectanglel.patstatic.routes.response.BusRouteResponse
 import com.rectanglel.patstatic.vehicles.response.VehicleResponse
-
 import io.reactivex.Flowable
-import io.reactivex.Observable
 import io.reactivex.Single
 import retrofit2.http.GET
 import retrofit2.http.Query
