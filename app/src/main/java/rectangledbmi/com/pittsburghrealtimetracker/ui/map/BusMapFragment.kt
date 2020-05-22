@@ -85,7 +85,7 @@ private const val defaultZoom = 11.8f
  * @author Michael Antonacci
  */
 // remove this suppressed warning when we can start using the stream APIs
-class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFailedListener, OnMapReadyCallback, LocationListener, ClearSelection, PolylineView<PatternSelection?>, StopView<StopRenderRequest?>, PredictionsView<ProcessedPredictions?> {
+class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFailedListener, OnMapReadyCallback, LocationListener, ClearSelection, PolylineView<PatternSelection>, StopView<StopRenderRequest>, PredictionsView<ProcessedPredictions> {
 
     // region private instance variables
     private var zoomStopVisibility = 0f
@@ -950,8 +950,8 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
         }
     }
 
-    override fun polylineObserver(): DisposableSubscriber<PatternSelection?> {
-        return object : DisposableSubscriber<PatternSelection?>() {
+    override fun polylineObserver(): DisposableSubscriber<PatternSelection> {
+        return object : DisposableSubscriber<PatternSelection>() {
             override fun onError(e: Throwable) {
                 Timber.e(e, "Problem with polyline creation.")
             }
@@ -960,13 +960,13 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                 Timber.d("Completed observing on PatternSelection")
             }
 
-            override fun onNext(patternSelection: PatternSelection?) {
+            override fun onNext(patternSelection: PatternSelection) {
                 if (mMap == null) {
                     Timber.e("Google Map is null while trying to add patternSelections")
                     return
                 }
-                val routeLine = routeLines?.get(patternSelection?.routeNumber)
-                if (patternSelection?.isSelected == true) {
+                val routeLine = routeLines?.get(patternSelection.routeNumber)
+                if (patternSelection.isSelected) {
                     if (routeLine != null) {
                         setVisiblePolylines(routeLine, patternSelection.isSelected)
                     } else {
@@ -976,7 +976,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                     for (lineInRoute: Polyline in routeLine.orEmpty()) {
                         lineInRoute.remove()
                     }
-                    routeLines?.remove(patternSelection?.routeNumber)
+                    routeLines?.remove(patternSelection.routeNumber)
                 }
             }
 
@@ -1014,8 +1014,8 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
         stops?.clear()
     }
 
-    override fun stopObserver(): DisposableSubscriber<StopRenderRequest?> {
-        return object : DisposableSubscriber<StopRenderRequest?>() {
+    override fun stopObserver(): DisposableSubscriber<StopRenderRequest> {
+        return object : DisposableSubscriber<StopRenderRequest>() {
             override fun onError(e: Throwable) {
                 Timber.e(e, "Stop observer encountered an error")
                 clearStops()
@@ -1026,7 +1026,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                 stops?.clear()
             }
 
-            override fun onNext(stopRenderRequest: StopRenderRequest?) {
+            override fun onNext(stopRenderRequest: StopRenderRequest) {
                 if (mMap == null) {
                     Timber.i("Google Map is null")
                     return
@@ -1035,35 +1035,32 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                     Timber.i("getStopRenderRequests is null")
                     return
                 }
-                stopRenderRequest?.let {
-                    val stopInfo = stopRenderRequest.stopPt
-                    var stopMarker = stops?.get(stopInfo.stpid)
-                    when {
-                        stopRenderRequest.isVisible -> {
-                            if (stopMarker == null) {
-                                stopMarker = mMap?.addMarker(MarkerOptions()
-                                        .anchor(.5f, .5f)
-                                        .title(stopInfo.title)
-                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_stop))
-                                        .visible(true)
-                                        .flat(false)
-                                        .zIndex(10f)
-                                        .draggable(false)
-                                        .position(LatLng(stopInfo.lat, stopInfo.lon))
-                                        .flat(false)
-                                )
-                                stopMarker?.tag = stopRenderRequest.stopPt
-                                stops?.set(stopRenderRequest.stopPt.stpid, stopMarker)
-                            } else {
-                                stopMarker.isVisible = true
-                            }
-                        }
-                        stopMarker != null -> {
-                            stopMarker.remove()
-                            stops?.remove(stopInfo.stpid)
+                val stopInfo = stopRenderRequest.stopPt
+                var stopMarker = stops?.get(stopInfo.stpid)
+                when {
+                    stopRenderRequest.isVisible -> {
+                        if (stopMarker == null) {
+                            stopMarker = mMap?.addMarker(MarkerOptions()
+                                    .anchor(.5f, .5f)
+                                    .title(stopInfo.title)
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_stop))
+                                    .visible(true)
+                                    .flat(false)
+                                    .zIndex(10f)
+                                    .draggable(false)
+                                    .position(LatLng(stopInfo.lat, stopInfo.lon))
+                                    .flat(false)
+                            )
+                            stopMarker?.tag = stopRenderRequest.stopPt
+                            stops?.set(stopRenderRequest.stopPt.stpid, stopMarker)
+                        } else {
+                            stopMarker.isVisible = true
                         }
                     }
-                    return@let
+                    stopMarker != null -> {
+                        stopMarker.remove()
+                        stops?.remove(stopInfo.stpid)
+                    }
                 }
             }
         }

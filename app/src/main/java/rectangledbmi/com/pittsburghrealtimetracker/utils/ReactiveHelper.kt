@@ -37,7 +37,6 @@ object ReactiveHelper {
      * @param reconnectionMessage lambda that should print out a reconnection message
      * @return a transformer for composing retrying internet
      */
-    @JvmStatic
     fun retryIfInternet(disconnectionMessage: Consumer<Throwable>?, reconnectionMessage: Consumer<Boolean>) =
             FlowableTransformer { throwableObservable: Flowable<Throwable> ->
                 throwableObservable
@@ -78,7 +77,6 @@ object ReactiveHelper {
      * @param throwable the error
      * @return true if internet on the mobile device
      */
-    @JvmStatic
     fun isInternetDown(throwable: Throwable): Boolean {
         /*
          Jeremy Jao: note an edge case where if on a tablet and android says wifi has some sort of spotty

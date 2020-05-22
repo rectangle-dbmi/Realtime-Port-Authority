@@ -34,7 +34,6 @@ class StopSelection private constructor(val stopPts: Collection<Pt>?, val routeN
 
     companion object {
 
-        @JvmStatic
         fun create(pts: Collection<Pt>,
                    routeNumber: String,
                    isSelected: Boolean): StopSelection {

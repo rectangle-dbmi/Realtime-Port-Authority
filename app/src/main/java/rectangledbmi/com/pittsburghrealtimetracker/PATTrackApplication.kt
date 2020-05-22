@@ -67,7 +67,6 @@ class PATTrackApplication : Application() {
          * @param context the application context
          * @return a refWatcher
          */
-        @JvmStatic
         fun getRefWatcher(context: Context): RefWatcher? {
             val application = context.applicationContext as PATTrackApplication
             return application.refWatcher

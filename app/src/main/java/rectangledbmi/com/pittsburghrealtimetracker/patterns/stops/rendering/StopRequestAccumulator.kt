@@ -28,7 +28,6 @@ class StopRequestAccumulator private constructor(
         val stopsToChange: List<StopRenderRequest>) {
     companion object {
 
-        @JvmStatic
         fun create(
                 fullStopSelectionState: FullStopSelectionState?,
                 mapState: MapState?,

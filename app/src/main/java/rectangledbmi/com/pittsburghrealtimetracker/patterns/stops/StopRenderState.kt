@@ -37,7 +37,6 @@ class StopRenderState private constructor(val stopPt: Pt?, private val routeCoun
 
     companion object {
 
-        @JvmStatic
         fun create(stopInfo: Pt, routeCount: Int): StopRenderState {
             return StopRenderState(stopInfo, routeCount)
         }

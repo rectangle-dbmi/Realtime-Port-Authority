@@ -14,7 +14,6 @@ import com.rectanglel.patstatic.patterns.response.Pt
 class StopRenderRequest private constructor(val stopPt: Pt, val isVisible: Boolean) {
     companion object {
 
-        @JvmStatic
         fun create(stopInfo: Pt, isVisible: Boolean): StopRenderRequest {
             return StopRenderRequest(stopInfo, isVisible)
         }

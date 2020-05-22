@@ -20,7 +20,6 @@ class NotificationMessage private constructor(message: String, length: Int) {
 
     companion object {
 
-        @JvmStatic
         fun create(message: String, length: Int): NotificationMessage {
             return NotificationMessage(message, length)
         }

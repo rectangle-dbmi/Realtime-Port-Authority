@@ -52,7 +52,6 @@ class ProcessedPredictions private constructor(val marker: Marker, predictionsTy
             dateFormat.timeZone = TimeZone.getTimeZone("America/New_York")
         }
 
-        @JvmStatic
         fun create(marker: Marker, predictionsType: PredictionsType, predictions: List<Prd>): ProcessedPredictions {
             return ProcessedPredictions(marker, predictionsType, predictions)
         }
