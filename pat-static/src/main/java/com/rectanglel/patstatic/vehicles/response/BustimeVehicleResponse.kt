@@ -16,34 +16,28 @@ import javax.annotation.Generated
  * @since 46
  */
 @Generated("org.jsonschema2pojo")
-data class BustimeVehicleResponse (
+data class BustimeVehicleResponse(
 
-    @Expose
-    var vehicle: List<Vehicle> = ArrayList(),
+        @Expose
+        var vehicle: List<Vehicle> = ArrayList(),
 
-    @Expose
-    var error: List<Error> = ArrayList()
+        @Expose
+        var error: List<Error> = ArrayList()
 
-
+) {
     /**
      * Lazily processes the errors into a hashmap since like messages can be transient
      * @return the hashmap of processed errors
      * @since 55
      */
-) {
     val processedErrors: HashMap<String, ArrayList<String>> by lazy {
         val processedErrors = HashMap<String, ArrayList<String>>(error.size)
         for (err in error) {
-            var listOfParams: ArrayList<String>? = processedErrors[err.msg]
-            if (listOfParams == null) {
-                listOfParams = ArrayList<String>()
-                err.msg?.let{msg ->
-                    processedErrors[msg] = listOfParams
-                }
-            }
-            err.rt?.let {rt ->
-                listOfParams.add(rt)
-            }
+            err.msg
+                    ?.let { processedErrors.getOrPut(it) { ArrayList<String>() } }
+                    ?.also { list: ArrayList<String> ->
+                        err.rt?.let { rt: String -> list.add(rt) }
+                    }
         }
         processedErrors
     }
