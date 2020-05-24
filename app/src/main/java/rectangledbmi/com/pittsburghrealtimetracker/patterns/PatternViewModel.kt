@@ -85,22 +85,22 @@ class PatternViewModel(service: PatApiService,
         val mapState = getZoomState(zoomFlowable)
         return stopSelectionState?.mergeWith(mapState)
                 ?.scan(StopRequestAccumulator(null, null, emptyList()))  // initial val
-                        label@ { stopRequestAccumulator, eitherStopState ->  // scan lambda
-                            when (eitherStopState) {
-                                is FullStopSelectionState -> {
-                                    return@label changeStopSelectionState(
-                                            stopRequestAccumulator,
-                                            eitherStopState
-                                    )
-                                }
-                                is MapState -> {
-                                    return@label changeMapState(
-                                            stopRequestAccumulator,
-                                            eitherStopState
-                                    )
-                                }
-                            }
+                label@{ stopRequestAccumulator, eitherStopState ->  // scan lambda
+                    when (eitherStopState) {
+                        is FullStopSelectionState -> {
+                            return@label changeStopSelectionState(
+                                    stopRequestAccumulator,
+                                    eitherStopState
+                            )
                         }
+                        is MapState -> {
+                            return@label changeMapState(
+                                    stopRequestAccumulator,
+                                    eitherStopState
+                            )
+                        }
+                    }
+                }
                 ?.flatMapIterable(StopRequestAccumulator::stopsToChange)
     }
 
@@ -162,7 +162,7 @@ class PatternViewModel(service: PatApiService,
             return selectionFlowable
                     .flatMap { route: Route ->
                         Timber.d("Getting patternSelections: %s", route.route)
-                        return@flatMap route.route?.let{ rt ->
+                        return@flatMap route.route?.let { rt ->
                             service.getPatterns(rt)
                                     .map { patterns: List<Ptr?>? ->
                                         PatternSelection(
@@ -198,7 +198,7 @@ class PatternViewModel(service: PatApiService,
                         stopsToChange)
             }
             Timber.d("Changing stop selection state")
-            val diff = previousAccumulator.fullStopSelectionState?.let{
+            val diff = previousAccumulator.fullStopSelectionState?.let {
                 getDiffList(
                         previousAccumulator.fullStopSelectionState.stopRenderStateMap.values,
                         fullStopSelectionState.stopRenderStateMap.values)
@@ -217,10 +217,7 @@ class PatternViewModel(service: PatApiService,
                     else -> Unit
                 }
             }
-            return StopRequestAccumulator(
-                    fullStopSelectionState,
-                    previousAccumulator.mapState,
-                    stopsToChange)
+            return previousAccumulator.copy(fullStopSelectionState = fullStopSelectionState, stopsToChange = stopsToChange)
         }
 
         /**
@@ -256,11 +253,7 @@ class PatternViewModel(service: PatApiService,
                     stopsToChange.add(StopRenderRequest(stopRenderState.stopPt, mapState.shouldStopsVeVisible))
                 }
             }
-            return StopRequestAccumulator(
-                    previousAccumulator.fullStopSelectionState,
-                    mapState,
-                    stopsToChange
-            )
+            return previousAccumulator.copy(mapState = mapState, stopsToChange = stopsToChange)
         }
 
         private fun <T> getDiffList(oldList: Collection<T>, newList: Collection<T>): List<T> {
