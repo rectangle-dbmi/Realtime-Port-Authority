@@ -25,5 +25,4 @@ data class StopRequestAccumulator constructor(
         /**
          * @return the processed list of stops to change
          */
-        val stopsToChange: List<StopRenderRequest>) {
-}
+        val stopsToChange: List<StopRenderRequest>)

@@ -198,10 +198,8 @@ class PatternViewModel(service: PatApiService,
                         stopsToChange)
             }
             Timber.d("Changing stop selection state")
-            val diff = previousAccumulator.fullStopSelectionState?.let {
-                getDiffList(
-                        previousAccumulator.fullStopSelectionState.stopRenderStateMap.values,
-                        fullStopSelectionState.stopRenderStateMap.values)
+            val diff = previousAccumulator.fullStopSelectionState?.let { previous ->
+                fullStopSelectionState.stopRenderStateMap.values - previous.stopRenderStateMap.values
             }
             for (stopRenderState in diff.orEmpty()) {
                 when {
@@ -254,13 +252,6 @@ class PatternViewModel(service: PatApiService,
                 }
             }
             return previousAccumulator.copy(mapState = mapState, stopsToChange = stopsToChange)
-        }
-
-        private fun <T> getDiffList(oldList: Collection<T>, newList: Collection<T>): List<T> {
-            val set1: Set<T> = HashSet(oldList)
-            val set2: MutableSet<T> = HashSet(newList)
-            set2.removeAll(set1)
-            return ArrayList(set2)
         }
     }
 
