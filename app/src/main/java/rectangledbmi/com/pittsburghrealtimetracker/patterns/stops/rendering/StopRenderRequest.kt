@@ -11,11 +11,4 @@ import com.rectanglel.patstatic.patterns.response.Pt
  * @author Jeremy Jao
  * @author Michael Antonacci
  */
-class StopRenderRequest private constructor(val stopPt: Pt, val isVisible: Boolean) {
-    companion object {
-
-        fun create(stopInfo: Pt, isVisible: Boolean): StopRenderRequest {
-            return StopRenderRequest(stopInfo, isVisible)
-        }
-    }
-}
+data class StopRenderRequest (val stopPt: Pt, val isVisible: Boolean)

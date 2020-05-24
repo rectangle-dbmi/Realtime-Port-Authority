@@ -532,14 +532,16 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                 ?.subscribeOn(Schedulers.computation())
                 ?.observeOn(AndroidSchedulers.mainThread())
         vehicleUpdateFlowable = vehicleIntervalObservable
-                ?.flatMap { bustimeVehicleResponse: BustimeVehicleResponse ->
+                ?.flatMap { bustimeVehicleResponse: BustimeVehicleResponse? ->
                     Timber.d("Iterating through all vehicles to add")
-                    Flowable.fromIterable(bustimeVehicleResponse.vehicle)
+                    Flowable.fromIterable(bustimeVehicleResponse?.vehicle.orEmpty())
                 }?.map(makeBitmaps())
         vehicleErrorFlowable = vehicleIntervalObservable
                 ?.map(BustimeVehicleResponse::processedErrors)
                 ?.distinctUntilChanged()
-                ?.flatMap { errorMap: HashMap<String, ArrayList<String>> -> Flowable.fromIterable<Map.Entry<String, ArrayList<String>>?>(errorMap.entries) }
+                ?.flatMap {
+                    errorMap: HashMap<String, ArrayList<String>> -> Flowable.fromIterable<Map.Entry<String, ArrayList<String>>?>(errorMap.entries)
+                }
                 ?.map(transformSingleMessage())
         unselectVehicleSubscription = toggledRoutesFlowable
                 ?.skipWhile(Route::isSelected)

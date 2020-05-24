@@ -19,7 +19,7 @@ import com.rectanglel.patstatic.patterns.response.Ptr
  * @since 78
  * @author Jeremy Jao
  */
-class PatternSelection
+data class PatternSelection
 /**
  *
  * It is recommended to use this constructor when you want to show the polyline of a route number.

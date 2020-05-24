@@ -7,16 +7,12 @@ import com.rectanglel.patstatic.patterns.response.Pt
 import com.rectanglel.patstatic.patterns.response.Ptr
 import io.reactivex.Flowable
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopRenderState
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopRenderState.Companion.create
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopSelection
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopSelection.Companion.create
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either.EitherStopState
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either.FullStopSelectionState
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either.MapState
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRenderRequest
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRenderRequest.Companion.create
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRequestAccumulator
-import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.rendering.StopRequestAccumulator.Companion.create
 import rectangledbmi.com.pittsburghrealtimetracker.selection.Route
 import timber.log.Timber
 import java.util.*
@@ -88,22 +84,23 @@ class PatternViewModel(service: PatApiService,
         val stopSelectionState = stopSelectionState
         val mapState = getZoomState(zoomFlowable)
         return stopSelectionState?.mergeWith(mapState)
-                ?.scan(create(null, null, emptyList()),  // initial val
-                        label@ { stopRequestAccumulator: StopRequestAccumulator, eitherStopState: EitherStopState ->  // scan lambda
-                            if (eitherStopState is FullStopSelectionState) {
-                                return@label changeStopSelectionState(
-                                        stopRequestAccumulator,
-                                        eitherStopState
-                                )
-                            } else if (eitherStopState is MapState) {
-                                return@label changeMapState(
-                                        stopRequestAccumulator,
-                                        eitherStopState
-                                )
+                ?.scan(StopRequestAccumulator(null, null, emptyList()))  // initial val
+                        label@ { stopRequestAccumulator, eitherStopState ->  // scan lambda
+                            when (eitherStopState) {
+                                is FullStopSelectionState -> {
+                                    return@label changeStopSelectionState(
+                                            stopRequestAccumulator,
+                                            eitherStopState
+                                    )
+                                }
+                                is MapState -> {
+                                    return@label changeMapState(
+                                            stopRequestAccumulator,
+                                            eitherStopState
+                                    )
+                                }
                             }
-                            Timber.w("Resetting the stop state accumulator")
-                            create(null, null, emptyList())
-                        })
+                        }
                 ?.flatMapIterable(StopRequestAccumulator::stopsToChange)
     }
 
@@ -132,23 +129,23 @@ class PatternViewModel(service: PatApiService,
                             .filter { pt: Pt -> 'S' == pt.typ }
                             .toList()
                             .map { pts: List<Pt>? ->
-                                create(pts.orEmpty(),
+                                StopSelection(pts.orEmpty(),
                                         patternSelection.routeNumber,
                                         patternSelection.isSelected)
                             }
                             .toFlowable()
                 }?.scan(FullStopSelectionState(emptyMap()), { accumulator: EitherStopState, routeStops: StopSelection ->
                     val current: MutableMap<Int, StopRenderState> = HashMap<Int, StopRenderState>((accumulator as FullStopSelectionState).stopRenderStateMap as Map<Int, StopRenderState>?)
-                    for (pt in routeStops.stopPts.orEmpty()) {
+                    for (pt in routeStops.stopPts) {
                         val stpid = pt.stpid
                         if (!current.containsKey(stpid)) {
-                            current[stpid] = create(pt, 1)
+                            current[stpid] = StopRenderState(pt, 1)
                         } else {
-                            var refcount = current[stpid]!!.routeCount()
+                            var refcount = current[stpid]!!.routeCount
                             if (routeStops.isSelected) {
-                                current[stpid] = create(pt, ++refcount)
+                                current[stpid] = StopRenderState(pt, ++refcount)
                             } else {
-                                current[stpid] = create(pt, --refcount)
+                                current[stpid] = StopRenderState(pt, --refcount)
                             }
                         }
                     }
@@ -195,7 +192,7 @@ class PatternViewModel(service: PatApiService,
             val stopsToChange: MutableList<StopRenderRequest> = ArrayList()
             if (previousAccumulator.mapState == null || !previousAccumulator.mapState.shouldStopsVeVisible) {
                 Timber.d("Not changing stop selection state")
-                return create(
+                return StopRequestAccumulator(
                         fullStopSelectionState,
                         previousAccumulator.mapState,
                         stopsToChange)
@@ -207,22 +204,20 @@ class PatternViewModel(service: PatApiService,
                         fullStopSelectionState.stopRenderStateMap.values)
             }
             for (stopRenderState in diff.orEmpty()) {
-                stopRenderState.stopPt?.let {
-                    when {
-                        stopRenderState.routeCount() <= 0 -> {
-                            if (stopRenderState.routeCount() < 0) {
-                                Timber.v("Bug in app: Stop routeCount should never be < 0 for %d: %d", stopRenderState.stopPt.stpid, stopRenderState.routeCount())
-                            }
-                            stopsToChange.add(create(stopRenderState.stopPt, false))
+                when {
+                    stopRenderState.routeCount <= 0 -> {
+                        if (stopRenderState.routeCount < 0) {
+                            Timber.v("Bug in app: Stop routeCount should never be < 0 for %d: %d", stopRenderState.stopPt.stpid, stopRenderState.routeCount)
                         }
-                        previousAccumulator.mapState.shouldStopsVeVisible -> {
-                            stopsToChange.add(create(stopRenderState.stopPt, true))
-                        }
-                        else -> Unit
+                        stopsToChange.add(StopRenderRequest(stopRenderState.stopPt, false))
                     }
+                    previousAccumulator.mapState.shouldStopsVeVisible -> {
+                        stopsToChange.add(StopRenderRequest(stopRenderState.stopPt, true))
+                    }
+                    else -> Unit
                 }
             }
-            return create(
+            return StopRequestAccumulator(
                     fullStopSelectionState,
                     previousAccumulator.mapState,
                     stopsToChange)
@@ -249,7 +244,7 @@ class PatternViewModel(service: PatApiService,
             if (previousAccumulator.fullStopSelectionState?.stopRenderStateMap == null ||
                     previousAccumulator.mapState?.shouldStopsVeVisible == mapState.shouldStopsVeVisible) {
                 Timber.v("Not changing stop map state")
-                return create(
+                return StopRequestAccumulator(
                         previousAccumulator.fullStopSelectionState,
                         mapState,
                         stopsToChange
@@ -257,13 +252,11 @@ class PatternViewModel(service: PatApiService,
             }
             Timber.v("Changing stop map state")
             for (stopRenderState in previousAccumulator.fullStopSelectionState.stopRenderStateMap.values) {
-                if (stopRenderState.routeCount() > 0) {
-                    stopRenderState.stopPt?.let {
-                        stopsToChange.add(create(stopRenderState.stopPt, mapState.shouldStopsVeVisible))
-                    }
+                if (stopRenderState.routeCount > 0) {
+                    stopsToChange.add(StopRenderRequest(stopRenderState.stopPt, mapState.shouldStopsVeVisible))
                 }
             }
-            return create(
+            return StopRequestAccumulator(
                     previousAccumulator.fullStopSelectionState,
                     mapState,
                     stopsToChange

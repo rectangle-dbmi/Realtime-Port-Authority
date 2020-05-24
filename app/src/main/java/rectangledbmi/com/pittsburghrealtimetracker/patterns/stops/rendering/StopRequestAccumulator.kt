@@ -13,7 +13,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.either.MapStat
  * @since 78
  */
 
-class StopRequestAccumulator private constructor(
+data class StopRequestAccumulator constructor(
         /**
          * @return The most recent selection state for stops
          */
@@ -26,13 +26,4 @@ class StopRequestAccumulator private constructor(
          * @return the processed list of stops to change
          */
         val stopsToChange: List<StopRenderRequest>) {
-    companion object {
-
-        fun create(
-                fullStopSelectionState: FullStopSelectionState?,
-                mapState: MapState?,
-                stopsToChange: List<StopRenderRequest>): StopRequestAccumulator {
-            return StopRequestAccumulator(fullStopSelectionState, mapState, stopsToChange)
-        }
-    }
 }
