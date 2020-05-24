@@ -37,10 +37,12 @@ data class BustimeVehicleResponse (
             var listOfParams: ArrayList<String>? = processedErrors[err.msg]
             if (listOfParams == null) {
                 listOfParams = ArrayList<String>()
-                processedErrors[err.msg!!] = listOfParams
+                err.msg?.let{msg ->
+                    processedErrors[msg] = listOfParams
+                }
             }
-            if (err.rt != null) {
-                listOfParams.add(err.rt!!)
+            err.rt?.let {rt ->
+                listOfParams.add(rt)
             }
         }
         processedErrors
