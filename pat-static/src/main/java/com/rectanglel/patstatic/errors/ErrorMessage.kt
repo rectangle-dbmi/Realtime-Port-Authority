@@ -9,15 +9,17 @@ import io.paour.github.natorder.NaturalOrderComparator
  * @author Jeremy Jao
  * @since 49
  */
-class ErrorMessage(val message: String, parameterList: List<String?>?) {
+data class ErrorMessage(val message: String, val parameterList: List<String?>?) {
 
     /**
      * The combined parameters for the message.
      */
-    val parameters: String? = when {
-        parameterList == null -> null
-        parameterList.isEmpty() -> null
-        parameterList[0] == null -> null
-        else -> parameterList.sortedWith(NaturalOrderComparator()).joinToString()
+    val parameters: String? by lazy {
+         when {
+            parameterList == null -> null
+            parameterList.isEmpty() -> null
+            parameterList[0] == null -> null
+            else -> parameterList.sortedWith(NaturalOrderComparator()).joinToString()
+        }
     }
 }
