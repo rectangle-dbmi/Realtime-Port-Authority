@@ -4,6 +4,7 @@ import com.google.gson.reflect.TypeToken
 import com.rectanglel.patstatic.model.AbstractDataManager
 import com.rectanglel.patstatic.model.RetrofitPatApi
 import com.rectanglel.patstatic.model.StaticData
+import com.rectanglel.patstatic.patterns.response.PatternResponse
 import com.rectanglel.patstatic.patterns.response.Ptr
 import com.rectanglel.patstatic.wrappers.WifiChecker
 import io.reactivex.Flowable
@@ -70,10 +71,10 @@ class PatternDataManager(dataDirectory: File,
     }
 
     // TODO: remove this warning suppression when ViewModel has fixed
-    @Suppress("RedundantVisibilityModifier")
+    @Suppress("RedundantVisibilityModifier", "RedundantLambdaArrow")
     public fun getPatternsFromInternet(rt: String): Flowable<List<Ptr>> {
         return patApiClient.getPatterns(rt)
-                .map { response -> response.patternResponse }
+                .map(PatternResponse::patternResponse)
                 .map { bustimePatternResponse ->
                     try {
                         val patterns = bustimePatternResponse.ptr

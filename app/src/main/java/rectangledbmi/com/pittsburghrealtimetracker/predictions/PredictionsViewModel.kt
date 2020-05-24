@@ -46,13 +46,13 @@ class PredictionsViewModel(private val patApiService: PatApiService, private val
             is Vehicle -> {
                 Timber.d("Getting vehicle predictions")
                 patApiService.getVehiclePredictions(id)
-                        .map { prds -> ProcessedPredictions(marker, predictionsType, prds) }
+                        .map { ProcessedPredictions(marker, predictionsType, it) }
                         .delay(delay.toLong(), TimeUnit.MILLISECONDS)
             }
             is Pt -> {
                 Timber.d("Getting stop predictions")
                 patApiService.getStopPredictions(id, selectedRoutes)
-                        .map { prds -> ProcessedPredictions(marker, predictionsType, prds) }
+                        .map { ProcessedPredictions(marker, predictionsType, it) }
                         .delay(delay.toLong(), TimeUnit.MILLISECONDS)
             }
             else -> {

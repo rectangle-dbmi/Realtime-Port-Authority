@@ -111,7 +111,7 @@ class PatternViewModel(service: PatApiService,
      */
     private fun getZoomState(zoomFlowable: Flowable<Float>): Flowable<EitherStopState>? {
         return zoomFlowable
-                .map { zoomLevel: Float -> zoomLevel >= zoomThreshold }
+                .map { it >= zoomThreshold }
                 .map(::MapState)
     }
 
@@ -126,7 +126,7 @@ class PatternViewModel(service: PatApiService,
                 ?.flatMap { patternSelection: PatternSelection ->
                     Flowable.fromIterable(patternSelection.patterns)
                             .flatMapIterable { obj: Ptr -> obj.getPt() }
-                            .filter { pt: Pt -> 'S' == pt.typ }
+                            .filter { 'S' == it.typ }
                             .toList()
                             .map { pts: List<Pt>? ->
                                 StopSelection(pts.orEmpty(),
@@ -200,8 +200,8 @@ class PatternViewModel(service: PatApiService,
             Timber.d("Changing stop selection state")
             val diff = previousAccumulator.fullStopSelectionState?.let { previous ->
                 fullStopSelectionState.stopRenderStateMap.values - previous.stopRenderStateMap.values
-            }
-            for (stopRenderState in diff.orEmpty()) {
+            }.orEmpty()
+            for (stopRenderState in diff) {
                 when {
                     stopRenderState.routeCount <= 0 -> {
                         if (stopRenderState.routeCount < 0) {

@@ -49,7 +49,7 @@ object ReactiveHelper {
                                                 .errorHandler(DefaultErrorHandler())
                                                 .host("http://clients3.google.com/generate_204")
                                                 .build())
-                                        .skipWhile { isConnected: Boolean -> !isConnected }
+                                        .skipWhile(Boolean::not)
                                         .doOnNext { isConnected: Boolean ->
                                             if (isConnected) {
                                                 reconnectionMessage.accept(true)

@@ -197,7 +197,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
     @SuppressLint("UseSparseArrays")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        context?.let{context ->
+        context?.let { context ->
             googleApiClient = GoogleApiClient.Builder(context)
                     .addApi(LocationServices.API)
                     .addConnectionCallbacks(this)
@@ -216,9 +216,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
         super.onActivityCreated(inState)
         if (inState == null) return
         cameraPosition = inState.getParcelable(CAMERA_POSITION)
-        cameraPosition?.let{ cameraPosition ->
-            zoomSubject?.onNext(cameraPosition.zoom)
-        }
+        cameraPosition?.let { zoomSubject?.onNext(it.zoom) }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -233,7 +231,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
         super.onResume()
         //        ServerDownDialogFragment.newInstance().show(getFragmentManager(), getString(R.string.servers_down_title));
         Timber.d("resuming map fragment")
-        mapView?.onResume().also{
+        mapView?.onResume().also {
             Timber.d("resumed map view")
         }
         // enable/disable UI to see your current location based on permission changes
@@ -276,16 +274,14 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
 
     override fun onStop() {
         Timber.d("Stopping Bus Fragment")
-        googleApiClient?.let { apiClient ->
-            apiClient.disconnect()
-            Timber.d("disconnecting google map api client")
-        }
+        googleApiClient?.disconnect()
+                .also { Timber.d("disconnecting google map api client") }
         super.onStop()
     }
 
     override fun onDestroy() {
         Timber.d("Destroying Bus Fragment")
-        activity?.let {activity ->
+        activity?.let { activity ->
             Timber.d("Adding leakcanary to fragment")
             val refWatcher = getRefWatcher((activity))
             refWatcher?.watch(this)
@@ -322,9 +318,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
 
     override fun onSaveInstanceState(outState: Bundle) {
         mapView?.onSaveInstanceState(outState)
-        mMap?.let {mMap ->
-            outState.putParcelable(CAMERA_POSITION, mMap.cameraPosition)
-        }
+        mMap?.let { outState.putParcelable(CAMERA_POSITION, it.cameraPosition) }
         super.onSaveInstanceState(outState)
     }
 
@@ -364,7 +358,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                                 View.OnClickListener { busListInteraction?.openPermissionsPage() })
                         if (mMap != null && mMap?.isMyLocationEnabled == true) {
                             // ensure that the the map location is disabled. Android Lint says this is an error so I have to do this extra check to remove the lint check
-                            context?.let {context ->
+                            context?.let { context ->
                                 if (ActivityCompat.checkSelfPermission((context), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission((context), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                                     mMap?.isMyLocationEnabled = false
                                 }
@@ -422,9 +416,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
             mMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(PITTSBURGH, defaultZoom))
             centerMapWithPermissions()
         }
-        activity?.let { activity ->
-            mMap?.setInfoWindowAdapter(ETAWindowAdapter(activity.layoutInflater))
-        }
+        activity?.let { mMap?.setInfoWindowAdapter(ETAWindowAdapter(it.layoutInflater)) }
         mMap?.setOnCameraIdleListener {
             cameraPosition = mMap?.cameraPosition
             if (zoom != cameraPosition?.zoom) {
@@ -437,9 +429,8 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
         setupReactiveObjects()
 
         // set up predictions onClick
-        val predictionsViewModel = patApiService?.let { patApiService ->
-            PredictionsViewModel(patApiService, resources.getInteger(R.integer.marker_camera_delay))
-        }
+        val predictionsViewModel =
+                patApiService?.let { PredictionsViewModel(it, resources.getInteger(R.integer.marker_camera_delay)) }
         mMap?.setOnMarkerClickListener { marker: Marker ->
             mMap?.animateCamera(CameraUpdateFactory.newLatLng(marker.position), resources.getInteger(R.integer.marker_camera_delay), null)
             if (busListInteraction == null) {
@@ -539,8 +530,8 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
         vehicleErrorFlowable = vehicleIntervalObservable
                 ?.map(BustimeVehicleResponse::processedErrors)
                 ?.distinctUntilChanged()
-                ?.flatMap {
-                    errorMap: HashMap<String, ArrayList<String>> -> Flowable.fromIterable<Map.Entry<String, ArrayList<String>>?>(errorMap.entries)
+                ?.flatMap { errorMap: HashMap<String, ArrayList<String>> ->
+                    Flowable.fromIterable<Map.Entry<String, ArrayList<String>>?>(errorMap.entries)
                 }
                 ?.map(transformSingleMessage())
         unselectVehicleSubscription = toggledRoutesFlowable
@@ -548,7 +539,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                 ?.subscribeOn(Schedulers.io())
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.flatMap { route: Route ->
-                    return@flatMap route.route?.let {rt ->
+                    return@flatMap route.route?.let { rt ->
                         Timber.d("removing all %s's", rt)
                         Flowable.fromIterable<Map.Entry<Int, Marker>>(busMarkers?.entries)
                                 .filter { busMarker: Map.Entry<Int, Marker> -> busMarker.value.title.contains(rt) }
@@ -580,7 +571,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
         /*
       Creates a stream for the polyline observable
      */
-        val patternViewModel = patApiService?.let {patApiService ->
+        val patternViewModel = patApiService?.let { patApiService ->
             PatternViewModel(
                     patApiService,
                     routeSelectionObservable
@@ -604,7 +595,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
         if (mMap == null || context == null) return
 
         // first check if the permission is granted... if not, show why you should if user didn't say
-        if (context?.let {context -> ContextCompat.checkSelfPermission((context), Manifest.permission.ACCESS_FINE_LOCATION)} != PackageManager.PERMISSION_GRANTED) {
+        if (context?.let { context -> ContextCompat.checkSelfPermission((context), Manifest.permission.ACCESS_FINE_LOCATION) } != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), CENTER_MAP_LOCATION_CODE)
             return
         }
@@ -630,7 +621,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
      * Enables the google map location UI settings if the permission is allowed.
      */
     private fun enableGoogleMapLocation() {
-        if (context?.let {context -> ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)} != PackageManager.PERMISSION_GRANTED) {
+        if (context?.let { context -> ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) } != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), CENTER_MAP_LOCATION_CODE)
             return
         }
@@ -680,7 +671,9 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
      */
     private fun makeBitmaps(): Function<Vehicle?, VehicleBitmap> {
         return object : Function<Vehicle?, VehicleBitmap> {
-            private val busIconCache = HashMap<String?, Bitmap>(busListInteraction?.selectedRoutes?.size ?: 0)
+            private val busIconCache = HashMap<String?, Bitmap>(busListInteraction?.selectedRoutes?.size
+                    ?: 0)
+
             override fun apply(vehicle: Vehicle): VehicleBitmap {
                 val routeName = vehicle.rt
                 return if (busIconCache.containsKey(routeName)) {
@@ -699,7 +692,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                 val busicon = Bitmap.createBitmap(busIcon.width, busIcon.height, busIcon.config)
                 val canvas = Canvas(busicon)
                 val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-                route?.route?.let {rt ->
+                route?.route?.let { rt ->
                     paint.colorFilter = PorterDuffColorFilter(route.routeColor, PorterDuff.Mode.MULTIPLY)
                     canvas.drawBitmap(busIcon, 0f, 0f, paint)
                     drawText(canvas, busIcon, resources.displayMetrics.density, rt, route.colorAsString)
@@ -766,8 +759,8 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
             }
 
             override fun apply(processedMessage: Map.Entry<String, ArrayList<String>>): ErrorMessage? {
-                return  transformMessage(processedMessage.key)?.let {msg ->
-                     ErrorMessage(msg, processedMessage.value)
+                return transformMessage(processedMessage.key)?.let { msg ->
+                    ErrorMessage(msg, processedMessage.value)
                 }
             }
         }
@@ -930,8 +923,8 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
      */
     private fun removeBuses() {
         listOfNotNull(busMarkers)
-            .flatMap(ConcurrentMap<Int, Marker>::values)
-            .forEach(Marker::remove)
+                .flatMap(ConcurrentMap<Int, Marker>::values)
+                .forEach(Marker::remove)
         Timber.d("buses removed")
         busMarkers?.clear()
     }
@@ -988,9 +981,10 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                     Timber.i("Cannot add patterns... should not be null")
                     return
                 }
-                val polylines: MutableList<Polyline> = ArrayList(patternSelection.latLngs?.size ?: 0)
+                val polylines: MutableList<Polyline> = ArrayList(patternSelection.latLngs?.size
+                        ?: 0)
                 for (latLngs: List<LatLng> in latLngList.orEmpty()) {
-                    mMap?.let {mMap ->
+                    mMap?.let { mMap ->
                         polylines.add(mMap.addPolyline(
                                 PolylineOptions()
                                         .addAll(latLngs)
@@ -1004,21 +998,16 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
         }
     }
 
-    private fun clearStops() {
-        if (stops == null) {
-            Timber.i("Cannot clear all getStopRenderRequests")
-            return
-        }
-        listOfNotNull(stops)
-                .flatMap(HashMap<Int, Marker?>::values)
-                .forEach { marker -> marker?.remove()}
-        Timber.d("buses removed")
-        stops?.clear()
-    }
-
     override fun stopObserver(): DisposableSubscriber<StopRenderRequest> {
         return object : DisposableSubscriber<StopRenderRequest>() {
             override fun onError(e: Throwable) {
+                fun clearStops() = stops?.values
+                        ?.filterNotNull()
+                        ?.forEach(Marker::remove)
+                        ?.also {
+                            Timber.d("buses removed")
+                            stops?.clear()
+                        } ?: Timber.i("Cannot clear all getStopRenderRequests")
                 Timber.e(e, "Stop observer encountered an error")
                 clearStops()
             }
