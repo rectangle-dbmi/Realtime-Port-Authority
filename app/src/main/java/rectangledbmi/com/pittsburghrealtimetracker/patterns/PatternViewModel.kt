@@ -190,7 +190,7 @@ class PatternViewModel(service: PatApiService,
                 fullStopSelectionState: FullStopSelectionState
         ): StopRequestAccumulator {
             val stopsToChange: MutableList<StopRenderRequest> = ArrayList()
-            if (previousAccumulator.mapState == null || !previousAccumulator.mapState.shouldStopsVeVisible) {
+            if (previousAccumulator.mapState == null || !previousAccumulator.mapState.shouldStopsBeVisible) {
                 Timber.d("Not changing stop selection state")
                 return StopRequestAccumulator(
                         fullStopSelectionState,
@@ -209,7 +209,7 @@ class PatternViewModel(service: PatApiService,
                         }
                         stopsToChange.add(StopRenderRequest(stopRenderState.stopPt, false))
                     }
-                    previousAccumulator.mapState.shouldStopsVeVisible -> {
+                    previousAccumulator.mapState.shouldStopsBeVisible -> {
                         stopsToChange.add(StopRenderRequest(stopRenderState.stopPt, true))
                     }
                     else -> Unit
@@ -237,7 +237,7 @@ class PatternViewModel(service: PatApiService,
         ): StopRequestAccumulator {
             val stopsToChange: MutableList<StopRenderRequest> = ArrayList()
             if (previousAccumulator.fullStopSelectionState?.stopRenderStateMap == null ||
-                    previousAccumulator.mapState?.shouldStopsVeVisible == mapState.shouldStopsVeVisible) {
+                    previousAccumulator.mapState?.shouldStopsBeVisible == mapState.shouldStopsBeVisible) {
                 Timber.v("Not changing stop map state")
                 return StopRequestAccumulator(
                         previousAccumulator.fullStopSelectionState,
@@ -248,7 +248,7 @@ class PatternViewModel(service: PatApiService,
             Timber.v("Changing stop map state")
             for (stopRenderState in previousAccumulator.fullStopSelectionState.stopRenderStateMap.values) {
                 if (stopRenderState.routeCount > 0) {
-                    stopsToChange.add(StopRenderRequest(stopRenderState.stopPt, mapState.shouldStopsVeVisible))
+                    stopsToChange.add(StopRenderRequest(stopRenderState.stopPt, mapState.shouldStopsBeVisible))
                 }
             }
             return previousAccumulator.copy(mapState = mapState, stopsToChange = stopsToChange)

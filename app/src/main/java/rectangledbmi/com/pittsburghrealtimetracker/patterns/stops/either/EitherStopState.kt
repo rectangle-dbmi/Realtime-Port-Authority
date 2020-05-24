@@ -20,4 +20,4 @@ import rectangledbmi.com.pittsburghrealtimetracker.patterns.stops.StopRenderStat
 
 sealed class EitherStopState
 data class FullStopSelectionState(val stopRenderStateMap: Map<Int, StopRenderState>) : EitherStopState()
-data class MapState(val shouldStopsVeVisible: Boolean) : EitherStopState()
+data class MapState(val shouldStopsBeVisible: Boolean) : EitherStopState()
