@@ -23,7 +23,6 @@ import rectangledbmi.com.pittsburghrealtimetracker.PATTrackApplication.Companion
 import rectangledbmi.com.pittsburghrealtimetracker.R
 import rectangledbmi.com.pittsburghrealtimetracker.selection.Route
 import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection
-import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection.Companion.create
 import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.NavigationDrawerFragment.BusRouteAdapter.BusRouteHolder
 import timber.log.Timber
 import java.util.*
@@ -272,7 +271,7 @@ class NavigationDrawerFragment : Fragment() {
             } else {
                 selectedRoutes?.remove(rt.route)
             }
-            routeSelectionPublishSubject?.onNext(create(Route(rt), selectedRoutes))
+            routeSelectionPublishSubject?.onNext(RouteSelection(Route(rt), selectedRoutes))
         }
     }
 

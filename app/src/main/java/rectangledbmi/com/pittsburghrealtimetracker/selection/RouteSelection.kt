@@ -9,16 +9,9 @@ import timber.log.Timber
  *
  * @author Jeremy Jao
  */
-class RouteSelection private constructor(val toggledRoute: Route, val selectedRoutes: Set<String?>?) {
+data class RouteSelection(val toggledRoute: Route, val selectedRoutes: Set<String?>?) {
 
     init {
-        Timber.d("getting both routes: %s, %s", toggledRoute.route, selectedRoutes.toString())
-    }
-
-    companion object {
-
-        fun create(route: Route, selectedRoutes: Set<String?>?): RouteSelection {
-            return RouteSelection(route, selectedRoutes)
-        }
+        Timber.d("getting routes: %s, %s", toggledRoute.route, selectedRoutes.toString())
     }
 }
