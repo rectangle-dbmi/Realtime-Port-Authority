@@ -301,7 +301,7 @@ class MainActivity : AppCompatActivity(), SelectionFragment.BusSelectionInteract
         if (toastSubject == null) {
             return
         }
-        toastSubject?.onNext(NotificationMessage.create(message, length))
+        toastSubject?.onNext(NotificationMessage(message, length))
     }
 
     /**

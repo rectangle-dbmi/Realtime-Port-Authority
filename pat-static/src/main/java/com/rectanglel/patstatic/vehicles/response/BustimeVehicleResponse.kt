@@ -26,7 +26,7 @@ data class BustimeVehicleResponse (
 
 
     /**
-     * Processes the errors into a hashmap since like messages can be transient
+     * Lazily processes the errors into a hashmap since like messages can be transient
      * @return the hashmap of processed errors
      * @since 55
      */
