@@ -134,22 +134,19 @@ class PatternViewModel(service: PatApiService,
                                         patternSelection.isSelected)
                             }
                             .toFlowable()
-                }?.scan(FullStopSelectionState(emptyMap()), { accumulator: EitherStopState, routeStops: StopSelection ->
-                    val current: MutableMap<Int, StopRenderState> = HashMap<Int, StopRenderState>((accumulator as FullStopSelectionState).stopRenderStateMap as Map<Int, StopRenderState>?)
+                }?.scan(FullStopSelectionState(mutableMapOf()), { accumulator: EitherStopState, routeStops: StopSelection ->
+                    val current = (accumulator as FullStopSelectionState).stopRenderStateMap.toMutableMap()
                     for (pt in routeStops.stopPts) {
                         val stpid = pt.stpid
-                        if (!current.containsKey(stpid)) {
-                            current[stpid] = StopRenderState(pt, 1)
-                        } else {
-                            var refcount = current[stpid]!!.routeCount
-                            if (routeStops.isSelected) {
-                                current[stpid] = StopRenderState(pt, ++refcount)
-                            } else {
-                                current[stpid] = StopRenderState(pt, --refcount)
-                            }
+                        val currentState = current.getOrPut(pt.stpid) {StopRenderState(pt, 0)}
+                        if (routeStops.isSelected) {
+                            current[stpid] = currentState.copy(routeCount = currentState.routeCount + 1)
+                        }
+                        else {
+                            current[stpid] = currentState.copy(routeCount = currentState.routeCount - 1)
                         }
                     }
-                    FullStopSelectionState(current)
+                    FullStopSelectionState(stopRenderStateMap = current)
                 })
 
     companion object {

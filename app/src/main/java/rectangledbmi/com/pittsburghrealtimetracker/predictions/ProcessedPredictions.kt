@@ -8,6 +8,7 @@ import com.rectanglel.patstatic.predictions.response.Prd
 import com.rectanglel.patstatic.vehicles.response.Vehicle
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.IllegalArgumentException
 
 /**
  *
@@ -18,7 +19,7 @@ import java.util.*
  * @since 78
  */
 
-data class ProcessedPredictions constructor(val marker: Marker, private val predictionsType: PredictionsType, private val predictionList: List<Prd>) {
+data class ProcessedPredictions(val marker: Marker, private val predictionsType: PredictionsType, private val predictionList: List<Prd>) {
     val predictions: String by lazy {
         val dateFormatPrint = "hh:mm a"
         val dateFormat = SimpleDateFormat(dateFormatPrint, Locale.US)
@@ -27,7 +28,7 @@ data class ProcessedPredictions constructor(val marker: Marker, private val pred
             when (predictionsType) {
                 is Pt -> "${prd.rt} (${prd.vid}): ${dateFormat.format(prd.prdtm)}"
                 is Vehicle -> "(${prd.stpid}) ${prd.stpnm}: ${dateFormat.format(prd.prdtm)}"
-                else -> prd.toString() // this should never happen
+                else -> throw IllegalArgumentException() // this should never happen
             }
         })
         if (str.isNotEmpty()) str else "No predictions available."

@@ -11,28 +11,15 @@ import com.rectanglel.patstatic.predictions.PredictionsType
  * @since 46
  */
 @Generated("org.jsonschema2pojo")
-class Pt : PredictionsType {
-
-    @Expose
-    var seq: Int = 0
-    @Expose
-    var lat: Double = 0.toDouble()
-    @Expose
-    var lon: Double = 0.toDouble()
-    @Expose
-    var typ: Char = ' '
-        private set
-    @Expose
-    var stpid: Int = 0
-        private set
-    @Expose
-    var stpnm: String? = null
-    @Expose
-    var pdist: Double = 0.toDouble()
-    @Expose
-    var msg: String? = null
-    @Expose
-    var rtdir: String? = null
+data class Pt(@Expose val seq: Int,
+              @Expose val lat: Double = 0.toDouble(),
+              @Expose val lon: Double = 0.toDouble(),
+              @Expose val typ: Char = ' ',
+              @Expose val stpid: Int = 0,
+              @Expose val stpnm: String? = null,
+              @Expose val pdist: Double = 0.toDouble(),
+              @Expose val msg: String? = null,
+              @Expose var rtdir: String? = null) : PredictionsType {
 
     override val id: Int
         get() = if (typ == 'S') {
@@ -41,46 +28,4 @@ class Pt : PredictionsType {
 
     override val title: String
         get() = String.format("(%d) %s - %s", stpid, stpnm, rtdir)
-
-    fun setTyp(typ: String) {
-        this.typ = typ[0]
-    }
-
-    fun setStpid(stpid: String) {
-        this.stpid = Integer.parseInt(stpid)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Pt) return false
-
-        val pt = other as Pt?
-
-        return when {
-            seq != pt!!.seq -> false
-            pt.lat.compareTo(lat) != 0 -> false
-            pt.lon.compareTo(lon) != 0 -> false
-            typ != pt.typ -> false
-            stpid != pt.stpid -> false
-            pt.pdist.compareTo(pdist) != 0 -> false
-            if (stpnm != null) stpnm != pt.stpnm else pt.stpnm != null -> false
-            else -> !if (msg != null) msg != pt.msg else pt.msg != null
-        }
-
-    }
-
-    override fun hashCode(): Int {
-        var result: Int = seq
-        var temp: Long = java.lang.Double.doubleToLongBits(lat)
-        result = 31 * result + (temp xor temp.ushr(32)).toInt()
-        temp = java.lang.Double.doubleToLongBits(lon)
-        result = 31 * result + (temp xor temp.ushr(32)).toInt()
-        result = 31 * result + typ.toInt()
-        result = 31 * result + stpid
-        result = 31 * result + if (stpnm != null) stpnm!!.hashCode() else 0
-        temp = java.lang.Double.doubleToLongBits(pdist)
-        result = 31 * result + (temp xor temp.ushr(32)).toInt()
-        result = 31 * result + if (msg != null) msg!!.hashCode() else 0
-        return result
-    }
 }

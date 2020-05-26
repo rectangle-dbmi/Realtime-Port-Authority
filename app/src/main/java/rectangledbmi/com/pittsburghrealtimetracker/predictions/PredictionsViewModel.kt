@@ -34,13 +34,9 @@ class PredictionsViewModel(private val patApiService: PatApiService, private val
      * @param selectedRoutes the selected routes
      * @return a single emission to get predictions
      */
-    fun getPredictions(marker: Marker?, selectedRoutes: HashSet<String>?): Single<ProcessedPredictions>? {
-        if (marker == null || selectedRoutes == null) {
-            Timber.w("No prediction info available")
-            return null
-        }
-        val predictionsType = marker.tag as PredictionsType?
-        val id = predictionsType!!.id
+    fun getPredictions(marker: Marker, selectedRoutes: HashSet<String>): Single<ProcessedPredictions> {
+        val predictionsType = marker.tag as PredictionsType
+        val id = predictionsType.id
 
         return when (predictionsType) {
             is Vehicle -> {
@@ -55,9 +51,9 @@ class PredictionsViewModel(private val patApiService: PatApiService, private val
                         .map { ProcessedPredictions(marker, predictionsType, it) }
                         .delay(delay.toLong(), TimeUnit.MILLISECONDS)
             }
-            else -> {
+            else -> { // this should never happen
                 Timber.w("Not getting predictions because of unknown prediction info")
-                null
+                Single.error(IllegalArgumentException())
             }
         }
     }

@@ -11,74 +11,41 @@ import javax.annotation.Generated
  * @since 46
  */
 @Generated("org.jsonschema2pojo")
-class Vehicle : PredictionsType {
-
-    @Expose
-    var vid: Int = 0
-        private set
-    @Expose
-    var tmstmp: Date? = null
-    @Expose
-    var lat: Double = 0.toDouble()
-        private set
-    @Expose
-    var lon: Double = 0.toDouble()
-        private set
-    @Expose
-    var hdg: Int = 0
-        private set
-    @Expose
-    var pid: Int = 0
-    @Expose
-    var rt: String? = null
-    @Expose
-    var des: String? = null
-    @Expose
-    var pdist: Int = 0
-    @Expose
-    var isDly: Boolean = false
-    @Expose
-    var spd: Int = 0
-    @Expose
-    var tatripid: Int = 0
-        private set
-    @Expose
-    var tablockid: String? = null
-    @Expose
-    var zone: String? = null
-    @Expose
-    var msg: String? = null
+data class Vehicle(
+        @Expose
+        val vid: Int = 0,
+        @Expose
+        val tmstmp: Date? = null,
+        @Expose
+        val lat: Double = 0.toDouble(),
+        @Expose
+        val lon: Double = 0.toDouble(),
+        @Expose
+        val hdg: Int = 0,
+        @Expose
+        val pid: Int = 0,
+        @Expose
+        val rt: String? = null,
+        @Expose
+        val des: String? = null,
+        @Expose
+        val pdist: Int = 0,
+        @Expose
+        var isDly: Boolean = false,
+        @Expose
+        val spd: Int = 0,
+        @Expose
+        val tatripid: Int = 0,
+        @Expose
+        val tablockid: String? = null,
+        @Expose
+        val zone: String? = null,
+        @Expose
+        val msg: String? = null) : PredictionsType {
 
     override val id: Int
-        get() = vid
+            get() = vid
 
-    override val title: String
-        get() {
-            val st = StringBuilder()
-            st.append(String.format("%s (%d) %s", rt, vid, des))
-            if (isDly) {
-                st.append(" - Delayed")
-            }
-            return st.toString()
-        }
-
-    fun setVid(vid: String) {
-        this.vid = Integer.parseInt(vid)
-    }
-
-    fun setLat(lat: String) {
-        this.lat = java.lang.Double.parseDouble(lat)
-    }
-
-    fun setLon(lon: String) {
-        this.lon = java.lang.Double.parseDouble(lon)
-    }
-
-    fun setHdg(hdg: String) {
-        this.hdg = Integer.parseInt(hdg)
-    }
-
-    fun setTatripid(tatripid: String) {
-        this.tatripid = Integer.parseInt(tatripid)
-    }
+        override val title: String
+                get() = "$rt ($vid) $des${if (isDly) " - Delayed" else ""}"
 }

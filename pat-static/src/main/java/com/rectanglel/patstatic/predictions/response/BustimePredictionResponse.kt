@@ -13,12 +13,12 @@ import com.rectanglel.patstatic.errors.response.Error
  * @since 46
  */
 @Generated("org.jsonschema2pojo")
-class BustimePredictionResponse {
+data class BustimePredictionResponse (
 
     @Expose
-    var prd: List<Prd> = ArrayList()
+    var prd: List<Prd> = ArrayList(),
 
     @Expose
     var error: List<Error> = ArrayList()
 
-}
+)

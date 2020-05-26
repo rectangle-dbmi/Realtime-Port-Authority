@@ -1,5 +1,6 @@
 package com.rectanglel.patstatic.predictions
 
+
 /**
  *
  * Interface that handles predictions.
@@ -11,6 +12,7 @@ package com.rectanglel.patstatic.predictions
 
 interface PredictionsType {
     val id: Int
-
     val title: String
 }
+
+
