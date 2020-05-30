@@ -62,8 +62,8 @@ import rectangledbmi.com.pittsburghrealtimetracker.predictions.ProcessedPredicti
 import rectangledbmi.com.pittsburghrealtimetracker.selection.Route
 import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.ClearSelection
 import rectangledbmi.com.pittsburghrealtimetracker.ui.selection.SelectionFragment
-import rectangledbmi.com.pittsburghrealtimetracker.utils.ReactiveHelper.isInternetDown
-import rectangledbmi.com.pittsburghrealtimetracker.utils.ReactiveHelper.retryIfInternet
+import rectangledbmi.com.pittsburghrealtimetracker.utils.isInternetDown
+import rectangledbmi.com.pittsburghrealtimetracker.utils.retryIfInternet
 import rectangledbmi.com.pittsburghrealtimetracker.vehicles.VehicleBitmap
 import retrofit2.HttpException
 import timber.log.Timber
@@ -455,7 +455,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
      */
     private fun disconnectionMessage(): Consumer<Throwable> {
         return Consumer { throwable: Throwable ->
-            if (isInternetDown((throwable))) {
+            if (throwable.isInternetDown()) {
                 Timber.i(throwable, getString(R.string.disconnected_internet))
                 busListInteraction?.showToast(getString(R.string.disconnected_internet), Toast.LENGTH_SHORT)
             }

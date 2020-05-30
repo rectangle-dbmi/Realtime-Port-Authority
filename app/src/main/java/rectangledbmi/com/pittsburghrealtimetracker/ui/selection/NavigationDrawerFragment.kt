@@ -279,13 +279,17 @@ class NavigationDrawerFragment : Fragment() {
         /**
          * Routes dataset
          */
-        private var routes: Array<Route?>? = null
+        private lateinit var routes: Array<Route?>
 
         /**
          * Map of routes by hashmap
          */
-        var routeMap: HashMap<String?, Route>? = null
+        lateinit var routeMap: HashMap<String?, Route>
             private set
+
+        init {
+            createRoutes()
+        }
 
         /**
          * Creates an array of routes for the recycler view and a reverse mapping
@@ -304,20 +308,17 @@ class NavigationDrawerFragment : Fragment() {
             var currentRoute: Route
             for (i in numbers.indices) {
                 currentRoute = Route(numbers[i], descriptions[i], colors[i], i, false)
-                routes?.set(i, currentRoute)
-                routeMap?.set(currentRoute.route, currentRoute)
+                routes[i] = currentRoute
+                routeMap[currentRoute.route] = currentRoute
                 if (currentRoute.isSelected) {
                     Timber.w("Should not be true: %s", currentRoute.route)
                 }
             }
-            return routes!!
+            return routes
         }
 
         fun getRouteByNumber(routeNumber: String?): Route? {
-            if (routeMap == null) {
-                Timber.i("Route hashmap not yet created...")
-            }
-            return routeMap?.get(routeNumber)
+            return routeMap[routeNumber]
         }
 
         /**
@@ -334,23 +335,23 @@ class NavigationDrawerFragment : Fragment() {
         }
 
         override fun onBindViewHolder(holder: BusRouteHolder, position: Int) {
-            routes?.get(position)?.let(holder::bindBusRoute)
+            routes[position]?.let(holder::bindBusRoute)
         }
 
         override fun getItemCount(): Int {
-            return routes!!.size
+            return routes.size
         }
 
         fun clearSelection() {
             for (s in selectedRoutes.orEmpty()) {
-                routeMap?.get(s)?.isSelected = false
+                routeMap[s]?.isSelected = false
             }
             selectedRoutes?.clear()
             notifyDataSetChanged()
         }
 
         override fun getItemId(position: Int): Long {
-            return routes?.get(position)?.route.hashCode().toLong()
+            return routes[position]?.route.hashCode().toLong()
         }
 
         inner class BusRouteHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
@@ -404,10 +405,6 @@ class NavigationDrawerFragment : Fragment() {
                 routeDescription = itemView.findViewById<View>(R.id.bus_route_text) as TextView
                 routeIcon = itemView.findViewById<View>(R.id.bus_route_icon) as TextView
             }
-        }
-
-        init {
-            createRoutes()
         }
     }
 

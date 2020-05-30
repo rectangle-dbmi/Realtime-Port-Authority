@@ -21,11 +21,11 @@ class Route
         /**
          * This is the route number
          */
-        var route: String?,
+        val route: String?,
         /**
          * This is the route's general 3 word summary
          */
-        var routeInfo: String?,
+        val routeInfo: String?,
         /**
          * This is the color of the route as an int
          */
