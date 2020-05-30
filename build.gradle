@@ -69,7 +69,7 @@ ext {
                     target: JavaVersion.VERSION_1_8,
             ],
             android: [
-                    buildTools: '28.0.3',
+                    buildTools: '29.0.3',
                     minSdk: 16,
                     support: '27.1.1',
                     targetSdk: 27
