@@ -7,9 +7,9 @@ import com.rectanglel.patstatic.routes.BusRoute
  * Created by epicstar on 3/5/17.
  */
 
-class BusTimeRoutesResponse {
+data class BusTimeRoutesResponse (
 
     @Expose
-    var routes: List<BusRoute>? = null
+    val routes: List<BusRoute>? = null
 
-}
+)

@@ -11,10 +11,10 @@ import com.google.gson.annotations.SerializedName
  * @since 46
  */
 @Generated("org.jsonschema2pojo")
-class PredictionResponse {
+data class PredictionResponse (
 
     @SerializedName("bustime-response")
     @Expose
-    var bustimeResponse: BustimePredictionResponse? = null
+    val bustimeResponse: BustimePredictionResponse? = null
 
-}
+)

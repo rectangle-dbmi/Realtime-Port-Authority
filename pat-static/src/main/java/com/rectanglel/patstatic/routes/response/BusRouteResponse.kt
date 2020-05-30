@@ -7,9 +7,9 @@ import com.google.gson.annotations.SerializedName
  * Created by epicstar on 3/5/17.
  */
 
-class BusRouteResponse {
+data class BusRouteResponse(
     @SerializedName("bustime-response")
     @Expose
-    var busTimeRoutesResponse: BusTimeRoutesResponse? = null
+    val busTimeRoutesResponse: BusTimeRoutesResponse? = null
 
-}
+)

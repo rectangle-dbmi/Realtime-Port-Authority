@@ -9,16 +9,16 @@ import com.google.gson.annotations.Expose
  * Created by epicstar on 3/4/17.
  * @author Jeremy Jao
  */
-class BusRoute {
+data class BusRoute (
     @Expose
-    val routeNumber: String? = null
+    val routeNumber: String? = null,
 
     @Expose
-    val routeName: String? = null
+    val routeName: String? = null,
 
     @Expose
-    val routeColor: String? = null
+    val routeColor: String? = null,
 
     @Expose
     val routeDd: String? = null
-}
+)

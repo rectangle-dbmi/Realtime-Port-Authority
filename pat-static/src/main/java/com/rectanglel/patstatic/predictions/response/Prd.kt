@@ -16,34 +16,34 @@ import javax.annotation.Generated
 data class Prd (
 
     @Expose
-    var tmstmp: Date? = null,
+    val tmstmp: Date? = null,
     @Expose
-    var typ: String? = null,
+    val typ: String? = null,
     @Expose
-    var stpnm: String? = null,
+    val stpnm: String? = null,
     @Expose
-    var stpid: String? = null,
+    val stpid: String? = null,
     @Expose
-    var vid: String? = null,
+    val vid: String? = null,
     @Expose
-    var dstp: Int = 0,
+    val dstp: Int = 0,
     @Expose
-    var rt: String? = null,
+    val rt: String? = null,
     @Expose
-    var rtdir: String? = null,
+    val rtdir: String? = null,
     @Expose
-    var des: String? = null,
+    val des: String? = null,
     @Expose
-    var prdtm: Date? = null,
+    val prdtm: Date? = null,
     @Expose
-    var tablockid: String? = null,
+    val tablockid: String? = null,
     @Expose
-    var tatripid: String? = null,
+    val tatripid: String? = null,
     @Expose
-    var isDly: Boolean = false,
+    val isDly: Boolean = false,
     @Expose
-    var prdctdn: String? = null,
+    val prdctdn: String? = null,
     @Expose
-    var zone: String? = null
+    val zone: String? = null
 
 )

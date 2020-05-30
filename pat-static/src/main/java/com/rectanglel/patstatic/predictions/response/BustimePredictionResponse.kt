@@ -16,9 +16,9 @@ import com.rectanglel.patstatic.errors.response.Error
 data class BustimePredictionResponse (
 
     @Expose
-    var prd: List<Prd> = ArrayList(),
+    val prd: List<Prd> = ArrayList(),
 
     @Expose
-    var error: List<Error> = ArrayList()
+    val error: List<Error> = ArrayList()
 
 )
