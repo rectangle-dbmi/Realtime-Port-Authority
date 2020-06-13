@@ -1,6 +1,5 @@
 apply plugin: 'java'
 apply plugin: 'kotlin'
-apply plugin: 'me.tatarka.retrolambda'
 
 
 buildscript {
@@ -10,8 +9,6 @@ buildscript {
     }
 
     dependencies {
-        // use some java 8 syntax in the project
-        classpath "me.tatarka:gradle-retrolambda:${versions.retrolambda.plugin}"
         // check for updates of 3rd party libs:
         // `./gradlew dependencyUpdates -Drevision=release`
         classpath "com.github.ben-manes:gradle-versions-plugin:${versions.gradleVersions}"
@@ -42,9 +39,6 @@ sourceSets {
     main.java.srcDirs += 'src/main/kotlin'
 }
 
-retrolambda {
-    javaVersion JavaVersion.VERSION_1_7 // NOTE: must set JAVA7_HOME variable following this!
-}
 
 def assetsCachePath = "${project(':app').projectDir}/src/main/assets/cache"
 

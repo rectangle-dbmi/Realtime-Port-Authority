@@ -4,6 +4,7 @@ import com.google.gson.reflect.TypeToken
 import com.rectanglel.patstatic.model.AbstractDataManager
 import com.rectanglel.patstatic.model.RetrofitPatApi
 import com.rectanglel.patstatic.model.StaticData
+import com.rectanglel.patstatic.patterns.response.PatternResponse
 import com.rectanglel.patstatic.patterns.response.Ptr
 import com.rectanglel.patstatic.wrappers.WifiChecker
 import io.reactivex.Flowable
@@ -25,17 +26,17 @@ private const val maxFileAge = 24 * 60 * 1000 * 1000 // 24 hours
  * Created by epicstar on 8/19/17.
  * @author Jeremy Jao
  */
-class PatternDataManager(dataDirectory : File,
-                                 private val patApiClient: RetrofitPatApi,
-                                 staticData: StaticData,
-                                 private val wifiChecker: WifiChecker)
+class PatternDataManager(dataDirectory: File,
+                         private val patApiClient: RetrofitPatApi,
+                         staticData: StaticData,
+                         private val wifiChecker: WifiChecker)
     : AbstractDataManager<List<Ptr>>(
         dataDirectory,
         staticData,
         dataType,
         "lineinfo") {
 
-    fun getPatterns(rt: String) : Flowable<List<Ptr>> {
+    fun getPatterns(rt: String): Flowable<List<Ptr>> {
         val polylineFile = getPatternsFile(rt)
         // 1. if doesn't exist, get from internet (merely a fallback to when a pattern isn't yet saved to disk)
         // 2. if off wifi, always get from disk
@@ -56,9 +57,9 @@ class PatternDataManager(dataDirectory : File,
         }
     }
 
-    private fun getPatternsFile(rt: String) : File = File(dataDirectory, "$rt.json")
+    private fun getPatternsFile(rt: String): File = File(dataDirectory, "$rt.json")
 
-    internal fun getPatternsFromDisk(rt: String) : Flowable<List<Ptr>> {
+    internal fun getPatternsFromDisk(rt: String): Flowable<List<Ptr>> {
         return Flowable.just(getPatternsFile(rt))
                 .map { file ->
                     try {
@@ -70,21 +71,21 @@ class PatternDataManager(dataDirectory : File,
     }
 
     // TODO: remove this warning suppression when ViewModel has fixed
-    @Suppress("RedundantVisibilityModifier")
-    public fun getPatternsFromInternet(rt: String) : Flowable<List<Ptr>> {
+    @Suppress("RedundantVisibilityModifier", "RedundantLambdaArrow")
+    public fun getPatternsFromInternet(rt: String): Flowable<List<Ptr>> {
         return patApiClient.getPatterns(rt)
-                .map { response -> response.patternResponse }
+                .map(PatternResponse::patternResponse)
                 .map { bustimePatternResponse ->
                     try {
                         val patterns = bustimePatternResponse.ptr
                         val patternsFile = getPatternsFile(rt)
                         saveAsJson(patterns, patternsFile)
                         patterns
-                    } catch(e: IOException) {
+                    } catch (e: IOException) {
                         throw Exceptions.propagate(e)
                     }
                 }
-                .onErrorResumeNext { _: Throwable ->  getPatternsFromDisk(rt) }
+                .onErrorResumeNext { _: Throwable -> getPatternsFromDisk(rt) }
 //                .onErrorResumeNext(t -> return getPatternsFromDisk(rt))
     }
 
