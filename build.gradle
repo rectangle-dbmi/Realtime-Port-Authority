@@ -36,7 +36,7 @@ if (!secretPropertiesFile.exists()) {
 
 ext {
     baseUrls = [
-            truetime: "${secretProperties['pat_base_url']}"
+            truetime: "${System.getenv("PAT_BASE_URL") ?: secretProperties['pat_base_url']}"
     ]
     // set keys from secretProperties
     keys = [
@@ -49,16 +49,16 @@ ext {
                      * `keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android`
                      */
                     maps: [
-                            debug: "\"${secretProperties['google_maps_api_debug']}\"" ?: '"Define Google Maps Debug API Key in secrets.properties#google_maps_api_debug"',
-                            release: "\"${secretProperties['google_maps_api_release']}\"" ?: '"Define Google Maps Release API Key in secrets.properties#google_maps_api_release"'
+                            debug: "\"${System.getenv("GOOGLE_MAPS_API_DEBUG") ?: secretProperties['google_maps_api_debug']}\"" ?: '"Define Google Maps Debug API Key in secrets.properties#google_maps_api_debug"',
+                            release: "\"${System.getenv("GOOGLE_MAPS_API_RELEASE") ?: secretProperties['google_maps_api_release']}\"" ?: '"Define Google Maps Release API Key in secrets.properties#google_maps_api_release"'
                     ]
             ],
             /*
              * must define PAT_API_KEY in gradle.properties by adding pat_api=<KEY>
              */
             truetime: [
-                    debug: "${secretProperties['pat_api_debug']}" ?: '"Define Port Authority TrueTime API Key in secrets.properties#pat_api_debug"',
-                    release: "\"${secretProperties['pat_api']}\"" ?: '"Define Port Authority TrueTime API Key in secrets.properties#pat_api"'
+                    debug: "\"${System.getenv("PAT_API_DEBUG") ?: secretProperties['pat_api_debug']}" ?: '"Define Port Authority TrueTime API Key in secrets.properties#pat_api_debug"',
+                    release: "\"${System.getenv("PAT_API_RELEASE") ?: secretProperties['pat_api']}\"" ?: '"Define Port Authority TrueTime API Key in secrets.properties#pat_api"'
             ]
     ]
 
