@@ -7,7 +7,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.0'
+        classpath 'com.android.tools.build:gradle:7.0.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -18,7 +18,7 @@ apply plugin: 'kotlin'
 
 allprojects {
     repositories {
-        jcenter()
+        mavenCentral()
         google()
     }
 }
@@ -69,10 +69,10 @@ ext {
                     target: JavaVersion.VERSION_1_8,
             ],
             android: [
-                    buildTools: '29.0.3',
+                    buildTools: '30.0.2',
                     minSdk: 16,
                     support: '27.1.1',
-                    targetSdk: 27
+                    targetSdk: 30
             ],
             google: [
                     play: '10.2.0'
