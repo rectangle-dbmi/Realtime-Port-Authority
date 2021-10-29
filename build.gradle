@@ -92,7 +92,7 @@ ext {
                     okHttp: '3.4.1',
                     retrofit: '2.9.0',
                     rxjava2Adapter: '2.9.0',
-                    timber: '4.3.1',
+                    timber: '5.0.1',
             ],
 
             test: [
