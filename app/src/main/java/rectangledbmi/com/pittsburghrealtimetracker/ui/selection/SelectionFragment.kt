@@ -7,7 +7,7 @@ package rectangledbmi.com.pittsburghrealtimetracker.ui.selection
  */
 
 import android.content.DialogInterface
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 import android.view.View
 
 import java.io.File

@@ -70,12 +70,13 @@ ext {
             ],
             android: [
                     buildTools: '30.0.2',
-                    minSdk: 16,
-                    support: '27.1.1',
+                    minSdk: 21,
+                    support: '28.0.0',
                     targetSdk: 30
             ],
             google: [
-                    play: '10.2.0'
+                    play: '18.0.0',
+                    places: '17.0.0'
             ],
 
             gradleVersions: '0.12.0',
@@ -87,9 +88,10 @@ ext {
             ],
             square: [
                     leakCanary: '1.5',
+                    leakCanary_no_op: '1.6.3',
                     okHttp: '3.4.1',
-                    retrofit: '2.2.0',
-                    rxjava2Adapter: '2.4.0',
+                    retrofit: '2.4.0',
+                    rxjava2Adapter: '2.9.0',
                     timber: '4.3.1',
             ],
 
