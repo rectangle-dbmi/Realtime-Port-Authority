@@ -20,6 +20,11 @@ java {
     }
 }
 
+compileJava {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+
 dependencies {
     repositories {
         mavenCentral()
