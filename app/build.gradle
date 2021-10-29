@@ -85,6 +85,8 @@ dependencies {
     testImplementation "junit:junit:${versions.test.junit}"
     testImplementation "org.mockito:mockito-core:${versions.test.mockito}"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'org.glassfish:javax.annotation:10.0-b28'
+
 }
 
 buildscript {

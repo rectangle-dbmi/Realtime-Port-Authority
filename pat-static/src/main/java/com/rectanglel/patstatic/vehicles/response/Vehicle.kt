@@ -3,7 +3,7 @@ package com.rectanglel.patstatic.vehicles.response
 import com.google.gson.annotations.Expose
 import com.rectanglel.patstatic.predictions.PredictionsType
 import java.util.*
-import javax.annotation.Generated
+import javax.annotation.processing.Generated
 
 /**
  * Vehicle (bus) Retrofit POJO

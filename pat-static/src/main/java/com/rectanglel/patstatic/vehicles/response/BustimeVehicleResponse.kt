@@ -7,7 +7,7 @@ import java.util.HashMap
 
 import com.rectanglel.patstatic.errors.response.Error
 
-import javax.annotation.Generated
+import javax.annotation.processing.Generated
 
 /**
  * bus time response for the the vehicles

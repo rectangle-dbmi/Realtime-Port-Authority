@@ -23,28 +23,28 @@ interface RetrofitPatApi {
      * Generates a response to get routes from the API
      * @return the list of routes available from the TrueTime API
      */
-    @get:GET("getroutes?format=json")
+    @get:GET("getroutes?format=json&rtpidatafeed=Port%20Authority%20Bus")
     val routes: Single<BusRouteResponse>
 
     /**
      * generates a response for patters
      * @param rt - the route
      */
-    @GET("getpatterns?format=json")
+    @GET("getpatterns?format=json&rtpidatafeed=Port%20Authority%20Bus")
     fun getPatterns(@Query("rt") rt: String): Flowable<PatternResponse>
 
     /**
      * Generates a response to get vehicles
      * @param routes - the routes
      */
-    @GET("getvehicles?format=json")
+    @GET("getvehicles?format=json&rtpidatafeed=Port%20Authority%20Bus")
     fun getVehicles(@Query("rt") routes: String): Flowable<VehicleResponse>
 
     /**
      * Generates a response to get the predictions using the stop id
      * @param stpid - the stop id
      */
-    @GET("getpredictions?format=json")
+    @GET("getpredictions?format=json&rtpidatafeed=Port%20Authority%20Bus")
     fun getStopPredictions(@Query("stpid") stpid: Int): Flowable<PredictionResponse>
 
     /**
@@ -52,14 +52,14 @@ interface RetrofitPatApi {
      * @param stpid - the stop id
      * @param rts - the routes
      */
-    @GET("getpredictions?format=json&top=10")
+    @GET("getpredictions?format=json&top=10&rtpidatafeed=Port%20Authority%20Bus")
     fun getStopPredictions(@Query("stpid") stpid: Int, @Query("rt") rts: String): Single<PredictionResponse>
 
     /**
      * Generates a response to get the predictions using the bus id
      * @param vid - the bus id
      */
-    @GET("getpredictions?format=json&top=10")
+    @GET("getpredictions?format=json&top=10&rtpidatafeed=Port%20Authority%20Bus")
     fun getBusPredictions(@Query("vid") vid: Int): Single<PredictionResponse>
 
 

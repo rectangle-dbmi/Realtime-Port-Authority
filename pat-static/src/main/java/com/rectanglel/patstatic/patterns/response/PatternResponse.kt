@@ -1,6 +1,6 @@
 package com.rectanglel.patstatic.patterns.response
 
-import javax.annotation.Generated
+import javax.annotation.processing.Generated
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
