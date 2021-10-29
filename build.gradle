@@ -79,7 +79,7 @@ ext {
                     places: '17.0.0'
             ],
 
-            gradleVersions: '0.12.0',
+            gradleVersions: '0.11.1',
 
             rx: [
                     android: '2.1.1',
