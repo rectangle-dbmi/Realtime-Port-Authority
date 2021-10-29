@@ -82,15 +82,15 @@ ext {
             gradleVersions: '0.12.0',
 
             rx: [
-                    android: '2.0.2',
-                    java2: '2.1.16',
+                    android: '2.1.1',
+                    java2: '2.2.21',
                     network: '1.0.0'
             ],
             square: [
                     leakCanary: '1.5',
                     leakCanary_no_op: '1.6.3',
                     okHttp: '3.4.1',
-                    retrofit: '2.4.0',
+                    retrofit: '2.9.0',
                     rxjava2Adapter: '2.9.0',
                     timber: '4.3.1',
             ],
