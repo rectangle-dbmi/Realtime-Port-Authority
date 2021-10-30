@@ -97,8 +97,8 @@ ext {
 
             test: [
                     junit: '4.12',
-                    mockito: '2.16.0',
-                    mockitoKotlin: '2.0.0-alpha03'
+                    mockito: '3.12.4',
+                    mockitoKotlin: '3.12.4'
             ],
 
             apache: [
