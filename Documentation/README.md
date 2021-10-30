@@ -75,7 +75,7 @@ This data changes every 10 seconds!
 	- `sudo apt-get install android-studio`
 4. Install the update that pops up (would be 1.0.2)
 5. Install the SDK Manager and install
-	- API 28 to the most recent (29 atm)
+	- API 21 to the most recent (30 atm)
 	- Google Play Services
 	- Google Repositories
 	- ... pretty much everything kinda a little

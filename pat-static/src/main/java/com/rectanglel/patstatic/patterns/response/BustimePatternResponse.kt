@@ -1,7 +1,7 @@
 package com.rectanglel.patstatic.patterns.response
 
 import java.util.ArrayList
-import javax.annotation.Generated
+import javax.annotation.processing.Generated
 import com.google.gson.annotations.Expose
 
 /**

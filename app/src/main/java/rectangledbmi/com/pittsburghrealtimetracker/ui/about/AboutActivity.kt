@@ -1,9 +1,9 @@
 package rectangledbmi.com.pittsburghrealtimetracker.ui.about
 
-import android.app.Fragment
+import androidx.fragment.app.Fragment
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.Menu
@@ -15,14 +15,13 @@ import android.widget.TextView
 import rectangledbmi.com.pittsburghrealtimetracker.R
 
 
-@Suppress("RedundantOverride")
 class AboutActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_about)
         if (savedInstanceState == null) {
-            fragmentManager.beginTransaction()
+            supportFragmentManager.beginTransaction()
                     .add(R.id.container, PlaceholderFragment())
                     .commit()
         }
@@ -62,7 +61,7 @@ class AboutActivity : AppCompatActivity() {
                 fbLink.movementMethod = LinkMovementMethod.getInstance()
                 gitLink.movementMethod = LinkMovementMethod.getInstance()
                 emailLink.movementMethod = LinkMovementMethod.getInstance()
-                val versionText = getString(R.string.version_prefix) + " " + activity.packageManager.getPackageInfo(activity.packageName, 0).versionName
+                val versionText = getString(R.string.version_prefix) + " " + requireActivity().packageManager.getPackageInfo(requireActivity().packageName, 0)?.versionName
                 version.text = versionText
             } catch (e: PackageManager.NameNotFoundException) {
                 e.printStackTrace()

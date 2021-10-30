@@ -9,10 +9,10 @@ import android.graphics.*
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
-import android.support.annotation.RequiresApi
-import android.support.design.widget.Snackbar
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
+import androidx.annotation.RequiresApi
+import com.google.android.material.snackbar.Snackbar
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -406,16 +406,20 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
         patApiService = busListInteraction?.patApiService
         Timber.d("PAT API client set")
         // center the map
-        if (cameraPosition != null) {
-            Timber.d("map was instantiated from a recreation (orientation change, etc.)")
-            mMap?.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
-            zoomSubject?.onNext(cameraPosition?.zoom ?: defaultZoom)
-            enableGoogleMapLocation()
-        } else {
-            Timber.d("Map was instantiated from a clean state. Centering the map on Pittsburgh and possibly on you")
-            mMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(PITTSBURGH, defaultZoom))
-            centerMapWithPermissions()
+        when(val it = cameraPosition){
+            null -> {
+                Timber.d("Map was instantiated from a clean state. Centering the map on Pittsburgh and possibly on you")
+                mMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(PITTSBURGH, defaultZoom))
+                centerMapWithPermissions()
+            }
+            else -> {
+                Timber.d("map was instantiated from a recreation (orientation change, etc.)")
+                mMap?.moveCamera(CameraUpdateFactory.newCameraPosition(it))
+                zoomSubject?.onNext(cameraPosition?.zoom ?: defaultZoom)
+                enableGoogleMapLocation()
+            }
         }
+
         activity?.let { mMap?.setInfoWindowAdapter(ETAWindowAdapter(it.layoutInflater)) }
         mMap?.setOnCameraIdleListener {
             cameraPosition = mMap?.cameraPosition
@@ -542,7 +546,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                     return@flatMap route.route?.let { rt ->
                         Timber.d("removing all %s's", rt)
                         Flowable.fromIterable<Map.Entry<Int, Marker>>(busMarkers?.entries)
-                                .filter { busMarker: Map.Entry<Int, Marker> -> busMarker.value.title.contains(rt) }
+                                .filter { busMarker: Map.Entry<Int, Marker> -> busMarker.value.title?.contains(rt) ?: false }
                     }
                 }
                 ?.subscribeWith(object : DisposableSubscriber<Map.Entry<Int?, Marker?>?>() {

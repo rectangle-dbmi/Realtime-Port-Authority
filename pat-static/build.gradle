@@ -1,10 +1,8 @@
-apply plugin: 'java'
 apply plugin: 'kotlin'
 
 
 buildscript {
     repositories {
-        jcenter()
         mavenCentral()
     }
 
@@ -14,6 +12,17 @@ buildscript {
         classpath "com.github.ben-manes:gradle-versions-plugin:${versions.gradleVersions}"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+}
+
+compileJava {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
 }
 
 dependencies {

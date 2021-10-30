@@ -4,7 +4,7 @@ import com.google.gson.annotations.Expose
 
 import java.util.Date
 
-import javax.annotation.Generated
+import javax.annotation.processing.Generated
 
 /**
  * Prediction POJO
