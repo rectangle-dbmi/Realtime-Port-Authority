@@ -19,7 +19,7 @@ android {
         minSdkVersion versions.android.minSdk
         targetSdkVersion versions.android.targetSdk
         versionCode 160090000
-        versionName "9.0.0-alpha"
+        versionName "9.0.0-rc1"
     }
     lintOptions {
         warning 'InvalidPackage'
