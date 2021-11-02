@@ -52,14 +52,14 @@ class PatternDataManager(dataDirectory: File,
         val getNowDate = System.currentTimeMillis()
         return if (getNowDate - polylineAge >= maxFileAge) {
             getPatternsFromInternet(rt)
+        } else {
+            getPatternsFromDisk(rt)
                 .concatMap { ptrList ->
                     when {
                         ptrList.size == 0 -> getPatternsFromInternet(rt)
                         else -> Flowable.just(ptrList)
                     }
                 }
-        } else {
-            getPatternsFromDisk(rt)
         }
     }
 
