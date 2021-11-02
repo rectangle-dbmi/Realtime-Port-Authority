@@ -1,19 +1,108 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
+    ext.kotlin_version = '1.4.32'
     repositories {
-        jcenter()
+        google()
+        mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.3'
+        classpath 'com.android.tools.build:gradle:7.0.3'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
+apply plugin: 'kotlin'
 
 allprojects {
     repositories {
-        jcenter()
+        mavenCentral()
+        google()
     }
+}
+
+// load secrets.properties for properties that should be part of app but not in source control
+// maybe shouldn't be done in-line but somewhere else.
+def secretProperties = new Properties()
+def secretPropertiesFile = file('secrets.properties')
+if (!secretPropertiesFile.exists()) {
+    logger.error("App will not work as expected. Please copy-paste 'secrets.example.properties'" +
+            " to a new file called 'secrets.properties' and add API keys to it")
+} else {
+    secretProperties.load(secretPropertiesFile.newReader())
+}
+
+ext {
+    baseUrls = [
+            truetime: "${System.getenv("PAT_BASE_URL") ?: secretProperties['pat_base_url']}"
+    ]
+    // set keys from secretProperties
+    keys = [
+
+            google: [
+                    /*
+                     * must define Google Maps API Debug Key in gradle.properties by adding google_maps_api_debug=<KEY>
+                     * must have a project in Google Console Developers and add the correct key: https://console.developers.google.com
+                     * The SHA1 key from Android Studio's debug keystore. Find this in by the following in the command line:
+                     * `keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android`
+                     */
+                    maps: [
+                            debug: "\"${System.getenv("GOOGLE_MAPS_API_DEBUG") ?: secretProperties['google_maps_api_debug']}\"" ?: '"Define Google Maps Debug API Key in secrets.properties#google_maps_api_debug"',
+                            release: "\"${System.getenv("GOOGLE_MAPS_API_RELEASE") ?: secretProperties['google_maps_api_release']}\"" ?: '"Define Google Maps Release API Key in secrets.properties#google_maps_api_release"'
+                    ]
+            ],
+            /*
+             * must define PAT_API_KEY in gradle.properties by adding pat_api=<KEY>
+             */
+            truetime: [
+                    debug: "\"${System.getenv("PAT_API_DEBUG") ?: secretProperties['pat_api_debug']}" ?: '"Define Port Authority TrueTime API Key in secrets.properties#pat_api_debug"',
+                    release: "\"${System.getenv("PAT_API_RELEASE") ?: secretProperties['pat_api']}\"" ?: '"Define Port Authority TrueTime API Key in secrets.properties#pat_api"'
+            ]
+    ]
+
+    // versions for all dependencies
+    versions = [
+            java: [
+                    annotation: '10.0-b28',
+                    target: JavaVersion.VERSION_1_8,
+            ],
+            android: [
+                    buildTools: '30.0.2',
+                    minSdk: 21,
+                    support: '28.0.0',
+                    targetSdk: 30
+            ],
+            google: [
+                    play: '18.0.0',
+                    places: '17.0.0'
+            ],
+
+            gradleVersions: '0.11.1',
+
+            rx: [
+                    android: '2.1.1',
+                    java2: '2.2.21',
+                    network: '1.0.0'
+            ],
+            square: [
+                    leakCanary: '1.5',
+                    leakCanary_no_op: '1.6.3',
+                    okHttp: '3.14.9',
+                    retrofit: '2.7.2',
+                    rxjava2Adapter: '2.7.2',
+                    timber: '5.0.1',
+            ],
+
+            test: [
+                    junit: '4.12',
+                    mockito: '3.12.4',
+                    mockitoKotlin: '3.12.4'
+            ],
+
+            apache: [
+                    commons: '2.5'
+            ]
+    ]
 }

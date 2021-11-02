@@ -1,18 +1,19 @@
+![PAT track Logotype](https://github.com/Tobaloidee/Realtime-Port-Authority/blob/default/images/logotype-a-v1.png)
+
 Realtime-Port-Authority
 =======================
 
 The purpose of this was to create a real-time tracking of port authority
-of Pittsburgh, PA, using the realtime API given by [Port Authority](http://realtime.portauthority.org/bustime/home.jsp) on top of
+of Pittsburgh, PA, using the realtime API given by [Port Authority](http://truetime.portauthority.org/bustime/home.jsp) on top of
 the Google Maps API.
 
 ### Features:
 - Buses Run at Realtime
 - shows ETAs of buses to stops and stops to buses
 - shows stop markers above a certain zoom
-- ListView saves via sharedpreferences
-- polylines added via Asynctask
-- multiple polylines connected to each other
-- uses xml to read and write via XmlPullParser
+- RecyclerView saves via sharedpreferences
+- Uses RxJava + Retrofit to obtain data from Port Authority's API
+- Our (lame) attempt at using MVVM for UI-model interaction
 
 
 ### Releases:
@@ -23,12 +24,11 @@ API limitations:
 every 10 seconds
 - There are only a couple buses offered publicly. We promise to get updates
 to the new buses as soon as possible!
+- Buses disappear when off-route away from their route lines
 
 #Android Development
 
-Please refer to the [Documentation](https://github.com/rectangle-dbmi/Realtime-Port-Authority/tree/master/Documentation) for instructions to install and use the project. You may have to scroll down to the bottom and please read the headers before we make a wiki.
-
-Before running the program, you must request to get the PortAuthorityAPI class and email one of the main contributors. The instructions are in the LICENSE file.
+Please refer to [this wiki page](https://github.com/rectangle-dbmi/Realtime-Port-Authority/wiki/Contributing-to-to-PAT-Track) for instructions to install and use the project.
 
 This will be done using [Android Studio](https://developer.android.com/sdk/installing/studio.html) 1.0 as of 12-09-2014.
 

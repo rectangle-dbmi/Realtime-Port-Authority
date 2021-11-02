@@ -303,8 +303,6 @@
         <item name="Y47">Curry Flyer</item>
         <item name="Y49">Prospect Flyer</item>
     </string-array>
-
-    <string name="api_url">http://truetime.portauthority.org/bustime/api/v2/</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <!-- <string name="action_example">Select Location</string> -->
@@ -331,7 +329,7 @@
     <string name="git_link"><a href='https://github.com/rectangle-dbmi/Realtime-Port-Authority'>Visit us on Github</a></string>
     <string name="contact_email"><a href='mailto:pat.realtime.tracker@gmail.com'>Send us an email</a></string>
     <string name="directory_in_sdcard">/Data/rectangledbmi.com.pittsburghrealtimetracker</string>
-    <string name="cleared">Map cleared and routes reset.</string>
+    <string name="cleared">Map cleared.</string>
     <string name="disclaimerTitle">Disclaimer</string>
     <string name="linksTitle">Links</string>
     <string name="disclaimerBody">We are not responsible for which buses and routes are being
@@ -367,7 +365,8 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="detour_info">Detour Information</string>
-    <string name="detour_url">http://www.portauthority.org/paac/SchedulesMaps/Detours.aspx</string>
+    <string name="clear_cache">Clear Route Cache</string>
+    <string name="detour_url">https://www.portauthority.org/Detours/</string>
     <string name="servers_down_title">No buses?</string>
     <string name="servers_down_description">Wondering why there may be no buses on the map right now?\n\nThat is because Port Authority\'s servers may be down.\n\nWhile this issue is out of our control, we\'ll give you a status update ASAP.</string>
     <string name="servers_down_tell_me_more_button">What? Tell me more!</string>
