@@ -23,7 +23,7 @@ interface RetrofitPatApi {
      * Generates a response to get routes from the API
      * @return the list of routes available from the TrueTime API
      */
-    @get:GET("getroutes?format=json&rtpidatafeed=Port%20Authority%20Bus")
+    @get:GET("getroutes?format=json")
     val routes: Single<BusRouteResponse>
 
     /**
@@ -37,7 +37,7 @@ interface RetrofitPatApi {
      * Generates a response to get vehicles
      * @param routes - the routes
      */
-    @GET("getvehicles?format=json&rtpidatafeed=Port%20Authority%20Bus")
+    @GET("getvehicles?format=json")
     fun getVehicles(@Query("rt") routes: String): Flowable<VehicleResponse>
 
     /**
