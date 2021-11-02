@@ -55,8 +55,8 @@ class PatternDataManager(dataDirectory: File,
         } else {
             getPatternsFromDisk(rt)
                 .concatMap { ptrList ->
-                    when(ptrList) {
-                        is List<Ptr> -> if (ptrList.size == 0) getPatternsFromInternet(rt) else Flowable.just(ptrList)
+                    when {
+                        ptrList.size == 0 -> getPatternsFromInternet(rt)
                         else -> Flowable.just(ptrList)
                     }
             }
