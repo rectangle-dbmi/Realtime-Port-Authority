@@ -54,6 +54,12 @@ class PatternDataManager(dataDirectory: File,
             getPatternsFromInternet(rt)
         } else {
             getPatternsFromDisk(rt)
+                .concatMap { ptrList ->
+                    when(ptrList) {
+                        is List<Ptr> -> if (ptrList.size == 0) getPatternsFromInternet(rt) else Flowable.just(ptrList)
+                        else -> Flowable.just(ptrList)
+                    }
+            }
         }
     }
 
