@@ -19,7 +19,7 @@ import javax.annotation.processing.Generated
 data class BustimeVehicleResponse(
 
         @Expose
-        var vehicle: List<Vehicle> = ArrayList(),
+        var vehicle: ArrayList<Vehicle> = ArrayList<Vehicle>(),
 
         @Expose
         var error: List<Error> = ArrayList()

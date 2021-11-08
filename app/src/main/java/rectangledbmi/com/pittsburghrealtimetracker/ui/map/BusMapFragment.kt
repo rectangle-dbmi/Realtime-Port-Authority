@@ -495,10 +495,10 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                 ?.observeOn(Schedulers.io())
         val toggledRoutesFlowable = busListInteraction?.toggledRouteObservable
                 ?.observeOn(Schedulers.io())
-        setupPolylineObservable(toggledRoutesFlowable)
-        val selectionObservable = selectedRoutesFlowable
+        setupPolylineFlowable(toggledRoutesFlowable)
+        val selectionFlowable = selectedRoutesFlowable
                 ?.replay(1)
-        val vehicleIntervalObservable = selectionObservable
+        val vehicleIntervalFlowable = selectionFlowable
                 ?.debounce(400, TimeUnit.MILLISECONDS)
                 ?.switchMap { routes ->
                     Timber.d("Selecting vehicle observable")
@@ -526,12 +526,14 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                 ?.share()
                 ?.subscribeOn(Schedulers.computation())
                 ?.observeOn(AndroidSchedulers.mainThread())
-        vehicleUpdateFlowable = vehicleIntervalObservable
+        vehicleUpdateFlowable = vehicleIntervalFlowable
                 ?.flatMap { bustimeVehicleResponse: BustimeVehicleResponse? ->
                     Timber.d("Iterating through all vehicles to add")
                     Flowable.fromIterable(bustimeVehicleResponse?.vehicle.orEmpty())
-                }?.map(makeBitmaps())
-        vehicleErrorFlowable = vehicleIntervalObservable
+                }?.withLatestFrom(selectionFlowable){vehicle, routeset -> Pair(vehicle, routeset)}
+                ?.filter{pair -> pair.second.contains(pair.first.rt)}
+                ?.map { pair -> makeBitmaps().apply(pair.first) }
+        vehicleErrorFlowable = vehicleIntervalFlowable
                 ?.map(BustimeVehicleResponse::processedErrors)
                 ?.distinctUntilChanged()
                 ?.flatMap { errorMap: HashMap<String, ArrayList<String>> ->
@@ -567,11 +569,11 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                     }
                 })
         resetMapSubscriptions()
-        selectionSubscription = selectionObservable?.connect()
+        selectionSubscription = selectionFlowable?.connect()
         busListInteraction?.restoreSelection()
     }
 
-    private fun setupPolylineObservable(routeSelectionObservable: Flowable<Route>?) {
+    private fun setupPolylineFlowable(routeSelectionObservable: Flowable<Route>?) {
         /*
       Creates a stream for the polyline observable
      */
@@ -668,8 +670,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
     }
 
     /**
-     * This is an anonymous function that attaches a route's bitmap to its information
-     * from [Vehicle]. This will make an [Observable] emit a [VehicleBitmap].
+     * This is a method which produces a function from a [Vehicle] to its [VehicleBitmap]
      *
      * @return the anonymous vehicle information with its associated bitmap
      */
