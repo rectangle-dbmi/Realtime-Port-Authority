@@ -672,21 +672,21 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
     /**
      * This is a method which, given a [Vehicle] builds the [Bitmap] and returns a [VehicleBitmap]
      *
-     * @return the anonymous vehicle information with its associated bitmap
+     * @return the vehicle information with its associated bitmap
      */
-    private fun makeBitmaps(vehicle: Vehicle): VehicleBitmap {
+    private fun makeBitmaps(vehicle: Vehicle): VehicleBitmap? {
         val busIconCache = HashMap<String?, Bitmap>(busListInteraction?.selectedRoutes?.size
                 ?: 0)
 
         /**
-         * Decides whether or not the color (background color) is light or not.
+         * Decides whether the background color is light.
          *
          *
          * Formula was taken from here:
          * http://stackoverflow.com/questions/24260853/check-if-color-is-dark-or-light-in-android
          *
          * @param color the background color being fed
-         * @return whether or not the background color is light or not (.345 is the current threshold)
+         * @return whether the background color is light (.345 is the current threshold)
          * @since 47
          */
         fun isLight(color: Int): Boolean {
@@ -720,10 +720,10 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
         }
 
         val routeName = vehicle.rt
-        return if (busIconCache.containsKey(routeName)) {
+        return busIconCache[routeName]?.let {
             Timber.v("using cached bitmap %s", routeName)
-            VehicleBitmap(vehicle, (busIconCache[routeName])!!)
-        } else {
+            VehicleBitmap(vehicle, it)
+        } ?: routeName?.let {
             Timber.v("creating bitmap %s", routeName)
             val icon = makeBitmap(busListInteraction?.getSelectedRoute((vehicle.rt)!!))
             busIconCache[routeName] = icon
@@ -806,7 +806,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
 
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             override fun onNext(vehicleBitmap: VehicleBitmap?) {
-                if (vehicleBitmap != null) {
+                vehicleBitmap?.let {
                     addOrUpdateMarkers(vehicleBitmap)
                 }
             }
