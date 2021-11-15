@@ -495,10 +495,10 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                 ?.observeOn(Schedulers.io())
         val toggledRoutesFlowable = busListInteraction?.toggledRouteObservable
                 ?.observeOn(Schedulers.io())
-        setupPolylineObservable(toggledRoutesFlowable)
-        val selectionObservable = selectedRoutesFlowable
+        setupPolylineFlowable(toggledRoutesFlowable)
+        val selectionFlowable = selectedRoutesFlowable
                 ?.replay(1)
-        val vehicleIntervalObservable = selectionObservable
+        val vehicleIntervalFlowable = selectionFlowable
                 ?.debounce(400, TimeUnit.MILLISECONDS)
                 ?.switchMap { routes ->
                     Timber.d("Selecting vehicle observable")
@@ -526,12 +526,14 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                 ?.share()
                 ?.subscribeOn(Schedulers.computation())
                 ?.observeOn(AndroidSchedulers.mainThread())
-        vehicleUpdateFlowable = vehicleIntervalObservable
+        vehicleUpdateFlowable = vehicleIntervalFlowable
                 ?.flatMap { bustimeVehicleResponse: BustimeVehicleResponse? ->
                     Timber.d("Iterating through all vehicles to add")
                     Flowable.fromIterable(bustimeVehicleResponse?.vehicle.orEmpty())
-                }?.map(makeBitmaps())
-        vehicleErrorFlowable = vehicleIntervalObservable
+                }?.withLatestFrom(selectionFlowable){ vehicle, routes -> Pair(vehicle, routes) }
+                ?.filter{ (vehicle, routes) -> routes.contains(vehicle.rt) }
+                ?.map { (vehicle, _) -> makeBitmaps(vehicle) }
+        vehicleErrorFlowable = vehicleIntervalFlowable
                 ?.map(BustimeVehicleResponse::processedErrors)
                 ?.distinctUntilChanged()
                 ?.flatMap { errorMap: HashMap<String, ArrayList<String>> ->
@@ -567,11 +569,11 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                     }
                 })
         resetMapSubscriptions()
-        selectionSubscription = selectionObservable?.connect()
+        selectionSubscription = selectionFlowable?.connect()
         busListInteraction?.restoreSelection()
     }
 
-    private fun setupPolylineObservable(routeSelectionObservable: Flowable<Route>?) {
+    private fun setupPolylineFlowable(routeSelectionObservable: Flowable<Route>?) {
         /*
       Creates a stream for the polyline observable
      */
@@ -668,69 +670,64 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
     }
 
     /**
-     * This is an anonymous function that attaches a route's bitmap to its information
-     * from [Vehicle]. This will make an [Observable] emit a [VehicleBitmap].
+     * This is a method which, given a [Vehicle] builds the [Bitmap] and returns a [VehicleBitmap]
      *
-     * @return the anonymous vehicle information with its associated bitmap
+     * @return the vehicle information with its associated bitmap
      */
-    private fun makeBitmaps(): Function<Vehicle?, VehicleBitmap> {
-        return object : Function<Vehicle?, VehicleBitmap> {
-            private val busIconCache = HashMap<String?, Bitmap>(busListInteraction?.selectedRoutes?.size
-                    ?: 0)
+    private fun makeBitmaps(vehicle: Vehicle): VehicleBitmap? {
+        val busIconCache = HashMap<String?, Bitmap>(busListInteraction?.selectedRoutes?.size
+                ?: 0)
 
-            override fun apply(vehicle: Vehicle): VehicleBitmap {
-                val routeName = vehicle.rt
-                return if (busIconCache.containsKey(routeName)) {
-                    Timber.v("using cached bitmap %s", routeName)
-                    VehicleBitmap(vehicle, (busIconCache[routeName])!!)
-                } else {
-                    Timber.v("creating bitmap %s", routeName)
-                    val icon = makeBitmap(busListInteraction?.getSelectedRoute((vehicle.rt)!!))
-                    busIconCache[routeName] = icon
-                    VehicleBitmap(vehicle, icon)
-                }
-            }
+        /**
+         * Decides whether the background color is light.
+         *
+         *
+         * Formula was taken from here:
+         * http://stackoverflow.com/questions/24260853/check-if-color-is-dark-or-light-in-android
+         *
+         * @param color the background color being fed
+         * @return whether the background color is light (.345 is the current threshold)
+         * @since 47
+         */
+        fun isLight(color: Int): Boolean {
+            return 1.0 - ((0.299 * Color.red(color)) + (0.587 * Color.green(color)) + (0.114 * Color.blue(color))) / 255 < .5
+        }
 
-            private fun makeBitmap(route: Route?): Bitmap {
-                val busIcon = BitmapFactory.decodeResource(resources, R.drawable.bus_icon)
-                val busicon = Bitmap.createBitmap(busIcon.width, busIcon.height, busIcon.config)
-                val canvas = Canvas(busicon)
-                val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-                route?.route?.let { rt ->
-                    paint.colorFilter = PorterDuffColorFilter(route.routeColor, PorterDuff.Mode.MULTIPLY)
-                    canvas.drawBitmap(busIcon, 0f, 0f, paint)
-                    drawText(canvas, busIcon, resources.displayMetrics.density, rt, route.colorAsString)
-                }
-                return busicon
-            }
+        fun drawText(canvas: Canvas, bus_icon: Bitmap, fontScale: Float, routeNumber: String, routeColor: String) {
+            val currentColor = Color.parseColor(routeColor)
+            val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+            paint.color = if (isLight(currentColor)) Color.BLACK else Color.WHITE
+            paint.textSize = 8 * fontScale
+            val fontBounds = Rect()
+            paint.getTextBounds(routeNumber, 0, routeNumber.length, fontBounds)
+            val x = bus_icon.width / 2
+            val y = (bus_icon.height.toDouble() / 1.25).toInt()
+            paint.textAlign = Paint.Align.CENTER
+            canvas.drawText(routeNumber, x.toFloat(), y.toFloat(), paint)
+        }
 
-            private fun drawText(canvas: Canvas, bus_icon: Bitmap, fontScale: Float, routeNumber: String, routeColor: String) {
-                val currentColor = Color.parseColor(routeColor)
-                val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-                paint.color = if (isLight(currentColor)) Color.BLACK else Color.WHITE
-                paint.textSize = 8 * fontScale
-                val fontBounds = Rect()
-                paint.getTextBounds(routeNumber, 0, routeNumber.length, fontBounds)
-                val x = bus_icon.width / 2
-                val y = (bus_icon.height.toDouble() / 1.25).toInt()
-                paint.textAlign = Paint.Align.CENTER
-                canvas.drawText(routeNumber, x.toFloat(), y.toFloat(), paint)
+        fun makeBitmap(route: Route?): Bitmap {
+            val busIcon = BitmapFactory.decodeResource(resources, R.drawable.bus_icon)
+            val busicon = Bitmap.createBitmap(busIcon.width, busIcon.height, busIcon.config)
+            val canvas = Canvas(busicon)
+            val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+            route?.route?.let { rt ->
+                paint.colorFilter = PorterDuffColorFilter(route.routeColor, PorterDuff.Mode.MULTIPLY)
+                canvas.drawBitmap(busIcon, 0f, 0f, paint)
+                drawText(canvas, busIcon, resources.displayMetrics.density, rt, route.colorAsString)
             }
+            return busicon
+        }
 
-            /**
-             * Decides whether or not the color (background color) is light or not.
-             *
-             *
-             * Formula was taken from here:
-             * http://stackoverflow.com/questions/24260853/check-if-color-is-dark-or-light-in-android
-             *
-             * @param color the background color being fed
-             * @return whether or not the background color is light or not (.345 is the current threshold)
-             * @since 47
-             */
-            private fun isLight(color: Int): Boolean {
-                return 1.0 - ((0.299 * Color.red(color)) + (0.587 * Color.green(color)) + (0.114 * Color.blue(color))) / 255 < .5
-            }
+        val routeName = vehicle.rt
+        return busIconCache[routeName]?.let {
+            Timber.v("using cached bitmap %s", routeName)
+            VehicleBitmap(vehicle, it)
+        } ?: routeName?.let {
+            Timber.v("creating bitmap %s", routeName)
+            val icon = makeBitmap(busListInteraction?.getSelectedRoute((vehicle.rt)!!))
+            busIconCache[routeName] = icon
+            VehicleBitmap(vehicle, icon)
         }
     }
 
@@ -809,7 +806,7 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
 
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             override fun onNext(vehicleBitmap: VehicleBitmap?) {
-                if (vehicleBitmap != null) {
+                vehicleBitmap?.let {
                     addOrUpdateMarkers(vehicleBitmap)
                 }
             }
