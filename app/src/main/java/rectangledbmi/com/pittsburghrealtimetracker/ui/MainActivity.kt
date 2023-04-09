@@ -132,7 +132,6 @@ class MainActivity : AppCompatActivity(), SelectionFragment.BusSelectionInteract
      */
     private fun buildPATAPI() {
         patApiService = PatApiServiceImpl(
-                BuildConfig.PAT_API_BASE_URL,
                 BuildConfig.PAT_API_KEY,
                 datadirectory,
                 AssetManagerStaticData(assets),

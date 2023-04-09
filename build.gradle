@@ -35,9 +35,6 @@ if (!secretPropertiesFile.exists()) {
 }
 
 ext {
-    baseUrls = [
-            truetime: "${System.getenv("PAT_BASE_URL") ?: secretProperties['pat_base_url']}"
-    ]
     // set keys from secretProperties
     keys = [
 

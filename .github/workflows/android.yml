@@ -20,7 +20,7 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
+    - name: Run Tests
+      run: ./gradlew test
     - name: Build with Gradle
-      env:
-        PAT_BASE_URL: ${{ secrets.PAT_BASE_URL }}
-      run: ./gradlew build
+      run: ./gradlew assemble

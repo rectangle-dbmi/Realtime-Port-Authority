@@ -29,8 +29,7 @@ import java.util.concurrent.TimeUnit
  * @author Jeremy Jao
  * @since 78
  */
-class PatApiServiceImpl(baseUrl: String,
-                        apiKey: String,
+class PatApiServiceImpl(apiKey: String,
                         dataDirectory: File,
                         staticData: StaticData,
                         wifiChecker: WifiChecker) : PatApiService {
@@ -46,7 +45,7 @@ class PatApiServiceImpl(baseUrl: String,
 
     init {
 
-        patApiClient = createPatApiClient(baseUrl, apiKey)
+        patApiClient = createPatApiClient(apiKey)
         patternDataManager = PatternDataManager(dataDirectory, patApiClient, staticData, wifiChecker)
         routesDataManager = RoutesDataManager(dataDirectory, patApiClient, staticData)
     }
@@ -77,6 +76,9 @@ class PatApiServiceImpl(baseUrl: String,
     }
 
     companion object {
+
+        private const val baseUrl = "https://truetime.portauthority.org/bustime/api/v3/"
+
         /**
          * This is the date format to parse
          *
@@ -101,7 +103,7 @@ class PatApiServiceImpl(baseUrl: String,
         }
 
         // region helper methods
-        private fun createPatApiClient(baseUrl: String, apiKey: String): RetrofitPatApi {
+        private fun createPatApiClient(apiKey: String): RetrofitPatApi {
             // use a date converter
             val gson = GsonBuilder()
                     .setDateFormat(Constants.DATE_FORMAT_PARSE)

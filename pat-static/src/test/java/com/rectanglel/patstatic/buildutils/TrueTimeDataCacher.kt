@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
  * Created by epicstar on 3/5/17.
  * @author Jeremy Jao
  */
-class TrueTimeDataCacher(baseUrl: String, apiKey: String, private val cacheDirectory: File) {
+class TrueTimeDataCacher(apiKey: String, private val cacheDirectory: File) {
     private val patApiService: PatApiService
 
     /**
@@ -50,15 +50,14 @@ class TrueTimeDataCacher(baseUrl: String, apiKey: String, private val cacheDirec
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            val baseUrl = args[0]
-            val patApiKey = args[1]
-            val cacheDirectory = File(args[2])
-            val cacher = TrueTimeDataCacher(baseUrl, patApiKey, cacheDirectory)
+            val patApiKey = args[0]
+            val cacheDirectory = File(args[1])
+            val cacher = TrueTimeDataCacher(patApiKey, cacheDirectory)
             cacher.cacheAllRoutes()
         }
     }
 
     init {
-        patApiService = PatApiServiceImpl(baseUrl, apiKey, cacheDirectory, StubStaticData(), StubWifiDataChecker())
+        patApiService = PatApiServiceImpl(apiKey, cacheDirectory, StubStaticData(), StubWifiDataChecker())
     }
 }
