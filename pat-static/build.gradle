@@ -54,7 +54,7 @@ def assetsCachePath = "${project(':app').projectDir}/src/main/assets/cache"
 task cacheRoutes(type: JavaExec) {
     main = 'com.rectanglel.patstatic.buildutils.TrueTimeDataCacher'
     classpath = sourceSets.test.runtimeClasspath
-    args baseUrls.truetime, keys.truetime.debug, assetsCachePath
+    args keys.truetime.debug, assetsCachePath
 }
 
 task cleanCachedRoutes(type: Delete) {
