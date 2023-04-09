@@ -21,6 +21,4 @@ jobs:
       with:
         java-version: 11
     - name: Build with Gradle
-      env:
-        PAT_BASE_URL: ${{ secrets.PAT_BASE_URL }}
       run: ./gradlew build
