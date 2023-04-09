@@ -1,6 +1,6 @@
 package com.rectanglel.patstatic.vehicles.response
 
-import javax.annotation.processing.Generated
+import javax.annotation.Generated
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 

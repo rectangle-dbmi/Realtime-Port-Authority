@@ -52,7 +52,8 @@ sourceSets {
 def assetsCachePath = "${project(':app').projectDir}/src/main/assets/cache"
 
 task cacheRoutes(type: JavaExec) {
-    main = 'com.rectanglel.patstatic.buildutils.TrueTimeDataCacher'
+    // https://github.com/pinterest/ktlint/issues/1184#issuecomment-892039662
+    mainClass.set 'com.rectanglel.patstatic.buildutils.TrueTimeDataCacher'
     classpath = sourceSets.test.runtimeClasspath
     args keys.truetime.debug, assetsCachePath
 }

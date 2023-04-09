@@ -20,9 +20,6 @@ android {
         versionCode 160090100
         versionName "9.1.0-alpha"
     }
-    lintOptions {
-        warning 'InvalidPackage'
-    }
     buildTypes {
 
         debug {
@@ -42,10 +39,22 @@ android {
     sourceSets {
         main.java.srcDirs += "src/main/kotlin"
     }
-    buildToolsVersion '30.0.2'
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    lint {
+        warning 'InvalidPackage'
+    }
+    // java 17 mockito issue: https://stackoverflow.com/questions/68113065/mockito-inaccessible-object-exception-while-creating-a-mock-object
+    // something up with gson lol
+    // TODO: if we change mockito libs/update or swap out GSON, test with this removed
+    testOptions {
+        unitTests.all {
+            jvmArgs '--add-opens=java.base/java.lang=ALL-UNNAMED'
+        }
+    }
+
+    namespace 'rectangledbmi.com.pittsburghrealtimetracker'
 }
 
 dependencies {
@@ -97,7 +106,6 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        jcenter()
     }
 
     dependencies {
