@@ -52,7 +52,10 @@ public class PatternViewModelTest {
 
     @After
     public void tearDown() {
-        polylinePresenterSubscription.dispose();
+        if (polylinePresenterSubscription != null) {
+            polylinePresenterSubscription.dispose();
+        }
+
     }
 
 

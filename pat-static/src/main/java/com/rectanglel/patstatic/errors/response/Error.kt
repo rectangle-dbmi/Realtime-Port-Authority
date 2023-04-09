@@ -1,7 +1,7 @@
 package com.rectanglel.patstatic.errors.response
 
 import com.google.gson.annotations.Expose
-import javax.annotation.processing.Generated
+import javax.annotation.Generated
 
 /**
  * Retrofit POJO for Errors
