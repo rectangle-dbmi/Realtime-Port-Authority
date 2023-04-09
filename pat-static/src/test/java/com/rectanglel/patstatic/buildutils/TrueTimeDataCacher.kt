@@ -50,8 +50,8 @@ class TrueTimeDataCacher(apiKey: String, private val cacheDirectory: File) {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            val patApiKey = args[1]
-            val cacheDirectory = File(args[2])
+            val patApiKey = args[0]
+            val cacheDirectory = File(args[1])
             val cacher = TrueTimeDataCacher(patApiKey, cacheDirectory)
             cacher.cacheAllRoutes()
         }
