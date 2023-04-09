@@ -20,9 +20,6 @@ android {
         versionCode 160090100
         versionName "9.1.0-alpha"
     }
-    lintOptions {
-        warning 'InvalidPackage'
-    }
     buildTypes {
 
         debug {
@@ -42,10 +39,13 @@ android {
     sourceSets {
         main.java.srcDirs += "src/main/kotlin"
     }
-    buildToolsVersion '30.0.2'
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    lint {
+        warning 'InvalidPackage'
+    }
+    namespace 'rectangledbmi.com.pittsburghrealtimetracker'
 }
 
 dependencies {
@@ -97,7 +97,6 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        jcenter()
     }
 
     dependencies {
