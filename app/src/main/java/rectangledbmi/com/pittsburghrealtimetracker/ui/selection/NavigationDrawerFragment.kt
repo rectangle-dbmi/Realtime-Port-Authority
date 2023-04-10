@@ -19,7 +19,6 @@ import android.widget.Toast
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.subjects.PublishSubject
-import rectangledbmi.com.pittsburghrealtimetracker.PATTrackApplication.Companion.getRefWatcher
 import rectangledbmi.com.pittsburghrealtimetracker.R
 import rectangledbmi.com.pittsburghrealtimetracker.selection.Route
 import rectangledbmi.com.pittsburghrealtimetracker.selection.RouteSelection
@@ -113,10 +112,6 @@ class NavigationDrawerFragment : Fragment() {
     }
 
     override fun onDestroy() {
-        activity?.let { activity ->
-            val refWatcher = getRefWatcher(activity)
-            refWatcher?.watch(this)
-        }
         super.onDestroy()
     }
 

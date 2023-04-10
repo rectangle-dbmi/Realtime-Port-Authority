@@ -66,10 +66,10 @@ ext {
                     target: JavaVersion.VERSION_1_8,
             ],
             android: [
-                    buildTools: '30.0.2',
+                    buildTools: '33.0.2',
                     minSdk: 21,
                     support: '28.0.0',
-                    targetSdk: 30
+                    targetSdk: 33
             ],
             google: [
                     play: '18.0.0',
@@ -81,11 +81,10 @@ ext {
             rx: [
                     android: '2.1.1',
                     java2: '2.2.21',
-                    network: '1.0.0'
+                    network: '3.0.8'
             ],
             square: [
-                    leakCanary: '1.5',
-                    leakCanary_no_op: '1.6.3',
+                    leakCanary: '2.10',
                     okHttp: '3.14.9',
                     retrofit: '2.7.2',
                     rxjava2Adapter: '2.7.2',

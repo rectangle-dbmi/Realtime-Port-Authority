@@ -9,16 +9,15 @@ import android.graphics.*
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
-import androidx.annotation.RequiresApi
-import com.google.android.material.snackbar.Snackbar
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks
@@ -31,6 +30,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.*
+import com.google.android.material.snackbar.Snackbar
 import com.rectanglel.patstatic.errors.ErrorMessage
 import com.rectanglel.patstatic.model.PatApiService
 import com.rectanglel.patstatic.patterns.polylines.PolylineView
@@ -52,7 +52,6 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subscribers.DisposableSubscriber
 import rectangledbmi.com.pittsburghrealtimetracker.BuildConfig
-import rectangledbmi.com.pittsburghrealtimetracker.PATTrackApplication.Companion.getRefWatcher
 import rectangledbmi.com.pittsburghrealtimetracker.R
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternSelection
 import rectangledbmi.com.pittsburghrealtimetracker.patterns.PatternViewModel
@@ -281,11 +280,6 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
 
     override fun onDestroy() {
         Timber.d("Destroying Bus Fragment")
-        activity?.let { activity ->
-            Timber.d("Adding leakcanary to fragment")
-            val refWatcher = getRefWatcher((activity))
-            refWatcher?.watch(this)
-        }
         if (unselectVehicleSubscription != null) {
             unselectVehicleSubscription?.dispose()
             unselectVehicleSubscription = null
