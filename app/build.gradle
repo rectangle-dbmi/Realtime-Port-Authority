@@ -11,7 +11,7 @@ android.buildTypes.each { type ->
 }
 
 android {
-
+    buildToolsVersion versions.android.buildTools
     compileSdkVersion versions.android.targetSdk
     defaultConfig {
         applicationId "rectangledbmi.com.pittsburghrealtimetracker"
@@ -83,8 +83,6 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxjava:${versions.rx.java2}"
 
     debugImplementation "com.squareup.leakcanary:leakcanary-android:${versions.square.leakCanary}"
-    releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:${versions.square.leakCanary_no_op}"
-    testImplementation "com.squareup.leakcanary:leakcanary-android-no-op:${versions.square.leakCanary_no_op}"
 
     testImplementation "junit:junit:${versions.test.junit}"
     testImplementation "org.mockito:mockito-core:${versions.test.mockito}"
