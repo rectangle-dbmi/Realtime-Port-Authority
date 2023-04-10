@@ -81,7 +81,7 @@ ext {
             rx: [
                     android: '2.1.1',
                     java2: '2.2.21',
-                    network: '1.0.0'
+                    network: '3.0.8'
             ],
             square: [
                     leakCanary: '2.10',

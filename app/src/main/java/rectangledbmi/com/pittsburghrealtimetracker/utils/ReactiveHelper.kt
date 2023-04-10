@@ -40,14 +40,15 @@ fun retryIfInternet(disconnectionMessage: Consumer<Throwable>?, reconnectionMess
                         if (throwable.isInternetDown()) {
                             return@flatMap ReactiveNetwork
                                     .observeInternetConnectivity(InternetObservingSettings
-                                            .strategy(WalledGardenInternetObservingStrategy())
-                                            .initialInterval(2000)
-                                            .interval(2000)
-                                            .port(80)
-                                            .timeout(2000)
-                                            .errorHandler(DefaultErrorHandler())
-                                            .host("http://clients3.google.com/generate_204")
-                                            .build())
+                                        .builder()
+                                        .strategy(WalledGardenInternetObservingStrategy())
+                                        .initialInterval(2000)
+                                        .interval(2000)
+                                        .port(80)
+                                        .timeout(2000)
+                                        .errorHandler(DefaultErrorHandler())
+                                        .host("http://clients3.google.com/generate_204")
+                                        .build())
                                     .skipWhile(Boolean::not)
                                     .doOnNext { isConnected: Boolean ->
                                         if (isConnected) {
