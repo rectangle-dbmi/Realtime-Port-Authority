@@ -55,7 +55,6 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(path: ':pat-static')
-//    releaseImplementation project(path: ':pat-static', configuration: "release")
 
     implementation libs.bundles.android
     implementation libs.bundles.android.app
