@@ -1,13 +1,6 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'com.github.ben-manes.versions'
-
-// version dependnecies should be added via ../build.gradle -> `region versions for dependencies`
-// I did this since we can have multiple projects and they should all share the same versions
-// only exception to this are the published versions of each code specific to the project
-
-android.buildTypes.each { type ->
-    type.buildConfigField 'String', 'PAT_API_KEY', keys.truetime.release // variable defined in `../build.gradle`
+plugins {
+    alias libs.plugins.android.application
+    alias libs.plugins.kotlin.android
 }
 
 android {
@@ -23,10 +16,12 @@ android {
     buildTypes {
 
         debug {
+            buildConfigField 'String', 'PAT_API_KEY', keys.truetime.debug // variable defined in `../build.gradle`
             minifyEnabled false
             resValue "string", "google_maps_key", keys.google.maps.debug // variable defined in `../build.gradle`
         }
         release {
+            buildConfigField 'String', 'PAT_API_KEY', keys.truetime.release // variable defined in `../build.gradle`
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             resValue "string", "google_maps_key", keys.google.maps.release // variable defined in `../build.gradle`
@@ -40,7 +35,7 @@ android {
         main.java.srcDirs += "src/main/kotlin"
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = versions.java.version
     }
     lint {
         warning 'InvalidPackage'
@@ -62,53 +57,23 @@ dependencies {
     implementation project(path: ':pat-static')
 //    releaseImplementation project(path: ':pat-static', configuration: "release")
 
-    repositories {
-        mavenCentral()
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-    }
+    implementation libs.bundles.android
+    implementation libs.bundles.android.app
+    implementation libs.bundles.google.play
 
-    //google play services maps
-    implementation "com.google.android.gms:play-services-maps:${versions.google.play}"
-    //google play services location and places
-    implementation "com.google.android.gms:play-services-location:${versions.google.play}"
-    implementation "com.google.android.gms:play-services-places:${versions.google.places}"
+    implementation libs.bundles.restcalls
 
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'com.google.android.material:material:1.8.0'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.recyclerview:recyclerview:1.3.0'
+    implementation libs.rx.android
+    implementation libs.rx.java
+    implementation libs.rx.network
 
-    implementation 'androidx.mediarouter:mediarouter:1.3.1'
-
-    implementation "androidx.fragment:fragment-ktx:1.3.6"
+    testImplementation libs.bundles.testing
 
     //3rd party android libraries
-    implementation "com.github.pwittchen:reactivenetwork-rx2:${versions.rx.network}"
-    implementation "com.jakewharton.timber:timber:${versions.square.timber}"
-    implementation "com.squareup.retrofit2:retrofit:${versions.square.retrofit}"
-    implementation "com.squareup.retrofit2:converter-gson:${versions.square.retrofit}"
-    implementation "com.squareup.retrofit2:adapter-rxjava2:${versions.square.rxjava2Adapter}"
-    implementation "io.reactivex.rxjava2:rxandroid:${versions.rx.android}"
-    implementation "io.reactivex.rxjava2:rxjava:${versions.rx.java2}"
 
-    debugImplementation "com.squareup.leakcanary:leakcanary-android:${versions.square.leakCanary}"
+    implementation libs.kotlin.stdlib
+    implementation libs.javax.annotations
 
-    testImplementation "junit:junit:${versions.test.junit}"
-    testImplementation "org.mockito:mockito-core:${versions.test.mockito}"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation 'org.glassfish:javax.annotation:10.0-b28'
+    debugImplementation libs.square.leakcanary
 
-}
-
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-
-    dependencies {
-        // check for updates of 3rd party libs:
-        // `./gradlew dependencyUpdates -Drevision=release`
-        classpath "com.github.ben-manes:gradle-versions-plugin:${versions.gradleVersions}"
-    }
 }

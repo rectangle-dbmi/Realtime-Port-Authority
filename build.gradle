@@ -1,26 +1,10 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
-buildscript {
-    ext.kotlin_version = '1.8.0'
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
-}
-apply plugin: 'kotlin'
-
-allprojects {
-    repositories {
-        mavenCentral()
-        google()
-    }
+plugins {
+    alias libs.plugins.android.application apply false
+    alias libs.plugins.kotlin.android apply false
+    alias libs.plugins.kotlin apply false
+    alias libs.plugins.benManes.versions apply true
 }
 
 // load secrets.properties for properties that should be part of app but not in source control
@@ -54,51 +38,23 @@ ext {
              * must define PAT_API_KEY in gradle.properties by adding pat_api=<KEY>
              */
             truetime: [
-                    debug: "\"${System.getenv("PAT_API_DEBUG") ?: secretProperties['pat_api_debug']}" ?: '"Define Port Authority TrueTime API Key in secrets.properties#pat_api_debug"',
+                    debug: "\"${System.getenv("PAT_API_DEBUG") ?: secretProperties['pat_api_debug']}\"" ?: '"Define Port Authority TrueTime API Key in secrets.properties#pat_api_debug"',
                     release: "\"${System.getenv("PAT_API_RELEASE") ?: secretProperties['pat_api']}\"" ?: '"Define Port Authority TrueTime API Key in secrets.properties#pat_api"'
             ]
     ]
 
-    // versions for all dependencies
+    // versions not defined in gradle/libs.versions.toml
     versions = [
             java: [
-                    annotation: '10.0-b28',
+                    languageVersion: JavaLanguageVersion.of(8),
                     target: JavaVersion.VERSION_1_8,
+                    version: "1.8",
             ],
             android: [
                     buildTools: '33.0.2',
                     minSdk: 21,
-                    support: '28.0.0',
                     targetSdk: 33
             ],
-            google: [
-                    play: '18.0.0',
-                    places: '17.0.0'
-            ],
 
-            gradleVersions: '0.11.1',
-
-            rx: [
-                    android: '2.1.1',
-                    java2: '2.2.21',
-                    network: '3.0.8'
-            ],
-            square: [
-                    leakCanary: '2.10',
-                    okHttp: '3.14.9',
-                    retrofit: '2.7.2',
-                    rxjava2Adapter: '2.7.2',
-                    timber: '5.0.1',
-            ],
-
-            test: [
-                    junit: '4.12',
-                    mockito: '4.5.1',
-                    mockitoKotlin: '4.5.1'
-            ],
-
-            apache: [
-                    commons: '2.5'
-            ]
     ]
 }

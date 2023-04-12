@@ -46,7 +46,7 @@ class NaturalOrderComparator<T> : Comparator<T> // epicstar: change to abide by 
                 !cb.isDigit()                      -> return +1
                 ca < cb && bias == 0               -> -1
                 ca > cb && bias == 0               -> +1
-                ca.toInt() == 0 && cb.toInt() == 0 -> return bias
+                ca.code == 0 && cb.code == 0 -> return bias
                 else                               -> bias
             }
 
