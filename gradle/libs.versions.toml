@@ -1,12 +1,13 @@
 [versions]
 # NOTE: Some are defined in the top level build.gradle#ext.versions property
-# because they are not versions defined in our toml.
-android-buildtools = "33.0.2"
-android-plugin = "7.4.2"
+# because they are not versions used in this file such as build tools version and target SDK
 
-# NOTE: kotlin version must match Android Studio Kotlin Plugin Version:
+# Note: This MUST match the Android Studio Kotlin plugin version!!!
+# ignore dependabot only for kotlin version!!!
 # Tools -> Kotlin -> Configure Kotlin Updates
 kotlin = "1.8.0"
+
+android-plugin = "7.4.2"
 
 androidx-appcompat = "1.6.1"
 androidx-core = "1.9.0"
