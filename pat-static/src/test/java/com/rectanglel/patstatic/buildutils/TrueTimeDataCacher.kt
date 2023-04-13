@@ -59,6 +59,8 @@ class TrueTimeDataCacher(apiKey: String, private val cacheDirectory: File) {
     }
 
     init {
-        patApiService = PatApiServiceImpl(apiKey, cacheDirectory, StubStaticData(), StubWifiDataChecker())
+        patApiService =
+            PatApiServiceImpl(apiKey, cacheDirectory, StubStaticData(), StubWifiDataChecker())
     }
+
 }
