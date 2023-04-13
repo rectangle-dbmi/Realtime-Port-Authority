@@ -36,7 +36,7 @@ rx-java = "2.2.21"
 rx-network = "3.0.8"
 
 square-leakcanary = "2.10"
-square-retrofit = "2.9.0"
+square-retrofit = "2.7.2"
 square-okhttp = "4.10.0"
 
 [libraries]
