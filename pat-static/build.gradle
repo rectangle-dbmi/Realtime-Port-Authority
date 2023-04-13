@@ -1,35 +1,57 @@
 plugins {
-    alias libs.plugins.kotlin
+    alias libs.plugins.android.library
+    alias libs.plugins.kotlin.android
 }
 
-java {
-    toolchain {
-        languageVersion = versions.java.languageVersion
+android {
+    namespace 'com.rectanglel.patstatic'
+
+    buildToolsVersion versions.android.buildTools
+    compileSdk versions.android.targetSdk
+    defaultConfig {
+        minSdk versions.android.minSdk
+        targetSdk versions.android.targetSdk
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility versions.java.target
+        targetCompatibility versions.java.target
+    }
+    sourceSets {
+        main.java.srcDirs += "src/main/kotlin"
+    }
+    kotlinOptions {
+        jvmTarget = versions.java.version
     }
 }
 
-compileJava {
-    sourceCompatibility = versions.java.version
-    targetCompatibility = versions.java.version
-}
-
 dependencies {
+    coreLibraryDesugaring libs.android.desugarer
+
+    implementation libs.javax.annotations
     implementation libs.bundles.restcalls
     testImplementation libs.bundles.testing
-    implementation  libs.kotlin.stdlib
-}
+    implementation libs.kotlin.stdlib
 
-sourceSets {
-    main.java.srcDirs += 'src/main/kotlin'
 }
-
 
 def assetsCachePath = "${project(':app').projectDir}/src/main/assets/cache"
 
 task cacheRoutes(type: JavaExec) {
     // https://github.com/pinterest/ktlint/issues/1184#issuecomment-892039662
     mainClass.set 'com.rectanglel.patstatic.buildutils.TrueTimeDataCacher'
-    classpath = sourceSets.test.runtimeClasspath
+//    classpath = sourceSets.testDebug.runtimeClasspath
+    classpath += files(getBuildDir().toString() + "/intermediates/classes/debug")
     args keys.truetime.debug, assetsCachePath
 }
 
@@ -37,4 +59,4 @@ task cleanCachedRoutes(type: Delete) {
     delete assetsCachePath
 }
 
-jar.dependsOn cacheRoutes
+//jar.dependsOn cacheRoutes

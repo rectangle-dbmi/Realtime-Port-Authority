@@ -111,6 +111,7 @@ testing = [
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-plugin" }
+android-library = { id = "com.android.library", version.ref = "android-plugin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 benManes-versions = { id = "com.github.ben-manes.versions", version.ref = "benManes-versions" }

@@ -74,7 +74,6 @@ dependencies {
     //3rd party android libraries
 
     implementation libs.kotlin.stdlib
-    implementation libs.javax.annotations
 
     debugImplementation libs.square.leakcanary
 
