@@ -1,47 +1,22 @@
-apply plugin: 'kotlin'
-
-
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-        // check for updates of 3rd party libs:
-        // `./gradlew dependencyUpdates -Drevision=release`
-        classpath "com.github.ben-manes:gradle-versions-plugin:${versions.gradleVersions}"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
+plugins {
+    alias libs.plugins.kotlin
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(8)
+        languageVersion = versions.java.languageVersion
     }
 }
 
 compileJava {
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
+    sourceCompatibility = versions.java.version
+    targetCompatibility = versions.java.version
 }
 
 dependencies {
-    repositories {
-        mavenCentral()
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-    }
-
-    implementation "io.reactivex.rxjava2:rxjava:${versions.rx.java2}"
-
-    implementation "com.squareup.retrofit2:retrofit:${versions.square.retrofit}"
-    implementation "com.squareup.retrofit2:converter-gson:${versions.square.retrofit}"
-    implementation "com.squareup.retrofit2:adapter-rxjava2:${versions.square.rxjava2Adapter}"
-    implementation "com.squareup.okhttp3:okhttp:${versions.square.okHttp}"
-
-    testImplementation "junit:junit:${versions.test.junit}"
-    testImplementation "org.mockito:mockito-core:${versions.test.mockito}"
-
-    implementation  "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation libs.bundles.restcalls
+    testImplementation libs.bundles.testing
+    implementation  libs.kotlin.stdlib
 }
 
 sourceSets {
@@ -63,6 +38,3 @@ task cleanCachedRoutes(type: Delete) {
 }
 
 jar.dependsOn cacheRoutes
-repositories {
-    mavenCentral()
-}

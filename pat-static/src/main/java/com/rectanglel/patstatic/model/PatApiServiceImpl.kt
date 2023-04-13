@@ -97,7 +97,7 @@ class PatApiServiceImpl(apiKey: String,
             return { predictionResponse ->
                 predictionResponse
                         .map { it.bustimeResponse }
-                        .map { it.prd }
+                        .map { it!!.prd } // TODO: FIX
                         .compose(applySchedulersSingle<List<Prd>>())
             }
         }
@@ -114,7 +114,7 @@ class PatApiServiceImpl(apiKey: String,
                     .readTimeout(5, TimeUnit.SECONDS)
                     .addInterceptor { chain ->
                         val original = chain.request()
-                        val originalHttpUrl = original.url()
+                        val originalHttpUrl = original.url
 
                         val url = originalHttpUrl.newBuilder()
                                 .addQueryParameter("key", apiKey)

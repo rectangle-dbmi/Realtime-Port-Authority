@@ -83,7 +83,7 @@ class PatternDataManager(dataDirectory: File,
                 .map(PatternResponse::patternResponse)
                 .map { bustimePatternResponse ->
                     try {
-                        val patterns = bustimePatternResponse.ptr
+                        val patterns = bustimePatternResponse!!.ptr // TODO: FIX
                         val patternsFile = getPatternsFile(rt)
                         saveAsJson(patterns, patternsFile)
                         patterns

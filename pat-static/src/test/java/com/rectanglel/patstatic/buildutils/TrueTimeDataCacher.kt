@@ -32,11 +32,13 @@ class TrueTimeDataCacher(apiKey: String, private val cacheDirectory: File) {
                                 val routeNumber = route.routeNumber
                                 File(cacheDirectory, String.format("lineinfo/%s.json", routeNumber)).exists()
                             }
-                            .zipWith(Observable.interval(0, 500, TimeUnit.MILLISECONDS), BiFunction { stuff: BusRoute?, _: Long? -> stuff!! })
+                            .zipWith(Observable.interval(0, 500, TimeUnit.MILLISECONDS)
+                            ) { stuff: BusRoute?, _: Long? -> stuff!! }
                 }
                 .buffer(8)
-                .zipWith(Observable.interval(0, 5, TimeUnit.SECONDS), BiFunction { stuff: List<BusRoute?>?, _: Long? -> stuff!! })
-                .flatMapIterable { routes1: List<BusRoute?>? -> routes1 }
+                .zipWith(Observable.interval(0, 5, TimeUnit.SECONDS)
+                ) { stuff, _: Long? -> stuff!! }
+            .flatMapIterable { routes1 -> routes1 }
                 .map(BusRoute::routeNumber)
                 .flatMap { routeNumber: String? ->
                     patApiService

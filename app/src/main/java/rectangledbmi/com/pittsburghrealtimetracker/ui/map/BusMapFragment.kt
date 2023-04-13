@@ -599,22 +599,24 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
             requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), CENTER_MAP_LOCATION_CODE)
             return
         }
-        val lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient)
-        // use the last location if found and if less than 1 hour
-        if ((lastLocation != null) && isInPittsburgh(lastLocation) && (System.currentTimeMillis() - lastLocation.time < 3600000)) {
-            Timber.i("Using last location to center map.")
-            val latLng = LatLng(lastLocation.latitude, lastLocation.longitude)
-            mMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomStopVisibility))
-        } else { // request one location update
-            Timber.i("Creating 1 location request to center map on you.")
-            val gLocationRequest = LocationRequest.create()
+        googleApiClient?.let { googleApiClient ->
+            val lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient)
+            // use the last location if found and if less than 1 hour
+            if ((lastLocation != null) && isInPittsburgh(lastLocation) && (System.currentTimeMillis() - lastLocation.time < 3600000)) {
+                Timber.i("Using last location to center map.")
+                val latLng = LatLng(lastLocation.latitude, lastLocation.longitude)
+                mMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomStopVisibility))
+            } else { // request one location update
+                Timber.i("Creating 1 location request to center map on you.")
+                val gLocationRequest = LocationRequest.create()
                     .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                     .setInterval(1000)
                     .setExpirationTime(10000) // set expiration 10 seconds
                     .setNumUpdates(1) // only do one update. needs above call for expiration
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, gLocationRequest, this)
+                LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, gLocationRequest, this)
+            }
+            enableGoogleMapLocation()
         }
-        enableGoogleMapLocation()
     }
 
     /**
