@@ -13,4 +13,7 @@ jobs:
       - name: Submit Gradle Dependencies
         uses: mikepenz/gradle-dependency-submission@v0.8.6
         with:
+          gradle-build-configuration-mapping:
+            - :app|releaseCompileClasspath
+            - :pat-static|compileClasspath
           sub-module-mode: COMBINED
