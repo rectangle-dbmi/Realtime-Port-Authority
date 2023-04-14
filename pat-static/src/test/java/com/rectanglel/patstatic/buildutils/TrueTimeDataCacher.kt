@@ -5,7 +5,6 @@ import com.rectanglel.patstatic.model.PatApiServiceImpl
 import com.rectanglel.patstatic.routes.BusRoute
 import io.reactivex.Flowable
 import io.reactivex.Observable
-import io.reactivex.functions.BiFunction
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -60,6 +59,8 @@ class TrueTimeDataCacher(apiKey: String, private val cacheDirectory: File) {
     }
 
     init {
-        patApiService = PatApiServiceImpl(apiKey, cacheDirectory, StubStaticData(), StubWifiDataChecker())
+        patApiService =
+            PatApiServiceImpl(apiKey, cacheDirectory, StubStaticData(), StubWifiDataChecker())
     }
+
 }

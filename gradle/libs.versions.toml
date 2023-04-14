@@ -7,6 +7,7 @@
 # Tools -> Kotlin -> Configure Kotlin Updates
 kotlin = "1.8.0"
 
+android-desugarer = "2.0.3"
 android-plugin = "7.4.2"
 
 androidx-appcompat = "1.6.1"
@@ -40,6 +41,7 @@ square-retrofit = "2.7.2"
 square-okhttp = "4.10.0"
 
 [libraries]
+android-desugarer = { module = "com.android.tools:desugar_jdk_libs_nio", version.ref = "android-desugarer" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
 androidx-core = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
 androidx-fragment = { module = "androidx.fragment:fragment-ktx", version.ref = "androidx-fragment"}
@@ -109,6 +111,7 @@ testing = [
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-plugin" }
+android-library = { id = "com.android.library", version.ref = "android-plugin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 benManes-versions = { id = "com.github.ben-manes.versions", version.ref = "benManes-versions" }

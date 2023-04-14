@@ -4,6 +4,8 @@ plugins {
 }
 
 android {
+    namespace 'rectangledbmi.com.pittsburghrealtimetracker'
+
     buildToolsVersion versions.android.buildTools
     compileSdkVersion versions.android.targetSdk
     defaultConfig {
@@ -28,6 +30,7 @@ android {
         }
     }
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility versions.java.target
         targetCompatibility versions.java.target
     }
@@ -48,11 +51,11 @@ android {
             jvmArgs '--add-opens=java.base/java.lang=ALL-UNNAMED'
         }
     }
-
-    namespace 'rectangledbmi.com.pittsburghrealtimetracker'
 }
 
 dependencies {
+    coreLibraryDesugaring libs.android.desugarer
+
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(path: ':pat-static')
 
@@ -71,7 +74,6 @@ dependencies {
     //3rd party android libraries
 
     implementation libs.kotlin.stdlib
-    implementation libs.javax.annotations
 
     debugImplementation libs.square.leakcanary
 

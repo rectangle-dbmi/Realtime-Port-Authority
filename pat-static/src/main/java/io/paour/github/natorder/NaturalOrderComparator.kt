@@ -107,7 +107,7 @@ class NaturalOrderComparator<T> : Comparator<T> // epicstar: change to abide by 
                 }
             }
 
-            if (ca.toInt() == 0 && cb.toInt() == 0) {
+            if (ca.code == 0 && cb.code == 0) {
                 // The strings compare the same. Perhaps the caller
                 // will want to call strcmp to break the tie.
                 return nza - nzb

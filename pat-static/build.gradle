@@ -1,40 +1,84 @@
 plugins {
-    alias libs.plugins.kotlin
+    alias libs.plugins.android.library
+    alias libs.plugins.kotlin.android
 }
 
-java {
-    toolchain {
-        languageVersion = versions.java.languageVersion
+android {
+    namespace 'com.rectanglel.patstatic'
+
+    buildToolsVersion versions.android.buildTools
+    compileSdk versions.android.targetSdk
+    defaultConfig {
+        minSdk versions.android.minSdk
+        targetSdk versions.android.targetSdk
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility versions.java.target
+        targetCompatibility versions.java.target
+    }
+    sourceSets {
+        main.java.srcDirs += "src/main/kotlin"
+    }
+    kotlinOptions {
+        jvmTarget = versions.java.version
+    }
+    // java 17 mockito issue: https://stackoverflow.com/questions/68113065/mockito-inaccessible-object-exception-while-creating-a-mock-object
+    // something up with gson lol
+    // TODO: if we change mockito libs/update or swap out GSON, test with this removed
+    testOptions {
+        unitTests.all {
+            jvmArgs '--add-opens=java.base/java.lang=ALL-UNNAMED'
+        }
     }
 }
 
-compileJava {
-    sourceCompatibility = versions.java.version
-    targetCompatibility = versions.java.version
-}
-
 dependencies {
+    coreLibraryDesugaring libs.android.desugarer
+
+    implementation libs.javax.annotations
     implementation libs.bundles.restcalls
     testImplementation libs.bundles.testing
-    implementation  libs.kotlin.stdlib
-}
+    implementation libs.kotlin.stdlib
 
-sourceSets {
-    main.java.srcDirs += 'src/main/kotlin'
 }
-
 
 def assetsCachePath = "${project(':app').projectDir}/src/main/assets/cache"
 
-task cacheRoutes(type: JavaExec) {
-    // https://github.com/pinterest/ktlint/issues/1184#issuecomment-892039662
-    mainClass.set 'com.rectanglel.patstatic.buildutils.TrueTimeDataCacher'
-    classpath = sourceSets.test.runtimeClasspath
-    args keys.truetime.debug, assetsCachePath
+project.afterEvaluate {
+    tasks.register('cacheRoutes', JavaExec) {
+        dependsOn 'compileDebugUnitTestKotlin'
+
+        // https://github.com/pinterest/ktlint/issues/1184#issuecomment-892039662
+        mainClass.set 'com.rectanglel.patstatic.buildutils.TrueTimeDataCacher'
+        classpath += files(
+                getBuildDir().toString() + "/tmp/kotlin-classes/debugUnitTest",
+                getBuildDir().toString() + "/tmp/kotlin-classes/debug"
+        )
+        android.libraryVariants.each { variant -> // or libraryVariants
+            // add each variant's compiler classpath onto this classpath
+            classpath += variant.javaCompileProvider.get().classpath
+        }
+        args keys.truetime.debug, assetsCachePath
+    }
+    assemble.dependsOn cacheRoutes
 }
+
+
+
+//assemble.dependsOn cacheRoutes
+
 
 task cleanCachedRoutes(type: Delete) {
     delete assetsCachePath
 }
-
-jar.dependsOn cacheRoutes
