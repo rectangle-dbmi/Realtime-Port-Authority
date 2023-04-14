@@ -55,22 +55,29 @@ dependencies {
 
 def assetsCachePath = "${project(':app').projectDir}/src/main/assets/cache"
 
-tasks.register('cacheRoutes', JavaExec) {
-    dependsOn 'compileDebugUnitTestSources'
+project.afterEvaluate {
+    tasks.register('cacheRoutes', JavaExec) {
+        dependsOn 'compileDebugUnitTestKotlin'
 
-    // https://github.com/pinterest/ktlint/issues/1184#issuecomment-892039662
-    mainClass.set 'com.rectanglel.patstatic.buildutils.TrueTimeDataCacher'
-    classpath += files(
-            getBuildDir().toString() + "/intermediates/classes/debugUnitTest",
-            getBuildDir().toString() + "/tmp/kotlin-classes/debugUnitTest"
-
-    )
-    android.libraryVariants.each { variant -> // or libraryVariants
-        // add each variant's compiler classpath onto this classpath
-        classpath += variant.javaCompileProvider.get().classpath
+        // https://github.com/pinterest/ktlint/issues/1184#issuecomment-892039662
+        mainClass.set 'com.rectanglel.patstatic.buildutils.TrueTimeDataCacher'
+        classpath += files(
+                getBuildDir().toString() + "/tmp/kotlin-classes/debugUnitTest",
+                getBuildDir().toString() + "/tmp/kotlin-classes/debug"
+        )
+        android.libraryVariants.each { variant -> // or libraryVariants
+            // add each variant's compiler classpath onto this classpath
+            classpath += variant.javaCompileProvider.get().classpath
+        }
+        args keys.truetime.debug, assetsCachePath
     }
-    args keys.truetime.debug, assetsCachePath
+    assemble.dependsOn cacheRoutes
 }
+
+
+
+//assemble.dependsOn cacheRoutes
+
 
 task cleanCachedRoutes(type: Delete) {
     delete assetsCachePath
