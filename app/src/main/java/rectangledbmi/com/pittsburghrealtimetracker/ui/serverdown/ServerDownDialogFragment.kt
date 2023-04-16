@@ -18,7 +18,7 @@ import rectangledbmi.com.pittsburghrealtimetracker.R
 class ServerDownDialogFragment : AppCompatDialogFragment() {
 
     override fun onCreateDialog(savedInstance: Bundle?): Dialog =
-            AlertDialog.Builder(requireContext(), R.style.Theme_AppCompat_Dialog_Alert).run {
+            AlertDialog.Builder(requireContext(), androidx.appcompat.R.style.Theme_AppCompat_Dialog_Alert).run {
                 this.setTitle(R.string.servers_down_title)
                 this.setMessage(R.string.servers_down_description)
                 this.setNegativeButton(R.string.servers_down_dismiss) { _, _ -> dismiss() }
