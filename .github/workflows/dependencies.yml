@@ -10,6 +10,11 @@ jobs:
     if: github.ref == 'refs/heads/develop'
     steps:
       - uses: actions/checkout@v3
+      - name: set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
       - name: Submit Gradle Dependencies
         uses: mikepenz/gradle-dependency-submission@v0.8.6
         with:
