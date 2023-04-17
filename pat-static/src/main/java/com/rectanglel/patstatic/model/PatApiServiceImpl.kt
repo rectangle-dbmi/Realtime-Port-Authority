@@ -41,7 +41,9 @@ class PatApiServiceImpl(apiKey: String,
     private val routesDataManager: RoutesDataManager
 
     override val routes: Single<List<BusRoute>>
-        get() = routesDataManager.routes
+        get() {
+            return routesDataManager.routes
+        }
 
     init {
 

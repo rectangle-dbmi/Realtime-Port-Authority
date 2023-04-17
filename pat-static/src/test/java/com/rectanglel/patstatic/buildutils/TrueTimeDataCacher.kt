@@ -25,27 +25,27 @@ class TrueTimeDataCacher(apiKey: String, private val cacheDirectory: File) {
     fun cacheAllRoutes() {
         patApiService.routes
                 .toObservable()
-                .flatMap { routes: List<BusRoute>? ->
+                .flatMap { routes: List<BusRoute> ->
                     Observable.fromIterable(routes)
                             .skipWhile { route: BusRoute ->
                                 val routeNumber = route.routeNumber
-                                File(cacheDirectory, String.format("lineinfo/%s.json", routeNumber)).exists()
+                                File(cacheDirectory, "lineinfo/$routeNumber.json").exists()
                             }
                             .zipWith(Observable.interval(0, 500, TimeUnit.MILLISECONDS)
-                            ) { stuff: BusRoute?, _: Long? -> stuff!! }
+                            ) { stuff: BusRoute, _: Long -> stuff }
                 }
                 .buffer(8)
                 .zipWith(Observable.interval(0, 5, TimeUnit.SECONDS)
-                ) { stuff, _: Long? -> stuff!! }
-            .flatMapIterable { routes1 -> routes1 }
+                ) { stuff, _: Long -> stuff }
+                .flatMapIterable { it }
                 .map(BusRoute::routeNumber)
-                .flatMap { routeNumber: String? ->
+                .flatMap { routeNumber: String ->
                     patApiService
-                            .getPatterns(routeNumber!!)
+                            .getPatterns(routeNumber)
                             .onErrorResumeNext(Flowable.empty())
                             .toObservable()
                             .doOnNext { println(String.format("Saving route number: %s", routeNumber)) }
-                }
+                }.toFuture().get()
     }
 
     companion object {
@@ -59,8 +59,7 @@ class TrueTimeDataCacher(apiKey: String, private val cacheDirectory: File) {
     }
 
     init {
-        patApiService =
-            PatApiServiceImpl(apiKey, cacheDirectory, StubStaticData(), StubWifiDataChecker())
+        patApiService = PatApiServiceImpl(apiKey, cacheDirectory, StubStaticData(), StubWifiDataChecker())
     }
 
 }

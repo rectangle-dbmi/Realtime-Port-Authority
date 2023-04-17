@@ -11,14 +11,14 @@ import com.google.gson.annotations.Expose
  */
 data class BusRoute (
     @Expose
-    val routeNumber: String? = null,
+    val routeNumber: String,
 
     @Expose
-    val routeName: String? = null,
+    val routeName: String,
 
     @Expose
-    val routeColor: String? = null,
+    val routeColor: String,
 
     @Expose
-    val routeDd: String? = null
+    val routeDd: String
 )
