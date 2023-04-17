@@ -6,6 +6,7 @@ import com.rectanglel.patstatic.model.RetrofitPatApi
 import com.rectanglel.patstatic.model.StaticData
 import com.rectanglel.patstatic.patterns.response.PatternResponse
 import com.rectanglel.patstatic.patterns.response.Ptr
+import com.rectanglel.patstatic.routes.BusRoute
 import com.rectanglel.patstatic.wrappers.WifiChecker
 import io.reactivex.Flowable
 import io.reactivex.exceptions.Exceptions
@@ -36,27 +37,27 @@ class PatternDataManager(dataDirectory: File,
         dataType,
         "lineinfo") {
 
-    fun getPatterns(rt: String): Flowable<List<Ptr>> {
-        val polylineFile = getPatternsFile(rt)
+    fun getPatterns(route: BusRoute): Flowable<List<Ptr>> {
+        val polylineFile = getPatternsFile(route.routeNumber)
         // 1. if doesn't exist, get from internet (merely a fallback to when a pattern isn't yet saved to disk)
         // 2. if off wifi, always get from disk
         // 3. if age is past 24 hours and there is wifi, retrieve from the internet
         // 4. otherwise,
         if (!polylineFile.exists()) {
-            return getPatternsFromInternet(rt)
+            return getPatternsFromInternet(route)
         }
         if (!wifiChecker.isWifiOn()) {
-            return getPatternsFromDisk(rt)
+            return getPatternsFromDisk(route.routeNumber)
         }
         val polylineAge = polylineFile.lastModified()
         val getNowDate = System.currentTimeMillis()
         return if (getNowDate - polylineAge >= maxFileAge) {
-            getPatternsFromInternet(rt)
+            getPatternsFromInternet(route)
         } else {
-            getPatternsFromDisk(rt)
+            getPatternsFromDisk(route.routeNumber)
                 .concatMap { ptrList ->
-                    when {
-                        ptrList.size == 0 -> getPatternsFromInternet(rt)
+                    when (ptrList?.size) {
+                        0 -> getPatternsFromInternet(route)
                         else -> Flowable.just(ptrList)
                     }
                 }
@@ -77,21 +78,24 @@ class PatternDataManager(dataDirectory: File,
     }
 
     // TODO: remove this warning suppression when ViewModel has fixed
-    @Suppress("RedundantVisibilityModifier", "RedundantLambdaArrow")
-    public fun getPatternsFromInternet(rt: String): Flowable<List<Ptr>> {
-        return patApiClient.getPatterns(rt)
+    @Suppress("RedundantVisibilityModifier")
+    public fun getPatternsFromInternet(route: BusRoute): Flowable<List<Ptr>> {
+        println("whats updog -> $route")
+        return patApiClient.getPatterns(route.routeNumber, route.routeDatafeed)
                 .map(PatternResponse::patternResponse)
                 .map { bustimePatternResponse ->
                     try {
-                        val patterns = bustimePatternResponse!!.ptr // TODO: FIX
-                        val patternsFile = getPatternsFile(rt)
+                        println("oh hello!")
+                        val patterns = bustimePatternResponse.ptr // TODO: FIX
+                        val patternsFile = getPatternsFile(route.routeNumber)
                         saveAsJson(patterns, patternsFile)
                         patterns
                     } catch (e: IOException) {
+                        println("OH NOOO")
                         throw Exceptions.propagate(e)
                     }
                 }
-                .onErrorResumeNext { _: Throwable -> getPatternsFromDisk(rt) }
+                .onErrorResumeNext { _: Throwable -> getPatternsFromDisk(route.routeNumber) }
 //                .onErrorResumeNext(t -> return getPatternsFromDisk(rt))
     }
 

@@ -77,9 +77,9 @@ class PatternDataManagerTest {
         // endregion setup
 
         //region verify
-        Mockito.verify(patapi, Mockito.times(1)).getPatterns(PatApiMock.testRoute1)
+        Mockito.verify(patapi, Mockito.times(1)).getPatterns(PatApiMock.testRoute1.routeNumber, PatApiMock.testRoute1.routeDatafeed)
         Mockito.verify(patternDataManager, Mockito.times(1)).getPatternsFromInternet(PatApiMock.testRoute1)
-        Mockito.verify(patternDataManager, Mockito.times(1)).getPatternsFromDisk(PatApiMock.testRoute1)
+        Mockito.verify(patternDataManager, Mockito.times(1)).getPatternsFromDisk(PatApiMock.testRoute1.routeNumber)
         //endregion verify
 
         //region assert
@@ -118,9 +118,9 @@ class PatternDataManagerTest {
         // endregion setup
 
         //region verify
-        Mockito.verify(patapi, Mockito.times(1)).getPatterns(PatApiMock.testRoute1)
+        Mockito.verify(patapi, Mockito.times(1)).getPatterns(PatApiMock.testRoute1.routeName, PatApiMock.testRoute1.routeDatafeed)
         Mockito.verify(patternDataManager, Mockito.times(0)).getPatternsFromInternet(PatApiMock.testRoute1)
-        Mockito.verify(patternDataManager, Mockito.times(2)).getPatternsFromDisk(PatApiMock.testRoute1)
+        Mockito.verify(patternDataManager, Mockito.times(2)).getPatternsFromDisk(PatApiMock.testRoute1.routeNumber)
         //endregion verify
 
         //region assert
@@ -154,10 +154,10 @@ class PatternDataManagerTest {
         //endregion setup
 
         //region verify
-        Mockito.verify(patapi, Mockito.times(2)).getPatterns(PatApiMock.testRoute1)
+        Mockito.verify(patapi, Mockito.times(2)).getPatterns(PatApiMock.testRoute1.routeNumber, PatApiMock.testRoute1.routeDatafeed)
         Mockito.verify(staticData, Mockito.times(0)).getInputStreamForFileName(filename)
         Mockito.verify(patternDataManager, Mockito.times(2)).getPatternsFromInternet(PatApiMock.testRoute1)
-        Mockito.verify(patternDataManager, Mockito.times(0)).getPatternsFromDisk(PatApiMock.testRoute1)
+        Mockito.verify(patternDataManager, Mockito.times(0)).getPatternsFromDisk(PatApiMock.testRoute1.routeNumber)
 
         //endregion verify
 

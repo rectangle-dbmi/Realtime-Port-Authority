@@ -52,7 +52,7 @@ class PatternViewModel(service: PatApiService,
                             .fromIterable(patternSelection.patterns)
                             .flatMapSingle { patterns: Ptr ->
                                 Flowable
-                                        .fromIterable(patterns.getPt())
+                                        .fromIterable(patterns.pt)
                                         .map { pt: Pt -> LatLng(pt.lat, pt.lon) }
                                         .toList()
                             }
@@ -125,7 +125,7 @@ class PatternViewModel(service: PatApiService,
         get() = patternSelections
                 ?.flatMap { patternSelection: PatternSelection ->
                     Flowable.fromIterable(patternSelection.patterns)
-                            .flatMapIterable { obj: Ptr -> obj.getPt() }
+                            .flatMapIterable { obj: Ptr -> obj.pt }
                             .filter { 'S' == it.typ }
                             .toList()
                             .map { pts: List<Pt>? ->

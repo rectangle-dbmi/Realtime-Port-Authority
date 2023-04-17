@@ -1,8 +1,7 @@
 package com.rectanglel.patstatic.patterns.response
 
-import java.util.ArrayList
-import javax.annotation.Generated
 import com.google.gson.annotations.Expose
+import javax.annotation.Generated
 
 /**
  * Bustime pattern for patterns
@@ -11,12 +10,8 @@ import com.google.gson.annotations.Expose
  * @since 46
  */
 @Generated("org.jsonschema2pojo")
-class BustimePatternResponse {
+data class BustimePatternResponse(
 
     @Expose
-    var ptr: List<Ptr> = ArrayList()
-
-    @Expose
-    var error: List<Error> = ArrayList()
-
-}
+    val ptr: List<Ptr>
+)

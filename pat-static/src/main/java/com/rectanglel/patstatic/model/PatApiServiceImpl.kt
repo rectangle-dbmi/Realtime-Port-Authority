@@ -15,6 +15,7 @@ import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
@@ -52,8 +53,8 @@ class PatApiServiceImpl(apiKey: String,
         routesDataManager = RoutesDataManager(dataDirectory, patApiClient, staticData)
     }
 
-    override fun getPatterns(rt: String): Flowable<List<Ptr>> {
-        return patternDataManager.getPatterns(rt)
+    override fun getPatterns(route: BusRoute): Flowable<List<Ptr>> {
+        return patternDataManager.getPatterns(route)
                 .compose(applySchedulers())
     }
 
@@ -111,6 +112,10 @@ class PatApiServiceImpl(apiKey: String,
                     .setDateFormat(Constants.DATE_FORMAT_PARSE)
                     .create()
 
+            val logInterceptor = HttpLoggingInterceptor {
+                println(it)
+            }
+            logInterceptor.level = HttpLoggingInterceptor.Level.BODY
             val okHttpClient = OkHttpClient.Builder()
                     .connectTimeout(5, TimeUnit.SECONDS)
                     .readTimeout(5, TimeUnit.SECONDS)
@@ -127,8 +132,10 @@ class PatApiServiceImpl(apiKey: String,
                                 .url(url)
 
                         val request = requestBuilder.build()
+                        println("url: ${request.url}")
                         chain.proceed(request)
                     }
+                    .addInterceptor(logInterceptor)
                     .build()
             // build the restadapter
             val retrofit = Retrofit.Builder()

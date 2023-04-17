@@ -26,7 +26,7 @@ interface PatApiService {
 
     fun getStopPredictions(stpid: Int, rts: Collection<String>): Single<List<Prd>>
 
-    fun getPatterns(rt: String): Flowable<List<Ptr>>
+    fun getPatterns(route: BusRoute): Flowable<List<Ptr>>
 
     fun getStops(rt: String): Flowable<List<Pt>>
 }

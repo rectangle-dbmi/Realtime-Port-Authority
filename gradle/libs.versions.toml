@@ -72,6 +72,7 @@ rx-network = { module = "com.github.pwittchen:reactivenetwork-rx2", version.ref 
 
 square-leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "square-leakcanary" }
 square-okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "square-okhttp" }
+square-okhttp-logginginterceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "square-okhttp" }
 square-retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "square-retrofit" }
 square-retrofit-adapter = { module = "com.squareup.retrofit2:adapter-rxjava2", version.ref = "square-retrofit" }
 square-retrofit-converter = { module = "com.squareup.retrofit2:converter-gson", version.ref = "square-retrofit" }
@@ -101,7 +102,8 @@ restcalls = [
     "square-okhttp",
     "square-retrofit",
     "square-retrofit-converter",
-    "square-retrofit-adapter"
+    "square-retrofit-adapter",
+    "square-okhttp-logginginterceptor"
 ]
 
 testing = [

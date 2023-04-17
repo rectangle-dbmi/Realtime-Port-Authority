@@ -3,7 +3,6 @@ package com.rectanglel.patstatic.buildutils
 import com.rectanglel.patstatic.model.PatApiService
 import com.rectanglel.patstatic.model.PatApiServiceImpl
 import com.rectanglel.patstatic.routes.BusRoute
-import io.reactivex.Flowable
 import io.reactivex.Observable
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -38,14 +37,12 @@ class TrueTimeDataCacher(apiKey: String, private val cacheDirectory: File) {
                 .zipWith(Observable.interval(0, 5, TimeUnit.SECONDS)
                 ) { stuff, _: Long -> stuff }
                 .flatMapIterable { it }
-                .map(BusRoute::routeNumber)
-                .flatMap { routeNumber: String ->
+                .flatMap { route: BusRoute ->
                     patApiService
-                            .getPatterns(routeNumber)
-                            .onErrorResumeNext(Flowable.empty())
+                            .getPatterns(route)
                             .toObservable()
-                            .doOnNext { println(String.format("Saving route number: %s", routeNumber)) }
-                }.toFuture().get()
+                            .doOnNext { println(String.format("Saving route number: %s", route.toString())) }
+                }.blockingSubscribe()
     }
 
     companion object {

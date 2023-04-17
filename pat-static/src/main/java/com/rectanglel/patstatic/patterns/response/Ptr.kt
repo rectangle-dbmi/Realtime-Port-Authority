@@ -3,6 +3,7 @@ package com.rectanglel.patstatic.patterns.response
 import java.util.ArrayList
 import javax.annotation.Generated
 import com.google.gson.annotations.Expose
+import com.google.gson.annotations.SerializedName
 
 /**
  * Whole pattern Retrofit POJO that contains all its points
@@ -18,21 +19,22 @@ data class Ptr (
     @Expose
     val ln: Double = 0.toDouble(),
     @Expose
-    private val rtdir: String? = null,
-    @Expose
-    private val pt: List<Pt>? = ArrayList(),
+    val rtdir: String,
+    @SerializedName("pt")
+    val pt: List<Pt>? = ArrayList(),
     @Expose
     val msg: String? = null
 
     ){
 
 
-    fun getPt(): List<Pt>? {
-        if (rtdir != null && pt != null) {
-            for (p in pt) {
-                p.rtdir = rtdir
-            }
-        }
-        return pt
-    }
+//    val pt: List<Pt>?
+//        get() {
+//            if (rtdir != null && points != null) {
+//                for (p in points) {
+//                    p.rtdir = rtdir
+//                }
+//            }
+//            return points
+//        }
 }
