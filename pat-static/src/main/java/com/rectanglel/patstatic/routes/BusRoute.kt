@@ -11,17 +11,17 @@ import com.google.gson.annotations.SerializedName
  */
 data class BusRoute (
     @SerializedName("rt")
-    val routeNumber: String,
+    val number: String,
 
     @SerializedName("rtnm")
-    val routeName: String,
+    val name: String,
 
     @SerializedName("rtclr")
-    val routeColor: String,
+    val color: String,
 
     @SerializedName("rtdd")
-    val routeDesignator: String,
+    val designator: String,
 
     @SerializedName("rtpidatafeed")
-    val routeDatafeed: String
+    val datafeed: String
 )

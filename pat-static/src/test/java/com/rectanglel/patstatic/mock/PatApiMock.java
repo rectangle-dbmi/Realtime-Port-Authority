@@ -71,7 +71,7 @@ public class PatApiMock {
     }
 
     private static void setupMock(RetrofitPatApi patapi) {
-        when(patapi.getPatterns(testRoute1.getRouteNumber(), testRoute1.getRouteDatafeed()))
+        when(patapi.getPatterns(testRoute1.getNumber(), testRoute1.getDatafeed()))
                 .thenReturn(Flowable.just(patternResponse));
     }
 }

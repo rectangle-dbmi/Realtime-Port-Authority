@@ -27,7 +27,7 @@ class TrueTimeDataCacher(apiKey: String, private val cacheDirectory: File) {
                 .flatMap { routes: List<BusRoute> ->
                     Observable.fromIterable(routes)
                             .skipWhile { route: BusRoute ->
-                                val routeNumber = route.routeNumber
+                                val routeNumber = route.number
                                 File(cacheDirectory, "lineinfo/$routeNumber.json").exists()
                             }
                             .zipWith(Observable.interval(0, 500, TimeUnit.MILLISECONDS)

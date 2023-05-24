@@ -38,7 +38,7 @@ class PatternDataManager(dataDirectory: File,
         "lineinfo") {
 
     fun getPatterns(route: BusRoute): Flowable<List<Ptr>> {
-        val polylineFile = getPatternsFile(route.routeNumber)
+        val polylineFile = getPatternsFile(route.number)
         // 1. if doesn't exist, get from internet (merely a fallback to when a pattern isn't yet saved to disk)
         // 2. if off wifi, always get from disk
         // 3. if age is past 24 hours and there is wifi, retrieve from the internet
@@ -47,14 +47,14 @@ class PatternDataManager(dataDirectory: File,
             return getPatternsFromInternet(route)
         }
         if (!wifiChecker.isWifiOn()) {
-            return getPatternsFromDisk(route.routeNumber)
+            return getPatternsFromDisk(route.number)
         }
         val polylineAge = polylineFile.lastModified()
         val getNowDate = System.currentTimeMillis()
         return if (getNowDate - polylineAge >= maxFileAge) {
             getPatternsFromInternet(route)
         } else {
-            getPatternsFromDisk(route.routeNumber)
+            getPatternsFromDisk(route.number)
                 .concatMap { ptrList ->
                     when (ptrList?.size) {
                         0 -> getPatternsFromInternet(route)
@@ -81,13 +81,13 @@ class PatternDataManager(dataDirectory: File,
     @Suppress("RedundantVisibilityModifier")
     public fun getPatternsFromInternet(route: BusRoute): Flowable<List<Ptr>> {
         println("whats updog -> $route")
-        return patApiClient.getPatterns(route.routeNumber, route.routeDatafeed)
+        return patApiClient.getPatterns(route.number, route.datafeed)
                 .map(PatternResponse::patternResponse)
                 .map { bustimePatternResponse ->
                     try {
                         println("oh hello!")
                         val patterns = bustimePatternResponse.ptr // TODO: FIX
-                        val patternsFile = getPatternsFile(route.routeNumber)
+                        val patternsFile = getPatternsFile(route.number)
                         saveAsJson(patterns, patternsFile)
                         patterns
                     } catch (e: IOException) {
@@ -95,7 +95,7 @@ class PatternDataManager(dataDirectory: File,
                         throw Exceptions.propagate(e)
                     }
                 }
-                .onErrorResumeNext { _: Throwable -> getPatternsFromDisk(route.routeNumber) }
+                .onErrorResumeNext { _: Throwable -> getPatternsFromDisk(route.number) }
 //                .onErrorResumeNext(t -> return getPatternsFromDisk(rt))
     }
 

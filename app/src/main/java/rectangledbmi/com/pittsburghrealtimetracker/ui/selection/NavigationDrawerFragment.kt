@@ -16,6 +16,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import com.rectanglel.patstatic.routes.BusRoute
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.subjects.PublishSubject
@@ -262,9 +263,9 @@ class NavigationDrawerFragment : Fragment() {
         route?.let { rt ->
             rt.isSelected = isSelected == true
             if (isSelected == true) {
-                selectedRoutes?.add(rt.route)
+                selectedRoutes?.add(rt.transitRoute.number)
             } else {
-                selectedRoutes?.remove(rt.route)
+                selectedRoutes?.remove(rt.transitRoute.number)
             }
             routeSelectionPublishSubject?.onNext(RouteSelection(Route(rt), selectedRoutes))
         }
@@ -302,11 +303,12 @@ class NavigationDrawerFragment : Fragment() {
             routeMap = HashMap(numbers.size)
             var currentRoute: Route
             for (i in numbers.indices) {
-                currentRoute = Route(numbers[i], descriptions[i], colors[i], i, false)
+                // hardcoded blah is very temp!
+                currentRoute = Route(BusRoute(numbers[i], descriptions[i], colors[i], numbers[i], "Port Authority Bus"), i, false)
                 routes[i] = currentRoute
-                routeMap[currentRoute.route] = currentRoute
+                routeMap[currentRoute.transitRoute.number] = currentRoute
                 if (currentRoute.isSelected) {
-                    Timber.w("Should not be true: %s", currentRoute.route)
+                    Timber.w("Should not be true: %s", currentRoute.transitRoute.number)
                 }
             }
             return routes
@@ -346,7 +348,7 @@ class NavigationDrawerFragment : Fragment() {
         }
 
         override fun getItemId(position: Int): Long {
-            return routes[position]?.route.hashCode().toLong()
+            return routes[position]?.transitRoute.hashCode().toLong()
         }
 
         inner class BusRouteHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
@@ -365,16 +367,16 @@ class NavigationDrawerFragment : Fragment() {
 
             private fun generateIcon() {
                 mRoute?.let {mRoute ->
-                    routeIcon.setBackgroundColor(mRoute.routeColor)
-                    routeIcon.text = mRoute.route
-                    routeIcon.setTextColor(if (isLight(mRoute.routeColor)) Color.BLACK else Color.WHITE)
+                    routeIcon.setBackgroundColor(mRoute.color)
+                    routeIcon.text = mRoute.transitRoute.color
+                    routeIcon.setTextColor(if (isLight(mRoute.color)) Color.BLACK else Color.WHITE)
                 }
             }
 
             fun bindBusRoute(busRoute: Route) {
                 mRoute = busRoute
                 mRoute?.let{mRoute ->
-                    routeDescription.text = busRoute.routeInfo
+                    routeDescription.text = busRoute.transitRoute.name
                     generateIcon()
                     itemView.isActivated = mRoute.isSelected
                 }
