@@ -1,5 +1,6 @@
 package rectangledbmi.com.pittsburghrealtimetracker.patterns
 
+import android.graphics.Color
 import com.google.android.gms.maps.model.LatLng
 import com.rectanglel.patstatic.patterns.polylines.PolylineView
 import com.rectanglel.patstatic.patterns.response.Ptr
@@ -64,10 +65,14 @@ data class PatternSelection
          *
          * @return the route's color
          */
-        val routeColor: Int) {
+        val color: String) {
     /**
      * [com.google.android.gms.maps.model.Polyline] creation needs a list of latlngs to create.
      * A route has a list of patterns per outbound and inbound route.
      */
     var latLngs: List<List<LatLng>>? = null
+
+    val routeColor by lazy {
+        Color.parseColor(color)
+    }
 }

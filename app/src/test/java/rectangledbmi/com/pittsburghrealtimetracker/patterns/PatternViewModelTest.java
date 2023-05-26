@@ -34,7 +34,7 @@ public class PatternViewModelTest {
     private Disposable polylinePresenterSubscription;
     private TestSubscriber<PatternSelection> patternSelectionTestSubscriber;
     private PatApiService patapiMock;
-    private static BehaviorSubject<Route> subject = BehaviorSubject.create();
+    private static final BehaviorSubject<Route> subject = BehaviorSubject.create();
 
     @Before
     public void setUp() {
@@ -72,7 +72,7 @@ public class PatternViewModelTest {
     public void testGetPolylineObservable() {
         Route firstRouteSelection = getSelectedRouteSelection();
         subject.onNext(firstRouteSelection);
-        verify(patapiMock).getPatterns(PatApiMock.testRoute1);
+        verify(patapiMock).getPatterns(PatApiMock.getTestRoute1());
         noErrorsAndNotCompleted(patternSelectionTestSubscriber);
 
         subject.onNext(firstRouteSelection);
@@ -81,7 +81,7 @@ public class PatternViewModelTest {
         for (PatternSelection patternSelection : patternSelectionTestSubscriber.values()) {
             assertEquals(PatApiMock.getPatterns(), patternSelection.getPatterns());
             assertEquals(firstRouteSelection.isSelected(), patternSelection.isSelected());
-            assertEquals(firstRouteSelection.getRoute(), patternSelection.getRouteNumber());
+            assertEquals(firstRouteSelection.getTransitRoute().getNumber(), patternSelection.getRouteNumber());
         }
 
         Route unselectedSelection = getUnselectedRouteSelection();
@@ -90,7 +90,7 @@ public class PatternViewModelTest {
         List<PatternSelection> onNextEvents = patternSelectionTestSubscriber.values();
         PatternSelection unselectedOnNextEvent = onNextEvents.get(onNextEvents.size() - 1);
         assertFalse(unselectedOnNextEvent.isSelected());
-        assertEquals(unselectedSelection.getRoute(), unselectedOnNextEvent.getRouteNumber());
+        assertEquals(unselectedSelection.getTransitRoute().getNumber(), unselectedOnNextEvent.getRouteNumber());
     }
 
 }

@@ -158,7 +158,7 @@ class PatternViewModel(service: PatApiService,
                                         patterns,
                                         isSelected,
                                         transitRoute.number,
-                                        color
+                                        colorAsString
                                     )
                                 }
                         }
