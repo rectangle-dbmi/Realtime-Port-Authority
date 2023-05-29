@@ -11,10 +11,8 @@ import com.google.gson.annotations.SerializedName
  * @since 46
  */
 @Generated("org.jsonschema2pojo")
-class PatternResponse {
-
+data class PatternResponse(
     @SerializedName("bustime-response")
     @Expose
-    var patternResponse: BustimePatternResponse? = null
-
-}
+    val patternResponse: BustimePatternResponse
+)

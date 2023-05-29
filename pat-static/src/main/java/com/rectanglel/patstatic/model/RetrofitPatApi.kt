@@ -30,8 +30,8 @@ interface RetrofitPatApi {
      * generates a response for patters
      * @param rt - the route
      */
-    @GET("getpatterns?format=json&rtpidatafeed=Port%20Authority%20Bus")
-    fun getPatterns(@Query("rt") rt: String): Flowable<PatternResponse>
+    @GET("getpatterns?format=json")
+    fun getPatterns(@Query("rt") rt: String, @Query("rtpidatafeed") rtpidatafeed: String): Flowable<PatternResponse>
 
     /**
      * Generates a response to get vehicles

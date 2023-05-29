@@ -1,6 +1,6 @@
 package com.rectanglel.patstatic.routes
 
-import com.google.gson.annotations.Expose
+import com.google.gson.annotations.SerializedName
 
 /**
  * TrueTime representation of bus routes
@@ -10,15 +10,18 @@ import com.google.gson.annotations.Expose
  * @author Jeremy Jao
  */
 data class BusRoute (
-    @Expose
-    val routeNumber: String? = null,
+    @SerializedName("rt")
+    val number: String,
 
-    @Expose
-    val routeName: String? = null,
+    @SerializedName("rtnm")
+    val name: String,
 
-    @Expose
-    val routeColor: String? = null,
+    @SerializedName("rtclr")
+    val color: String,
 
-    @Expose
-    val routeDd: String? = null
+    @SerializedName("rtdd")
+    val designator: String,
+
+    @SerializedName("rtpidatafeed")
+    val datafeed: String
 )

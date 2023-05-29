@@ -38,8 +38,8 @@ ext {
              * must define PAT_API_KEY in gradle.properties by adding pat_api=<KEY>
              */
             truetime: [
-                    debug: "\"${System.getenv("PAT_API_DEBUG") ?: secretProperties['pat_api_debug']}\"" ?: '"Define Port Authority TrueTime API Key in secrets.properties#pat_api_debug"',
-                    release: "\"${System.getenv("PAT_API_RELEASE") ?: secretProperties['pat_api']}\"" ?: '"Define Port Authority TrueTime API Key in secrets.properties#pat_api"'
+                    debug: System.getenv("PAT_API_DEBUG") ?: secretProperties['pat_api_debug'] ?: 'Define Port Authority TrueTime API Key in secrets.properties#pat_api_debug',
+                    release: System.getenv("PAT_API_RELEASE") ?: secretProperties['pat_api'] ?: 'Define Port Authority TrueTime API Key in secrets.properties#pat_api'
             ]
     ]
 

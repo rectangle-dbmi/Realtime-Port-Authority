@@ -77,9 +77,9 @@ class PatternDataManagerTest {
         // endregion setup
 
         //region verify
-        Mockito.verify(patapi, Mockito.times(1)).getPatterns(PatApiMock.testRoute1)
+        Mockito.verify(patapi, Mockito.times(1)).getPatterns(PatApiMock.testRoute1.number, PatApiMock.testRoute1.datafeed)
         Mockito.verify(patternDataManager, Mockito.times(1)).getPatternsFromInternet(PatApiMock.testRoute1)
-        Mockito.verify(patternDataManager, Mockito.times(1)).getPatternsFromDisk(PatApiMock.testRoute1)
+        Mockito.verify(patternDataManager, Mockito.times(1)).getPatternsFromDisk(PatApiMock.testRoute1.number)
         //endregion verify
 
         //region assert
@@ -118,9 +118,9 @@ class PatternDataManagerTest {
         // endregion setup
 
         //region verify
-        Mockito.verify(patapi, Mockito.times(1)).getPatterns(PatApiMock.testRoute1)
+        Mockito.verify(patapi, Mockito.times(1)).getPatterns(PatApiMock.testRoute1.number, PatApiMock.testRoute1.datafeed)
         Mockito.verify(patternDataManager, Mockito.times(0)).getPatternsFromInternet(PatApiMock.testRoute1)
-        Mockito.verify(patternDataManager, Mockito.times(2)).getPatternsFromDisk(PatApiMock.testRoute1)
+        Mockito.verify(patternDataManager, Mockito.times(2)).getPatternsFromDisk(PatApiMock.testRoute1.number)
         //endregion verify
 
         //region assert
@@ -141,7 +141,7 @@ class PatternDataManagerTest {
         val ts1 = TestSubscriber<List<Ptr>>()
         val ts2 = TestSubscriber<List<Ptr>>()
 
-        val filename = "lineinfo/${PatApiMock.testRoute1}.json"
+        val filename = "lineinfo/${PatApiMock.testRoute1.number}.json"
         val file = File(getTestFilesFolder(), filename)
         // jeremy.... RIP backticks for when because kotlin has
         // a keyword called when that replaces switch cases
@@ -154,10 +154,10 @@ class PatternDataManagerTest {
         //endregion setup
 
         //region verify
-        Mockito.verify(patapi, Mockito.times(2)).getPatterns(PatApiMock.testRoute1)
+        Mockito.verify(patapi, Mockito.times(2)).getPatterns(PatApiMock.testRoute1.number, PatApiMock.testRoute1.datafeed)
         Mockito.verify(staticData, Mockito.times(0)).getInputStreamForFileName(filename)
         Mockito.verify(patternDataManager, Mockito.times(2)).getPatternsFromInternet(PatApiMock.testRoute1)
-        Mockito.verify(patternDataManager, Mockito.times(0)).getPatternsFromDisk(PatApiMock.testRoute1)
+        Mockito.verify(patternDataManager, Mockito.times(0)).getPatternsFromDisk(PatApiMock.testRoute1.number)
 
         //endregion verify
 

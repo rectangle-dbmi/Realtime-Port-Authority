@@ -1,6 +1,5 @@
 package rectangledbmi.com.pittsburghrealtimetracker.patterns
 
-import android.annotation.SuppressLint
 import com.google.android.gms.maps.model.LatLng
 import com.rectanglel.patstatic.model.PatApiService
 import com.rectanglel.patstatic.patterns.response.Pt
@@ -52,7 +51,7 @@ class PatternViewModel(service: PatApiService,
                             .fromIterable(patternSelection.patterns)
                             .flatMapSingle { patterns: Ptr ->
                                 Flowable
-                                        .fromIterable(patterns.getPt())
+                                        .fromIterable(patterns.pt)
                                         .map { pt: Pt -> LatLng(pt.lat, pt.lon) }
                                         .toList()
                             }
@@ -119,59 +118,53 @@ class PatternViewModel(service: PatApiService,
      * Creates a [Flowable] of a selection
      * @return the stop selection state
      */
-    @Suppress("UNCHECKED_CAST")
-    @get:SuppressLint("UseSparseArrays")
     private val stopSelectionState: Flowable<EitherStopState>?
         get() = patternSelections
                 ?.flatMap { patternSelection: PatternSelection ->
                     Flowable.fromIterable(patternSelection.patterns)
-                            .flatMapIterable { obj: Ptr -> obj.getPt() }
+                            .flatMapIterable { obj: Ptr -> obj.pt }
                             .filter { 'S' == it.typ }
                             .toList()
-                            .map { pts: List<Pt>? ->
-                                StopSelection(pts.orEmpty(),
+                            .map { pts: List<Pt> ->
+                                StopSelection(pts,
                                         patternSelection.routeNumber,
                                         patternSelection.isSelected)
                             }
                             .toFlowable()
-                }?.scan(FullStopSelectionState(mutableMapOf()), { accumulator: EitherStopState, routeStops: StopSelection ->
-                    val current = (accumulator as FullStopSelectionState).stopRenderStateMap.toMutableMap()
-                    for (pt in routeStops.stopPts) {
-                        val stpid = pt.stpid
-                        val currentState = current.getOrPut(pt.stpid) {StopRenderState(pt, 0)}
-                        if (routeStops.isSelected) {
-                            current[stpid] = currentState.copy(routeCount = currentState.routeCount + 1)
-                        }
-                        else {
-                            current[stpid] = currentState.copy(routeCount = currentState.routeCount - 1)
-                        }
+                }?.scan(FullStopSelectionState(mutableMapOf())) { accumulator: EitherStopState, routeStops: StopSelection ->
+                val current =
+                    (accumulator as FullStopSelectionState).stopRenderStateMap.toMutableMap()
+                for (pt in routeStops.stopPts) {
+                    val stpid = pt.stpid
+                    val currentState = current.getOrPut(pt.stpid) { StopRenderState(pt, 0) }
+                    if (routeStops.isSelected) {
+                        current[stpid] = currentState.copy(routeCount = currentState.routeCount + 1)
+                    } else {
+                        current[stpid] = currentState.copy(routeCount = currentState.routeCount - 1)
                     }
-                    FullStopSelectionState(stopRenderStateMap = current)
-                })
+                }
+                FullStopSelectionState(stopRenderStateMap = current)
+            }
 
     companion object {
         private fun createPatternSelection(service: PatApiService,
                                            selectionFlowable: Flowable<Route>?): Flowable<PatternSelection>? {
-            if (selectionFlowable == null) {
-                Timber.i("Selection flowable is null. Returning null.")
-                return null
-            }
-            return selectionFlowable
-                    .flatMap { route: Route ->
-                        Timber.d("Getting patternSelections: %s", route.route)
-                        return@flatMap route.route?.let { rt ->
-                            service.getPatterns(rt)
-                                    .map { patterns: List<Ptr?>? ->
-                                        PatternSelection(
-                                                patterns,
-                                                route.isSelected,
-                                                rt,
-                                                route.routeColor)
-                                    }
+            return selectionFlowable?.flatMap { route: Route ->
+                        route.run {
+                            Timber.d("Getting patternSelections: %s", transitRoute)
+                            service.getPatterns(transitRoute)
+                                .map { patterns: List<Ptr> ->
+                                    PatternSelection(
+                                        patterns,
+                                        isSelected,
+                                        transitRoute.number,
+                                        colorAsString
+                                    )
+                                }
                         }
                     }
-                    .retry()
-                    .share()
+                    ?.retry()
+                    ?.share()
         }
 
         /**

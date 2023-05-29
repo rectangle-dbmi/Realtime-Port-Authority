@@ -18,12 +18,12 @@ android {
     buildTypes {
 
         debug {
-            buildConfigField 'String', 'PAT_API_KEY', keys.truetime.debug // variable defined in `../build.gradle`
+            buildConfigField 'String', 'PAT_API_KEY', "\"${keys.truetime.debug}\"" // variable defined in `../build.gradle`
             minifyEnabled false
             resValue "string", "google_maps_key", keys.google.maps.debug // variable defined in `../build.gradle`
         }
         release {
-            buildConfigField 'String', 'PAT_API_KEY', keys.truetime.release // variable defined in `../build.gradle`
+            buildConfigField 'String', 'PAT_API_KEY', "\"${keys.truetime.release}\"" // variable defined in `../build.gradle`
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             resValue "string", "google_maps_key", keys.google.maps.release // variable defined in `../build.gradle`

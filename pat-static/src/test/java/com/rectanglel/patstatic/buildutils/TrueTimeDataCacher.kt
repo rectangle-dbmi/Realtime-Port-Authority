@@ -3,7 +3,6 @@ package com.rectanglel.patstatic.buildutils
 import com.rectanglel.patstatic.model.PatApiService
 import com.rectanglel.patstatic.model.PatApiServiceImpl
 import com.rectanglel.patstatic.routes.BusRoute
-import io.reactivex.Flowable
 import io.reactivex.Observable
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -25,27 +24,25 @@ class TrueTimeDataCacher(apiKey: String, private val cacheDirectory: File) {
     fun cacheAllRoutes() {
         patApiService.routes
                 .toObservable()
-                .flatMap { routes: List<BusRoute>? ->
+                .flatMap { routes: List<BusRoute> ->
                     Observable.fromIterable(routes)
                             .skipWhile { route: BusRoute ->
-                                val routeNumber = route.routeNumber
-                                File(cacheDirectory, String.format("lineinfo/%s.json", routeNumber)).exists()
+                                val routeNumber = route.number
+                                File(cacheDirectory, "lineinfo/$routeNumber.json").exists()
                             }
                             .zipWith(Observable.interval(0, 500, TimeUnit.MILLISECONDS)
-                            ) { stuff: BusRoute?, _: Long? -> stuff!! }
+                            ) { stuff: BusRoute, _: Long -> stuff }
                 }
                 .buffer(8)
                 .zipWith(Observable.interval(0, 5, TimeUnit.SECONDS)
-                ) { stuff, _: Long? -> stuff!! }
-            .flatMapIterable { routes1 -> routes1 }
-                .map(BusRoute::routeNumber)
-                .flatMap { routeNumber: String? ->
+                ) { stuff, _: Long -> stuff }
+                .flatMapIterable { it }
+                .flatMap { route: BusRoute ->
                     patApiService
-                            .getPatterns(routeNumber!!)
-                            .onErrorResumeNext(Flowable.empty())
+                            .getPatterns(route)
                             .toObservable()
-                            .doOnNext { println(String.format("Saving route number: %s", routeNumber)) }
-                }
+                            .doOnNext { println(String.format("Saving route number: %s", route.toString())) }
+                }.blockingSubscribe()
     }
 
     companion object {
@@ -59,8 +56,7 @@ class TrueTimeDataCacher(apiKey: String, private val cacheDirectory: File) {
     }
 
     init {
-        patApiService =
-            PatApiServiceImpl(apiKey, cacheDirectory, StubStaticData(), StubWifiDataChecker())
+        patApiService = PatApiServiceImpl(apiKey, cacheDirectory, StubStaticData(), StubWifiDataChecker())
     }
 
 }

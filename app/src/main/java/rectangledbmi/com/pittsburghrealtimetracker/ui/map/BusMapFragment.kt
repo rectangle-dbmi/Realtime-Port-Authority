@@ -539,10 +539,10 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
                 ?.subscribeOn(Schedulers.io())
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.flatMap { route: Route ->
-                    return@flatMap route.route?.let { rt ->
+                    return@flatMap route.transitRoute.number.let { rt ->
                         Timber.d("removing all %s's", rt)
                         Flowable.fromIterable<Map.Entry<Int, Marker>>(busMarkers?.entries)
-                                .filter { busMarker: Map.Entry<Int, Marker> -> busMarker.value.title?.contains(rt) ?: false }
+                            .filter { busMarker: Map.Entry<Int, Marker> -> busMarker.value.title?.contains(rt) ?: false }
                     }
                 }
                 ?.subscribeWith(object : DisposableSubscriber<Map.Entry<Int?, Marker?>?>() {
@@ -707,8 +707,8 @@ class BusMapFragment : SelectionFragment(), ConnectionCallbacks, OnConnectionFai
             val busicon = Bitmap.createBitmap(busIcon.width, busIcon.height, busIcon.config)
             val canvas = Canvas(busicon)
             val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-            route?.route?.let { rt ->
-                paint.colorFilter = PorterDuffColorFilter(route.routeColor, PorterDuff.Mode.MULTIPLY)
+            route?.transitRoute?.number?.let { rt ->
+                paint.colorFilter = PorterDuffColorFilter(route.color, PorterDuff.Mode.MULTIPLY)
                 canvas.drawBitmap(busIcon, 0f, 0f, paint)
                 drawText(canvas, busIcon, resources.displayMetrics.density, rt, route.colorAsString)
             }

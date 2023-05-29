@@ -43,7 +43,10 @@ abstract class AbstractDataManager<out T>(dataDirectory: File,
      * @throws IOException if the serialization fails
      */
     @Throws(IOException::class)
-    protected fun saveAsJson(obj: Any, file: File) {
+    protected fun saveAsJson(obj: Any?, file: File) {
+        if (obj == null) {
+            return
+        }
         writeLock.lock()
         val fileWriter = FileWriter(file)
         val writer = JsonWriter(fileWriter)

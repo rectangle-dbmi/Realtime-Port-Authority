@@ -12,6 +12,6 @@ import timber.log.Timber
 data class RouteSelection(val toggledRoute: Route, val selectedRoutes: Set<String?>?) {
 
     init {
-        Timber.d("getting routes: %s, %s", toggledRoute.route, selectedRoutes.toString())
+        Timber.d("getting routes: %s, %s", toggledRoute.transitRoute.number, selectedRoutes.toString())
     }
 }
