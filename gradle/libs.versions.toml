@@ -30,7 +30,7 @@ jakewharton-timber = "5.0.1"
 javax-annotations = "10.0-b28"
 
 junit = "4.13.2"
-mockito = "4.5.1"
+mockito = "5.4.0"
 
 rx-android = "2.1.1"
 rx-java = "2.2.21"
