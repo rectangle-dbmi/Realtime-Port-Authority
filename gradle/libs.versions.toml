@@ -38,7 +38,7 @@ rx-network = "3.0.8"
 
 square-leakcanary = "2.13"
 square-retrofit = "2.7.2"
-square-okhttp = "4.11.0"
+square-okhttp = "4.12.0"
 
 [libraries]
 android-desugarer = { module = "com.android.tools:desugar_jdk_libs_nio", version.ref = "android-desugarer" }
