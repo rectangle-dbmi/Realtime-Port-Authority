@@ -23,7 +23,7 @@ benManes-versions = "0.50.0"
 google-material = "1.8.0"
 google-play-location = "18.0.0"
 google-play-maps = "18.1.0"
-google-play-places = "3.0.0"
+google-play-places = "3.3.0"
 
 jakewharton-timber = "5.0.1"
 
