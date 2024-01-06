@@ -7,7 +7,7 @@
 # Tools -> Kotlin -> Configure Kotlin Updates
 kotlin = "1.8.20"
 
-android-desugarer = "2.0.3"
+android-desugarer = "2.0.4"
 android-plugin = "8.0.1"
 
 androidx-appcompat = "1.6.1"
