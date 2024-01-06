@@ -16,6 +16,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       - name: Submit Gradle Dependencies
-        uses: mikepenz/gradle-dependency-submission@v0.8.6
+        uses: mikepenz/gradle-dependency-submission@v0.9.1
         with:
           gradle-build-module: ":app"
