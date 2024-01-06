@@ -15,5 +15,7 @@ updates:
       interval: "daily"
   - package-ecosystem: "github-actions" # See documentation for possible values
     directory: "/" # Location of package manifests
+    registries:
+      - maven-google
     schedule:
       interval: "daily"
