@@ -11,11 +11,12 @@ registries:
 updates:
   - package-ecosystem: "gradle" # See documentation for possible values
     directory: "/" # Location of package manifests
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "github-actions" # See documentation for possible values
-    directory: "/" # Location of package manifests
     registries:
       - maven-google
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 20
+  - package-ecosystem: "github-actions" # See documentation for possible values
+    directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
