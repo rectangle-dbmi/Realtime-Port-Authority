@@ -36,7 +36,7 @@ rx-android = "2.1.1"
 rx-java = "2.2.21"
 rx-network = "3.0.8"
 
-square-leakcanary = "2.10"
+square-leakcanary = "2.13"
 square-retrofit = "2.7.2"
 square-okhttp = "4.11.0"
 
